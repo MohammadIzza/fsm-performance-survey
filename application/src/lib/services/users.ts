@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { writeAudit } from "@/lib/services/audit";
 import { ServiceError } from "@/lib/services/units";
 import type { AuthContext } from "@/lib/authz";
+import { kodeUnikDariNama, samakanNama } from "@/lib/kode-otomatis";
 
 export interface UserInput {
   loginIdentifier: string;
@@ -18,10 +19,15 @@ function normalizeIdentifier(id: string): string {
 }
 
 async function createUserTypeImpl(input: { code: string; name: string }, actor: AuthContext) {
-  const code = input.code.trim().toUpperCase();
   const name = input.name.trim();
-  if (!code) throw new ServiceError("Kode jenis pengguna wajib diisi.");
   if (!name) throw new ServiceError("Nama jenis pengguna wajib diisi.");
+  const semua = await prisma.userType.findMany({ select: { name: true } });
+  if (semua.some((t) => samakanNama(t.name) === samakanNama(name))) {
+    throw new ServiceError(`Jenis pengguna "${name}" sudah ada.`);
+  }
+  const code =
+    input.code.trim().toUpperCase() ||
+    (await kodeUnikDariNama(name, async (k) => !!(await prisma.userType.findUnique({ where: { code: k } }))));
 
   const existing = await prisma.userType.findUnique({ where: { code } });
   if (existing) throw new ServiceError("Kode jenis pengguna sudah dipakai.");

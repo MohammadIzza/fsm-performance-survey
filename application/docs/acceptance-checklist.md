@@ -10,7 +10,7 @@ Jalankan bukti sendiri sebelum mempercayai baris manapun di sini:
 ```bash
 cd application && npx tsc --noEmit && npm run test:all
 ```
-Terakhir dijalankan 13 September 2026: 254/254 assertion lulus di 7 skrip (`test-services`, `test-tahap2`..`test-tahap7`).
+Terakhir dijalankan 16 September 2026: 261/261 assertion lulus di 7 skrip (`test-services`, `test-tahap2`..`test-tahap7`).
 
 Untuk bukti UI browser sungguhan (UC-01/02/03/06/07/10, lihat bagian "UC-01..10" di bawah):
 ```bash
@@ -99,7 +99,7 @@ npx playwright test   # target default: http://127.0.0.1:3931, lihat playwright.
 | EDGE-21 | ✅ (diuji sesi ini) | `test-tahap6.ts` "EDGE-21..." — nilai berawalan `=`/`+`/`-`/`@` disimpan APA ADANYA saat impor (tidak dievaluasi), dan `safeCell()` (diekspor dari `exports.ts` khusus untuk diuji) menandainya dengan prefiks kutip saat ditulis ke berkas ekspor baru — satu-satunya titik yang benar-benar dibuka lagi di Excel. |
 | EDGE-22 | ✅ | Lihat AC-29. |
 | EDGE-23 | ✅ (diuji sesi ini) | `test-tahap3.ts` "EDGE-23" — pratinjau diambil (fingerprint dicatat), `GroupRule` diubah, lalu `commitPlan` dengan fingerprint LAMA ditolak eksplisit ("Calon atau konfigurasi berubah..."), berbeda dari EDGE-12/Bab 10.6 yang menguji seed sama tanpa perubahan config. |
-| EDGE-24 | ✅ (diuji sesi ini) | `test-tahap6.ts` "EDGE-24" — dua baris `kode_unit` SAMA (dan terpisah, dua baris `id_login` sama) dalam SATU berkas impor: pratinjau menandai "duplikat dalam berkas ini", `applyImport` menolak seluruh batch, tidak ada baris yang tersimpan. |
+| EDGE-24 | ✅ (diuji sesi ini) | `test-tahap6.ts` "EDGE-24" — dua baris unit SAMA (dan terpisah, dua baris `id_login` sama) dalam SATU berkas impor: pratinjau menandai "duplikat dalam berkas ini", `applyImport` menolak seluruh batch, tidak ada baris yang tersimpan. |
 | EDGE-25 | ✅ | `test-tahap7.ts`. |
 | EDGE-26 | ✅ (diuji sesi ini) | `test-tahap5.ts` "EDGE-26" — metode TOTAL pada 2 objek dengan jumlah respons berbeda (3 vs 1): `responseCount` benar per objek, skor masing-masing dihitung dari respons objeknya sendiri (252 vs 50), tidak tercampur/dinormalisasi ke n yang sama. |
 | EDGE-28 | ✅ (diuji sesi ini) | `test-tahap5.ts` "EDGE-28" — satu pimpinan diberi jabatan KEDUA di unit tak berkerabat: `leadershipUnitIds` berisi kedua unit tanpa duplikasi, `scopeUnitIds` adalah gabungan kedua subtree tanpa ID ganda. |

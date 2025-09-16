@@ -4,6 +4,7 @@ import { writeAudit } from "@/lib/services/audit";
 import { ServiceError } from "@/lib/services/units";
 import type { AuthContext } from "@/lib/authz";
 import type { AccessMode, PeriodStatus } from "@/generated/prisma/enums";
+import { kodeUnikDariNama } from "@/lib/kode-otomatis";
 
 export interface PeriodInput {
   code: string;
@@ -55,12 +56,14 @@ export async function getPeriodDetail(periodId: string) {
   });
 }
 
-// Bab 7.1: kode & nama wajib; tenggat harus setelah mulai (dicek ulang saat "Siap", Bab 7.3).
+// Bab 7.1: nama wajib, kode unik dibuat dari nama bila tidak diberikan; tenggat harus setelah mulai (dicek ulang saat "Siap", Bab 7.3).
 async function createPeriodImpl(input: PeriodInput, actor: AuthContext) {
-  const code = input.code.trim();
   const name = input.name.trim();
-  if (!code) throw new ServiceError("Kode periode wajib diisi.");
   if (!name) throw new ServiceError("Nama periode wajib diisi.");
+  // Kode dibuat dari nama bila tidak diberikan (formulir admin hanya meminta nama).
+  const code =
+    input.code.trim() ||
+    (await kodeUnikDariNama(name, async (k) => !!(await prisma.period.findUnique({ where: { code: k } }))));
 
   const startsAt = parseDate("Tanggal mulai", input.startsAt);
   const endsAt = parseDate("Tenggat", input.endsAt);
@@ -113,9 +116,9 @@ async function updatePeriodSettingsImpl(
     throw new ServiceError("Pengaturan dasar hanya dapat diubah selama status Draf.");
   }
 
-  const code = input.code.trim();
+  // Kode tidak ikut berubah saat nama diganti; tanpa kode baru yang eksplisit, kode lama dipertahankan.
+  const code = input.code.trim() || before.code;
   const name = input.name.trim();
-  if (!code) throw new ServiceError("Kode periode wajib diisi.");
   if (!name) throw new ServiceError("Nama periode wajib diisi.");
 
   const startsAt = parseDate("Tanggal mulai", input.startsAt);
@@ -366,10 +369,11 @@ async function copyPeriodImpl(
   });
   if (!source) throw new ServiceError("Periode sumber tidak ditemukan.");
 
-  const code = input.code.trim();
   const name = input.name.trim();
-  if (!code) throw new ServiceError("Kode periode baru wajib diisi.");
   if (!name) throw new ServiceError("Nama periode baru wajib diisi.");
+  const code =
+    input.code.trim() ||
+    (await kodeUnikDariNama(name, async (k) => !!(await prisma.period.findUnique({ where: { code: k } }))));
 
   const startsAt = parseDate("Tanggal mulai", input.startsAt);
   const endsAt = parseDate("Tenggat", input.endsAt);

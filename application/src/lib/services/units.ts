@@ -2,6 +2,7 @@ import { atomic } from "@/lib/prisma";
 import { prisma } from "@/lib/prisma";
 import { writeAudit } from "@/lib/services/audit";
 import type { AuthContext } from "@/lib/authz";
+import { kodeUnikDariNama, samakanNama } from "@/lib/kode-otomatis";
 
 export class ServiceError extends Error {}
 
@@ -55,11 +56,25 @@ export async function listUnitsWithMeta() {
   }));
 }
 
+/**
+ * Unit dikenali dari namanya — di layar maupun di berkas impor — sejak kode tidak lagi ditampilkan,
+ * jadi dua unit tidak boleh bernama sama.
+ */
+async function assertNamaUnitBelumDipakai(name: string, kecualiId: string | null) {
+  const target = samakanNama(name);
+  const semua = await prisma.unit.findMany({ select: { id: true, name: true } });
+  if (semua.some((u) => u.id !== kecualiId && samakanNama(u.name) === target)) {
+    throw new ServiceError(`Nama unit "${name}" sudah dipakai unit lain.`);
+  }
+}
+
 async function createUnitImpl(input: UnitInput, actor: AuthContext) {
-  const code = normalizeCode(input.code);
   const name = input.name.trim();
-  if (!code) throw new ServiceError("Kode unit wajib diisi.");
   if (!name) throw new ServiceError("Nama unit wajib diisi.");
+  await assertNamaUnitBelumDipakai(name, null);
+  const code =
+    normalizeCode(input.code) ||
+    (await kodeUnikDariNama(name, async (k) => !!(await prisma.unit.findUnique({ where: { code: k } }))));
 
   if (input.parentId) {
     const parent = await prisma.unit.findUnique({ where: { id: input.parentId } });
@@ -95,10 +110,10 @@ async function updateUnitImpl(
   const before = await prisma.unit.findUnique({ where: { id: unitId } });
   if (!before) throw new ServiceError("Unit tidak ditemukan.");
 
-  const code = normalizeCode(input.code);
+  const code = normalizeCode(input.code) || before.code;
   const name = input.name.trim();
-  if (!code) throw new ServiceError("Kode unit wajib diisi.");
   if (!name) throw new ServiceError("Nama unit wajib diisi.");
+  await assertNamaUnitBelumDipakai(name, unitId);
 
   if (input.parentId) {
     const parent = await prisma.unit.findUnique({ where: { id: input.parentId } });

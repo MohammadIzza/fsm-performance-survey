@@ -1,7 +1,7 @@
 import "dotenv/config";
 import ExcelJS from "exceljs";
 import { prisma } from "../src/lib/prisma";
-import { ServiceError } from "../src/lib/services/units";
+import { ServiceError, createUnit, updateUnit } from "../src/lib/services/units";
 import { createPeriod, transitionPeriodStatus } from "../src/lib/services/periods";
 import { createCategory, addCategoryObjects } from "../src/lib/services/categories";
 import { addParameter } from "../src/lib/services/instruments";
@@ -207,7 +207,7 @@ async function main() {
     ["kode_unit", "nama_unit", "kode_induk", "status"],
     [
       ["PS-VALID-T6", "Prodi Valid", "DEP-MAT", "aktif"],
-      ["", "Tanpa Kode", "", "aktif"], // baris invalid
+      ["PS-TANPA-NAMA-T6", "", "", "aktif"], // baris invalid: nama_unit kosong
     ]
   );
   await expectServiceError("Batch dengan 1 baris invalid ditolak seluruhnya", () =>
@@ -221,6 +221,48 @@ async function main() {
   const createdUnit = await prisma.unit.findUnique({ where: { code: "PS-IMPOR-T6" } });
   ok("Unit baru benar-benar tersimpan di database", createdUnit?.name === "Prodi Uji Impor");
 
+  console.log("== Impor Unit berbasis nama (template tanpa kode) ==");
+  const byNameBuf = await buildXlsxBuffer(
+    ["nama_unit", "nama_induk", "status"],
+    [
+      ["Laboratorium Uji Nama T6", "Departemen Matematika", "aktif"],
+      ["Sublab Uji Nama T6", "Laboratorium Uji Nama T6", "aktif"], // induk dari baris lain dalam berkas
+    ]
+  );
+  const byNamePreview = await previewUnitImport(byNameBuf);
+  ok("Pratinjau impor unit berbasis nama: 0 error, 2 unit baru", byNamePreview.errors.length === 0 && byNamePreview.toCreate === 2);
+  await applyImport("UNIT", byNameBuf, "unit-nama.xlsx", adminActor);
+  const labByName = await prisma.unit.findFirst({ where: { name: "Laboratorium Uji Nama T6" }, include: { parent: true } });
+  const sublabByName = await prisma.unit.findFirst({ where: { name: "Sublab Uji Nama T6" }, include: { parent: true } });
+  ok(
+    "Unit berbasis nama tersimpan dengan kode otomatis dan induk yang benar",
+    labByName?.code === "LABORATORIUM-UJI-NAMA-T6" &&
+      labByName.parent?.code === "DEP-MAT" &&
+      sublabByName?.parent?.id === labByName.id
+  );
+  const unknownParentByNameBuf = await buildXlsxBuffer(
+    ["nama_unit", "nama_induk", "status"],
+    [["Unit Yatim T6", "Induk Yang Tidak Ada T6", "aktif"]]
+  );
+  ok(
+    "nama_induk tidak dikenal ditolak",
+    (await previewUnitImport(unknownParentByNameBuf)).errors.some((e) => e.message.includes("nama_induk"))
+  );
+
+  console.log("== Kode otomatis dari nama ==");
+  const autoA = await createUnit({ code: "", name: "Unit Kode Otomatis T6", parentId: null }, adminActor);
+  ok("Unit tanpa kode mendapat kode dari namanya", autoA.code === "UNIT-KODE-OTOMATIS-T6");
+  await expectServiceError("Nama unit yang sama (beda huruf besar) ditolak", () =>
+    createUnit({ code: "", name: "unit kode otomatis t6", parentId: null }, adminActor)
+  );
+  const renamed = await updateUnit(autoA.id, { code: "", name: "Unit Kode Otomatis Diganti T6", parentId: null }, adminActor);
+  ok("Mengganti nama tidak mengubah kode yang sudah ada", renamed.code === "UNIT-KODE-OTOMATIS-T6");
+  // Kode bentrok diberi akhiran: unit dengan kode = kode yang akan dibangkitkan sudah ada.
+  const bentrok = await createUnit({ code: "UNIT-BENTROK-T6", name: "Nama Lain T6", parentId: null }, adminActor);
+  const autoB = await createUnit({ code: "", name: "Unit Bentrok T6", parentId: null }, adminActor);
+  ok("Kode otomatis yang sudah dipakai diberi akhiran -2", autoB.code === "UNIT-BENTROK-T6-2");
+  await prisma.unit.deleteMany({ where: { id: { in: [autoA.id, bentrok.id, autoB.id] } } });
+
   console.log("== EDGE-24: dua baris kode SAMA dalam SATU berkas impor ditolak ==");
   const duplicateInFileBuf = await buildXlsxBuffer(
     ["kode_unit", "nama_unit", "kode_induk", "status"],
@@ -232,7 +274,7 @@ async function main() {
   const duplicateInFilePreview = await previewUnitImport(duplicateInFileBuf);
   ok(
     'Pratinjau menandai baris kedua sebagai duplikat "dalam berkas ini" (bukan hanya duplikat vs data lama)',
-    duplicateInFilePreview.errors.some((e) => e.message.includes(`"PS-DUP-T6" duplikat dalam berkas ini`))
+    duplicateInFilePreview.errors.some((e) => e.message.includes("duplikat dalam berkas ini"))
   );
   await expectServiceError("Impor dengan kode duplikat dalam satu berkas ditolak seluruhnya (all-or-nothing)", () =>
     applyImport("UNIT", duplicateInFileBuf, "duplicate-in-file.xlsx", adminActor)
@@ -394,6 +436,9 @@ async function main() {
   await prisma.period.deleteMany({ where: { id: { in: periodIds } } });
   await prisma.assessmentObject.deleteMany({ where: { id: obj.id } });
   await prisma.user.deleteMany({ where: { loginIdentifier: { in: ["09991", "09992"] } } });
+  // Anak lebih dulu, baru induknya (kunci asing parentId).
+  await prisma.unit.deleteMany({ where: { name: "Sublab Uji Nama T6" } });
+  await prisma.unit.deleteMany({ where: { name: { in: ["Laboratorium Uji Nama T6", "Unit Kode Otomatis Diganti T6", "Unit Kode Otomatis T6", "Unit Bentrok T6", "Nama Lain T6"] } } });
   await prisma.unit.deleteMany({ where: { code: { in: ["PS-IMPOR-T6", "PS-VALID-T6", "PS-FORMULA-T6"] } } });
   await prisma.importBatch.deleteMany({ where: { fileName: { in: ["mixed.xlsx", "unit-ok.xlsx", "unit-formula.xlsx", "user-ok.xlsx", "leadership-ok.xlsx"] } } });
   console.log("Selesai.");

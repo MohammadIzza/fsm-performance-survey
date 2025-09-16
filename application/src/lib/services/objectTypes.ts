@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { writeAudit } from "@/lib/services/audit";
 import { ServiceError } from "@/lib/services/units";
 import type { AuthContext } from "@/lib/authz";
+import { kodeUnikDariNama, samakanNama } from "@/lib/kode-otomatis";
 
 export async function listObjectTypes() {
   return prisma.objectType.findMany({ orderBy: [{ active: "desc" }, { name: "asc" }] });
@@ -10,10 +11,15 @@ export async function listObjectTypes() {
 
 // Bab 8.1: "Jenis baru dapat dibuat admin dengan metadata dasar."
 async function createObjectTypeImpl(input: { code: string; name: string }, actor: AuthContext) {
-  const code = input.code.trim().toUpperCase();
   const name = input.name.trim();
-  if (!code) throw new ServiceError("Kode jenis objek wajib diisi.");
   if (!name) throw new ServiceError("Nama jenis objek wajib diisi.");
+  const semua = await prisma.objectType.findMany({ select: { name: true } });
+  if (semua.some((t) => samakanNama(t.name) === samakanNama(name))) {
+    throw new ServiceError(`Jenis objek "${name}" sudah ada.`);
+  }
+  const code =
+    input.code.trim().toUpperCase() ||
+    (await kodeUnikDariNama(name, async (k) => !!(await prisma.objectType.findUnique({ where: { code: k } }))));
 
   const existing = await prisma.objectType.findUnique({ where: { code } });
   if (existing) throw new ServiceError("Kode jenis objek sudah dipakai.");

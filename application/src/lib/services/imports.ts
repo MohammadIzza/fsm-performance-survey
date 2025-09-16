@@ -5,6 +5,7 @@ import { writeAudit } from "@/lib/services/audit";
 import { ServiceError } from "@/lib/services/units";
 import type { AuthContext } from "@/lib/authz";
 import type { ImportEntity } from "@/generated/prisma/enums";
+import { kodeUnikDariNama, samakanNama } from "@/lib/kode-otomatis";
 
 export interface RowError {
   row: number;
@@ -66,9 +67,53 @@ async function readSheetRows(buffer: ArrayBuffer): Promise<{ headers: string[]; 
   return { headers, rows };
 }
 
-const UNIT_TEMPLATE = ["kode_unit", "nama_unit", "kode_induk", "status"];
-const USER_TEMPLATE = ["id_login", "nama", "kode_jenis", "kode_unit", "status"];
-const LEADERSHIP_TEMPLATE = ["id_login", "kode_unit", "nama_jabatan", "mulai_aktif", "akhir_aktif"];
+// Template memakai NAMA unit dan jenis, karena kode tidak ditampilkan di aplikasi. Berkas lama yang
+// masih memakai kolom kode (kode_unit, kode_induk, kode_jenis) tetap diterima: kolom kode diutamakan
+// bila terisi, lalu nama dicocokkan ke kodenya sebelum validasi dan penerapan berjalan seperti biasa.
+const UNIT_TEMPLATE = ["nama_unit", "nama_induk", "status"];
+const USER_TEMPLATE = ["id_login", "nama", "jenis", "unit", "status"];
+const LEADERSHIP_TEMPLATE = ["id_login", "unit", "nama_jabatan", "mulai_aktif", "akhir_aktif"];
+
+type RujukanNama = { code: string; name: string };
+
+/** Peta nama (disamakan) → kode. Nama yang dipakai lebih dari satu data dicatat sebagai ambigu. */
+function petaNama(data: RujukanNama[]) {
+  const peta = new Map<string, string>();
+  const ganda = new Set<string>();
+  for (const d of data) {
+    const k = samakanNama(d.name);
+    if (peta.has(k) && peta.get(k) !== d.code) ganda.add(k);
+    peta.set(k, d.code);
+  }
+  return { peta, ganda };
+}
+
+/**
+ * Mengisi kolom kode dari kolom nama: `kolomKode` dipertahankan bila terisi; bila kosong dan
+ * `kolomNama` terisi, nama dicocokkan ke data yang ada. Nama yang tidak dikenal atau ambigu
+ * dilaporkan dengan nomor baris dan kodenya dibiarkan kosong.
+ */
+function isiKodeDariNama(
+  rows: Record<string, string>[],
+  kolomKode: string,
+  kolomNama: string,
+  label: string,
+  data: RujukanNama[],
+  errors: RowError[]
+) {
+  const { peta, ganda } = petaNama(data);
+  rows.forEach((row, i) => {
+    if (row[kolomKode] || !row[kolomNama]) return;
+    const k = samakanNama(row[kolomNama]);
+    if (ganda.has(k)) {
+      errors.push({ row: i + 2, message: `${label} "${row[kolomNama]}" dipakai lebih dari satu data.` });
+    } else if (peta.has(k)) {
+      row[kolomKode] = peta.get(k)!;
+    } else {
+      errors.push({ row: i + 2, message: `${label} "${row[kolomNama]}" tidak dikenal.` });
+    }
+  });
+}
 
 export function buildTemplateWorkbook(entity: ImportEntity): ExcelJS.Workbook {
   const workbook = new ExcelJS.Workbook();
@@ -88,8 +133,34 @@ export async function previewUnitImport(buffer: ArrayBuffer): Promise<ImportPrev
   const errors: RowError[] = [];
   const seenCodes = new Set<string>();
 
-  const existingUnits = await prisma.unit.findMany({ select: { id: true, code: true, parentId: true } });
+  const existingUnits = await prisma.unit.findMany({ select: { id: true, code: true, name: true, parentId: true } });
   const existingByCode = new Map(existingUnits.map((u) => [u.code, u]));
+
+  // Baris tanpa kode_unit dikenali dari nama_unit: unit yang sudah ada dengan nama itu diperbarui,
+  // selain itu unit baru dibuat dengan kode dari namanya.
+  const namaKeKode = petaNama(existingUnits).peta;
+  const kodeTerpakai = new Set(existingUnits.map((u) => u.code));
+  const namaBatch = new Map<string, string>();
+  for (const row of rows) {
+    if (row.kode_unit || !row.nama_unit) continue;
+    const k = samakanNama(row.nama_unit);
+    const kode =
+      namaKeKode.get(k) ??
+      namaBatch.get(k) ??
+      (await kodeUnikDariNama(row.nama_unit, (c) => kodeTerpakai.has(c)));
+    kodeTerpakai.add(kode);
+    // Nama yang sama dua kali dalam berkas memakai kode yang sama, lalu tertangkap sebagai duplikat.
+    if (!namaBatch.has(k)) namaBatch.set(k, kode);
+    row.kode_unit = kode;
+  }
+  // nama_induk boleh merujuk unit yang ada atau unit lain dalam berkas yang sama.
+  rows.forEach((row, i) => {
+    if (row.kode_induk || !row.nama_induk) return;
+    const k = samakanNama(row.nama_induk);
+    const kode = namaBatch.get(k) ?? namaKeKode.get(k);
+    if (kode) row.kode_induk = kode;
+    else errors.push({ row: i + 2, message: `nama_induk "${row.nama_induk}" tidak dikenal.` });
+  });
 
   // Graf gabungan (existing + batch) untuk deteksi siklus lintas file.
   const parentByCode = new Map<string, string | null>();
@@ -105,18 +176,18 @@ export async function previewUnitImport(buffer: ArrayBuffer): Promise<ImportPrev
     const parentCode = row.kode_induk || null;
     const status = (row.status || "aktif").toLowerCase();
 
-    if (!code) errors.push({ row: rowNum, message: "kode_unit wajib diisi." });
+    if (!code && name) errors.push({ row: rowNum, message: "nama_unit wajib diisi." });
     if (!name) errors.push({ row: rowNum, message: "nama_unit wajib diisi." });
     if (status !== "aktif" && status !== "nonaktif") {
       errors.push({ row: rowNum, message: 'status harus "aktif" atau "nonaktif".' });
     }
     if (code) {
       if (seenCodes.has(code)) {
-        errors.push({ row: rowNum, message: `kode_unit "${code}" duplikat dalam berkas ini.` });
+        errors.push({ row: rowNum, message: `Unit "${name || code}" duplikat dalam berkas ini.` });
       }
       seenCodes.add(code);
       if (parentCode === code) {
-        errors.push({ row: rowNum, message: "kode_induk tidak boleh sama dengan kode_unit sendiri." });
+        errors.push({ row: rowNum, message: "Induk unit tidak boleh unit itu sendiri." });
       }
       parentByCode.set(code, parentCode);
     }
@@ -133,7 +204,8 @@ export async function previewUnitImport(buffer: ArrayBuffer): Promise<ImportPrev
     while (current) {
       if (visited.has(current)) {
         const rowNum = rows.findIndex((r) => r.kode_unit === code) + 2;
-        errors.push({ row: rowNum, message: `Siklus hierarki terdeteksi melibatkan unit "${code}".` });
+        const nama = rows.find((r) => r.kode_unit === code)?.nama_unit || code;
+        errors.push({ row: rowNum, message: `Siklus hierarki terdeteksi melibatkan unit "${nama}".` });
         break;
       }
       visited.add(current);
@@ -154,9 +226,11 @@ export async function previewUserImport(buffer: ArrayBuffer): Promise<ImportPrev
 
   const [existingUsers, userTypes, units] = await Promise.all([
     prisma.user.findMany({ select: { loginIdentifier: true } }),
-    prisma.userType.findMany({ select: { code: true } }),
-    prisma.unit.findMany({ select: { code: true } }),
+    prisma.userType.findMany({ select: { code: true, name: true } }),
+    prisma.unit.findMany({ select: { code: true, name: true } }),
   ]);
+  isiKodeDariNama(rows, "kode_jenis", "jenis", "jenis", userTypes, errors);
+  isiKodeDariNama(rows, "kode_unit", "unit", "unit", units, errors);
   const existingIds = new Set(existingUsers.map((u) => u.loginIdentifier));
   const validTypeCodes = new Set(userTypes.map((t) => t.code));
   const validUnitCodes = new Set(units.map((u) => u.code));
@@ -171,7 +245,7 @@ export async function previewUserImport(buffer: ArrayBuffer): Promise<ImportPrev
 
     if (!id) errors.push({ row: rowNum, message: "id_login wajib diisi." });
     if (!name) errors.push({ row: rowNum, message: "nama wajib diisi." });
-    if (!typeCode) errors.push({ row: rowNum, message: "kode_jenis wajib diisi." });
+    if (!typeCode && !row.jenis) errors.push({ row: rowNum, message: "jenis wajib diisi." });
     else if (!validTypeCodes.has(typeCode)) errors.push({ row: rowNum, message: `kode_jenis "${typeCode}" tidak dikenal.` });
     if (unitCode && !validUnitCodes.has(unitCode)) errors.push({ row: rowNum, message: `kode_unit "${unitCode}" tidak dikenal.` });
     if (status !== "aktif" && status !== "nonaktif") {
@@ -195,8 +269,9 @@ export async function previewLeadershipImport(buffer: ArrayBuffer): Promise<Impo
 
   const [users, units] = await Promise.all([
     prisma.user.findMany({ select: { loginIdentifier: true, active: true } }),
-    prisma.unit.findMany({ select: { code: true } }),
+    prisma.unit.findMany({ select: { code: true, name: true } }),
   ]);
+  isiKodeDariNama(rows, "kode_unit", "unit", "unit", units, errors);
   const userByLogin = new Map(users.map((u) => [u.loginIdentifier, u]));
   const validUnitCodes = new Set(units.map((u) => u.code));
 
@@ -211,8 +286,8 @@ export async function previewLeadershipImport(buffer: ArrayBuffer): Promise<Impo
     else if (!userByLogin.has(id)) errors.push({ row: rowNum, message: `id_login "${id}" tidak dikenal.` });
     else if (!userByLogin.get(id)!.active) errors.push({ row: rowNum, message: `Pengguna "${id}" nonaktif, tidak dapat ditetapkan sebagai pimpinan.` });
 
-    if (!unitCode) errors.push({ row: rowNum, message: "kode_unit wajib diisi." });
-    else if (!validUnitCodes.has(unitCode)) errors.push({ row: rowNum, message: `kode_unit "${unitCode}" tidak dikenal.` });
+    if (!unitCode && !row.unit) errors.push({ row: rowNum, message: "unit wajib diisi." });
+    else if (unitCode && !validUnitCodes.has(unitCode)) errors.push({ row: rowNum, message: `unit "${unitCode}" tidak dikenal.` });
 
     if (!title) errors.push({ row: rowNum, message: "nama_jabatan wajib diisi." });
     if (!from || Number.isNaN(Date.parse(from))) {

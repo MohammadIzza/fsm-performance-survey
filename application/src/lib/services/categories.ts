@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { writeAudit } from "@/lib/services/audit";
 import { ServiceError } from "@/lib/services/units";
 import type { AuthContext } from "@/lib/authz";
+import { kodeUnikDariNama } from "@/lib/kode-otomatis";
 
 export interface CategoryInput {
   code: string;
@@ -29,10 +30,13 @@ async function createCategoryImpl(
 ) {
   await assertPeriodEditable(periodId);
 
-  const code = input.code.trim();
   const name = input.name.trim();
-  if (!code) throw new ServiceError("Kode kategori wajib diisi.");
   if (!name) throw new ServiceError("Nama kategori wajib diisi.");
+  const code =
+    input.code.trim() ||
+    (await kodeUnikDariNama(name, async (k) =>
+      !!(await prisma.category.findUnique({ where: { periodId_code: { periodId, code: k } } }))
+    ));
 
   const objectType = await prisma.objectType.findUnique({ where: { id: input.objectTypeId } });
   if (!objectType) throw new ServiceError("Jenis objek tidak ditemukan.");
@@ -94,9 +98,8 @@ async function updateCategoryImpl(
   if (!before) throw new ServiceError("Kategori tidak ditemukan.");
   await assertPeriodEditable(before.periodId);
 
-  const code = input.code.trim();
+  const code = input.code.trim() || before.code;
   const name = input.name.trim();
-  if (!code) throw new ServiceError("Kode kategori wajib diisi.");
   if (!name) throw new ServiceError("Nama kategori wajib diisi.");
 
   if (code !== before.code) {
