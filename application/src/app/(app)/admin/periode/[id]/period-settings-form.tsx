@@ -20,16 +20,10 @@ export function PeriodSettingsForm({ period }: { period: Period }) {
   return (
     <form action={formAction} className="grid gap-3">
       <input type="hidden" name="periodId" value={period.id} />
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="admin-tools__field">
-          <span>Kode periode</span>
-          <input name="code" defaultValue={period.code} disabled={!editable} required className={fieldClass} />
-        </label>
-        <label className="admin-tools__field">
-          <span>Nama periode</span>
-          <input name="name" defaultValue={period.name} disabled={!editable} required className={fieldClass} />
-        </label>
-      </div>
+      <label className="admin-tools__field">
+        <span>Nama periode</span>
+        <input name="name" defaultValue={period.name} disabled={!editable} required className={fieldClass} />
+      </label>
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="admin-tools__field">
           <span>Tanggal mulai</span>

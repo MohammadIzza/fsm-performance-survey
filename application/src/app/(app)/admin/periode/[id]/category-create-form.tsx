@@ -18,13 +18,9 @@ export function CategoryCreateForm({
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-4">
       <input type="hidden" name="periodId" value={periodId} />
-      <label className="admin-tools__field">
-        <span>Kode kategori</span>
-        <input name="code" placeholder="Kode (mis. KINERJA-DOSEN)" required className={fieldClass} />
-      </label>
-      <label className="admin-tools__field sm:col-span-2">
+      <label className="admin-tools__field sm:col-span-3">
         <span>Nama kategori</span>
-        <input name="name" placeholder="Nama kategori" required className={fieldClass} />
+        <input name="name" placeholder="mis. Dosen Favorit se-FSM" required className={fieldClass} />
       </label>
       <label className="admin-tools__field">
         <span>Yang akan dinilai</span>

@@ -4,7 +4,7 @@ import { getAuthContext } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { listMyAssignments, computeDisplayStatus } from "@/lib/services/responses";
 import { PageIntro, SummaryCard } from "@/components/theme/summary";
-import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
+import { DataList, DataRow, RowTitle } from "@/components/theme/data-list";
 
 export default async function HomePage() {
   const session = await getSession();
@@ -86,15 +86,11 @@ export default async function HomePage() {
         <DataList
             title="Unit dalam lingkup"
             intro="Unit yang hasilnya dapat Anda baca."
-            columns={[
-              ["title", "Unit"],
-              ["price", "Kode"],
-            ]}
+            columns={[["title", "Unit"]]}
           >
           {scopeUnits.map((u, i) => (
             <DataRow key={u.code} href="/hasil">
               <RowTitle>{u.name}</RowTitle>
-              <RowField kind="price" icon={false}>{u.code}</RowField>
             </DataRow>
           ))}
         </DataList>

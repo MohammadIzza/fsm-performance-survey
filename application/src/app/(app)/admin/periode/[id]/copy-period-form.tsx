@@ -16,11 +16,7 @@ export function CopyPeriodForm({ sourcePeriodId }: { sourcePeriodId: string }) {
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-4">
       <input type="hidden" name="sourcePeriodId" value={sourcePeriodId} />
-      <label className="admin-tools__field">
-        <span>Kode periode baru</span>
-        <input name="code" placeholder="mis. DIES-2027" required className={fieldClass} />
-      </label>
-      <label className="admin-tools__field sm:col-span-2">
+      <label className="admin-tools__field sm:col-span-3">
       <span>Nama periode baru</span>
       <input
         name="name"

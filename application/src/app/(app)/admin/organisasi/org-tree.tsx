@@ -59,7 +59,6 @@ function TreeNode({
         >
           {unit.name}
         </span>
-        <span className="font-mono app-text-xs text-[var(--muted-2)]">{unit.code}</span>
         {unit.currentLeaders.length > 0 && (
           <span className="whitespace-nowrap app-text-xs text-[var(--muted)]">
             {unit.currentLeaders.map((l) => l.user.name).join(", ")}

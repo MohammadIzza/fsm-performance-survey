@@ -89,7 +89,7 @@ export function UserManager({
             name="primaryUnitId"
             defaultValue=""
             kosong={{ label: "— Tanpa unit utama —", bisaDipilih: true }}
-            options={units.map((u) => ({ value: u.id, label: `${u.name} (${u.code})` }))}
+            options={units.map((u) => ({ value: u.id, label: u.name }))}
           />
           </label>
           <div className="sm:col-span-4">
@@ -114,10 +114,6 @@ export function UserManager({
           description="Daftar jenis yang dapat dipilih saat menambah pengguna."
         >
           <form action={typeFormAction} className="grid gap-3 sm:grid-cols-4">
-            <label className="admin-tools__field">
-              <span>Kode jenis</span>
-              <input name="code" placeholder="mis. LABORAN" required className="form__control" />
-            </label>
             <label className="admin-tools__field">
               <span>Nama jenis</span>
               <input name="name" placeholder="mis. Laboran" required className="form__control" />
@@ -211,7 +207,7 @@ function UserRow({
             {user.leaderships.map((l) => (
               <span key={l.id} className="sb__stack">
                 {l.title}
-                <span className="sb__subtitle">{l.unit.code}</span>
+                <span className="sb__subtitle">{l.unit.name}</span>
               </span>
             ))}
           </>
@@ -251,7 +247,7 @@ function UserRow({
                   {user.leaderships.map((leadership) => (
                     <span key={leadership.id} className="sb__stack">
                       {leadership.title}
-                      <span className="sb__subtitle">{leadership.unit.code}</span>
+                      <span className="sb__subtitle">{leadership.unit.name}</span>
                     </span>
                   ))}
                 </>
@@ -296,7 +292,7 @@ function UserRow({
                 name="primaryUnitId"
                 defaultValue={user.primaryUnitId ?? ""}
                 kosong={{ label: "— Tanpa unit utama —", bisaDipilih: true }}
-                options={units.map((u) => ({ value: u.id, label: `${u.name} (${u.code})` }))}
+                options={units.map((u) => ({ value: u.id, label: u.name }))}
               />
             </label>
             <div className="flex items-center gap-2 sm:col-span-4">

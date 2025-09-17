@@ -82,7 +82,7 @@ async function CategoryDetailPage({
       <Link href={`/admin/periode/${periodId}`} className="app-back">
         ← {category.period.name}
       </Link>
-      <PageIntro title={category.name} intro={`${category.code} · ${category.objectType.name}`}>
+      <PageIntro title={category.name} intro={`Menilai: ${category.objectType.name}`}>
         <SummaryCard tone="biru" label="Jenis objek" value={category.objectType.name} />
         <SummaryCard
           tone="kuning"

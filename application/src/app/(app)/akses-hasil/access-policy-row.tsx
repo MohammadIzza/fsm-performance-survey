@@ -73,7 +73,6 @@ export function AccessPolicyRow({
     >
       <RowTitle>
         {period.name}
-        <span className="sb__subtitle">{period.code}</span>
       </RowTitle>
       <RowField kind="duration" icon={false}>
         {policy ? modeLabel[policy.mode] ?? policy.mode : "Belum ditetapkan"}

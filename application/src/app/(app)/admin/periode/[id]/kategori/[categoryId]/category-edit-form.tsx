@@ -26,16 +26,10 @@ export function CategoryEditForm({
       <input type="hidden" name="periodId" value={periodId} />
       <input type="hidden" name="objectTypeId" value={category.objectTypeId} />
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="admin-tools__field">
-          <span>Kode kategori</span>
-          <input name="code" defaultValue={category.code} disabled={!editable} required className={fieldClass} />
-        </label>
-        <label className="admin-tools__field">
-          <span>Nama kategori</span>
-          <input name="name" defaultValue={category.name} disabled={!editable} required className={fieldClass} />
-        </label>
-      </div>
+      <label className="admin-tools__field">
+        <span>Nama kategori</span>
+        <input name="name" defaultValue={category.name} disabled={!editable} required className={fieldClass} />
+      </label>
       <label className="admin-tools__field">
         <span>Tujuan penilaian</span>
         <textarea

@@ -22,8 +22,8 @@ type ActiveUser = { id: string; name: string; loginIdentifier: string };
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", { day: "2-digit", month: "short", year: "numeric" });
 
-function unitLabel(u: { code: string; name: string }) {
-  return `${u.name} (${u.code})`;
+function unitLabel(u: { name: string }) {
+  return u.name;
 }
 
 export function UnitManager({
@@ -44,11 +44,7 @@ export function UnitManager({
           description="Menambah satu unit baru ke pohon organisasi."
         >
         <form action={createFormAction} className="admin-inline-form grid gap-3 sm:grid-cols-4">
-          <label className="admin-tools__field">
-            <span>Kode unit</span>
-            <input name="code" placeholder="mis. PS-INF" required className="form__control" />
-          </label>
-          <label className="admin-tools__field sm:col-span-2">
+          <label className="admin-tools__field sm:col-span-3">
             <span>Nama unit</span>
             <input name="name" placeholder="Nama unit" required className="form__control" />
           </label>
@@ -115,7 +111,6 @@ function UnitRow({
     <>
       <RowTitle>
         {unit.name}
-        <span className="sb__subtitle">{unit.code}</span>
       </RowTitle>
       <RowField kind="duration" icon={false} detail>
         {parent ? parent.name : "\u2014"}
@@ -151,7 +146,6 @@ function UnitRow({
       panel={
         <div className="admin-row-panel">
           <RowPanelDetails>
-            <RowPanelField label="Kode">{unit.code}</RowPanelField>
             <RowPanelField label="Induk">{parent ? parent.name : "—"}</RowPanelField>
             <RowPanelField label="Pimpinan aktif">
               {unit.currentLeaders.length === 0
@@ -174,11 +168,7 @@ function UnitRow({
           <h3 className="app-panel__label app-panel__label--tight">Ubah unit</h3>
           <form action={updateFormAction} className="admin-inline-form grid gap-3 sm:grid-cols-4">
             <input type="hidden" name="unitId" value={unit.id} />
-            <label className="admin-tools__field">
-              <span>Kode unit</span>
-              <input name="code" defaultValue={unit.code} required className="form__control" />
-            </label>
-            <label className="admin-tools__field sm:col-span-2">
+            <label className="admin-tools__field sm:col-span-3">
               <span>Nama unit</span>
               <input name="name" defaultValue={unit.name} required className="form__control" />
             </label>

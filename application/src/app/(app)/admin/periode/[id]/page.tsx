@@ -176,7 +176,7 @@ async function PeriodDetailPage({
     {
       title: "Periksa informasi periode",
       description: "Pastikan nama dan jadwal pelaksanaan sudah benar.",
-      note: `${period.code} · ${period.timezone}`,
+      note: `Zona waktu ${period.timezone}`,
       href: "#pengaturan-periode",
       state: stepState(0),
       content: (
@@ -396,7 +396,7 @@ async function PeriodDetailPage({
       <Link href="/admin/periode" className="app-back">
         ← Semua periode
       </Link>
-      <PageIntro title={period.name} intro={period.code}>
+      <PageIntro title={period.name} intro="Periode penilaian">
         <SummaryCard
           tone={statusTone[period.status as keyof typeof statusTone]}
           label="Status"

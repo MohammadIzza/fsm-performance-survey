@@ -80,10 +80,6 @@ export function ObjectManager({
         >
           <form action={typeFormAction} className="grid gap-3 sm:grid-cols-4">
             <label className="admin-tools__field">
-              <span>Kode jenis</span>
-              <input name="code" placeholder="mis. PRESTASI" required className="form__control" />
-            </label>
-            <label className="admin-tools__field">
               <span>Nama jenis</span>
               <input name="name" placeholder="mis. Prestasi" required className="form__control" />
             </label>
@@ -342,7 +338,7 @@ function ObjectForm({
         defaultValue={defaultValues?.referenceUnitId ?? ""}
         onChange={pilihUnitDinilai}
         kosong={{ label: "Unit yang dinilai…", bisaDipilih: false }}
-        options={units.map((u) => ({ value: u.id, label: `${u.name} (${u.code})` }))}
+        options={units.map((u) => ({ value: u.id, label: u.name }))}
       />
     </label>
   );
@@ -400,7 +396,7 @@ function ObjectForm({
         value={unitPemilik}
         onChange={setUnitPemilik}
         kosong={{ label: "Pilih unit pemilik…", bisaDipilih: false }}
-        options={units.map((u) => ({ value: u.id, label: `${u.name} (${u.code})` }))}
+        options={units.map((u) => ({ value: u.id, label: u.name }))}
       />
       </label>
 

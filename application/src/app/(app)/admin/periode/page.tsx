@@ -77,7 +77,6 @@ async function PeriodePage() {
             >
               <RowTitle>
                 {p.name}
-                <span className="sb__subtitle">{p.code}</span>
               </RowTitle>
               <RowField kind="dates">
                 <DateRange from={p.startsAt} to={p.endsAt} />
