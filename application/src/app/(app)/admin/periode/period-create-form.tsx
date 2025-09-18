@@ -11,13 +11,9 @@ export function PeriodCreateForm() {
 
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-4">
-      <label className="admin-tools__field sm:col-span-3">
+      <label className="admin-tools__field sm:col-span-4">
         <span>Nama periode</span>
         <input name="name" placeholder="mis. Dies Natalis FSM UNDIP 2026" required className={fieldClass} />
-      </label>
-      <label className="admin-tools__field">
-        <span>Zona waktu</span>
-        <input name="timezone" defaultValue="Asia/Jakarta" className={fieldClass} />
       </label>
       <label className="admin-tools__field">
         <span>Tanggal mulai</span>

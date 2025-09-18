@@ -35,10 +35,6 @@ export function PeriodSettingsForm({ period }: { period: Period }) {
         </label>
       </div>
       <label className="admin-tools__field">
-        <span>Zona waktu</span>
-        <input name="timezone" defaultValue={period.timezone} disabled={!editable} className={fieldClass} />
-      </label>
-      <label className="admin-tools__field">
         <span>Catatan periode</span>
         <textarea name="description" defaultValue={period.description ?? ""} disabled={!editable} rows={2} className={fieldClass} />
       </label>

@@ -176,7 +176,7 @@ async function PeriodDetailPage({
     {
       title: "Periksa informasi periode",
       description: "Pastikan nama dan jadwal pelaksanaan sudah benar.",
-      note: `Zona waktu ${period.timezone}`,
+      note: `Jadwal ${new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Jakarta" }).formatRange(period.startsAt, period.endsAt)}`,
       href: "#pengaturan-periode",
       state: stepState(0),
       content: (
@@ -406,7 +406,6 @@ async function PeriodDetailPage({
           tone="biru"
           label="Jadwal"
           value={<DateRange from={period.startsAt} to={period.endsAt} />}
-          note={period.timezone}
         />
         <SummaryCard
           tone="kuning"

@@ -22,7 +22,8 @@ function readPeriodInput(formData: FormData) {
     code: String(formData.get("code") ?? ""),
     name: String(formData.get("name") ?? ""),
     description: (formData.get("description") as string) || null,
-    timezone: String(formData.get("timezone") ?? "Asia/Jakarta"),
+    // Zona waktu tidak diisi di formulir: seluruh periode FSM memakai WIB (DEF-10).
+    timezone: "Asia/Jakarta",
     startsAt: String(formData.get("startsAt") ?? ""),
     endsAt: String(formData.get("endsAt") ?? ""),
   };
