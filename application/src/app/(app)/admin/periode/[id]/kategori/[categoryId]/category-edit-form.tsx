@@ -40,16 +40,21 @@ export function CategoryEditForm({
           className={fieldClass}
         />
       </label>
-      <label className="flex items-center gap-2 app-text-sm text-[var(--foreground)]">
-        <input
-          type="checkbox"
-          name="excludeContributors"
-          defaultChecked={category.excludeContributors}
-          disabled={!editable}
-          className="h-4 w-4"
-        />
-        Kecualikan pembuat karya sebagai penilai
-      </label>
+      {category.objectType.code === "KARYA" ? (
+        <label className="flex items-center gap-2 app-text-sm text-[var(--foreground)]">
+          <input
+            type="checkbox"
+            name="excludeContributors"
+            defaultChecked={category.excludeContributors}
+            disabled={!editable}
+            className="h-4 w-4"
+          />
+          Kecualikan pembuat karya sebagai penilai
+        </label>
+      ) : (
+        // Pilihan hanya untuk kategori Karya; kategori lain mempertahankan nilai yang tersimpan.
+        category.excludeContributors && <input type="hidden" name="excludeContributors" value="on" />
+      )}
 
       {editable ? (
         <div className="flex items-center gap-2">

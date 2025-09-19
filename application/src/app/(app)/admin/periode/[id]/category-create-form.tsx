@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { createCategoryAction } from "@/lib/actions/admin-categories";
 
 const fieldClass =
@@ -11,9 +11,12 @@ export function CategoryCreateForm({
   objectTypes,
 }: {
   periodId: string;
-  objectTypes: { id: string; name: string }[];
+  objectTypes: { id: string; code: string; name: string }[];
 }) {
   const [state, formAction, pending] = useActionState(createCategoryAction, {});
+  const [typeId, setTypeId] = useState("");
+  // Pembuat karya hanya ada pada objek jenis Karya, jadi pilihannya hanya ditampilkan di sana.
+  const isKarya = objectTypes.find((t) => t.id === typeId)?.code === "KARYA";
 
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-4">
@@ -24,7 +27,13 @@ export function CategoryCreateForm({
       </label>
       <label className="admin-tools__field">
         <span>Yang akan dinilai</span>
-        <select name="objectTypeId" required defaultValue="" className={fieldClass}>
+        <select
+          name="objectTypeId"
+          required
+          value={typeId}
+          onChange={(e) => setTypeId(e.target.value)}
+          className={fieldClass}
+        >
           <option value="" disabled>
             Pilih jenis objek…
           </option>
@@ -44,10 +53,15 @@ export function CategoryCreateForm({
           className={fieldClass}
         />
       </label>
-      <label className="flex items-center gap-2 app-text-sm text-[var(--foreground)]">
-        <input type="checkbox" name="excludeContributors" defaultChecked className="h-4 w-4" />
-        Kecualikan pembuat karya sebagai penilai
-      </label>
+      {isKarya ? (
+        <label className="flex items-center gap-2 app-text-sm text-[var(--foreground)]">
+          <input type="checkbox" name="excludeContributors" defaultChecked className="h-4 w-4" />
+          Kecualikan pembuat karya sebagai penilai
+        </label>
+      ) : (
+        // Jenis lain tetap menyimpan bawaan yang aman (dikecualikan), tanpa menampilkan pilihannya.
+        <input type="hidden" name="excludeContributors" value="on" />
+      )}
       <div className="flex items-center gap-2 sm:col-span-4">
         <button
           type="submit"
