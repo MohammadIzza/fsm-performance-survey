@@ -5,8 +5,24 @@ import { ServiceError } from "@/lib/services/units";
 import type { AuthContext } from "@/lib/authz";
 import { kodeUnikDariNama, samakanNama } from "@/lib/kode-otomatis";
 
-export async function listObjectTypes() {
-  return prisma.objectType.findMany({ orderBy: [{ active: "desc" }, { name: "asc" }] });
+/** Urutan jenis bawaan di setiap daftar pilihan; jenis tambahan menyusul menurut nama. */
+const URUTAN_JENIS = ["ORANG", "UNIT", "KARYA", "LAINNYA"];
+
+export function urutkanJenisObjek<T extends { code: string; name: string; active?: boolean }>(jenis: T[]): T[] {
+  const peringkat = (code: string) => {
+    const i = URUTAN_JENIS.indexOf(code);
+    return i === -1 ? URUTAN_JENIS.length : i;
+  };
+  return [...jenis].sort(
+    (a, b) =>
+      Number(b.active ?? true) - Number(a.active ?? true) ||
+      peringkat(a.code) - peringkat(b.code) ||
+      a.name.localeCompare(b.name, "id")
+  );
+}
+
+export async function listObjectTypes(where?: { active?: boolean }) {
+  return urutkanJenisObjek(await prisma.objectType.findMany({ where }));
 }
 
 // Bab 8.1: "Jenis baru dapat dibuat admin dengan metadata dasar."

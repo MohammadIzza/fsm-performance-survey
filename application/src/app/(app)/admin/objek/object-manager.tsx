@@ -254,9 +254,8 @@ function ObjectForm({
   onCancel?: () => void;
 }) {
   const [state, formAction, pending] = useActionState(action, {});
-  // Bawaannya Orang, bukan yang pertama menurut abjad. Daftar jenis diurutkan per nama, jadi
-  // "Karya" selalu di depan — padahal sebagian besar objek yang didaftarkan adalah orang, dan
-  // jenis itulah yang paling sering dipilih.
+  // Bawaannya Orang: sebagian besar objek yang didaftarkan adalah orang, dan jenis itulah yang paling
+  // sering dipilih (daftar jenis sendiri diurutkan Orang, Unit, Karya, Lainnya — listObjectTypes).
   const [typeId, setTypeId] = useState(
     defaultValues?.typeId ??
       objectTypes.find((t) => t.code === "ORANG")?.id ??

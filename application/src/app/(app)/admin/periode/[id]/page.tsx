@@ -22,6 +22,7 @@ import { ParticipantManager } from "./kategori/[categoryId]/participant-manager"
 import { GroupRuleForm } from "./kategori/[categoryId]/group-rule-form";
 import { AssignmentRuleForm } from "./kategori/[categoryId]/assignment-rule-form";
 import { AssignmentPlanner } from "./kategori/[categoryId]/assignment-planner";
+import { listObjectTypes } from "@/lib/services/objectTypes";
 
 // Nada lencana status mengikuti daftar periode, supaya satu status berwarna sama di mana pun.
 const statusTone = {
@@ -50,7 +51,7 @@ async function PeriodDetailPage({
   const { id } = await params;
   const [period, objectTypes, userTypes, ctx] = await Promise.all([
     getPeriodDetail(id),
-    prisma.objectType.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
+    listObjectTypes({ active: true }),
     prisma.userType.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     getCurrentAuthContext(),
   ]);
