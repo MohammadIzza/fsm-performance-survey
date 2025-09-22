@@ -1,3 +1,7 @@
+---
+import { withBase } from '../../../utils/url';
+---
+
 <div class="s-content-slider" data-plr-component="s-content-slider">
   <div class="u-container">
     <div
@@ -65,7 +69,7 @@
                 decoding="async"
                 height="518"
                 loading="lazy"
-                src="/assets/images/step-catalog.svg"
+                src={withBase("/assets/images/step-catalog.svg")}
                 width="480"
               />
             </picture>
@@ -99,7 +103,7 @@
                 decoding="async"
                 height="518"
                 loading="lazy"
-                src="/assets/images/step-meeting.svg"
+                src={withBase("/assets/images/step-meeting.svg")}
                 width="480"
               />
             </picture>
@@ -131,7 +135,7 @@
                 decoding="async"
                 height="518"
                 loading="lazy"
-                src="/assets/images/step-course.svg"
+                src={withBase("/assets/images/step-course.svg")}
                 width="480"
               />
             </picture>

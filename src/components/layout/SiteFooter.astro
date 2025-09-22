@@ -1,3 +1,7 @@
+---
+import { withBase } from '../../utils/url';
+---
+
 <footer class="site-foot" data-lg-scroll data-plr-component="site-foot">
   <div
     class="b-separator u-container"
@@ -74,7 +78,7 @@
           >
             <a
               class="menu-link js-link"
-              href="/kebijakan-data"
+              href={withBase("/kebijakan-data")}
               rel="noopener noreferrer"
               target="_blank"
               ><span class="menu-item__text" data-text="Kebijakan Data"
@@ -88,7 +92,7 @@
           >
             <a
               class="menu-link js-link"
-              href="/kebijakan-privasi"
+              href={withBase("/kebijakan-privasi")}
               rel="privacy-policy"
               ><span class="menu-item__text" data-text="Kebijakan Privasi"
                 >Kebijakan Privasi</span

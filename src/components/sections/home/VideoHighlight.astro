@@ -1,3 +1,7 @@
+---
+import { withBase } from '../../../utils/url';
+---
+
 <div
   class="s-video-highlight"
   data-lg-reveal
@@ -44,7 +48,7 @@
               decoding="async"
               height="1280"
               loading="lazy"
-              src="/assets/images/tutorial-survei-fsm-poster.jpg"
+              src={withBase("/assets/images/tutorial-survei-fsm-poster.jpg")}
               width="720"
             />
           </picture>
@@ -57,8 +61,8 @@
             class="s__video-player js-video-player"
             height="1920"
             playsinline=""
-            poster="/assets/images/tutorial-survei-fsm-poster.jpg"
-            src="/assets/media/tutorial-survei-fsm.mp4"
+            poster={withBase("/assets/images/tutorial-survei-fsm-poster.jpg")}
+            src={withBase("/assets/media/tutorial-survei-fsm.mp4")}
             width="1080"></video>
         </div>
         <button

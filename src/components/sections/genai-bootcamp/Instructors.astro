@@ -1,3 +1,7 @@
+---
+import { withBase } from '../../../utils/url';
+---
+
 <div class="s-instructors" data-lg-scroll data-plr-component="s-instructors">
   <div class="s__inner">
     <div class="u-container">
@@ -38,7 +42,7 @@
                 decoding="async"
                 height="400"
                 loading="lazy"
-                src="/assets/images/avatar-instrumen.svg"
+                src={withBase("/assets/images/avatar-instrumen.svg")}
                 width="400"
               />
             </picture>
@@ -76,7 +80,7 @@
                 decoding="async"
                 height="400"
                 loading="lazy"
-                src="/assets/images/avatar-penugasan.svg"
+                src={withBase("/assets/images/avatar-penugasan.svg")}
                 width="400"
               />
             </picture>

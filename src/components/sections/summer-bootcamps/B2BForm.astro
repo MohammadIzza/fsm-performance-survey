@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../../../utils/url';
 import BtnPlain from '../../ui/BtnPlain.astro';
 ---
 
@@ -43,7 +44,7 @@ import BtnPlain from '../../ui/BtnPlain.astro';
       <div class="form form--links">
         <BtnPlain
           as="a"
-          href="/login"
+          href={withBase("/login")}
           class="btn-plain--lg"
           label="Masuk Survei"
         />

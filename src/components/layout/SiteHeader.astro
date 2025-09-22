@@ -1,8 +1,10 @@
 ---
+import { withBase, withoutBase } from '../../utils/url';
 import { site } from '../../data/site';
 // Tanpa garis miring penutup, seperti tautan di src/data/site.ts, supaya penanda menu aktif
-// tidak bergantung pada bentuk alamat yang kebetulan dipakai saat membangun.
-const currentPath = Astro.url.pathname.replace(/(.)\/$/, '$1');
+// tidak bergantung pada bentuk alamat yang kebetulan dipakai saat membangun. Awalan situs dilepas
+// lebih dulu: tautan di site.ts ditulis tanpa awalan dan baru diberi awalan saat dirender.
+const currentPath = withoutBase(Astro.url.pathname).replace(/(.)\/$/, '$1');
 
 // Mirrors the theme's main menu: Home, a "10-week Bootcamps" dropdown holding the
 // first two navigation entries, then the remaining entries, contact, and the CTA.
@@ -13,9 +15,9 @@ const dropdown = [genai, data];
 <header class="site-head" data-plr-component="site-head">
   <div class="site-head__inner">
     <div class="s__logo">
-      <a href="/">
+      <a href={withBase("/")}>
         <img
-          src="/assets/images/hero-home-undip.svg"
+          src={withBase("/assets/images/hero-home-undip.svg")}
           alt="Survei Penilaian FSM UNDIP"
           width="138"
           height="30"
@@ -45,7 +47,7 @@ const dropdown = [genai, data];
               ]}
             >
               <a
-                href="/"
+                href={withBase("/")}
                 class="menu-link js-link"
                 aria-current={currentPath === '/' ? 'page' : undefined}
               >
@@ -92,7 +94,7 @@ const dropdown = [genai, data];
                       ]}
                     >
                       <a
-                        href={href}
+                        href={withBase(href)}
                         class="menu-link"
                         aria-current={currentPath === href ? 'page' : undefined}
                       >
@@ -114,7 +116,7 @@ const dropdown = [genai, data];
                   ]}
                 >
                   <a
-                    href={href}
+                    href={withBase(href)}
                     class="menu-link js-link"
                     aria-current={currentPath === href ? 'page' : undefined}
                   >
@@ -157,7 +159,7 @@ const dropdown = [genai, data];
             <li class="btn menu-item js-item">
               <a
                 class="btn-plain btn-plain--sm btn-plain--primary"
-                href="/login" data-lg-reload
+                href={withBase("/login")} data-lg-reload
                 data-plr-component="btn-plain"
               >
                 <span class="btn-plain__inner">

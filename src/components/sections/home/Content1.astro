@@ -1,3 +1,7 @@
+---
+import { withBase } from '../../../utils/url';
+---
+
 <div class="s-content-1" data-plr-component="s-content-1">
   <div class="u-container">
     <div class="s__inner">
@@ -19,7 +23,7 @@
         </div>
         <a
           class="btn-plain s__cta"
-          href="/panduan-pimpinan"
+          href={withBase("/panduan-pimpinan")}
           data-plr-component="btn-plain"
         >
           <span class="btn-plain__inner">
@@ -47,7 +51,7 @@
       <div class="s__illus">
         <div
           class="s__illus__lottie"
-          data-lg-lottie="/assets/lottie/illus-1.json"
+          data-lg-lottie={withBase("/assets/lottie/illus-1.json")}
           data-lg-lottie-autoplay
           data-lg-lottie-loop
         >

@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../utils/url';
 import SiteHeader from '../components/layout/SiteHeader.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
 import SiteLoader from '../components/layout/SiteLoader.astro';
@@ -31,12 +32,14 @@ const plrLayout = layout.replace(/^l-/, '');
 // every page throws `wpcf7 is not defined` under strict mode without this
 // shim, even pages that never had a modal.
 const plrBootstrap = `window.plr=Object.assign(${JSON.stringify({
-  tpl_dir: '/assets',
+  tpl_dir: withBase('/assets'),
   version: themeVersion,
   ajaxurl: '',
   bundles: themeBundles,
 })},{transitions:Object.fromEntries(Object.entries(${JSON.stringify(
-  themeTransitions,
+  Object.fromEntries(
+    Object.entries(themeTransitions).map(([path, value]) => [withBase(path), value]),
+  ),
 )}).map(function(e){return [location.origin+e[0],e[1]]}))});
 window.wpcf7=window.wpcf7||{reset:function(f){if(f&&f.reset)f.reset()}};`;
 ---
@@ -55,15 +58,15 @@ window.wpcf7=window.wpcf7||{reset:function(f){if(f&&f.reset)f.reset()}};`;
     <link
       rel="icon"
       type="image/svg+xml"
-      href="/assets/favicon/favicon.svg?v=undip-1"
+      href={withBase("/assets/favicon/favicon.svg?v=undip-1")}
     />
     <link
       rel="apple-touch-icon"
-      href="/assets/favicon/apple-touch-icon.png?v=undip-1"
+      href={withBase("/assets/favicon/apple-touch-icon.png?v=undip-1")}
     />
     <link
       rel="preload"
-      href="/assets/fonts/HeyWow-Book.woff2"
+      href={withBase("/assets/fonts/HeyWow-Book.woff2")}
       as="font"
       type="font/woff2"
       crossorigin
@@ -88,7 +91,7 @@ window.wpcf7=window.wpcf7||{reset:function(f){if(f&&f.reset)f.reset()}};`;
     <SiteLoader />
     <SiteScrollbar />
     <script is:inline set:html={plrBootstrap} />
-    {themeScripts.map((src) => <script is:inline src={src} />)}
+    {themeScripts.map((src) => <script is:inline src={withBase(src)} />)}
     <script>
       import '../scripts/hero-fsm';
       import '../scripts/luge-navigation-guard';

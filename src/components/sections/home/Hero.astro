@@ -1,3 +1,7 @@
+---
+import { withBase } from '../../../utils/url';
+---
+
 <div class="s-hero" data-plr-component="s-hero">
   <div class="s__illus s__illus--home js-illus-wrapper" data-lg-mouse>
     <div class="b-hero-home" data-plr-component="b-hero-home" data-fsm-hero>
@@ -6,7 +10,7 @@
         <div class="b__letter b__letter--f js-letter">
           <div
             class="b__letter__flower js-flower"
-            data-lg-lottie="/assets/lottie/home-hero-f.json"
+            data-lg-lottie={withBase("/assets/lottie/home-hero-f.json")}
             data-lg-lottie-required
           >
           </div>
@@ -28,7 +32,7 @@
         <div class="b__letter b__letter--s js-letter">
           <div
             class="b__letter__flower js-flower"
-            data-lg-lottie="/assets/lottie/home-hero-s.json"
+            data-lg-lottie={withBase("/assets/lottie/home-hero-s.json")}
             data-lg-lottie-required
           >
           </div>
@@ -50,7 +54,7 @@
         <div class="b__letter b__letter--m js-letter">
           <div
             class="b__letter__flower js-flower"
-            data-lg-lottie="/assets/lottie/home-hero-m.json"
+            data-lg-lottie={withBase("/assets/lottie/home-hero-m.json")}
             data-lg-lottie-required
           >
           </div>

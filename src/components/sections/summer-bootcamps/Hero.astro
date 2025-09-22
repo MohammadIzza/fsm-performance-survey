@@ -1,3 +1,7 @@
+---
+import { withBase } from '../../../utils/url';
+---
+
 <div class="s-hero" data-plr-component="s-hero">
   <div class="s__illus s__illus--b2b js-illus-wrapper" data-lg-mouse>
     <div class="b-hero-b2b" data-plr-component="b-hero-b2b">
@@ -5,7 +9,7 @@
         <div class="b__shape js-shape">
           <div
             class="b__lottie js-lottie"
-            data-lg-lottie="/assets/lottie/b2b-hero.json"
+            data-lg-lottie={withBase("/assets/lottie/b2b-hero.json")}
             data-lg-lottie-loop
             data-lg-lottie-loop-frame="408"
             data-lg-lottie-required

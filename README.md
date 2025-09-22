@@ -11,7 +11,14 @@ npm ci
 npm run dev
 ```
 
-Buka **http://127.0.0.1:4321/**. Perubahan dalam `src/` otomatis dimuat ulang.
+Buka **http://127.0.0.1:4321/survey**. Perubahan dalam `src/` otomatis dimuat ulang.
+
+Seluruh situs dan aplikasi hidup di bawah awalan `/survey` — alamat publiknya
+https://apps-fsm.undip.ac.id/survey/ lewat gateway UNDIP, yang meneruskan awalan itu utuh. Awalannya
+diatur di satu tempat, `base-path.mjs`, dan dibaca Astro (`base`), Next (`basePath`), serta skrip
+penyalin tema. Alamat yang ditulis tangan — `src="/assets/…"`, `<a href>` biasa, path Lottie — harus
+lewat `withBase()` (`src/utils/url.ts` di Astro, `application/src/lib/base-path.ts` di aplikasi);
+hanya `<Link>`, router, dan `redirect()` Next yang diprefix otomatis.
 
 ```sh
 npm run dev:status

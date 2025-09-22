@@ -1,3 +1,7 @@
+---
+import { withBase } from '../../../utils/url';
+---
+
 <div
   class="s-usps s-usps--layout-1 s-usps--has-intro"
   data-plr-component="s-usps"
@@ -28,7 +32,7 @@
         <div class="sb__illus sb__illus--python">
           <div
             class="sb__illus__lottie"
-            data-lg-lottie="/assets/lottie/usp-python.json"
+            data-lg-lottie={withBase("/assets/lottie/usp-python.json")}
             data-lg-lottie-autoplay
             data-lg-lottie-loop
           >
@@ -48,7 +52,7 @@
         <div class="sb__illus sb__illus--rag">
           <div
             class="sb__illus__lottie"
-            data-lg-lottie="/assets/lottie/usp-rag.json"
+            data-lg-lottie={withBase("/assets/lottie/usp-rag.json")}
             data-lg-lottie-autoplay
             data-lg-lottie-loop
           >
@@ -68,7 +72,7 @@
         <div class="sb__illus sb__illus--learning">
           <div
             class="sb__illus__lottie"
-            data-lg-lottie="/assets/lottie/usp-learning.json"
+            data-lg-lottie={withBase("/assets/lottie/usp-learning.json")}
             data-lg-lottie-autoplay
             data-lg-lottie-loop
           >
@@ -88,7 +92,7 @@
         <div class="sb__illus sb__illus--project">
           <div
             class="sb__illus__lottie"
-            data-lg-lottie="/assets/lottie/usp-project.json"
+            data-lg-lottie={withBase("/assets/lottie/usp-project.json")}
             data-lg-lottie-autoplay
             data-lg-lottie-loop
           >

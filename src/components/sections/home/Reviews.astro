@@ -1,3 +1,7 @@
+---
+import { withBase } from '../../../utils/url';
+---
+
 <div class="s-reviews" data-plr-component="s-reviews">
   <div class="u-container">
     <h2 class="s__title t-h-sm">Peringkat Teratas</h2>
@@ -6,14 +10,14 @@
         <a
           aria-label="Peringkat 1: Dosen A"
           class="s__review__link"
-          href="/hasil"
+          href={withBase("/hasil")}
         >
           <img
             alt=""
             class="s__review__logo js-logo"
             decoding="async"
             loading="lazy"
-            src="/assets/images/icon-crown-gold.svg"
+            src={withBase("/assets/images/icon-crown-gold.svg")}
           />
           <div class="s__review__rating js-rating">
             <div class="s__review__rating__note js-note">
@@ -32,14 +36,14 @@
         <a
           aria-label="Peringkat 2: Dosen B"
           class="s__review__link"
-          href="/hasil"
+          href={withBase("/hasil")}
         >
           <img
             alt=""
             class="s__review__logo js-logo"
             decoding="async"
             loading="lazy"
-            src="/assets/images/icon-crown-silver.svg"
+            src={withBase("/assets/images/icon-crown-silver.svg")}
           />
           <div class="s__review__rating js-rating">
             <div class="s__review__rating__note js-note">
@@ -58,14 +62,14 @@
         <a
           aria-label="Peringkat 3: Dosen C"
           class="s__review__link"
-          href="/hasil"
+          href={withBase("/hasil")}
         >
           <img
             alt=""
             class="s__review__logo js-logo"
             decoding="async"
             loading="lazy"
-            src="/assets/images/icon-crown-bronze.svg"
+            src={withBase("/assets/images/icon-crown-bronze.svg")}
           />
           <div class="s__review__rating js-rating">
             <div class="s__review__rating__note js-note">

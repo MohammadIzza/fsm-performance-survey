@@ -1,3 +1,7 @@
+---
+import { withBase } from '../../../utils/url';
+---
+
 <div class="s-usps s-usps--layout-1" data-plr-component="s-usps">
   <div class="u-container">
     <div
@@ -24,7 +28,7 @@
         <div class="sb__illus sb__illus--tech-stack">
           <div
             class="sb__illus__lottie"
-            data-lg-lottie="/assets/lottie/usp-tech-stack.json"
+            data-lg-lottie={withBase("/assets/lottie/usp-tech-stack.json")}
             data-lg-lottie-autoplay
             data-lg-lottie-loop
           >
@@ -45,7 +49,7 @@
         <div class="sb__illus sb__illus--project">
           <div
             class="sb__illus__lottie"
-            data-lg-lottie="/assets/lottie/usp-project.json"
+            data-lg-lottie={withBase("/assets/lottie/usp-project.json")}
             data-lg-lottie-autoplay
             data-lg-lottie-loop
           >
@@ -65,7 +69,7 @@
         <div class="sb__illus sb__illus--learning">
           <div
             class="sb__illus__lottie"
-            data-lg-lottie="/assets/lottie/usp-learning.json"
+            data-lg-lottie={withBase("/assets/lottie/usp-learning.json")}
             data-lg-lottie-autoplay
             data-lg-lottie-loop
           >
@@ -94,7 +98,7 @@
       <div class="s__cta">
         <a
           class="btn-plain s__cta__btn btn-plain--lg btn-plain--secondary"
-          href="/login" data-lg-reload
+          href={withBase("/login")} data-lg-reload
           data-plr-component="btn-plain"
         >
           <span class="btn-plain__inner">
