@@ -14,6 +14,7 @@ import {
 import { StatusPill } from "@/components/theme/status-pill";
 import { FilterBar, FilterField } from "@/components/theme/filter-bar";
 import { TextInput } from "@/components/theme/form-field";
+import { withBase } from "@/lib/base-path";
 
 export interface DetailData {
   parameterResults: { parameterName: string; aggregate: number; contribution: number; weight: number }[];
@@ -110,7 +111,7 @@ function Peringkat({ rank }: { rank: number | null }) {
         // eslint-disable-next-line @next/next/no-img-element
         <img
           className="leaderboard-rank__crown"
-          src={`/assets/images/icon-crown-${mahkota}.svg`}
+          src={withBase(`/assets/images/icon-crown-${mahkota}.svg`)}
           alt=""
           width={16}
           height={16}

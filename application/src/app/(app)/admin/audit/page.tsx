@@ -6,6 +6,7 @@ import { PageIntro, SummaryCard } from "@/components/theme/summary";
 import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 import { FilterBar, FilterField } from "@/components/theme/filter-bar";
 import { Select, TextInput } from "@/components/theme/form-field";
+import { withBase } from "@/lib/base-path";
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", {
   day: "2-digit",
@@ -52,7 +53,7 @@ async function AuditPage({
         <SummaryCard tone="merah" label="Pelaku" value={actors.length} note="orang pernah bertindak" />
       </PageIntro>
 
-      <FilterBar action="/admin/audit" method="GET" submitLabel="Terapkan filter">
+      <FilterBar action={withBase("/admin/audit")} method="GET" submitLabel="Terapkan filter">
         <FilterField label="Objek tindakan" htmlFor="f-entity">
           <Select id="f-entity" name="entity" defaultValue={sp.entity ?? ""}>
             <option value="">Semua objek tindakan</option>

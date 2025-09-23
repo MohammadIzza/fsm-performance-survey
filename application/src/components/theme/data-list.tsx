@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { SectionHeader } from "./section-header";
 import { RowDisclosure } from "./row-disclosure";
+import { withBase } from "@/lib/base-path";
 
 /**
  * Daftar data memakai komponen daftar tema (`.s-courses-list` + baris `.sb-course`) — bentuk yang
@@ -129,7 +130,7 @@ export function DataRow({
         {children}
         <img
           className="sb__arrow"
-          src="/assets/images/arrow-2-right.svg"
+          src={withBase("/assets/images/arrow-2-right.svg")}
           alt=""
           width="9"
           height="14"

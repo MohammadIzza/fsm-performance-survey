@@ -1,4 +1,5 @@
 import type { listFinalizationHistory } from "@/lib/services/finalization";
+import { withBase } from "@/lib/base-path";
 
 type History = Awaited<ReturnType<typeof listFinalizationHistory>>;
 
@@ -30,7 +31,7 @@ export function FinalizationHistory({ history }: { history: History }) {
             <p className="mt-1 text-[var(--muted)]">
               Oleh {f.finalizedBy.name} · {f.calculationRuns.length} kategori dihitung
             </p>
-            <a href={`/arsip/${f.id}`} className="mt-2 inline-block text-[var(--accent)] underline">Buka hasil versi ini ↗</a>
+            <a href={withBase(`/arsip/${f.id}`)} className="mt-2 inline-block text-[var(--accent)] underline">Buka hasil versi ini ↗</a>
             {f.note && <p className="mt-1 text-[var(--muted)]">Catatan: {f.note}</p>}
           </li>
         ))}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { withBase } from "@/lib/base-path";
 
 /**
  * Huruf F-S-M dari beranda publik, dipakai ulang di halaman masuk.
@@ -43,7 +44,7 @@ export function LoginHeroFsm() {
             renderer: "svg",
             loop: false,
             autoplay: false,
-            path: `/assets/lottie/${h.berkas}`,
+            path: withBase(`/assets/lottie/${h.berkas}`),
           });
           animasi.push(anim);
           anim.addEventListener("DOMLoaded", () => {
@@ -81,7 +82,7 @@ export function LoginHeroFsm() {
       </div>
       <img
         className="login-fsm__logo"
-        src="/assets/images/hero-home-undip.svg"
+        src={withBase("/assets/images/hero-home-undip.svg")}
         alt=""
         aria-hidden="true"
         width={140}

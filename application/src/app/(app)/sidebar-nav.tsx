@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
+import { withBase } from "@/lib/base-path";
 
 interface NavLink {
   href: string;
@@ -116,7 +117,7 @@ export function SidebarNav({
             <li className="menu-item">
               {/* Halaman panduan adalah dokumen Astro statis; muat sebagai dokumen penuh. */}
               {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-              <a href="/panduan-penilai" className="menu-link">
+              <a href={withBase("/panduan-penilai")} className="menu-link">
                 <span className="menu-item__text" data-text="Panduan">
                   Panduan
                 </span>
@@ -124,7 +125,7 @@ export function SidebarNav({
             </li>
             <li className="menu-item">
               {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-              <a href="/alur-penilaian" className="menu-link">
+              <a href={withBase("/alur-penilaian")} className="menu-link">
                 <span className="menu-item__text" data-text="Alur penilaian">
                   Alur penilaian
                 </span>
@@ -161,7 +162,7 @@ export function SidebarNav({
       <div className="survey-side__bar lg:hidden">
         <Link href="/dashboard" className="survey-side__bar-logo" aria-label="Beranda ruang survei">
           <Image
-            src="/assets/images/hero-home-undip.svg"
+            src={withBase("/assets/images/hero-home-undip.svg")}
             alt="FSM UNDIP"
             width={88}
             height={25}
@@ -215,7 +216,7 @@ export function SidebarNav({
                 onClick={() => setMobileOpen(false)}
               >
                 <Image
-                  src="/assets/images/hero-home-undip.svg"
+                  src={withBase("/assets/images/hero-home-undip.svg")}
                   alt="FSM UNDIP"
                   width={92}
                   height={26}

@@ -8,6 +8,7 @@ import { getLatestRun, getGroupDetailBulk } from "@/lib/services/calculations";
 import { getRanking } from "@/lib/services/rankings";
 import { isResultAccessOpenForNonAdmin, describeAccessCondition } from "@/lib/services/resultAccess";
 import { LeaderboardGroups, type DetailData } from "@/components/leaderboard-table";
+import { withBase } from "@/lib/base-path";
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", { day: "2-digit", month: "short", year: "numeric" });
 
@@ -151,7 +152,7 @@ export default async function HasilDetailPage({
           selainMinimum={selainRule?.minimum ?? 0}
           selainDetail={selainDetail}
           action={
-            <a href={`/hasil/${categoryId}/export`} className="app-btn">
+            <a href={withBase(`/hasil/${categoryId}/export`)} className="app-btn">
               Unduh Excel
             </a>
           }

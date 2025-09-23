@@ -32,9 +32,11 @@
 @import "../styles/theme/shell.css";
 
 /* Shared visual language from the repository's original Nod theme. */
-@font-face {font-family:HeyWow;src:url('/assets/fonts/HeyWow-Book.woff2') format('woff2');font-weight:400;font-display:swap}
-@font-face {font-family:HeyWow;src:url('/assets/fonts/HeyWow-SemiBold.woff2') format('woff2');font-weight:600;font-display:swap}
-@font-face {font-family:HeyWow;src:url('/assets/fonts/HeyWow-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
+/* url() di berkas ini ditulis dengan awalan aplikasi /survey (base-path.mjs): CSS tidak bisa membaca
+   variabel lingkungan, dan Next membiarkan url() absolut apa adanya. Ganti ikut bila awalannya berubah. */
+@font-face {font-family:HeyWow;src:url('/survey/assets/fonts/HeyWow-Book.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face {font-family:HeyWow;src:url('/survey/assets/fonts/HeyWow-SemiBold.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face {font-family:HeyWow;src:url('/survey/assets/fonts/HeyWow-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
 :root {
  --background:#f7f7ef; --surface:#fff; --surface-raised:#f2f2f2;
  --foreground:#383030; --muted:#625b58; --muted-2:#706965;
@@ -208,7 +210,7 @@ main h2 {letter-spacing:-.025em}
    home page — bentuk lebih bulat, ada umpan balik hover, bukan cuma elemen form bawaan browser. */
 select {
   appearance: none;
-  background: url('/assets/images/arrow-select.png') calc(100% - 0.9rem) 50%/0.3333rem 0.302rem
+  background: url('/survey/assets/images/arrow-select.png') calc(100% - 0.9rem) 50%/0.3333rem 0.302rem
     no-repeat;
   padding-right: 2.25em;
 }
@@ -553,7 +555,7 @@ input[type="range"]:disabled::-moz-range-thumb {
   /* Jangan memakai shorthand `background`: shorthand itu mengembalikan warna latar menjadi
      transparan dan menimpa bidang putih milik .form__control. */
   background-color: var(--color-white);
-  background-image: url('/assets/images/icon-date.svg');
+  background-image: url('/survey/assets/images/icon-date.svg');
   background-position: 0.9em 50%;
   background-size: 0.8em 0.8em;
   background-repeat: no-repeat;
@@ -1365,7 +1367,7 @@ input[type="range"]:disabled::-moz-range-thumb {
   .assignment-head-filter > span::after {
     content:"";position:absolute;top:50%;width:.34rem;height:.3rem;margin-top:-.15rem;
     margin-left:.35em;
-    background:url('/assets/images/arrow-select.png') 50%/contain no-repeat;
+    background:url('/survey/assets/images/arrow-select.png') 50%/contain no-repeat;
   }
   .assignment-head-filter select.form__control {
     position:absolute;inset:0;width:100%;height:100%;padding:0;margin:0;border:0;
@@ -2054,7 +2056,7 @@ input[type="range"]:disabled::-moz-range-thumb {
      global ikut terhapus. Pasang ulang komponennya satu per satu agar bidang putih tetap sama
      dengan input lain dan affordance dropdown tetap terlihat. */
   background-color:var(--color-white);
-  background-image:url('/assets/images/arrow-select.png');
+  background-image:url('/survey/assets/images/arrow-select.png');
   background-position:calc(100% - .65rem) 50%;
   background-size:.3333rem .302rem;
   background-repeat:no-repeat;
@@ -2751,7 +2753,7 @@ input[type="range"]:disabled::-moz-range-thumb {
  .survey-login-form::after {
    content:"";position:absolute;right:1.6rem;bottom:-1.35rem;z-index:2;
    width:2.7rem;height:2.7rem;
-   background:url('/assets/images/asset-star-1.svg') 50%/contain no-repeat;
+   background:url('/survey/assets/images/asset-star-1.svg') 50%/contain no-repeat;
  }
  .survey-login-form .eyebrow {color:var(--color-black)}
  .survey-login-intro > p:not(.eyebrow) {color:var(--color-black);opacity:.78}

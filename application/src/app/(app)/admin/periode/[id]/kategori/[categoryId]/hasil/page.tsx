@@ -7,6 +7,7 @@ import { getLatestRun, getGroupDetailBulk, listRunsForCategory } from "@/lib/ser
 import { getRanking } from "@/lib/services/rankings";
 import { LeaderboardGroups, type DetailData } from "@/components/leaderboard-table";
 import { CalculateButton } from "./calculate-button";
+import { withBase } from "@/lib/base-path";
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", {
   day: "2-digit",
@@ -112,7 +113,7 @@ async function HasilPage({
           <div className="flex items-center gap-2">
             {latestRun && (
               <a
-                href={`/admin/periode/${periodId}/kategori/${categoryId}/hasil/export`}
+                href={withBase(`/admin/periode/${periodId}/kategori/${categoryId}/hasil/export`)}
                 className="app-btn"
               >
                 Unduh Excel

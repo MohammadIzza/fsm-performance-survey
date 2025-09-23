@@ -3,6 +3,7 @@
 import { AdminActionList, AdminAction } from "@/components/theme/admin-actions";
 import { useActionState, useState } from "react";
 import { previewImportAction, applyImportAction } from "@/lib/actions/imports";
+import { withBase } from "@/lib/base-path";
 
 const entityOptions = [
   { value: "UNIT", label: "Unit" },
@@ -29,7 +30,7 @@ export function ImportForm() {
         defaultOpen
       >
       <p className="mb-3">
-        <a href={`/admin/impor/template/${entity.toLowerCase()}`} className="app-text-sm">
+        <a href={withBase(`/admin/impor/template/${entity.toLowerCase()}`)} className="app-text-sm">
           Unduh template {entityOptions.find((e) => e.value === entity)?.label}
         </a>
       </p>

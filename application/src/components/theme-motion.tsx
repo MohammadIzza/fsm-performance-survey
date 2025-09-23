@@ -2,6 +2,7 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { gsap } from "gsap";
+import { withBase } from "@/lib/base-path";
 
 /** Uses the original repository's Lottie art, with the same spring-like easing. */
 export function ThemeMotion() {
@@ -24,7 +25,7 @@ export function ThemeMotion() {
   reduced.addEventListener("change",visibility);
   return () => {disposed=true;ctx.revert();animations.forEach(a=>a.destroy());document.removeEventListener("visibilitychange",visibility);reduced.removeEventListener("change",visibility)};
  },[]);
- return <div className="survey-motion" ref={root} aria-hidden="true">{["c","o","d"].map(letter=><div key={letter} data-animation={`/assets/lottie/home-hero-${letter}.json`} />)}</div>;
+ return <div className="survey-motion" ref={root} aria-hidden="true">{["c","o","d"].map(letter=><div key={letter} data-animation={withBase(`/assets/lottie/home-hero-${letter}.json`)} />)}</div>;
 }
 
 export function ThemeReveal() {
