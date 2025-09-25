@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { mkdir } from 'node:fs/promises';
+import { withBase, withoutBase } from './base';
 
 const routes = [
   '/',
@@ -34,7 +35,7 @@ for (const route of routes) {
       )
         failedAssets.push(response.url());
     });
-    const response = await page.goto(route);
+    const response = await page.goto(withBase(route));
     expect(response?.status()).toBe(200);
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     await expect(page.locator('#menu-main-menu')).toBeVisible();
@@ -62,7 +63,7 @@ for (const route of routes) {
         ),
       ]);
     for (const target of targets) {
-      if (appRoutes.has(target)) continue;
+      if (appRoutes.has(withoutBase(target))) continue;
       expect((await request.get(target)).status(), target).toBe(200);
     }
     expect(errors).toEqual([]);
@@ -78,7 +79,7 @@ for (const route of routes) {
 test('the theme runtime boots and reveals content on scroll', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto(withBase('/'));
   await page.waitForFunction(() => (window as any).luge !== undefined);
   await page.evaluate(async () => {
     for (let y = 0; y < document.body.scrollHeight; y += 600) {
@@ -109,7 +110,7 @@ test('the theme runtime boots and reveals content on scroll', async ({
 test('course cards link to the real login page, not a fake application form', async ({
   page,
 }) => {
-  await page.goto('/');
+  await page.goto(withBase('/'));
   await page.waitForFunction(() => (window as any).luge !== undefined);
 
   const card = page
@@ -117,7 +118,7 @@ test('course cards link to the real login page, not a fake application form', as
       'a.sb__link[data-option="Dies FSM UNDIP 2026 • 9 kategori • Periode berjalan"]',
     )
     .first();
-  await expect(card).toHaveAttribute('href', '/login');
+  await expect(card).toHaveAttribute('href', withBase('/login'));
   await card.click();
   await expect(page).toHaveURL(/\/login$/);
 });
@@ -125,7 +126,7 @@ test('course cards link to the real login page, not a fake application form', as
 test('FAQ opens on click and the content slider changes visible content', async ({
   page,
 }) => {
-  await page.goto('/alur-penilaian');
+  await page.goto(withBase('/alur-penilaian'));
   await page.waitForFunction(() => (window as any).luge !== undefined);
   const question = page.locator('.s-faq .sb-question').filter({
     hasText: 'Apa yang terjadi jika periode ditutup saat saya belum mengirim?',
@@ -134,7 +135,7 @@ test('FAQ opens on click and the content slider changes visible content', async 
   await expect(question).toHaveClass(/is-opened/);
   await expect(question.locator('.sb__answer')).toBeVisible();
 
-  await page.goto('/');
+  await page.goto(withBase('/'));
   await page.waitForFunction(() => (window as any).luge !== undefined);
   const slider = page.locator('.b-slider-content').first();
   await slider.locator('.js-page[data-page="1"]').click();
@@ -148,7 +149,7 @@ test('mobile navigation and screenshots', async ({ page }) => {
   test.setTimeout(90_000);
   await mkdir('.local-server', { recursive: true });
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/');
+  await page.goto(withBase('/'));
   await page.waitForFunction(() => (window as any).luge !== undefined);
   await expect(
     page.locator('.b-hero-home [data-lg-lottie] svg').first(),
@@ -166,7 +167,9 @@ test('mobile navigation and screenshots', async ({ page }) => {
   await expect(page.locator('body')).toHaveClass(/is-nav-opened/);
   // A top-level entry: the two guide links sit in a submenu whose parent item
   // covers them until it is tapped, which is the theme's own mobile behaviour.
-  await page.locator('#menu-main-menu a[href="/panduan-admin"]').click();
+  await page
+    .locator(`#menu-main-menu a[href="${withBase('/panduan-admin')}"]`)
+    .click();
   await expect(page).toHaveURL(/\/panduan-admin$/);
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   expect(

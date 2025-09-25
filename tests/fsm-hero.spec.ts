@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { readFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
+import { withBase, withoutBase } from './base';
 
 // Optional isolated build transport for environments whose browser has no
 // network access. The exact emitted HTML, modules, fonts and Lottie are served.
@@ -19,8 +20,9 @@ test.beforeEach(async ({ page }) => {
     '.webp': 'image/webp',
   };
   await page.route('**/*', async (route) => {
-    const pathname = decodeURIComponent(
-      new URL(route.request().url()).pathname,
+    // Berkas di build terisolasi tersimpan tanpa awalan situs (dist/index.html, dist/assets/…).
+    const pathname = withoutBase(
+      decodeURIComponent(new URL(route.request().url()).pathname),
     );
     const relative = path.extname(pathname)
       ? pathname
@@ -53,7 +55,7 @@ for (const viewport of [
     page.on('response', (r) => {
       if (r.status() >= 400) errors.push(`${r.status()} ${r.url()}`);
     });
-    await page.goto('/');
+    await page.goto(withBase('/'));
     const hero = page.locator('[data-fsm-hero]');
     await expect(hero.locator('.js-letter')).toHaveCount(3);
     await expect
@@ -97,7 +99,9 @@ for (const viewport of [
       });
     });
     expect(state.map((s) => s.source)).toEqual(
-      ['f', 's', 'm'].map((l) => `/assets/lottie/home-hero-${l}.json`),
+      ['f', 's', 'm'].map((l) =>
+        withBase(`/assets/lottie/home-hero-${l}.json`),
+      ),
     );
     for (const letter of state) {
       expect(letter.gapX).toBeLessThan(1.5);
@@ -124,7 +128,7 @@ test('FSM responds to the pointer, pauses offscreen and survives page transition
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.stack || e.message));
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.goto('/');
+  await page.goto(withBase('/'));
   await page.waitForFunction(
     () =>
       (document.querySelector('[data-fsm-hero]') as any)?.plr?.controller
@@ -157,12 +161,18 @@ test('FSM responds to the pointer, pauses offscreen and survives page transition
         .evaluate((el) => (el as any).plr.controller.isPaused),
     )
     .toBe(false);
-  await page.locator('a[href="/panduan-admin"]').first().click();
+  await page
+    .locator(`a[href="${withBase('/panduan-admin')}"]`)
+    .first()
+    .click();
   await page.waitForURL('**/panduan-admin');
   // The legacy guide intro is outside the FSM adapter; let it finish.
   await page.waitForTimeout(4500);
-  await page.locator('a[href="/"]').first().click();
-  await page.waitForURL(/\/$/);
+  await page
+    .locator(`a[href="${withBase('/')}"]`)
+    .first()
+    .click();
+  await page.waitForURL((url) => url.pathname === withBase('/'));
   await expect(page.locator('[data-fsm-hero]')).toHaveCount(1);
   await page.waitForFunction(
     () =>
@@ -186,12 +196,15 @@ test('FSM initializes when the first visit starts on a guide page', async ({
 }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  await page.goto('/panduan-admin');
+  await page.goto(withBase('/panduan-admin'));
   await expect(page.locator('html')).toHaveClass(/is-loaded/);
   // Let the unchanged guide hero finish its own intro before leaving it.
   await page.waitForTimeout(4500);
-  await page.locator('a[href="/"]').first().click();
-  await page.waitForURL(/\/$/);
+  await page
+    .locator(`a[href="${withBase('/')}"]`)
+    .first()
+    .click();
+  await page.waitForURL((url) => url.pathname === withBase('/'));
   await expect
     .poll(
       () =>

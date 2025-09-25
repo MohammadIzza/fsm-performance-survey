@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { withBase } from './base';
 
 const routes = [
   '/',
@@ -28,7 +29,7 @@ for (const route of routes) {
         failed.push(`${route} ${r.status()} ${r.url()}`);
     });
 
-    await page.goto(route);
+    await page.goto(withBase(route));
     await page.waitForFunction(() => (window as any).luge !== undefined);
     await page.evaluate(async () => {
       // Walk the page so IntersectionObserver-driven reveals fire.
