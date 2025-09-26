@@ -93,3 +93,32 @@ Batas tes navigasi: intro hero panduan admin dibiarkan selesai sebelum kembali
 ke beranda. Berpindah sebelum intro tersebut selesai dapat memicu error lama
 `BHeroB2b.setPathD` setelah controller dilepas; bundle panduan itu tidak diubah
 oleh pekerjaan FSM ini.
+
+## Penerbitan di bawah /survey
+
+Alamat publik: https://apps-fsm.undip.ac.id/survey/. Gateway UNDIP mengakhiri TLS dan meneruskan
+permintaan **dengan awalan utuh** ke `http://10.137.58.132:8094/survey/`, beserta `Host`,
+`X-Forwarded-For`, dan `X-Forwarded-Proto: https`. Konfigurasi gateway dikelola di luar LXC ini.
+
+Rantai di dalam LXC: nginx `:8094` → `next start` di `127.0.0.1:3930` (`fsm-survei.service`).
+Salinan vhost nginx ada di [`deploy/nginx-fsm-survey.conf`](deploy/nginx-fsm-survey.conf); yang
+aktif ada di `/etc/nginx/sites-available/fsm.heyizza.my.id`. Hal yang bergantung padanya:
+
+- `/survey/` diteruskan ke Next sebagai `/survey`. Next dengan basePath membalas `/survey/` dengan
+  alih 308 ke `/survey`; bila gateway mengalihkan balik ke `/survey/`, keduanya berputar tanpa akhir.
+- Alamat di luar `/survey` dialihkan (302, relatif) ke padanannya di bawah `/survey`, jadi tautan lama
+  `fsm.heyizza.my.id/login` tetap sampai.
+- `X-Forwarded-Proto` dari depan diteruskan apa adanya, bukan ditimpa skema koneksi lokal (`http`).
+- `client_max_body_size 10M` untuk impor Excel; header `Range` diteruskan (video beranda butuh 206).
+
+Cookie sesi `survey_fsm_session` ber-path `/survey` dan selalu `Secure` di produksi, jadi login hanya
+berhasil lewat HTTPS.
+
+Membangun ulang dan menerbitkan:
+
+```sh
+PATH=/opt/node22/bin:$PATH npm run build:all
+chown -R restart:restart dist application/public application/public-site application/src/styles/theme application/.next
+systemctl restart fsm-survei.service
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8094/survey/   # 200
+```
