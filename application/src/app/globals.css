@@ -346,6 +346,14 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell .s-courses-list .sb-course .sb__location {width:17%}
   .survey-shell .s-courses-list .sb-course .sb__price {width:20%;text-align:right}
 }
+/* Tugas Saya: satu objek bisa muncul di beberapa kategori, jadi kategorinya ikut tampil. */
+@media only screen and (min-width: 988px) {
+  .survey-shell .assignments-data-list .sb-course .sb__title {width:22%}
+  .survey-shell .assignments-data-list .sb-course .sb__topic {width:22%;margin:0}
+  .survey-shell .assignments-data-list .sb-course .sb__dates {width:14%}
+  .survey-shell .assignments-data-list .sb-course .sb__location {width:16%}
+  .survey-shell .assignments-data-list .sb-course .sb__price {width:16%}
+}
 
 /* Rentang tanggal: tiap tanggal dijaga utuh, putusnya hanya boleh di antara keduanya — lihat
    catatan pada DateRange di components/theme/date-range.tsx. */
@@ -1492,6 +1500,7 @@ input[type="range"]:disabled::-moz-range-thumb {
     gap:.4rem;padding:.5rem .55rem;border:0;border-radius:.5rem;overflow:visible;
   }
   .assignments-data-list .sb-course--head .sb__title,
+  .assignments-data-list .sb-course--head .sb__topic,
   .assignments-data-list .sb-course--head .sb__dates {display:none}
   .assignments-data-list .sb-course--head .sb__location,
   .assignments-data-list .sb-course--head .sb__price {

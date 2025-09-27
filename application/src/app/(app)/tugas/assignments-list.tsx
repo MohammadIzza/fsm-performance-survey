@@ -57,6 +57,7 @@ export function AssignmentsList({ assignments }: { assignments: AssignmentRow[] 
           columnHeaderHidden={false}
           columns={[
             ["title", "Objek"],
+            ["topic", "Kategori"],
             ["dates", "Tenggat"],
             ["location", (
               <label className="assignment-head-filter" data-active={periodId ? "true" : undefined} key="period-filter">
@@ -103,6 +104,7 @@ export function AssignmentsList({ assignments }: { assignments: AssignmentRow[] 
                   <span className="assignment-row__leadership">Pimpinan</span>
                 )}
               </RowTitle>
+              <RowField kind="topic" icon={false}>{a.categoryName}</RowField>
               <RowField kind="dates"><DateValue value={a.deadline} /></RowField>
               <RowField kind="location" icon={false}>{a.periodName}</RowField>
               <RowField kind="price">
