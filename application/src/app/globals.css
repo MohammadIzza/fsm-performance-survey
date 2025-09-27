@@ -346,6 +346,10 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell .s-courses-list .sb-course .sb__location {width:17%}
   .survey-shell .s-courses-list .sb-course .sb__price {width:20%;text-align:right}
 }
+/* Tema hanya mengangkat judul, tanggal, durasi, lokasi, dan harga di atas latar sorot baris
+   (`.sb__background`, z-index 1). Bidang topik — dipakai kolom Kategori, Jenis, dan Unit —
+   tertinggal di bawahnya, sehingga teksnya tertutup warna sorot saat baris di-hover. */
+.s-courses-list .sb-course .sb__topic {z-index:2;position:relative;transform:translate(0,0)}
 /* Tugas Saya: satu objek bisa muncul di beberapa kategori, jadi kategorinya ikut tampil. */
 @media only screen and (min-width: 988px) {
   .survey-shell .assignments-data-list .sb-course .sb__title {width:22%}
