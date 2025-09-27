@@ -81,6 +81,10 @@ async function PeriodDetailPage({
         })
       : [];
   const editable = period.status === "DRAF" || period.status === "REVISI";
+  const units =
+    categoryCount > 0
+      ? await prisma.unit.findMany({ select: { id: true, name: true, parentId: true }, orderBy: { name: "asc" } })
+      : [];
 
   const instrumentReady = (category: ActiveCategory) => {
     const instrument = category.instrumentVersions[0];
@@ -262,6 +266,8 @@ async function PeriodDetailPage({
               candidateObjects={candidateObjects.filter(
                 (item) => item.typeId === category.objectTypeId && !selectedIds.has(item.id)
               )}
+              units={units}
+              objectTypeName={category.objectType.name}
               editable={editable}
             />
           );

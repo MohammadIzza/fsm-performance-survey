@@ -895,6 +895,11 @@ input[type="range"]:disabled::-moz-range-thumb {
 .participant-add .admin-tools__field {width:100%}
 .survey-shell main .participant-add__select {min-height:0;padding:.35rem;font-size:.62rem}
 .survey-shell main .participant-add__select option {padding:.3rem .35rem}
+/* Pilih cepat: ambil semua objek, atau semua objek milik satu unit beserta sub-unitnya. */
+.participant-add__cepat {display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;width:100%}
+.participant-add__cepat-label {font-size:.52rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.participant-add__unit {flex:1 1 14rem;min-width:0;max-width:22rem}
+.participant-add__ringkas {margin:0;font-size:.58rem;color:var(--muted)}
 .participant-add__error {margin:0;color:var(--color-brand-1);font-size:.58rem;line-height:1.4}
 
 @media only screen and (max-width:640px) {
@@ -2947,6 +2952,10 @@ input[type="range"]:disabled::-moz-range-thumb {
   border:0;border-radius:50%;background:transparent;color:var(--color-text);font-size:.8rem;line-height:1;
 }
 .pilihan-cari__lepas:hover {background:var(--color-beige-dark);color:var(--color-black)}
+.survey-shell main .pilihan-cari__lencana--lagi {
+  min-height:0;padding:.18rem .6rem;border-style:dashed;background:transparent;color:var(--color-text);cursor:pointer;
+}
+.survey-shell main .pilihan-cari__lencana--lagi:hover {background:var(--color-beige-dark)}
 @media only screen and (max-width: 640px) {
   .pilihan-cari__lencana {font-size:.72rem}
   .pilihan-cari__lepas {width:1.4rem;height:1.4rem}

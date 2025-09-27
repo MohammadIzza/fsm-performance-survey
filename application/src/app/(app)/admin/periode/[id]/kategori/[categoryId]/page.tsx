@@ -36,7 +36,7 @@ async function CategoryDetailPage({
     ? instrument.parameters.reduce((s, p) => s + p.weight, 0)
     : 0;
 
-  const [candidateObjects, userTypes, assignments, activeUsers, sourceCandidates] =
+  const [candidateObjects, userTypes, assignments, activeUsers, sourceCandidates, units] =
     await Promise.all([
       prisma.assessmentObject.findMany({
         where: {
@@ -66,6 +66,7 @@ async function CategoryDetailPage({
         },
         orderBy: [{ period: { createdAt: "desc" } }, { name: "asc" }],
       }),
+      prisma.unit.findMany({ select: { id: true, name: true, parentId: true }, orderBy: { name: "asc" } }),
     ]);
 
   // Hanya kategori yang instrumennya sudah punya parameter yang layak jadi sumber salinan.
@@ -249,6 +250,8 @@ async function CategoryDetailPage({
                   categoryId={categoryId}
                   participants={category.categoryObjects}
                   candidateObjects={candidateObjects}
+                  units={units}
+                  objectTypeName={category.objectType.name}
                   editable={editable}
                 />
               </div>
