@@ -31,6 +31,7 @@ import { createPortal } from "react-dom";
 export const BATAS_CARI = 5;
 /** Baris yang dirender sekaligus; sisanya ditemukan dengan mengetik. */
 const BATAS_TAMPIL = 100;
+const BATAS_LENCANA = 12;
 
 export interface Opsi {
   value: string;
@@ -334,6 +335,9 @@ type PropsBanyak = {
   id?: string;
   options: Opsi[];
   defaultValue?: string[];
+  /** Mode terkendali: induk memegang daftar pilihan, misalnya untuk tombol "Pilih semua". */
+  value?: string[];
+  onChange?: (value: string[]) => void;
   disabled?: boolean;
   className?: string;
   placeholder?: string;
@@ -354,7 +358,10 @@ export function PilihanCariBanyak(props: PropsBanyak) {
         aria-label={props["aria-label"]}
         multiple
         disabled={props.disabled}
-        defaultValue={props.defaultValue ?? []}
+        {...(props.value !== undefined
+          ? { value: props.value }
+          : { defaultValue: props.defaultValue ?? [] })}
+        onChange={(e) => props.onChange?.(Array.from(e.target.selectedOptions, (o) => o.value))}
         size={Math.max(2, options.length)}
         className={`form__control ${className}`.trim()}
       >
@@ -374,6 +381,8 @@ function KolomCariBanyak({
   id,
   options,
   defaultValue = [],
+  value,
+  onChange,
   disabled,
   className = "",
   placeholder = "Ketik untuk mencari, lalu pilih…",
@@ -385,7 +394,16 @@ function KolomCariBanyak({
   const jangkarRef = useRef<HTMLSpanElement>(null);
   const daftarRef = useRef<HTMLUListElement>(null);
 
-  const [nilai, setNilai] = useState<string[]>(defaultValue);
+  const [nilaiSendiri, setNilaiSendiri] = useState<string[]>(defaultValue);
+  const nilai = value !== undefined ? value : nilaiSendiri;
+  const setNilai = (ubah: (sekarang: string[]) => string[]) => {
+    const baru = ubah(nilai);
+    if (value === undefined) setNilaiSendiri(baru);
+    onChange?.(baru);
+  };
+  // Ratusan lencana sekaligus (hasil "Pilih semua") hanya membuat kolom memanjang; sisanya diringkas.
+  const [semuaLencana, setSemuaLencana] = useState(false);
+  const lencana = semuaLencana ? nilai : nilai.slice(0, BATAS_LENCANA);
   const [buka, setBuka] = useState(false);
   const [kueri, setKueri] = useState("");
   const [sorot, setSorot] = useState(0);
@@ -396,7 +414,8 @@ function KolomCariBanyak({
   const posisi = usePosisiDaftar(buka, jangkarRef, nilai.length);
 
   useResetFormulir(inputRef, () => {
-    setNilai(defaultValue);
+    setNilai(() => defaultValue);
+    setSemuaLencana(false);
     setKueri("");
     setBuka(false);
   });
@@ -432,7 +451,7 @@ function KolomCariBanyak({
     <span className={`pilihan-cari pilihan-cari--banyak ${className}`.trim()}>
       {nilai.length > 0 && (
         <span className="pilihan-cari__terpilih">
-          {nilai.map((v) => (
+          {lencana.map((v) => (
             <span key={v} className="pilihan-cari__lencana">
               {labelDari.get(v) ?? v}
               {!disabled && (
@@ -447,6 +466,15 @@ function KolomCariBanyak({
               )}
             </span>
           ))}
+          {nilai.length > BATAS_LENCANA && (
+            <button
+              type="button"
+              className="pilihan-cari__lencana pilihan-cari__lencana--lagi"
+              onClick={() => setSemuaLencana((x) => !x)}
+            >
+              {semuaLencana ? "Ringkas" : `+${nilai.length - BATAS_LENCANA} lainnya`}
+            </button>
+          )}
         </span>
       )}
       <span ref={jangkarRef} className="pilihan-cari__jangkar">
