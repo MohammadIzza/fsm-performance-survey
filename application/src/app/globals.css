@@ -591,6 +591,21 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell main .app-btn--danger:hover:not(:disabled) {border-color:var(--color-brand-1)}
 .survey-shell main .admin-action:disabled,
 .survey-shell main .app-btn:disabled {opacity:.55;cursor:default}
+/* Tindakan yang hanya membuka, menghitung, atau mengeluarkan satu baris: dibentuk sebagai teks
+   bergaris bawah, bukan pil bertepi. Tombol bertepi menandai tindakan yang mengubah keadaan, dan
+   kalau semua tindakan memakainya, yang penting tidak lagi menonjol. */
+.survey-shell main .app-btn--polos {
+  min-height:0;padding:0;border:0;border-radius:0;background:none;
+  color:var(--color-brand-3);text-decoration:underline;text-underline-offset:.2em;
+  text-decoration-thickness:1px;
+}
+.survey-shell main .app-btn--polos:hover:not(:disabled) {
+  border-color:transparent;background:none;color:var(--color-brand-8);
+}
+.survey-shell main .app-btn--polos.app-btn--danger {border-color:transparent;color:var(--color-brand-1)}
+.survey-shell main .app-btn--polos.app-btn--danger:hover:not(:disabled) {
+  border-color:transparent;color:var(--color-brand-1);
+}
 
 /* Bagian ini bukan kartu: garis pemisahnya cukup satu, sama seperti antar-bagian lembar di atas. */
 .admin-tools-section {border-top:2px solid var(--color-black);padding-top:.9rem}
@@ -749,11 +764,11 @@ input[type="range"]:disabled::-moz-range-thumb {
    Tabel memberi sebagian besar ruang kepada daftar nama penilai, sementara angka ringkas tidak
    ikut meregang. Area persetujuan dan tombol dibaca sebagai satu tindakan yang kompak. */
 .assignment-planner {font-size:.6rem;line-height:1.4}
-.assignment-planner__preview {display:flex;justify-content:flex-end;margin:0 0 .2rem}
-.survey-shell main .assignment-planner .assignment-planner__preview-button,
+.assignment-planner__preview {display:flex;justify-content:flex-start;margin:0 0 .2rem}
 .survey-shell main .assignment-planner .assignment-planner__apply .app-btn {
   min-height:1.9rem;padding:.38rem .75rem;font-size:.6rem;
 }
+.survey-shell main .assignment-planner .assignment-planner__preview-button {font-size:.6rem}
 .assignment-planner__table-wrap {border:0;border-radius:0;background:transparent}
 .survey-shell main .assignment-planner__table {
   table-layout:fixed;font-size:.6rem;line-height:1.4;
@@ -791,10 +806,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 
 @media only screen and (max-width:640px) {
-  .assignment-planner__preview {justify-content:stretch}
-  .survey-shell main .assignment-planner .assignment-planner__preview-button {
-    width:100%;
-  }
+  .assignment-planner__preview {justify-content:flex-start}
   .assignment-planner__apply-row {display:grid;gap:.45rem}
   .survey-shell main .assignment-planner .assignment-planner__apply .app-btn {
     justify-self:stretch;width:100%;

@@ -41,14 +41,17 @@ export function AssignmentPlanner({
 
   return (
     <div className="assignment-planner space-y-4">
+      {/* Pratinjau tidak mengubah apa pun — ia hanya menghitung usulan. Bentuknya tautan sebaris,
+          bukan tombol bertepi seperti "Terapkan penugasan" di bawah, supaya keduanya tidak
+          terbaca sebagai dua tindakan yang sama beratnya. */}
       <form action={previewAction} className="assignment-planner__preview">
         <input type="hidden" name="categoryId" value={categoryId} />
         <button
           type="submit"
           disabled={previewPending}
-          className="app-btn assignment-planner__preview-button"
+          className="app-btn app-btn--polos assignment-planner__preview-button"
         >
-          {previewPending ? "Menghitung…" : "Pratinjau pengacakan"}
+          {previewPending ? "Menghitung…" : "Pratinjau pengacakan →"}
         </button>
       </form>
 
