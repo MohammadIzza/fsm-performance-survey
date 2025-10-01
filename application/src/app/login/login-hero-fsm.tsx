@@ -22,25 +22,36 @@ const HURUF = [
 /** Jeda antarhuruf, sama dengan animation-delay .login-fsm__letter di globals.css. */
 const JEDA_ANTARHURUF = 110;
 
-// Pemutar mulai diunduh begitu modul ini dievaluasi di peramban — sebelum hidrasi selesai — bukan
-// menunggu useEffect. Di ponsel selisihnya ratusan milidetik kosong di bawah formulir.
+/**
+ * Animasi mekar hanya di layar lebar dan bila pengguna tidak meminta gerak minimal. Di ponsel huruf
+ * tampil utuh sejak awal, jadi pemutar Lottie (±45 KB terkompresi) dan tiga berkas JSON-nya tidak
+ * perlu diunduh sama sekali: yang dipakai gambar SVG bingkai terakhirnya (±1–2 KB per huruf).
+ */
+function pakaiAnimasiMekar() {
+  return (
+    window.matchMedia("(min-width: 641px)").matches &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
+// Di layar lebar, pemutar mulai diunduh begitu modul ini dievaluasi di peramban — sebelum hidrasi
+// selesai — bukan menunggu useEffect.
 const pemutar =
-  typeof window === "undefined" ? null : import("lottie-web/build/player/lottie_light");
+  typeof window !== "undefined" && pakaiAnimasiMekar()
+    ? import("lottie-web/build/player/lottie_light")
+    : null;
 
 export function LoginHeroFsm() {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const akar = ref.current;
-    if (!akar || !pemutar) return;
+    if (!akar) return;
 
-    // Pengguna yang meminta gerak seminimal mungkin tetap mendapat hurufnya — hanya saja langsung
-    // pada bingkai terakhir, tanpa mekar dan tanpa naik.
-    const diamSaja = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     // Di layar sempit hurufnya kecil: animasi mekar Lottie (kepingan yang terbang menyusun huruf)
-    // hanya terbaca sebagai serpihan acak yang bergerak bersamaan dengan gerak naik. Di sana huruf
-    // langsung utuh dan hanya naik perlahan.
-    const tanpaMekar = diamSaja || window.matchMedia("(max-width: 640px)").matches;
+    // hanya terbaca sebagai serpihan acak yang bergerak bersamaan dengan gerak naik. Di sana — dan
+    // bagi pengguna yang meminta gerak minimal — huruf tampil utuh dari gambar statisnya.
+    const tanpaMekar = !pemutar;
     let batal = false;
     const animasi: { destroy(): void; goToAndStop(v: number, f?: boolean): void; play(): void; totalFrames: number }[] = [];
     const tenggat: ReturnType<typeof setTimeout>[] = [];
@@ -54,8 +65,7 @@ export function LoginHeroFsm() {
       if (batal || dimulai) return;
       dimulai = true;
       for (const [i, anim] of animasi.entries()) {
-        if (tanpaMekar) anim.goToAndStop(anim.totalFrames - 1, true);
-        else tenggat.push(setTimeout(() => anim.play(), i * JEDA_ANTARHURUF));
+        tenggat.push(setTimeout(() => anim.play(), i * JEDA_ANTARHURUF));
       }
       // Dua bingkai: yang pertama melukis huruf dalam keadaan awal (transparan, di bawah), yang
       // kedua baru memulai transisi — tanpa itu peramban bisa menggabungkan keduanya dan hurufnya
@@ -67,7 +77,20 @@ export function LoginHeroFsm() {
       });
     };
 
-    pemutar
+    if (tanpaMekar) {
+      // Gerak naik menunggu ketiga gambar selesai diurai, supaya hurufnya tidak muncul satu per
+      // satu di tengah gerakan.
+      const gambar = [...akar.querySelectorAll<HTMLImageElement>(".login-fsm__statis")];
+      Promise.all(gambar.map((img) => img.decode().catch(() => undefined))).then(mulai);
+      tenggat.push(setTimeout(mulai, 5000));
+      return () => {
+        batal = true;
+        cancelAnimationFrame(bingkai);
+        for (const t of tenggat) clearTimeout(t);
+      };
+    }
+
+    pemutar!
       .then(({ default: lottie }) => {
         if (batal) return;
         let siap = 0;
@@ -110,7 +133,18 @@ export function LoginHeroFsm() {
       <div className="login-fsm__letters">
         {HURUF.map((h) => (
           <div key={h.kunci} className={`login-fsm__letter login-fsm__letter--${h.kunci}`}>
-            <div className="login-fsm__flower" data-huruf={h.kunci} />
+            <div className="login-fsm__flower" data-huruf={h.kunci}>
+              {/* Bingkai terakhir animasi, dipakai di ponsel; di layar lebar SVG Lottie menggantikannya. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className="login-fsm__statis"
+                src={withBase(`/assets/images/login-fsm-${h.kunci}.svg`)}
+                alt=""
+                width={h.kunci === "m" ? 480 : 420}
+                height={460}
+                decoding="async"
+              />
+            </div>
             <span className="login-fsm__stem" />
           </div>
         ))}

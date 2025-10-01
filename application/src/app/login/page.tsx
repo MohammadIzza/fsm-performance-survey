@@ -1,5 +1,4 @@
 import { redirect } from 'next/navigation';
-import { preload } from 'react-dom';
 import { withBase } from '@/lib/base-path';
 import { getCurrentAuthContext } from '@/lib/authz';
 import { LoginForm } from './login-form';
@@ -8,14 +7,31 @@ import { LoginHeroFsm } from './login-hero-fsm';
 export default async function LoginPage() {
   if (await getCurrentAuthContext()) redirect('/dashboard');
 
-  // Huruf FSM di sisi kiri baru diminta setelah pustaka Lottie selesai dimuat di peramban; tanpa
-  // preload ketiganya datang belakangan dan muncul satu per satu.
-  for (const huruf of ['f', 's', 'm']) {
-    preload(withBase(`/assets/lottie/home-hero-${huruf}.json`), { as: 'fetch', crossOrigin: 'anonymous' });
-  }
-
   return (
     <main className="survey-login">
+      {/* Huruf FSM: di layar lebar JSON animasinya diminta sejak HTML diterima (bukan menunggu
+          pustaka Lottie termuat); di ponsel yang dipakai gambar statisnya. `media` membuat
+          masing-masing hanya diunduh pada lebar layar yang memakainya. React memindahkan <link>
+          ini ke <head>. */}
+      {['f', 's', 'm'].map((huruf) => (
+        <link
+          key={`json-${huruf}`}
+          rel="preload"
+          as="fetch"
+          crossOrigin="anonymous"
+          href={withBase(`/assets/lottie/home-hero-${huruf}.json`)}
+          media="(min-width: 641px) and (prefers-reduced-motion: no-preference)"
+        />
+      ))}
+      {['f', 's', 'm'].map((huruf) => (
+        <link
+          key={`svg-${huruf}`}
+          rel="preload"
+          as="image"
+          href={withBase(`/assets/images/login-fsm-${huruf}.svg`)}
+          media="(max-width: 640px), (prefers-reduced-motion: reduce)"
+        />
+      ))}
       <section className="survey-login-art">
         <LoginHeroFsm />
       </section>

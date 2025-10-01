@@ -102,10 +102,24 @@ Gateway UNDIP melayani HTTP/1.1, jadi setiap permintaan tambahan terasa. Yang di
 - **Cache** (`application/next.config.ts`): nama ber-hash (`_astro/`, potongan tema,
   `tema-<hash>.js`) disimpan setahun dan `immutable`; sisa `assets/` seminggu dengan
   `stale-while-revalidate`. HTML tetap `max-age=0`.
-- **Halaman masuk aplikasi** memuat ketiga font dan JSON huruf F/S/M sejak HTML diterima.
+- **Font** HeyWow dipangkas ke karakter yang dipakai (Latin dasar, Latin-1, Latin Extended-A,
+  tanda baca, panah, dan simbol matematika umum): 94 KB → 65 KB untuk ketiga ketebalan. Bila teks
+  baru memakai karakter di luar rentang itu, karakter tersebut tampil dengan font cadangan.
+- **Sampul video beranda** dimuat pemuat malas tema (`data-plr-loading="lazy"`) saat seksinya
+  terlihat; `loading="lazy"` peramban tetap mengunduhnya sejak awal pada koneksi lambat.
+- **Halaman masuk aplikasi** memuat ketiga font sejak HTML diterima. Huruf F/S/M di ponsel memakai
+  SVG bingkai terakhir (`public/assets/images/login-fsm-*.svg`) tanpa pemutar Lottie; di layar lebar
+  JSON animasinya dipreload dengan `media` dan pemutar Lottie diunduh saat modul dievaluasi.
+- **Aplikasi tanpa GSAP.** Gerak masuk halaman memakai Web Animations API.
+- **CSS tema di aplikasi dipangkas** saat disalin (`scripts/pangkas-css-tema.mjs`): hanya aturan yang
+  kelasnya muncul di kode aplikasi yang dipertahankan (249 KB → 68 KB). Menambah kelas tema baru
+  di komponen aplikasi otomatis ikut terbawa pada build berikutnya; kelas yang hanya dirakit dari
+  string di luar pola awalan (`nama-`, `nama--`, `nama__`) perlu ditulis utuh di kode.
 
-Masih di luar kendali server ini: gateway belum HTTP/2, dan gateway menjawab `/survey` (tanpa garis
-miring) dengan alih ke `http://…/survey/`. Karena itu tautan beranda di hasil build ditulis
+Masih di luar kendali server ini: gateway belum HTTP/2; gateway membongkar lalu mengompres ulang
+setiap respons dengan gzip yang lebih lemah dan tanpa brotli (skrip tema: 150 KB dari server ini,
+216 KB sampai pengguna); dan gateway menjawab `/survey` (tanpa garis miring) dengan alih ke
+`http://…/survey/`. Karena itu tautan beranda di hasil build ditulis
 `/survey/` — alih ke `http` diblokir peramban sebagai konten campuran saat transisi halaman.
 
 ## Kembali ke halaman

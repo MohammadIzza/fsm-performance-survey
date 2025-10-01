@@ -71,7 +71,8 @@ Chrome sistem di LXC ini tidak bisa membuka alamat lokal (`ERR_ACCESS_DENIED`); 
    belum dipasang (`X-Powered-By` sudah dilepas).
 
 **Gateway (perlu admin UNDIP)**
-5. Gateway masih HTTP/1.1 — sisa hambatan terbesar kunjungan pertama.
+5. Gateway masih HTTP/1.1 dan mengompres ulang respons dengan gzip lemah (±40% lebih besar dari yang
+   dikirim server ini) — sisa hambatan terbesar kunjungan pertama.
 6. Gateway mengalihkan `/survey` ke `http://…/survey/`, bukan `https://`.
 
 **Aplikasi**

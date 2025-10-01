@@ -2539,6 +2539,13 @@ input[type="range"]:disabled::-moz-range-thumb {
   display:block;width:175%!important;height:163.7%!important;
 }
 .login-fsm__letter--m .login-fsm__flower svg {width:160%!important;left:-30%}
+/* Gambar statis bingkai terakhir menempati kotak yang sama persis dengan SVG Lottie, lalu disembunyikan
+   begitu SVG animasinya terpasang (layar lebar). */
+.login-fsm__flower .login-fsm__statis {
+  position:absolute;top:-31.85%;left:-37.5%;display:block;width:175%;height:163.7%;max-width:none;
+}
+.login-fsm__letter--m .login-fsm__flower .login-fsm__statis {width:160%;left:-30%}
+.login-fsm__flower:has(svg) .login-fsm__statis {display:none}
 /* Tangkai: garis tipis dengan bulatan kecil di pangkal huruf, seperti di beranda. Digambar dengan
    CSS, bukan SVG berskala tak seragam — bulatannya akan ikut memipih kalau ditarik bersama garis. */
 /* Tangkai menempel di tempat yang sama dengan beranda publik: di sapuan kiri F dan kaki kiri M,
@@ -2871,3 +2878,4 @@ input[type="range"]:disabled::-moz-range-thumb {
 @media only screen and (max-width: 640px) {
   .assessment-score-control__batas {font-size:.62rem}
 }
+

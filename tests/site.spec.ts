@@ -44,10 +44,20 @@ for (const route of routes) {
         image.loading = 'eager';
       }),
     );
+    // Gambar yang dimuat pemuat malas tema (data-plr-loading + data-src) baru mendapat src saat
+    // seksinya masuk layar; berkasnya diperiksa langsung, bukan ditunggu termuat.
+    const gambarMalas = await page
+      .locator('img[data-plr-loading][data-src]:not([src])')
+      .evaluateAll((images) =>
+        images.map((image) => image.getAttribute('data-src')!),
+      );
+    for (const src of gambarMalas) {
+      expect((await request.get(src)).status(), src).toBe(200);
+    }
     await expect
       .poll(() =>
         page
-          .locator('img')
+          .locator('img:not([data-plr-loading]:not([src]))')
           .evaluateAll((images) =>
             images
               .filter((image) => !image.complete || image.naturalWidth === 0)
