@@ -2879,3 +2879,75 @@ input[type="range"]:disabled::-moz-range-thumb {
   .assessment-score-control__batas {font-size:.62rem}
 }
 
+/* Kolom pilihan yang bisa dicari (components/theme/pilihan-cari.tsx), dipakai untuk daftar pilihan
+   lebih dari lima. Kolomnya berbentuk sama dengan <select> tema — panah di kanan, ukuran
+   .form__control — sehingga tidak terlihat berbeda sampai diklik; daftarnya meniru daftar pilihan
+   bergaya yang sudah dipakai <select> (latar putih, sorot krem, terpilih kuning). */
+.pilihan-cari {position:relative;display:block;width:100%;min-width:0}
+/* `.admin-tools__field > span` membuat teks label kecil kapital; pembungkus ini ikut tertangkap aturan
+   itu karena berupa <span> (elemen yang sah di dalam <label>), jadi gaya teksnya dikembalikan. */
+.admin-tools__field > .pilihan-cari {
+  font-size:inherit;font-weight:400;letter-spacing:normal;text-transform:none;color:inherit;
+}
+/* Selektor dipanjangkan sampai melewati aturan kolom isian ruang survei, yang menimpa latar kolom
+   dan menghapus panahnya. */
+.pilihan-cari__input.form__control,
+.survey-shell main .pilihan-cari .pilihan-cari__input.form__control {
+  padding-right:2.25em;text-overflow:ellipsis;cursor:pointer;
+  background-color:var(--color-white);
+  background-image:url('/survey/assets/images/arrow-select.png');
+  background-position:calc(100% - .9rem) 50%;
+  background-size:.3333rem .302rem;
+  background-repeat:no-repeat;
+}
+.pilihan-cari__input.form__control[aria-expanded="true"] {cursor:text}
+.pilihan-cari__input.form__control:disabled {cursor:default}
+.pilihan-cari__input.form__control::placeholder {color:var(--color-text);opacity:.75}
+/* Pilihan yang berlaku tampil sebagai placeholder berwarna teks biasa (lihat pilihan-cari.tsx). */
+.pilihan-cari__input.form__control[data-terisi="true"]::placeholder {color:var(--color-black);opacity:1}
+
+.pilihan-cari__daftar {
+  position:fixed;z-index:70;overflow-y:auto;margin:0;padding:.25rem;list-style:none;
+  background:var(--color-white);border:1px solid var(--color-grey-2);border-radius:.55rem;
+  box-shadow:0 .6rem 1.6rem rgb(33 30 31 / .12);
+  font:400 var(--font-size-t-sm)/1.3 var(--font-family-text);color:var(--color-black);
+  overscroll-behavior:contain;
+}
+.pilihan-cari__opsi {padding:.45rem .6rem;border-radius:.4rem;cursor:pointer;overflow-wrap:anywhere}
+.pilihan-cari__opsi[data-sorot="true"] {background:var(--color-beige-dark)}
+.pilihan-cari__opsi[aria-selected="true"] {background:var(--color-brand-2);font-weight:600}
+.pilihan-cari__opsi--centang {position:relative;padding-left:1.75rem}
+.pilihan-cari__opsi--centang::before {
+  content:"";position:absolute;left:.6rem;top:50%;width:.7rem;height:.7rem;translate:0 -50%;
+  border:1.5px solid var(--color-grey-2);border-radius:.2rem;background:var(--color-white);
+}
+.pilihan-cari__opsi--centang[aria-selected="true"]::before {
+  border-color:var(--color-black);background:var(--color-black);
+  box-shadow:inset 0 0 0 .14rem var(--color-white);
+}
+.pilihan-cari__kosong {padding:.55rem .6rem;color:var(--color-text);font-size:.85em}
+/* Di layar lebar teks daftar mengikuti skala kolom isian ruang survei, bukan ukuran situs publik. */
+@media only screen and (min-width: 641px) {
+  .pilihan-cari__daftar {font-size:.7rem}
+  .pilihan-cari__opsi {padding:.38rem .55rem}
+  .pilihan-cari__opsi--centang {padding-left:1.65rem}
+}
+
+/* Pilihan ganda: yang sudah dipilih tampil sebagai lencana di atas kolom ketik. */
+.pilihan-cari--banyak {display:flex;flex-direction:column;gap:.35rem}
+.pilihan-cari__jangkar {display:block}
+.pilihan-cari__terpilih {display:flex;flex-wrap:wrap;gap:.3rem}
+.pilihan-cari__lencana {
+  display:inline-flex;align-items:center;gap:.15rem;max-width:100%;
+  padding:.18rem .2rem .18rem .6rem;border:1px solid var(--color-grey-2);border-radius:999em;
+  background:var(--color-white);font-size:.6rem;font-weight:600;line-height:1.25;
+}
+.pilihan-cari__lepas {
+  display:inline-grid;place-items:center;width:1.05rem;height:1.05rem;min-height:0;padding:0;
+  border:0;border-radius:50%;background:transparent;color:var(--color-text);font-size:.8rem;line-height:1;
+}
+.pilihan-cari__lepas:hover {background:var(--color-beige-dark);color:var(--color-black)}
+@media only screen and (max-width: 640px) {
+  .pilihan-cari__lencana {font-size:.72rem}
+  .pilihan-cari__lepas {width:1.4rem;height:1.4rem}
+}

@@ -12,7 +12,7 @@ async function ObjekPage() {
     prisma.unit.findMany({ where: { active: true }, orderBy: { code: "asc" } }),
     prisma.user.findMany({
       where: { active: true },
-      select: { id: true, name: true, loginIdentifier: true },
+      select: { id: true, name: true, loginIdentifier: true, primaryUnitId: true },
       orderBy: { name: "asc" },
     }),
   ]);

@@ -5,8 +5,9 @@ import { prisma } from "@/lib/prisma";
 import { PageIntro, SummaryCard } from "@/components/theme/summary";
 import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 import { FilterBar, FilterField } from "@/components/theme/filter-bar";
-import { Select, TextInput } from "@/components/theme/form-field";
+import { TextInput } from "@/components/theme/form-field";
 import { withBase } from "@/lib/base-path";
+import { PilihanCari } from "@/components/theme/pilihan-cari";
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", {
   day: "2-digit",
@@ -55,24 +56,22 @@ async function AuditPage({
 
       <FilterBar action={withBase("/admin/audit")} method="GET" submitLabel="Terapkan filter">
         <FilterField label="Objek tindakan" htmlFor="f-entity">
-          <Select id="f-entity" name="entity" defaultValue={sp.entity ?? ""}>
-            <option value="">Semua objek tindakan</option>
-            {entities.map((e) => (
-              <option key={e} value={e}>
-                {e}
-              </option>
-            ))}
-          </Select>
+          <PilihanCari
+            id="f-entity"
+            name="entity"
+            defaultValue={sp.entity ?? ""}
+            kosong={{ label: "Semua objek tindakan", bisaDipilih: true }}
+            options={entities.map((e) => ({ value: e, label: e }))}
+          />
         </FilterField>
         <FilterField label="Pelaku" htmlFor="f-actor">
-          <Select id="f-actor" name="actorId" defaultValue={sp.actorId ?? ""}>
-            <option value="">Semua pelaku</option>
-            {actors.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.name}
-              </option>
-            ))}
-          </Select>
+          <PilihanCari
+            id="f-actor"
+            name="actorId"
+            defaultValue={sp.actorId ?? ""}
+            kosong={{ label: "Semua pelaku", bisaDipilih: true }}
+            options={actors.map((a) => ({ value: a.id, label: a.name }))}
+          />
         </FilterField>
         <FilterField label="Dari tanggal" htmlFor="f-from">
           <TextInput id="f-from" name="from" type="date" defaultValue={sp.from ?? ""} />

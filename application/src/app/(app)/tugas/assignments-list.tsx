@@ -5,6 +5,7 @@ import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-l
 import { StatusPill } from "@/components/theme/status-pill";
 import { Select } from "@/components/theme/form-field";
 import { DateValue } from "@/components/theme/date-range";
+import { PilihanCari } from "@/components/theme/pilihan-cari";
 
 export interface AssignmentRow {
   id: string;
@@ -60,16 +61,13 @@ export function AssignmentsList({ assignments }: { assignments: AssignmentRow[] 
             ["location", (
               <label className="assignment-head-filter" data-active={periodId ? "true" : undefined} key="period-filter">
                 <span>Periode</span>
-                <Select
+                <PilihanCari
                   aria-label="Filter periode"
                   value={periodId}
-                  onChange={(e) => setPeriodId(e.target.value)}
-                >
-                  <option value="">Semua periode</option>
-                  {periods.map(([id, name]) => (
-                    <option key={id} value={id}>{name}</option>
-                  ))}
-                </Select>
+                  onChange={setPeriodId}
+                  kosong={{ label: "Semua periode", bisaDipilih: true }}
+                  options={periods.map(([id, name]) => ({ value: id, label: name }))}
+                />
               </label>
             )],
             ["price", (

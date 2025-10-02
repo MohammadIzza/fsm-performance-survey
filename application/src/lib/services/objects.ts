@@ -32,24 +32,32 @@ export async function listObjects() {
 }
 
 async function validateInput(input: ObjectInput) {
-  const name = input.name.trim();
-  if (!name) throw new ServiceError("Nama objek wajib diisi.");
-  if (!input.ownerUnitId) throw new ServiceError("Unit pemilik wajib dipilih.");
+  let name = input.name.trim();
+  let ownerUnitId = input.ownerUnitId;
 
   const objectType = await prisma.objectType.findUnique({ where: { id: input.typeId } });
   if (!objectType) throw new ServiceError("Jenis objek tidak ditemukan.");
 
-  const ownerUnit = await prisma.unit.findUnique({ where: { id: input.ownerUnitId } });
-  if (!ownerUnit) throw new ServiceError("Unit pemilik tidak ditemukan.");
-
   // Bab 8.3: objek jenis Orang wajib merujuk pengguna terkait (dipakai mencegah menilai diri sendiri, DEF-17).
+  // Nama dan unit pemiliknya sudah tercatat pada pengguna itu, jadi yang dikosongkan diambil dari sana —
+  // unit utama pengguna menjadi unit snapshot objek (Bab 8.3).
   if (objectType.code === "ORANG") {
     if (!input.referenceUserId) {
       throw new ServiceError("Objek jenis Orang wajib merujuk pengguna terkait.");
     }
     const user = await prisma.user.findUnique({ where: { id: input.referenceUserId } });
     if (!user) throw new ServiceError("Pengguna terkait tidak ditemukan.");
+    if (!name) name = user.name;
+    if (!ownerUnitId && user.primaryUnitId) ownerUnitId = user.primaryUnitId;
+    if (!ownerUnitId) {
+      throw new ServiceError("Pengguna ini belum punya unit utama — pilih unit pemilik objeknya.");
+    }
   }
+
+  if (!name) throw new ServiceError("Nama objek wajib diisi.");
+  if (!ownerUnitId) throw new ServiceError("Unit pemilik wajib dipilih.");
+  const ownerUnit = await prisma.unit.findUnique({ where: { id: ownerUnitId } });
+  if (!ownerUnit) throw new ServiceError("Unit pemilik tidak ditemukan.");
 
   if (objectType.code === "UNIT") {
     if (!input.referenceUnitId) {
@@ -64,18 +72,18 @@ async function validateInput(input: ObjectInput) {
     if (!responsible) throw new ServiceError("Penanggung jawab tidak ditemukan.");
   }
 
-  return { name, objectType };
+  return { name, ownerUnitId, objectType };
 }
 
 async function createObjectImpl(input: ObjectInput, actor: AuthContext) {
-  const { name } = await validateInput(input);
+  const { name, ownerUnitId } = await validateInput(input);
 
   const object = await prisma.$transaction(async (tx) => {
     const obj = await tx.assessmentObject.create({
       data: {
         typeId: input.typeId,
         name,
-        ownerUnitId: input.ownerUnitId,
+        ownerUnitId,
         referenceUserId: input.referenceUserId,
         referenceUnitId: input.referenceUnitId,
         responsibleUserId: input.responsibleUserId,
@@ -111,7 +119,7 @@ async function updateObjectImpl(objectId: string, input: ObjectInput, actor: Aut
   });
   if (!before) throw new ServiceError("Objek tidak ditemukan.");
 
-  const { name } = await validateInput(input);
+  const { name, ownerUnitId } = await validateInput(input);
 
   const object = await prisma.$transaction(async (tx) => {
     const obj = await tx.assessmentObject.update({
@@ -119,7 +127,7 @@ async function updateObjectImpl(objectId: string, input: ObjectInput, actor: Aut
       data: {
         typeId: input.typeId,
         name,
-        ownerUnitId: input.ownerUnitId,
+        ownerUnitId,
         referenceUserId: input.referenceUserId,
         referenceUnitId: input.referenceUnitId,
         responsibleUserId: input.responsibleUserId,

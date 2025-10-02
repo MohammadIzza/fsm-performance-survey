@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { updateGroupRuleAction } from "@/lib/actions/admin-instruments";
 import type { getCategoryDetail } from "@/lib/services/categories";
+import { PilihanCariBanyak } from "@/components/theme/pilihan-cari";
 
 type GroupRule = NonNullable<Awaited<ReturnType<typeof getCategoryDetail>>>["groupRules"][number];
 
@@ -69,9 +70,13 @@ export function GroupRuleForm({
         </label>
       </div>
       <label className="text-sm">Parameter pembeda nilai sama (opsional)
-        <select name="tieBreakParameterIds" multiple disabled={!editable} defaultValue={(rule.tieBreakParameterIds as string[]|null)??[]} className={fieldClass+" block w-full"}>
-         {parameters.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
-        </select><span className="block text-xs text-[var(--muted)]">Urutan sesuai urutan parameter. Tanpa pilihan, peringkat bersama 1, 2, 2, 4.</span>
+        <PilihanCariBanyak
+          name="tieBreakParameterIds"
+          disabled={!editable}
+          defaultValue={(rule.tieBreakParameterIds as string[] | null) ?? []}
+          className="block w-full"
+          options={parameters.map((p) => ({ value: p.id, label: p.name }))}
+        /><span className="block text-xs text-[var(--muted)]">Urutan sesuai urutan parameter. Tanpa pilihan, peringkat bersama 1, 2, 2, 4.</span>
       </label>
       {editable ? (
         <div className="flex items-center gap-2">

@@ -22,6 +22,7 @@ import {
 } from "@/lib/actions/admin-users";
 import { grantRoleAction, revokeRoleAction } from "@/lib/actions/admin-roles";
 import type { listUsersWithMeta } from "@/lib/services/users";
+import { PilihanCari } from "@/components/theme/pilihan-cari";
 
 type UserWithMeta = Awaited<ReturnType<typeof listUsersWithMeta>>[number];
 type UserType = { id: string; code: string; name: string };
@@ -75,36 +76,21 @@ export function UserManager({
           </label>
           <label className="admin-tools__field">
           <span>Jenis pengguna</span>
-          <select
+          <PilihanCari
             name="userTypeId"
             required
-            defaultValue=""
-            className="form__control"
-          >
-            <option value="" disabled>
-              Jenis pengguna…
-            </option>
-            {userTypes.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </select>
+            kosong={{ label: "Jenis pengguna…", bisaDipilih: false }}
+            options={userTypes.map((t) => ({ value: t.id, label: t.name }))}
+          />
           </label>
           <label className="admin-tools__field">
           <span>Unit utama (opsional)</span>
-          <select
+          <PilihanCari
             name="primaryUnitId"
             defaultValue=""
-            className="form__control"
-          >
-            <option value="">— Tanpa unit utama —</option>
-            {units.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.name} ({u.code})
-              </option>
-            ))}
-          </select>
+            kosong={{ label: "— Tanpa unit utama —", bisaDipilih: true }}
+            options={units.map((u) => ({ value: u.id, label: `${u.name} (${u.code})` }))}
+          />
           </label>
           <div className="sm:col-span-4">
             {createState.error && (
@@ -297,33 +283,21 @@ function UserRow({
             </label>
             <label className="admin-tools__field">
               <span>Jenis pengguna</span>
-              <select
+              <PilihanCari
                 name="userTypeId"
                 defaultValue={user.userTypeId}
                 required
-                className="form__control"
-              >
-                {userTypes.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                  </option>
-                ))}
-              </select>
+                options={userTypes.map((t) => ({ value: t.id, label: t.name }))}
+              />
             </label>
             <label className="admin-tools__field">
               <span>Unit utama</span>
-              <select
+              <PilihanCari
                 name="primaryUnitId"
                 defaultValue={user.primaryUnitId ?? ""}
-                className="form__control"
-              >
-                <option value="">— Tanpa unit utama —</option>
-                {units.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.name} ({u.code})
-                  </option>
-                ))}
-              </select>
+                kosong={{ label: "— Tanpa unit utama —", bisaDipilih: true }}
+                options={units.map((u) => ({ value: u.id, label: `${u.name} (${u.code})` }))}
+              />
             </label>
             <div className="flex items-center gap-2 sm:col-span-4">
               <button

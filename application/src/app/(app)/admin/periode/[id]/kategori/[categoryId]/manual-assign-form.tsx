@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { manualAssignEvaluatorAction } from "@/lib/actions/admin-assignments";
+import { PilihanCari } from "@/components/theme/pilihan-cari";
 
 const fieldClass =
   "form__control";
@@ -26,12 +27,12 @@ export function ManualAssignForm({
 
       <label className="admin-tools__field">
         <span>Objek yang dinilai</span>
-        <select name="categoryObjectId" required defaultValue="" className={fieldClass}>
-          <option value="" disabled>Pilih objek…</option>
-          {categoryObjects.map((co) => (
-            <option key={co.id} value={co.id}>{co.nameSnapshot}</option>
-          ))}
-        </select>
+        <PilihanCari
+          name="categoryObjectId"
+          required
+          kosong={{ label: "Pilih objek…", bisaDipilih: false }}
+          options={categoryObjects.map((co) => ({ value: co.id, label: co.nameSnapshot }))}
+        />
       </label>
       <label className="admin-tools__field">
         <span>Kelompok penilai</span>
@@ -43,12 +44,12 @@ export function ManualAssignForm({
       </label>
       <label className="admin-tools__field">
         <span>Orang yang menilai</span>
-        <select name="evaluatorId" required defaultValue="" className={fieldClass}>
-          <option value="" disabled>Pilih penilai…</option>
-          {users.map((u) => (
-            <option key={u.id} value={u.id}>{u.name} ({u.loginIdentifier})</option>
-          ))}
-        </select>
+        <PilihanCari
+          name="evaluatorId"
+          required
+          kosong={{ label: "Pilih penilai…", bisaDipilih: false }}
+          options={users.map((u) => ({ value: u.id, label: `${u.name} (${u.loginIdentifier})` }))}
+        />
       </label>
       <button
         type="submit"

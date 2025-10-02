@@ -15,6 +15,7 @@ import { StatusPill } from "@/components/theme/status-pill";
 import { createUnitAction, updateUnitAction, setUnitActiveAction } from "@/lib/actions/admin-units";
 import { assignLeadershipAction, endLeadershipAction } from "@/lib/actions/admin-leadership";
 import type { listUnitsWithMeta } from "@/lib/services/units";
+import { PilihanCari } from "@/components/theme/pilihan-cari";
 
 type UnitWithMeta = Awaited<ReturnType<typeof listUnitsWithMeta>>[number];
 type ActiveUser = { id: string; name: string; loginIdentifier: string };
@@ -53,18 +54,12 @@ export function UnitManager({
           </label>
           <label className="admin-tools__field">
           <span>Induk</span>
-          <select
+          <PilihanCari
             name="parentId"
             defaultValue=""
-            className="form__control"
-          >
-            <option value="">— Akar (tanpa induk) —</option>
-            {parentOptions.map((u) => (
-              <option key={u.id} value={u.id}>
-                {unitLabel(u)}
-              </option>
-            ))}
-          </select>
+            kosong={{ label: "— Akar (tanpa induk) —", bisaDipilih: true }}
+            options={parentOptions.map((u) => ({ value: u.id, label: unitLabel(u) }))}
+          />
           </label>
           <div className="sm:col-span-4">
             {createState.error && (
@@ -189,18 +184,12 @@ function UnitRow({
             </label>
             <label className="admin-tools__field">
             <span>Induk</span>
-            <select
+            <PilihanCari
               name="parentId"
               defaultValue={unit.parentId ?? ""}
-              className="form__control"
-            >
-              <option value="">— Akar (tanpa induk) —</option>
-              {parentOptions.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {unitLabel(u)}
-                </option>
-              ))}
-            </select>
+              kosong={{ label: "— Akar (tanpa induk) —", bisaDipilih: true }}
+              options={parentOptions.map((u) => ({ value: u.id, label: unitLabel(u) }))}
+            />
             </label>
             <div className="flex items-center gap-2 sm:col-span-4">
               <button
@@ -263,21 +252,12 @@ function UnitRow({
                 <input type="hidden" name="unitId" value={unit.id} />
                 <label className="admin-tools__field">
                 <span>Pengguna</span>
-                <select
+                <PilihanCari
                   name="userId"
                   required
-                  defaultValue=""
-                  className="form__control"
-                >
-                  <option value="" disabled>
-                    Pilih pengguna…
-                  </option>
-                  {activeUsers.map((u) => (
-                    <option key={u.id} value={u.id}>
-                      {u.name} ({u.loginIdentifier})
-                    </option>
-                  ))}
-                </select>
+                  kosong={{ label: "Pilih pengguna…", bisaDipilih: false }}
+                  options={activeUsers.map((u) => ({ value: u.id, label: `${u.name} (${u.loginIdentifier})` }))}
+                />
                 </label>
                 <label className="admin-tools__field">
                   <span>Jabatan</span>

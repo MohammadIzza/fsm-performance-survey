@@ -21,11 +21,12 @@ import {
   createObjectTypeAction,
 } from "@/lib/actions/admin-objects";
 import type { listObjects } from "@/lib/services/objects";
+import { PilihanCari, PilihanCariBanyak } from "@/components/theme/pilihan-cari";
 
 type ObjectWithMeta = Awaited<ReturnType<typeof listObjects>>[number];
 type ObjectType = { id: string; code: string; name: string };
-type Unit = { id: string; code: string; name: string };
-type UserOption = { id: string; name: string; loginIdentifier: string };
+type Unit = { id: string; code: string; name: string; parentId?: string | null };
+type UserOption = { id: string; name: string; loginIdentifier: string; primaryUnitId: string | null };
 
 const fieldClass =
   "form__control";
@@ -277,112 +278,141 @@ function ObjectForm({
 
   const defaultContributorIds = defaultValues?.contributors.map((c) => c.userId) ?? [];
 
+  // Objek jenis Orang dan Unit merujuk data yang sudah punya nama dan unit. Begitu pengguna (atau unit
+  // yang dinilai) dipilih, nama objek dan unit pemiliknya diisi dari sana — admin tidak mengulang
+  // data yang sama. Isian tetap bisa diganti; yang sudah diubah admin sendiri tidak ditimpa lagi.
+  const [nama, setNama] = useState(defaultValues?.name ?? "");
+  const [namaOtomatis, setNamaOtomatis] = useState<string | null>(null);
+  const [unitPemilik, setUnitPemilik] = useState(defaultValues?.ownerUnitId ?? "");
+  const [unitOtomatis, setUnitOtomatis] = useState<string | null>(null);
+  const [penggunaTerkait, setPenggunaTerkait] = useState(defaultValues?.referenceUserId ?? "");
+  const penggunaDipilih = users.find((u) => u.id === penggunaTerkait);
+
+  const isiOtomatis = (namaBaru: string, unitBaru: string | null) => {
+    if (nama.trim() === "" || nama === namaOtomatis) {
+      setNama(namaBaru);
+      setNamaOtomatis(namaBaru);
+    }
+    if (unitBaru && (unitPemilik === "" || unitPemilik === unitOtomatis)) {
+      setUnitPemilik(unitBaru);
+      setUnitOtomatis(unitBaru);
+    }
+  };
+
+  const pilihPengguna = (id: string) => {
+    setPenggunaTerkait(id);
+    const u = users.find((x) => x.id === id);
+    if (u) isiOtomatis(u.name, u.primaryUnitId);
+  };
+
+  // Prodi dinilai oleh unit di atasnya (departemen), jadi unit pemiliknya adalah induk unit yang dinilai.
+  const pilihUnitDinilai = (id: string) => {
+    const u = units.find((x) => x.id === id);
+    if (u) isiOtomatis(u.name, u.parentId ?? u.id);
+  };
+
+  const kembalikanAwal = () => {
+    setNama(defaultValues?.name ?? "");
+    setNamaOtomatis(null);
+    setUnitPemilik(defaultValues?.ownerUnitId ?? "");
+    setUnitOtomatis(null);
+    setPenggunaTerkait(defaultValues?.referenceUserId ?? "");
+  };
+
+  const kolomPengguna = isOrang && (
+    <label className="admin-tools__field">
+      <span>Pengguna terkait</span>
+      <PilihanCari
+        name="referenceUserId"
+        required
+        value={penggunaTerkait}
+        onChange={pilihPengguna}
+        kosong={{ label: "Pilih pengguna…", bisaDipilih: false }}
+        options={users.map((u) => ({ value: u.id, label: `${u.name} (${u.loginIdentifier})` }))}
+      />
+    </label>
+  );
+
+  const kolomUnitDinilai = isUnitType && (
+    <label className="admin-tools__field">
+      <span>Unit yang dinilai</span>
+      <PilihanCari
+        name="referenceUnitId"
+        required
+        defaultValue={defaultValues?.referenceUnitId ?? ""}
+        onChange={pilihUnitDinilai}
+        kosong={{ label: "Unit yang dinilai…", bisaDipilih: false }}
+        options={units.map((u) => ({ value: u.id, label: `${u.name} (${u.code})` }))}
+      />
+    </label>
+  );
+
+  let petunjukUnit: string | null = null;
+  if (isOrang && penggunaDipilih) {
+    petunjukUnit = penggunaDipilih.primaryUnitId
+      ? "Terisi dari unit utama pengguna. Ganti bila ia dinilai di unit lain."
+      : "Pengguna ini belum punya unit utama — pilih unit pemiliknya.";
+  } else if (isUnitType && unitOtomatis && unitPemilik === unitOtomatis) {
+    petunjukUnit = "Terisi dari induk unit yang dinilai.";
+  }
+
   return (
     <form
       action={formAction}
+      onReset={kembalikanAwal}
       className={`${defaultValues ? "admin-inline-form " : ""}grid gap-3 sm:grid-cols-3`}
     >
       {defaultValues && <input type="hidden" name="objectId" value={defaultValues.id} />}
 
       <label className="admin-tools__field">
       <span>Jenis objek</span>
-      <select
+      <PilihanCari
         name="typeId"
         required
         value={typeId}
-        onChange={(e) => setTypeId(e.target.value)}
-        className={fieldClass}
-      >
-        {objectTypes.map((t) => (
-          <option key={t.id} value={t.id}>
-            {t.name}
-          </option>
-        ))}
-      </select>
+        onChange={setTypeId}
+        options={objectTypes.map((t) => ({ value: t.id, label: t.name }))}
+      />
       </label>
 
-      <label className="admin-tools__field sm:col-span-2">
+      {/* Orang dan Unit: data rujukannya dipilih lebih dulu, karena nama dan unit pemilik diisi dari sana. */}
+      {kolomPengguna}
+      {kolomUnitDinilai}
+
+      <label className={`admin-tools__field ${isOrang || isUnitType ? "" : "sm:col-span-2"}`.trim()}>
         <span>Nama objek</span>
         <input
           name="name"
-          placeholder="Nama objek"
+          placeholder={isOrang ? "Terisi dari pengguna terkait" : isUnitType ? "Terisi dari unit yang dinilai" : "Nama objek"}
           required
-          defaultValue={defaultValues?.name}
+          value={nama}
+          onChange={(e) => setNama(e.target.value)}
           className={fieldClass}
         />
       </label>
 
       <label className="admin-tools__field">
       <span>Unit pemilik</span>
-      <select name="ownerUnitId" required defaultValue={defaultValues?.ownerUnitId ?? ""} className={fieldClass}>
-        <option value="" disabled>
-          Pilih unit pemilik…
-        </option>
-        {units.map((u) => (
-          <option key={u.id} value={u.id}>
-            {u.name} ({u.code})
-          </option>
-        ))}
-      </select>
+      {petunjukUnit && <span className="admin-tools__hint">{petunjukUnit}</span>}
+      <PilihanCari
+        name="ownerUnitId"
+        required
+        value={unitPemilik}
+        onChange={setUnitPemilik}
+        kosong={{ label: "Pilih unit pemilik…", bisaDipilih: false }}
+        options={units.map((u) => ({ value: u.id, label: `${u.name} (${u.code})` }))}
+      />
       </label>
-
-      {isOrang && (
-        <label className="admin-tools__field">
-        <span>Pengguna terkait</span>
-        <select
-          name="referenceUserId"
-          required
-          defaultValue={defaultValues?.referenceUserId ?? ""}
-          className={fieldClass}
-        >
-          <option value="" disabled>
-            Pengguna terkait…
-          </option>
-          {users.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.name} ({u.loginIdentifier})
-            </option>
-          ))}
-        </select>
-        </label>
-      )}
-
-      {isUnitType && (
-        <label className="admin-tools__field">
-        <span>Unit yang dinilai</span>
-        <select
-          name="referenceUnitId"
-          required
-          defaultValue={defaultValues?.referenceUnitId ?? ""}
-          className={fieldClass}
-        >
-          <option value="" disabled>
-            Unit yang dinilai…
-          </option>
-          {units.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.name} ({u.code})
-            </option>
-          ))}
-        </select>
-        </label>
-      )}
 
       {!isOrang && (
         <label className="admin-tools__field">
         <span>Penanggung jawab</span>
-        <select
+        <PilihanCari
           name="responsibleUserId"
           defaultValue={defaultValues?.responsibleUserId ?? ""}
-          className={fieldClass}
-        >
-          <option value="">— Belum ditentukan (boleh saat draf) —</option>
-          {users.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.name} ({u.loginIdentifier})
-            </option>
-          ))}
-        </select>
+          kosong={{ label: "— Belum ditentukan (boleh saat draf) —", bisaDipilih: true }}
+          options={users.map((u) => ({ value: u.id, label: `${u.name} (${u.loginIdentifier})` }))}
+        />
         </label>
       )}
 
@@ -404,22 +434,13 @@ function ObjectForm({
               dari daftar penilai karyanya sendiri. */}
           <span className="admin-tools__hint">
             Mereka tidak akan ditugaskan menilai karya ini, selama kategorinya menyalakan
-            &ldquo;Kecualikan pembuat karya sebagai penilai&rdquo;. Tahan Ctrl (⌘ di Mac) untuk
-            memilih lebih dari satu.
+            &ldquo;Kecualikan pembuat karya sebagai penilai&rdquo;. Boleh lebih dari satu.
           </span>
-          <select
+          <PilihanCariBanyak
             name="contributorUserIds"
-            multiple
             defaultValue={defaultContributorIds}
-            className={`${fieldClass} h-auto`}
-            size={Math.min(4, users.length)}
-          >
-            {users.map((u) => (
-              <option key={u.id} value={u.id}>
-                {u.name} ({u.loginIdentifier})
-              </option>
-            ))}
-          </select>
+            options={users.map((u) => ({ value: u.id, label: `${u.name} (${u.loginIdentifier})` }))}
+          />
           </label>
         </>
       )}

@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { addCategoryObjectsAction, removeCategoryObjectAction } from "@/lib/actions/admin-categories";
 import type { getCategoryDetail } from "@/lib/services/categories";
+import { PilihanCariBanyak } from "@/components/theme/pilihan-cari";
 
 type Participant = NonNullable<Awaited<ReturnType<typeof getCategoryDetail>>>["categoryObjects"][number];
 type CandidateObject = { id: string; name: string; ownerUnit: { name: string } };
@@ -79,21 +80,12 @@ export function ParticipantManager({
               <label className="admin-tools__field">
                 <span>Tambahkan objek ke kategori ini</span>
                 <span className="admin-tools__hint">
-                  Pilih satu atau beberapa sekaligus — tahan Ctrl (⌘ di Mac) sambil mengeklik, atau
-                  geser untuk memilih beberapa baris berurutan.
+                  Ketik nama untuk mencari; boleh memilih beberapa sekaligus.
                 </span>
-                <select
+                <PilihanCariBanyak
                   name="objectIds"
-                  multiple
-                  size={Math.min(6, candidateObjects.length)}
-                  className="form__control participant-add__select"
-                >
-                  {candidateObjects.map((o) => (
-                    <option key={o.id} value={o.id}>
-                      {o.name} — {o.ownerUnit.name}
-                    </option>
-                  ))}
-                </select>
+                  options={candidateObjects.map((o) => ({ value: o.id, label: `${o.name} — ${o.ownerUnit.name}` }))}
+                />
               </label>
               <button type="submit" disabled={addPending} className="app-btn app-btn--primary">
                 {addPending ? "Menambahkan…" : "Tambahkan sebagai peserta"}

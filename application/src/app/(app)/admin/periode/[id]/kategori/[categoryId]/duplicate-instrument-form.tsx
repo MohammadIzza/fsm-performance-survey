@@ -3,6 +3,7 @@
 import { useActionState, useRef } from "react";
 import { duplicateInstrumentAction } from "@/lib/actions/admin-instruments";
 import { useKonfirmasi } from "@/components/theme/confirm-dialog";
+import { PilihanCari } from "@/components/theme/pilihan-cari";
 
 export function DuplicateInstrumentForm({
   instrumentVersionId,
@@ -60,16 +61,12 @@ export function DuplicateInstrumentForm({
       <input type="hidden" name="categoryId" value={categoryId} />
       <label className="admin-tools__field admin-tools__field--grow">
         <span>Salin instrumen dari</span>
-        <select name="sourceCategoryId" required defaultValue="" className="form__control">
-          <option value="" disabled>
-            Pilih kategori sumber…
-          </option>
-          {sources.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.label}
-            </option>
-          ))}
-        </select>
+        <PilihanCari
+          name="sourceCategoryId"
+          required
+          kosong={{ label: "Pilih kategori sumber…", bisaDipilih: false }}
+          options={sources.map((x) => ({ value: x.id, label: x.label }))}
+        />
       </label>
       <button type="submit" disabled={pending} className="app-btn">
         {pending ? "Menyalin…" : "Salin"}
