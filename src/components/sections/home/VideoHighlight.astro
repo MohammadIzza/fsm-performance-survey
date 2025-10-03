@@ -48,21 +48,23 @@ import { withBase } from '../../../utils/url';
               decoding="async"
               height="1280"
               loading="lazy"
-              src={withBase("/assets/images/tutorial-survei-fsm-poster.jpg")}
+              src={withBase("/assets/images/tutorial-survei-fsm-v2-poster.jpg")}
               width="720"
             />
           </picture>
         </div>
         <div class="s__video js-video">
           {/* preload="none": kunjungan pertama hanya memuat gambar sampulnya (±55 KB); berkas
-              videonya (±4 MB) baru diambil saat tombol putar ditekan. */}
+              videonya (±4 MB) baru diambil saat tombol putar ditekan. Nama berkas diberi versi
+              setiap kali videonya diganti: CDN dan peramban bisa masih menyimpan berkas lama
+              dengan nama yang sama. */}
           <video
             preload="none"
             class="s__video-player js-video-player"
             height="1920"
             playsinline=""
-            poster={withBase("/assets/images/tutorial-survei-fsm-poster.jpg")}
-            src={withBase("/assets/media/tutorial-survei-fsm.mp4")}
+            poster={withBase("/assets/images/tutorial-survei-fsm-v2-poster.jpg")}
+            src={withBase("/assets/media/tutorial-survei-fsm-v2.mp4")}
             width="1080"></video>
         </div>
         <button
