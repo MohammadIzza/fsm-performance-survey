@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config';
 import { BASE_PATH } from './base-path.mjs';
+import preloadTema from './integrations/preload-tema.mjs';
 
 // Saat build, Vite memberi awalan `base` pada url(/assets/…) di CSS. Server dev tidak: CSS dilayani
 // apa adanya, sehingga font dan gambar tema diminta dari /assets/… dan 404 karena berkas public/
@@ -24,6 +25,7 @@ const awalanAsetDev = {
 
 export default defineConfig({
   output: 'static',
+  integrations: [preloadTema({ base: BASE_PATH })],
   // Halaman publik ikut hidup di bawah awalan aplikasi. `base` hanya memprefix berkas yang dibangun
   // Astro sendiri (/_astro/…); alamat yang ditulis tangan di templat memakai withBase() dari
   // src/utils/url.ts.

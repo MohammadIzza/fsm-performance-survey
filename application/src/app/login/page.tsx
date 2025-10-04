@@ -1,10 +1,18 @@
 import { redirect } from 'next/navigation';
+import { preload } from 'react-dom';
+import { withBase } from '@/lib/base-path';
 import { getCurrentAuthContext } from '@/lib/authz';
 import { LoginForm } from './login-form';
 import { LoginHeroFsm } from './login-hero-fsm';
 
 export default async function LoginPage() {
   if (await getCurrentAuthContext()) redirect('/dashboard');
+
+  // Huruf FSM di sisi kiri baru diminta setelah pustaka Lottie selesai dimuat di peramban; tanpa
+  // preload ketiganya datang belakangan dan muncul satu per satu.
+  for (const huruf of ['f', 's', 'm']) {
+    preload(withBase(`/assets/lottie/home-hero-${huruf}.json`), { as: 'fetch', crossOrigin: 'anonymous' });
+  }
 
   return (
     <main className="survey-login">

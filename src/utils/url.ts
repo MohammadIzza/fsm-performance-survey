@@ -7,13 +7,17 @@ const BASE = import.meta.env.BASE_URL.replace(/\/+$/, '');
  * halaman lain. Astro hanya memprefix berkas yang ia bangun sendiri; `src="/assets/…"` apa adanya
  * akan menunjuk ke akar domain dan rusak begitu situs dilayani di bawah sub-path.
  *
- * Beranda menjadi "/survey" tanpa garis miring penutup — bentuk yang sama dengan <Link href="/"> di Next
- * dan satu-satunya yang dilayani server dev Astro (trailingSlash "never"). "/survey/" tetap terbuka
- * di produksi: nginx melayani keduanya. Alamat luar, `//…`, `#…`, dan `mailto:` dikembalikan apa adanya.
+ * Beranda di hasil build ditulis "/survey/", sama dengan alamat yang didaftarkan di gateway. Gateway
+ * (Apache) menjawab "/survey" dengan alih 302 ke http://…/survey/ — skema http, bukan https — yang
+ * diblokir peramban sebagai konten campuran saat transisi halaman mengambilnya lewat fetch, sehingga
+ * transisi gagal dan halaman dimuat ulang penuh. Server dev Astro (trailingSlash "never") hanya
+ * melayani "/survey", jadi di dev bentuk itu yang dipakai. Alamat luar, `//…`, `#…`, dan `mailto:`
+ * dikembalikan apa adanya.
  */
 export function withBase(path: string): string {
   if (!path.startsWith('/') || path.startsWith('//')) return path;
-  return path === '/' ? BASE || '/' : `${BASE}${path}`;
+  if (path === '/') return import.meta.env.DEV ? BASE || '/' : `${BASE}/`;
+  return `${BASE}${path}`;
 }
 
 /** Kebalikan withBase untuk alamat halaman saat ini: "/survey/panduan-penilai" → "/panduan-penilai". */

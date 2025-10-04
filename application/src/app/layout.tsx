@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { preload } from "react-dom";
 import "./globals.css";
 import { ThemeReveal } from "@/components/theme-motion";
 import { RevealOnScroll } from "@/components/reveal-on-scroll";
@@ -23,6 +24,12 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // Font tema dimuat lewat @font-face di globals.css, yang baru ditemukan peramban setelah CSS
+  // selesai diunduh — teks sempat tampil dengan font cadangan lalu berganti. Preload membuat ketiganya
+  // diunduh sejak HTML diterima.
+  for (const font of ["HeyWow-Book", "HeyWow-SemiBold", "HeyWow-Bold"]) {
+    preload(withBase(`/assets/fonts/${font}.woff2`), { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+  }
   return (
     <html lang="id" className="h-full antialiased">
       <body className="min-h-full flex flex-col">

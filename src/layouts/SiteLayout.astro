@@ -71,6 +71,14 @@ window.wpcf7=window.wpcf7||{reset:function(f){if(f&&f.reset)f.reset()}};`;
       type="font/woff2"
       crossorigin
     />
+    <noscript>
+      <style>
+        .site-container {
+          opacity: 1 !important;
+          animation: none !important;
+        }
+      </style>
+    </noscript>
   </head>
   <body>
     <a class="skip-link" href="#main-content">Lewati ke konten</a>
@@ -91,7 +99,13 @@ window.wpcf7=window.wpcf7||{reset:function(f){if(f&&f.reset)f.reset()}};`;
     <SiteLoader />
     <SiteScrollbar />
     <script is:inline set:html={plrBootstrap} />
-    {themeScripts.map((src) => <script is:inline src={withBase(src)} />)}
+    {/* Saat build, keempat skrip ini digabung dengan potongan komponen menjadi satu berkas ber-hash
+        oleh integrations/preload-tema.mjs. ?v= berlaku untuk server dev, yang memakai berkas aslinya. */}
+    {
+      themeScripts.map((src) => (
+        <script is:inline src={`${withBase(src)}?v=${themeVersion}`} />
+      ))
+    }
     <script>
       import '../scripts/hero-fsm';
       import '../scripts/luge-navigation-guard';

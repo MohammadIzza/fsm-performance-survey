@@ -198,3 +198,23 @@ main:focus {
   font-size: 4.4rem;
   line-height: 1.04;
 }
+
+/* Kunjungan pertama: halaman ditahan tak terlihat sampai tema selesai menyiapkannya (html.is-loaded,
+   dipasang tema sesaat sebelum animasi masuk berjalan). Tanpa ini, selama skrip tema masih diunduh,
+   pengunjung melihat halaman setengah jadi — batang huruf FSM mencuat ke kepala situs tanpa hurufnya,
+   tombol tanpa latar, lalu semuanya melompat ke tempatnya. Latar body krem tetap terlihat, jadi
+   yang tampil adalah layar kosong yang tenang, lalu halaman utuh muncul sekaligus.
+
+   Jaring pengaman: bila skrip gagal dimuat, animasi ini tetap menampilkan halaman setelah 4 detik. */
+html:not(.is-loaded) .site-container {
+  opacity: 0;
+  animation: tampilkan-tanpa-tema 0.3s ease 4s forwards;
+}
+.site-container {
+  transition: opacity 0.3s ease;
+}
+@keyframes tampilkan-tanpa-tema {
+  to {
+    opacity: 1;
+  }
+}
