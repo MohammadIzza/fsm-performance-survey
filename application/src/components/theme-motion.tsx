@@ -33,7 +33,10 @@ export function ThemeReveal() {
  useEffect(()=>{
   if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const ctx=gsap.context(()=>{
-   gsap.fromTo("main > div",{y:24,opacity:0},{y:0,opacity:1,duration:.7,ease:"power3.out",clearProps:"transform,opacity"});
+   // Halaman masuk tidak ikut: satu-satunya div langsung di <main>-nya adalah pita bukit, yang
+   // ikut memudar dan bergeser sehingga tampil pucat sesaat — dan huruf FSM di sana punya gerak
+   // masuknya sendiri.
+   gsap.fromTo("main:not(.survey-login) > div",{y:24,opacity:0},{y:0,opacity:1,duration:.7,ease:"power3.out",clearProps:"transform,opacity"});
    gsap.fromTo(".page-title",{y:18},{y:0,duration:.85,ease:"power3.out",clearProps:"transform"});
   });
   return ()=>ctx.revert();
