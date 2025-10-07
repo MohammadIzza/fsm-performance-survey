@@ -8,6 +8,7 @@ import {
   type FormState,
 } from "@/lib/actions/responses";
 import { ThemeButton } from "@/components/theme-button";
+import { useKonfirmasi } from "@/components/theme/confirm-dialog";
 import { SHEET_ID, useAdminEdit } from "./admin-edit-context";
 
 interface ParameterView {
@@ -223,6 +224,7 @@ export function AssignmentForm({
   // Ref murni untuk pemberitahuan sebelum-tutup (Bab 11.3); tidak memicu render, jadi aman
   // ditulis dari event handler dan dibaca dari listener tanpa melanggar aturan kemurnian render.
   const dirtyRef = useRef(false);
+  const [konfirmasi, dialogKonfirmasi] = useKonfirmasi();
 
   const sortedParameters = parameters.slice().sort((a, b) => a.order - b.order);
 
@@ -388,10 +390,42 @@ export function AssignmentForm({
             formAction={submitAction}
             disabled={draftPending || submitPending}
             className="assessment-actions__submit"
-            onClick={(e) => {
-              if (!confirm("Kirim jawaban? Lengkapi seluruh parameter sebelum mengirim.")) {
-                e.preventDefault();
+            onClick={async (e) => {
+              // Pengiriman ditahan sampai dikonfirmasi di dialog, lalu dijalankan ulang dengan
+              // tombol ini sebagai pengirim — requestSubmit(tombol) membawa formAction-nya dan
+              // tidak memicu onClick ini lagi.
+              e.preventDefault();
+              const tombol = e.currentTarget;
+              const kosong = sortedParameters.filter((p) => scores[p.id] === "").length;
+              if (kosong > 0) {
+                // Server menolak jawaban yang belum lengkap; lebih jelas disampaikan sekarang
+                // daripada lewat pesan galat setelah mengirim.
+                await konfirmasi({
+                  label: "Belum bisa dikirim",
+                  judul: "Masih ada parameter kosong",
+                  pesan: (
+                    <p>
+                      {kosong} dari {sortedParameters.length} parameter belum diberi skor. Lengkapi
+                      seluruh parameter, lalu kirim lagi.
+                    </p>
+                  ),
+                  tombolBatal: "Kembali mengisi",
+                });
+                return;
               }
+              const ya = await konfirmasi({
+                label: "Kirim penilaian",
+                judul: "Kirim jawaban sekarang?",
+                pesan: (
+                  <p>
+                    Seluruh {sortedParameters.length} parameter sudah terisi. Setelah dikirim,
+                    jawaban terkunci dan tidak dapat diubah sendiri — perubahan hanya lewat admin.
+                  </p>
+                ),
+                tombolYa: "Kirim jawaban",
+                tombolBatal: "Periksa lagi",
+              });
+              if (ya) tombol.form?.requestSubmit(tombol);
             }}
           >
             {submitPending ? "Mengirim…" : "Kirim jawaban"}
@@ -419,6 +453,7 @@ export function AssignmentForm({
           )}
         </div>
       )}
+      {dialogKonfirmasi}
     </form>
   );
 }

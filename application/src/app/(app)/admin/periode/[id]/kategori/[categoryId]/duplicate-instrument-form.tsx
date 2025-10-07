@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import { duplicateInstrumentAction } from "@/lib/actions/admin-instruments";
+import { useKonfirmasi } from "@/components/theme/confirm-dialog";
 
 export function DuplicateInstrumentForm({
   instrumentVersionId,
@@ -15,6 +16,9 @@ export function DuplicateInstrumentForm({
   sources: { id: string; label: string }[];
 }) {
   const [state, formAction, pending] = useActionState(duplicateInstrumentAction, {});
+  const [konfirmasi, dialogKonfirmasi] = useKonfirmasi();
+  // Tanda sekali pakai: kiriman ulang setelah dialog disetujui tidak ditanyakan lagi.
+  const sudahDisetujui = useRef(false);
 
   if (sources.length === 0) return null;
 
@@ -25,13 +29,28 @@ export function DuplicateInstrumentForm({
     // besar — satu-satunya di halaman itu.
     <form
       action={formAction}
-      onSubmit={(e) => {
-        if (
-          !confirm(
-            "Salin instrumen ini? Skala dan seluruh parameter yang sudah ada di kategori ini akan diganti dengan milik kategori sumber."
-          )
-        ) {
-          e.preventDefault();
+      onSubmit={async (e) => {
+        if (sudahDisetujui.current) {
+          sudahDisetujui.current = false;
+          return;
+        }
+        e.preventDefault();
+        const form = e.currentTarget;
+        const sumber = sources.find((x) => x.id === new FormData(form).get("sourceCategoryId"));
+        const ya = await konfirmasi({
+          label: "Salin instrumen",
+          judul: sumber ? `Salin dari ${sumber.label}?` : "Salin instrumen ini?",
+          pesan: (
+            <p>
+              Skala dan seluruh parameter yang sudah ada di kategori ini akan diganti dengan milik
+              kategori sumber.
+            </p>
+          ),
+          tombolYa: "Salin instrumen",
+        });
+        if (ya) {
+          sudahDisetujui.current = true;
+          form.requestSubmit();
         }
       }}
       className="admin-inline-form duplicate-instrument-form"
@@ -60,6 +79,7 @@ export function DuplicateInstrumentForm({
           {state.error}
         </p>
       )}
+      {dialogKonfirmasi}
     </form>
   );
 }

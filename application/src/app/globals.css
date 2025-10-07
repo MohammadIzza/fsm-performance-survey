@@ -2796,3 +2796,60 @@ input[type="range"]:disabled::-moz-range-thumb {
  .survey-demo-accounts code {font-size:.62rem}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Dialog konfirmasi (components/theme/confirm-dialog.tsx), pengganti window.confirm(). Bentuknya
+   kartu putih bersudut besar yang sama dengan panel masuk dan kartu beranda, dengan label kapital,
+   judul huruf tema, dan pasangan tombol yang sudah dipakai di lembar penilaian: pil bergaris untuk
+   pilihan aman, tombol biru tema untuk aksinya. */
+.konfirmasi {
+  width:min(25rem,calc(100vw - 2rem));max-width:none;max-height:calc(100dvh - 2rem);
+  margin:auto;padding:0;border:0;border-radius:1.4rem;
+  background:var(--color-white);color:var(--color-black);
+  box-shadow:0 1.25rem 3.5rem rgb(33 30 31 / .22);
+  overscroll-behavior:contain;
+}
+.konfirmasi::backdrop {background:rgb(33 30 31 / .42)}
+.konfirmasi[open] {animation:konfirmasi-masuk .32s cubic-bezier(.22,1,.36,1)}
+.konfirmasi[open]::backdrop {animation:konfirmasi-latar .24s ease-out}
+@keyframes konfirmasi-masuk {from {opacity:0;transform:translate3d(0,.9rem,0) scale(.97)}}
+@keyframes konfirmasi-latar {from {opacity:0}}
+.konfirmasi__kartu {padding:1.45rem 1.5rem 1.3rem}
+.konfirmasi__label {margin:0 0 .5rem;color:var(--color-black);opacity:.62;font-size:.6rem;letter-spacing:.08em}
+.konfirmasi__judul {
+  margin:0;font-family:var(--font-family-heading);font-size:1.3rem;font-weight:600;line-height:1.12;
+  letter-spacing:-.01em;text-wrap:balance;
+}
+.konfirmasi__pesan {margin-top:.6rem;color:var(--color-black);opacity:.78;font-size:.74rem;line-height:1.5}
+.konfirmasi__pesan p {margin:0}
+.konfirmasi__aksi {display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:.55rem;margin-top:1.3rem}
+.konfirmasi__batal {
+  min-height:2.6rem;padding:.55rem 1.05rem;border:1px solid var(--color-grey-2);border-radius:999em;
+  background:transparent;color:var(--color-black);font:600 .72rem/1 var(--font-family-text);cursor:pointer;
+  transition:border-color .12s linear,background-color .12s linear;
+}
+.konfirmasi__batal:hover {border-color:var(--color-black)}
+.konfirmasi__batal:focus-visible,
+.konfirmasi__ya:focus-visible {outline:2px solid var(--color-brand-5);outline-offset:2px}
+.konfirmasi__ya {font-size:.72rem}
+@media (prefers-reduced-motion: reduce) {
+  .konfirmasi[open],
+  .konfirmasi[open]::backdrop {animation:none}
+}
+/* Ponsel: kartu menempel di bawah layar seperti lembar aksi, dalam jangkauan ibu jari, dan kedua
+   tombol selebar kartu — aksi di atas, batal di bawahnya. */
+@media only screen and (max-width: 640px) {
+  /* Posisi lewat inset, bukan margin atas auto: pada <dialog> modal Chrome menghitung margin
+     auto itu sebagai jarak kecil biasa, dan kartunya malah menempel di atas layar. */
+  .konfirmasi {
+    top:auto;bottom:max(.75rem,env(safe-area-inset-bottom));
+    width:calc(100vw - 1.5rem);margin:0 auto;border-radius:1.25rem;
+  }
+  .konfirmasi[open] {animation-name:konfirmasi-naik}
+  @keyframes konfirmasi-naik {from {opacity:.4;transform:translate3d(0,100%,0)}}
+  .konfirmasi__kartu {padding:1.25rem 1.15rem 1.1rem}
+  .konfirmasi__judul {font-size:1.15rem}
+  .konfirmasi__pesan {font-size:.8rem}
+  .konfirmasi__aksi {flex-direction:column-reverse;align-items:stretch;gap:.5rem}
+  .konfirmasi__batal,
+  .konfirmasi__ya {width:100%!important;justify-content:center;font-size:.8rem}
+}
