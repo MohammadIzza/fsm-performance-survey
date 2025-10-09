@@ -2595,29 +2595,34 @@ input[type="range"]:disabled::-moz-range-thumb {
  .survey-header .site-head__menu .menu-link {padding:.25em 0;white-space:nowrap}
  .survey-login {min-height:auto;margin:.55rem .7rem 1rem;background:var(--color-beige);
    border:1px solid var(--color-grey-2);border-radius:.85rem;overflow:visible}
- .survey-login-art {min-height:13.4rem;align-items:flex-start;padding:1rem 1rem 5.2rem;
+ /* Di ponsel yang dicari orang saat membuka halaman ini adalah kotak isiannya, bukan lambang
+    fakultasnya. Urutan tampilan dibalik lewat `order` — urutan markah tetap: huruf FSM hiasan,
+    dan pembaca layar tidak perlu melewatinya dulu untuk sampai ke formulir. */
+ .survey-login-form {order:1;padding:1rem;background:var(--color-white)}
+ .survey-login-art {order:2;min-height:11.6rem;align-items:flex-start;padding:1.2rem 1rem 5.2rem;
    background:var(--color-beige);color:var(--color-black)}
- .survey-login-hills {height:5.4rem}
- /* Pita bukit menutup kaki panel kiri: dasarnya dijaga tepat di batas panel dengan formulir,
-    jadi tingginya sendiri (5.4rem) dikurangkan dari tinggi panel. */
- .survey-login-hills {top:calc(13.4rem - 5.4rem);right:auto;bottom:auto;left:50%;width:100vw;
-   transform:translateX(-50%)}
+ /* Pita bukit menutup kaki kartu, jadi dasarnya kembali ke dasar kartu — aturan dasar
+    (inset:auto 0 0) sudah menempatkannya di sana. */
+ .survey-login-hills {height:5.4rem;right:auto;left:50%;width:100vw;transform:translateX(-50%)}
  .survey-login-hills i {border-top-width:1.5px}
- .survey-login-form {padding:1rem;background:var(--color-white)}
- .survey-login-form .eyebrow {font-size:.54rem;line-height:1.3}
- .survey-login-form h2 {margin:.35rem 0 .5rem;font-size:1.35rem;line-height:1.02}
- .survey-login-form > p:not(.eyebrow) {margin-bottom:.8rem;font-size:.62rem;line-height:1.4}
- .survey-login-form form {gap:.7rem}
- .survey-login-field > span {font-size:.62rem}
- .survey-login-form input {min-height:2.5rem;padding:.55rem .7rem;font-size:16px!important;
-   border-radius:.55rem}
- .survey-login-form .btn-plain {font-size:.68rem}
- .survey-demo-accounts {margin-top:1.1rem;padding-top:.8rem;font-size:.66rem;line-height:1.4}
- .survey-demo-accounts strong {font-size:.58rem}
+ .survey-login-form .eyebrow {font-size:.5rem;line-height:1.3}
+ .survey-login-form h2 {margin:.3rem 0 .4rem;font-size:1.12rem;line-height:1.05}
+ .survey-login-form > p:not(.eyebrow) {margin-bottom:.65rem;font-size:.58rem;line-height:1.4}
+ .survey-login-form form {gap:.55rem}
+ .survey-login-field {gap:.3rem}
+ .survey-login-field > span {font-size:.55rem}
+ /* Ukuran huruf isian ditahan di 16px: di bawah itu peramban ponsel memperbesar seluruh halaman
+    begitu isiannya disentuh. Yang dikecilkan tingginya dan jarak dalamnya. */
+ .survey-login-form input {min-height:2.1rem;padding:.42rem .6rem;font-size:16px!important;
+   border-radius:.45rem}
+ .survey-login .btn-plain.survey-login-submit {font-size:.68rem}
+ .survey-login .btn-plain.survey-login-submit .btn-plain__inner {padding:.85em 1.6em}
+ .survey-demo-accounts {margin-top:.9rem;padding-top:.65rem;font-size:.58rem;line-height:1.4}
+ .survey-demo-accounts strong {font-size:.5rem}
  .survey-demo-accounts p {margin-top:.25rem!important}
- .survey-demo-accounts dl {gap:.3rem .8rem;margin-top:.55rem}
- /* Tanpa ini ID-nya tetap .78rem sementara nama perannya turun ke .66rem, dan tiap baris jadi
+ .survey-demo-accounts dl {gap:.25rem .7rem;margin-top:.45rem}
+ /* Tanpa ini ID-nya tetap .78rem sementara nama perannya turun ke .58rem, dan tiap baris jadi
     dua ukuran huruf yang berbeda. */
- .survey-demo-accounts code {font-size:.66rem}
+ .survey-demo-accounts code {font-size:.58rem}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
