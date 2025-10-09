@@ -819,6 +819,15 @@ input[type="range"]:disabled::-moz-range-thumb {
   display:inline-block;color:var(--color-brand-3);font-size:.58rem;font-weight:600;text-decoration:none;
 }
 .period-stepper__secondary-link:hover {text-decoration:underline}
+/* Ukuran hurufnya dulu ikut bawaan tema (15px) sementara tabel admin lain di halaman yang sama
+   berhuruf 12px — satu bagian terbaca lebih besar daripada bagian di atas dan di bawahnya. */
+.survey-shell main .parameter-table {font-size:.6rem;line-height:1.4}
+.survey-shell main .parameter-table thead th {
+  padding:.5rem .45rem;font-size:.54rem;line-height:1.25;
+}
+.survey-shell main .parameter-table tbody td {
+  padding:.55rem .45rem;font-size:.6rem;line-height:1.4;
+}
 .parameter-table {table-layout:fixed}
 .parameter-table th:nth-child(1) {width:30%}
 .parameter-table th:nth-child(2) {width:auto}
@@ -829,8 +838,10 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 .parameter-row__actions-inner form {margin:0}
 .parameter-row--editing {background:var(--color-brand-7)}
-.survey-shell main .parameter-row--editing .form__control {
+.survey-shell main .parameter-row--editing .form__control,
+.survey-shell main .parameter-add-row .form__control {
   width:100%;min-height:1.7rem;padding:.28rem .4rem;
+  border:0;border-radius:.25rem;background:var(--color-white);font-size:.6rem;
 }
 .survey-shell main .parameter-row__actions-inner button {
   display:inline-flex;min-height:1.7rem;align-items:center;justify-content:center;
@@ -847,9 +858,6 @@ input[type="range"]:disabled::-moz-range-thumb {
   width:8rem;margin:.3rem 0 0;color:var(--color-brand-1);font-size:.5rem;line-height:1.3;text-align:left;
 }
 .parameter-add-row {background:rgba(255,255,255,.2)}
-.survey-shell main .parameter-add-row .form__control {
-  width:100%;min-height:1.7rem;padding:.28rem .4rem;
-}
 .parameter-add-row__action > form {margin:0}
 .parameter-add-row__action > span {
   display:block;margin-top:.25rem;color:var(--color-text);font-size:.5rem;line-height:1.2;
@@ -857,6 +865,62 @@ input[type="range"]:disabled::-moz-range-thumb {
 .parameter-add-row__action > [role="alert"] {
   margin:.3rem 0 0;color:var(--color-brand-1);font-size:.48rem;line-height:1.3;
 }
+/* Daftar objek yang dinilai pada satu kategori: dua kolom berlabel dengan satu tindakan di
+   ujungnya. Sebelumnya tiap baris hanya nama berhuruf 20px — sebesar judul halaman — dengan unit
+   menempel di belakangnya, sehingga daftarnya terbaca seperti deretan judul. */
+.participant-list {display:grid;gap:0;margin:0;padding:0;list-style:none}
+.participant-list__head,
+.participant-list__item {
+  display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.2fr) max-content;
+  align-items:center;gap:.5rem .9rem;padding:.55rem .1rem;
+}
+.participant-list__head {
+  border-bottom:2px solid var(--color-black);padding-top:0;
+  color:var(--color-text);font-size:.52rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+}
+.participant-list__head > :last-child {text-align:right}
+.participant-list__item {border-bottom:1px solid var(--color-grey-2)}
+.participant-list__name {
+  min-width:0;color:var(--color-black);font-size:.68rem;font-weight:600;line-height:1.35;
+  overflow-wrap:anywhere;
+}
+.participant-list__unit {min-width:0;color:var(--color-text);font-size:.62rem;line-height:1.35}
+/* Label kolom diulang di dalam sel hanya saat kepala kolomnya disembunyikan, yakni di layar sempit. */
+.participant-list__label {display:none}
+.participant-list__action {margin:0;justify-self:end}
+
+.participant-add {display:grid;gap:.6rem;justify-items:start;margin-top:1.1rem}
+.participant-add .admin-tools__field {width:100%}
+.survey-shell main .participant-add__select {min-height:0;padding:.35rem;font-size:.62rem}
+.survey-shell main .participant-add__select option {padding:.3rem .35rem}
+.participant-add__error {margin:0;color:var(--color-brand-1);font-size:.58rem;line-height:1.4}
+
+@media only screen and (max-width:640px) {
+  /* Tiga kolom tidak muat selebar ponsel: kepala kolom disembunyikan dan tiap sel membawa
+     labelnya sendiri, seperti baris daftar lain di ruang survei. */
+  .participant-list__head {display:none}
+  .participant-list__item {grid-template-columns:minmax(0,1fr) max-content;gap:.15rem .6rem}
+  .participant-list__name,
+  .participant-list__unit {grid-column:1}
+  .participant-list__label {
+    display:inline;margin-right:.3rem;
+    font-size:.5rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  }
+  .participant-list__action {grid-column:2;grid-row:1/3;align-self:center}
+  .duplicate-instrument-form {grid-template-columns:1fr}
+  .survey-shell main .duplicate-instrument-form .app-btn {justify-self:stretch;width:100%}
+}
+
+/* Isian selebar sisa baris dan tombolnya di ujung kanan baris yang sama: dengan .admin-inline-form
+   biasa, isian yang tumbuh mendorong tombol turun ke barisnya sendiri. */
+.duplicate-instrument-form {
+  display:grid;grid-template-columns:minmax(0,1fr) max-content;align-items:end;
+  gap:.5rem .7rem;margin-bottom:1rem;
+}
+.duplicate-instrument-form__error {
+  flex:1 1 100%;margin:0;color:var(--color-brand-1);font-size:.58rem;line-height:1.4;
+}
+
 .admin-anchor-target {scroll-margin-top:6rem}
 
 @media only screen and (max-width:640px) {
@@ -1871,8 +1935,10 @@ input[type="range"]:disabled::-moz-range-thumb {
   display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.85fr) minmax(0,1.35fr) max-content;
   align-items:end;gap:.5rem;
 }
+/* `align-self:center` dari aturan .app-btn umum membuat tombol naik sepuluh piksel terhadap isian
+   di sampingnya, karena isian punya label di atasnya sedangkan tombol tidak. */
 .survey-shell main .manual-assignment-form .app-btn {
-  min-height:1.9rem;padding:.38rem .75rem;font-size:.62rem;
+  min-height:2.2rem;padding:.38rem .75rem;font-size:.62rem;align-self:end;
 }
 .manual-assignment-form__error {grid-column:1/-1;margin:0;font-size:.58rem;line-height:1.4}
 

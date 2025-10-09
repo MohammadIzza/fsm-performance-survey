@@ -19,6 +19,10 @@ export function DuplicateInstrumentForm({
   if (sources.length === 0) return null;
 
   return (
+    // Isian memakai bentuk berlabel yang sama dengan form admin lain (.admin-tools__field +
+    // .form__control). Sebelumnya kotak ini ditulis dengan kelas utilitas sendiri, sehingga di
+    // tengah halaman yang isiannya bergaris bawah muncul satu kotak bergaris penuh berhuruf lebih
+    // besar — satu-satunya di halaman itu.
     <form
       action={formAction}
       onSubmit={(e) => {
@@ -30,36 +34,29 @@ export function DuplicateInstrumentForm({
           e.preventDefault();
         }
       }}
-      className="app-note mb-4 flex flex-col gap-2 sm:flex-row sm:items-center"
+      className="admin-inline-form duplicate-instrument-form"
     >
       <input type="hidden" name="instrumentVersionId" value={instrumentVersionId} />
       <input type="hidden" name="periodId" value={periodId} />
       <input type="hidden" name="categoryId" value={categoryId} />
-      <label className="shrink-0 app-text-sm text-[var(--muted)]">Salin instrumen dari</label>
-      <select
-        name="sourceCategoryId"
-        required
-        defaultValue=""
-        className="min-w-0 flex-1 rounded-lg border border-[var(--border)] bg-transparent px-3 py-1.5 app-text-sm outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
-      >
-        <option value="" disabled>
-          Pilih kategori sumber…
-        </option>
-        {sources.map((s) => (
-          <option key={s.id} value={s.id}>
-            {s.label}
+      <label className="admin-tools__field admin-tools__field--grow">
+        <span>Salin instrumen dari</span>
+        <select name="sourceCategoryId" required defaultValue="" className="form__control">
+          <option value="" disabled>
+            Pilih kategori sumber…
           </option>
-        ))}
-      </select>
-      <button
-        type="submit"
-        disabled={pending}
-        className="shrink-0 rounded-lg border border-[var(--border)] px-3 py-1.5 app-text-sm font-medium text-[var(--foreground)] transition hover:bg-black/[0.03] disabled:opacity-60"
-      >
+          {sources.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <button type="submit" disabled={pending} className="app-btn">
         {pending ? "Menyalin…" : "Salin"}
       </button>
       {state.error && (
-        <p role="alert" className="w-full app-text-xs text-[var(--danger)]">
+        <p role="alert" className="duplicate-instrument-form__error">
           {state.error}
         </p>
       )}

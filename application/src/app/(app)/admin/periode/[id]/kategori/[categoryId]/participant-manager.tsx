@@ -1,13 +1,20 @@
 "use client";
 
 import { useActionState } from "react";
-import { RowActionMenu } from "@/components/theme/data-list";
 import { addCategoryObjectsAction, removeCategoryObjectAction } from "@/lib/actions/admin-categories";
 import type { getCategoryDetail } from "@/lib/services/categories";
 
 type Participant = NonNullable<Awaited<ReturnType<typeof getCategoryDetail>>>["categoryObjects"][number];
 type CandidateObject = { id: string; name: string; ownerUnit: { name: string } };
 
+/**
+ * Daftar objek yang dinilai dalam satu kategori.
+ *
+ * Sebelumnya tiap baris hanya nama besar dengan unit menempel di belakangnya, dan satu-satunya
+ * tindakan — mengeluarkan objek — disembunyikan di balik tombol panah yang, begitu dibuka, cuma
+ * berisi satu menu. Panah itu dihapus: tindakan tunggal tidak perlu dilipat. Nama dan unit kini
+ * berdiri sebagai dua kolom berlabel, jadi terbaca sebagai daftar, bukan sebagai judul beruntun.
+ */
 export function ParticipantManager({
   periodId,
   categoryId,
@@ -24,34 +31,42 @@ export function ParticipantManager({
   const [addState, addFormAction, addPending] = useActionState(addCategoryObjectsAction, {});
 
   return (
-    <div className="space-y-4">
+    <div className="app-stack">
       {participants.length > 0 ? (
-        <ul className="app-stack">
+        <ul className="participant-list">
+          <li className="participant-list__head" aria-hidden="true">
+            <span>Nama objek</span>
+            <span>Unit</span>
+            {editable && <span>Aksi</span>}
+          </li>
           {participants.map((p) => (
-            <li key={p.id} className="flex items-center justify-between px-4 py-2.5">
-              <div>
-                <span className="font-medium text-[var(--foreground)]">{p.nameSnapshot}</span>{" "}
-                <span className="app-text-xs text-[var(--muted)]">— {p.unitSnapshot}</span>
-              </div>
+            <li key={p.id} className="participant-list__item">
+              <span className="participant-list__name">{p.nameSnapshot}</span>
+              <span className="participant-list__unit">
+                <span className="participant-list__label">Unit</span>
+                {p.unitSnapshot}
+              </span>
               {editable && (
-                <RowActionMenu>
-                  <form action={removeCategoryObjectAction}>
-                    <input type="hidden" name="categoryObjectId" value={p.id} />
-                    <input type="hidden" name="periodId" value={periodId} />
-                    <input type="hidden" name="categoryId" value={categoryId} />
-                    <button type="submit">Keluarkan</button>
-                  </form>
-                </RowActionMenu>
+                <form action={removeCategoryObjectAction} className="participant-list__action">
+                  <input type="hidden" name="categoryObjectId" value={p.id} />
+                  <input type="hidden" name="periodId" value={periodId} />
+                  <input type="hidden" name="categoryId" value={categoryId} />
+                  <button type="submit" className="app-btn app-btn--polos app-btn--danger">
+                    Keluarkan
+                  </button>
+                </form>
               )}
             </li>
           ))}
         </ul>
       ) : (
-        <p className="app-text-sm text-[var(--muted)]">Belum ada peserta.</p>
+        <p className="app-text-sm text-[var(--muted)]">
+          Belum ada objek yang dinilai pada kategori ini.
+        </p>
       )}
 
       {editable && (
-        <form action={addFormAction} className="space-y-2">
+        <form action={addFormAction} className="participant-add">
           <input type="hidden" name="periodId" value={periodId} />
           <input type="hidden" name="categoryId" value={categoryId} />
           {candidateObjects.length === 0 ? (
@@ -61,29 +76,32 @@ export function ParticipantManager({
             </p>
           ) : (
             <>
-              <select
-                name="objectIds"
-                multiple
-                size={Math.min(6, candidateObjects.length)}
-                className="form__control"
-              >
-                {candidateObjects.map((o) => (
-                  <option key={o.id} value={o.id}>
-                    {o.name} ({o.ownerUnit.name})
-                  </option>
-                ))}
-              </select>
-              <button
-                type="submit"
-                disabled={addPending}
-                className="app-btn app-btn--primary"
-              >
+              <label className="admin-tools__field">
+                <span>Tambahkan objek ke kategori ini</span>
+                <span className="admin-tools__hint">
+                  Pilih satu atau beberapa sekaligus — tahan Ctrl (⌘ di Mac) sambil mengeklik, atau
+                  geser untuk memilih beberapa baris berurutan.
+                </span>
+                <select
+                  name="objectIds"
+                  multiple
+                  size={Math.min(6, candidateObjects.length)}
+                  className="form__control participant-add__select"
+                >
+                  {candidateObjects.map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {o.name} — {o.ownerUnit.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button type="submit" disabled={addPending} className="app-btn app-btn--primary">
                 {addPending ? "Menambahkan…" : "Tambahkan sebagai peserta"}
               </button>
             </>
           )}
           {addState.error && (
-            <p role="alert" className="text-sm text-[var(--danger)]">
+            <p role="alert" className="participant-add__error">
               {addState.error}
             </p>
           )}
