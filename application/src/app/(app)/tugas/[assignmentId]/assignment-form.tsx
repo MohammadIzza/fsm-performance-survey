@@ -44,21 +44,87 @@ function ScoreField({
   onChange: (v: string) => void;
   disabled: boolean;
 }) {
+  // Atribut min/max pada input angka hanya diperiksa peramban saat formulir dikirim — selama
+  // mengetik, "1999" tetap masuk, nilai bobot dan total ikut melonjak (199,9 dan 240,5), dan
+  // penolakannya baru datang dari server. Di sini nilai di luar skala tidak pernah diterima: ketikan
+  // yang membuatnya keluar batas dibatalkan (angka sebelumnya tetap) dan batasnya disebutkan.
+  const [peringatan, setPeringatan] = useState<string | null>(null);
+  const tenggatPeringatan = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const bilanganBulat = Number.isInteger(scale.step) && scale.step >= 1;
+  const bolehNegatif = scale.min < 0;
+
+  useEffect(() => () => {
+    if (tenggatPeringatan.current) clearTimeout(tenggatPeringatan.current);
+  }, []);
+
+  function ingatkan(pesan: string) {
+    setPeringatan(pesan);
+    if (tenggatPeringatan.current) clearTimeout(tenggatPeringatan.current);
+    tenggatPeringatan.current = setTimeout(() => setPeringatan(null), 2600);
+  }
+
+  function ubah(mentah: string) {
+    if (mentah === "") {
+      onChange("");
+      return;
+    }
+    const angka = Number(mentah);
+    if (!Number.isFinite(angka)) return;
+    if (angka > scale.max) return ingatkan(`Maksimal ${displayNumber(scale.max)}`);
+    if (angka < scale.min) return ingatkan(`Minimal ${displayNumber(scale.min)}`);
+    if (scale.step > 0) {
+      const langkah = (angka - scale.min) / scale.step;
+      if (Math.abs(langkah - Math.round(langkah)) > 1e-6) {
+        return ingatkan(bilanganBulat ? "Bilangan bulat" : `Kelipatan ${displayNumber(scale.step)}`);
+      }
+    }
+    setPeringatan(null);
+    onChange(mentah);
+  }
+
+  const idPeringatan = `${id}-batas`;
   return (
     <label className="assessment-score-control" htmlFor={id}>
       <span className="sr-only">{label}</span>
       <input
         id={id}
         type="number"
+        inputMode={bilanganBulat && !bolehNegatif ? "numeric" : "decimal"}
         min={scale.min}
         max={scale.max}
         step={scale.step || "any"}
         value={value}
         disabled={disabled}
         placeholder="—"
-        onChange={(e) => onChange(e.target.value)}
+        aria-invalid={peringatan ? true : undefined}
+        aria-describedby={peringatan ? idPeringatan : undefined}
+        // Tombol yang tidak pernah menghasilkan skor sah ditolak sejak ditekan: notasi eksponen
+        // (e), tanda plus, tanda minus bila skala tidak negatif, dan koma/titik bila skalanya
+        // bilangan bulat. Papan ketik virtual yang tidak melaporkan tombolnya tetap tertangani ubah().
+        onKeyDown={(e) => {
+          const ditolak =
+            e.key === "e" ||
+            e.key === "E" ||
+            e.key === "+" ||
+            (e.key === "-" && !bolehNegatif) ||
+            (bilanganBulat && (e.key === "." || e.key === ","));
+          if (ditolak) {
+            e.preventDefault();
+            ingatkan(
+              e.key === "." || e.key === ","
+                ? "Bilangan bulat"
+                : `Skor ${displayNumber(scale.min)}–${displayNumber(scale.max)}`
+            );
+          }
+        }}
+        onChange={(e) => ubah(e.target.value)}
+        // Roda tetikus di atas input angka yang terfokus diam-diam mengubah skornya.
+        onWheel={(e) => e.currentTarget.blur()}
         className="tap-target"
       />
+      <span id={idPeringatan} className="assessment-score-control__batas" role="status" aria-live="polite">
+        {peringatan}
+      </span>
     </label>
   );
 }
