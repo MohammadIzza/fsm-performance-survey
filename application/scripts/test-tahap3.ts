@@ -310,12 +310,20 @@ async function main() {
 
   console.log("== AC-03/AC-05/EDGE-07/AC-07/EDGE-23: periode terpisah (DEP-FIS, dua pimpinan) ==");
   // Periode BARU dan TERPISAH dari yang di atas — dua pimpinan sekaligus (DEP-FIS: dosen1002
-  // ketua, dosen1003 sekretaris, dari seed Tahap 1) tanpa mengganggu hitungan eligibleCount/
+  // ketua dari seed Tahap 1, dosen1003 dengan jabatan uji sementara) tanpa mengganggu hitungan eligibleCount/
   // shortage yang sudah dipastikan persis di atas.
   const depFis = await prisma.unit.findUniqueOrThrow({ where: { code: "DEP-FIS" } });
   const psFis = await prisma.unit.findUniqueOrThrow({ where: { code: "PS-FIS" } });
   const dosen1002 = await prisma.user.findUniqueOrThrow({ where: { loginIdentifier: "dosen1002" } }); // Ketua Dep. Fisika
-  const dosen1003 = await prisma.user.findUniqueOrThrow({ where: { loginIdentifier: "dosen1003" } }); // Sekretaris Dep. Fisika
+  const dosen1003 = await prisma.user.findUniqueOrThrow({ where: { loginIdentifier: "dosen1003" } }); // dosen Dep. Fisika
+  // Data pimpinan demo mengikuti pengumuman fakultas, dan Departemen Fisika hanya punya ketua di
+  // tingkat departemen. Unit berpimpinan dua untuk uji ini dibuat sendiri: dosen1003 diberi jabatan
+  // sementara, dan jabatan itu dihapus lagi di akhir bagian ini.
+  // Sisa jabatan uji dari jalannya uji sebelumnya yang terhenti di tengah dibersihkan dulu.
+  await prisma.leadership.deleteMany({ where: { title: "Uji T3: pimpinan kedua" } });
+  const jabatanUjiSekFis = await prisma.leadership.create({
+    data: { userId: dosen1003.id, unitId: depFis.id, title: "Uji T3: pimpinan kedua", effectiveFrom: new Date("2020-01-01") },
+  });
   const dosen1006b = await prisma.user.findUniqueOrThrow({ where: { loginIdentifier: "dosen1006" } }); // objek dinilai (luar DEP-FIS)
   const dosen1010 = await prisma.user.findUniqueOrThrow({ where: { loginIdentifier: "dosen1010" } }); // PS-FIS, dibebani manual
   const lainnyaType = await prisma.objectType.findUniqueOrThrow({ where: { code: "LAINNYA" } });
@@ -440,6 +448,7 @@ async function main() {
   await prisma.period.deleteMany({ where: { id: { in: periodIds } } });
   await prisma.objectContributor.deleteMany({ where: { objectId: karyaObj.id } });
   await prisma.assessmentObject.deleteMany({ where: { id: { in: [objDosen1004.id, objDosen1001.id, karyaObj.id, ...t3_2ObjectIds] } } });
+  await prisma.leadership.delete({ where: { id: jabatanUjiSekFis.id } });
   console.log("Selesai.");
 }
 

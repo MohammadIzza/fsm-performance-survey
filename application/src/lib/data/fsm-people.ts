@@ -2,12 +2,15 @@
  * Daftar orang untuk lingkungan demonstrasi: dosen, tenaga kependidikan, dan mahasiswa di setiap
  * departemen dan program studi FSM.
  *
- * Namanya bukan nama sivitas yang sebenarnya — dirakit dari kumpulan nama Indonesia yang lazim,
+ * Pemegang jabatan pimpinan memakai nama asli sesuai pengumuman fakultas (fsm-pimpinan.ts). Selain
+ * mereka, namanya bukan nama sivitas yang sebenarnya — dirakit dari kumpulan nama Indonesia yang lazim,
  * dipasangkan dengan langkah tetap sehingga hasilnya sama setiap kali seed dijalankan dan tidak
  * ada nama yang muncul dua kali. Nomor induknya mengikuti bentuk NIP dan NIM yang berlaku
  * (18 dan 14 angka) supaya kolom identitas di layar terlihat sebagaimana mestinya, tetapi
  * angkanya dibangkitkan berurutan, bukan disalin dari data siapa pun.
  */
+
+import { pejabatRoster, type PejabatFsm } from "./fsm-pimpinan";
 
 export type PeranOrang = "DOSEN" | "TENDIK" | "MAHASISWA";
 
@@ -141,6 +144,22 @@ export function bangunRoster(): RosterDemo {
     return o;
   };
 
+  // Pemegang jabatan resmi mengambil tempat satu dosen/tendik roster: nomor induk dan urutan nama
+  // tetap dimajukan, sehingga nama semua orang lain tidak bergeser akibat penggantian ini.
+  const tambahPejabat = (p: PejabatFsm): OrangDemo => {
+    const o = p.peran === "DOSEN" ? tambahDosen(p.unit) : tambahTendik(p.unit);
+    o.nama = p.nama;
+    pimpinan.push({ unit: p.unit, loginIdentifier: o.loginIdentifier, jabatan: p.jabatan });
+    return o;
+  };
+
+  // Mengisi satu unit sampai `jumlah` dosen roster: pejabat resminya lebih dulu, sisanya dosen biasa.
+  const isiDosen = (unit: string, jumlah: number) => {
+    const pejabat = pejabatRoster(unit).filter((p) => p.peran === "DOSEN");
+    for (const p of pejabat) tambahPejabat(p);
+    for (let i = pejabat.length; i < jumlah; i++) tambahDosen(unit);
+  };
+
   const tambahTendik = (unit: string): OrangDemo => {
     const o: OrangDemo = {
       loginIdentifier: nip(urutTendik),
@@ -154,24 +173,18 @@ export function bangunRoster(): RosterDemo {
   };
 
   for (const d of STRUKTUR) {
-    // Departemen: ketua, sekretaris, dan beberapa dosen yang tercatat di departemen langsung.
-    const ketua = tambahDosen(d.departemen);
-    pimpinan.push({ unit: d.departemen, loginIdentifier: ketua.loginIdentifier, jabatan: "Ketua Departemen" });
-    const sekretaris = tambahDosen(d.departemen);
-    pimpinan.push({ unit: d.departemen, loginIdentifier: sekretaris.loginIdentifier, jabatan: "Sekretaris Departemen" });
-    // Dua dosen lagi tercatat di departemen langsung, bukan di salah satu prodinya. Jumlahnya
-    // menentukan calon penilai kategori prodi: ketua dan sekretaris terpakai kelompok Pimpinan,
-    // sisanya bergabung dengan dosen prodi sebagai kelompok Selain Pimpinan.
-    tambahDosen(d.departemen);
-    tambahDosen(d.departemen);
+    // Departemen: empat dosen tercatat di departemen langsung, bukan di salah satu prodinya —
+    // pimpinan departemen yang diumumkan fakultas lebih dulu, sisanya dosen biasa. Pimpinan
+    // terpakai kelompok Pimpinan; sisanya bergabung dengan dosen prodi sebagai Selain Pimpinan.
+    // Ketua Departemen Matematika dan Fisika dipegang akun seed dasar (dosen1001, dosen1002),
+    // jadi kursinya di sini diisi dosen biasa.
+    isiDosen(d.departemen, 4);
 
     // Tenaga kependidikan di tiap departemen: administrasi akademik, keuangan, dan laboratorium.
     for (let i = 0; i < 4; i++) tambahTendik(d.departemen);
 
     for (const p of d.prodi) {
-      const koordinator = tambahDosen(p);
-      pimpinan.push({ unit: p, loginIdentifier: koordinator.loginIdentifier, jabatan: "Koordinator Program Studi" });
-      for (let i = 0; i < 5; i++) tambahDosen(p);
+      isiDosen(p, 6);
 
       const kode = KODE_NIM[p];
       const total = jumlahMahasiswa(p);
@@ -188,9 +201,7 @@ export function bangunRoster(): RosterDemo {
 
   // Program doktor diasuh fakultas, jadi pengelola dan mahasiswanya tidak berada di bawah
   // departemen mana pun.
-  const koordinatorS3 = tambahDosen("PS-S3-SM");
-  pimpinan.push({ unit: "PS-S3-SM", loginIdentifier: koordinatorS3.loginIdentifier, jabatan: "Koordinator Program Studi" });
-  for (let i = 0; i < 5; i++) tambahDosen("PS-S3-SM");
+  isiDosen("PS-S3-SM", 6);
   for (let i = 1; i <= jumlahMahasiswa("PS-S3-SM"); i++) {
     orang.push({
       loginIdentifier: nim(KODE_NIM["PS-S3-SM"], 22, i),
@@ -200,21 +211,16 @@ export function bangunRoster(): RosterDemo {
     });
   }
 
-  // Pimpinan fakultas: dekan sudah ada di seed dasar, wakil dekan ditambahkan di sini supaya
-  // program studi yang diasuh langsung oleh fakultas tetap punya dua calon kelompok Pimpinan.
-  const wakilDekan = tambahDosen("FSM");
-  pimpinan.push({
-    unit: "FSM",
-    loginIdentifier: wakilDekan.loginIdentifier,
-    jabatan: "Wakil Dekan Bidang Akademik dan Kemahasiswaan",
-  });
+  // Pimpinan fakultas: dekan sudah ada di seed dasar (dekan01); kedua wakil dekan dibuat di sini.
+  for (const p of pejabatRoster("FSM")) tambahPejabat(p);
 
   // Tata usaha fakultas: layanan akademik dan pengelolaan sumber daya berada di sini.
   // Tendik di tata usaha sengaja banyak: dua kategori Dies menilai tendik dengan sejawat satu unit
   // sebagai penilainya, jadi unit ini harus punya cukup sejawat untuk memenuhi target penilai.
-  const kepalaTu = tambahTendik("TU-FSM");
-  pimpinan.push({ unit: "TU-FSM", loginIdentifier: kepalaTu.loginIdentifier, jabatan: "Kepala Tata Usaha" });
-  for (let i = 0; i < 17; i++) tambahTendik("TU-FSM");
+  const pejabatTu = pejabatRoster("TU-FSM");
+  for (const p of pejabatTu) tambahPejabat(p);
+  // Enam belas tendik di luar pimpinan: dua kategori tendik Dies masing-masing mengambil delapan objek.
+  for (let i = 0; i < 16; i++) tambahTendik("TU-FSM");
 
   // Panitia Dies: satu ketua dari dosen, ditambah dosen, tendik, dan mahasiswa sebagai juri.
   const ketuaPanitia = tambahDosen(UNIT_PANITIA);

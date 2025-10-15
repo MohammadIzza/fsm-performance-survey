@@ -144,6 +144,21 @@ async function siapkanOrang() {
     await prisma.user.deleteMany({ where: { id: { in: ids } } });
   }
 
+  // Jabatan roster versi sebelumnya yang tidak lagi ada — jabatan karangan seperti "Koordinator
+  // Program Studi" atau sekretaris departemen yang tidak diumumkan fakultas — dilepas dari orang
+  // roster. Yang dicocokkan orang, unit, dan sebutan jabatannya sekaligus; jabatan akun seed dasar
+  // (dekan01, dosen1001, …) tidak tersentuh karena bukan orang roster.
+  const jabatanRoster = new Set(roster.pimpinan.map((p) => `${p.loginIdentifier}|${p.unit}|${p.jabatan}`));
+  const jabatanUsang = (
+    await prisma.leadership.findMany({
+      where: { user: { loginIdentifier: { in: [...dikenal] } } },
+      select: { id: true, title: true, user: { select: { loginIdentifier: true } }, unit: { select: { code: true } } },
+    })
+  ).filter((l) => !jabatanRoster.has(`${l.user.loginIdentifier}|${l.unit.code}|${l.title}`));
+  if (jabatanUsang.length > 0) {
+    await prisma.leadership.deleteMany({ where: { id: { in: jabatanUsang.map((l) => l.id) } } });
+  }
+
   // Jabatan dari roster dipasang hanya bila unitnya belum punya pimpinan berjalan, sehingga
   // penetapan yang sudah ada di basis data (mis. Dekan dan Ketua Departemen dari seed dasar)
   // tidak digandakan.
@@ -187,7 +202,7 @@ async function siapkanOrang() {
 
   console.log(
     `Orang: ${roster.orang.length} di roster (${baru} baru, ${lama.length} sisa roster lama dihapus), ` +
-      `jabatan baru ${jabatanBaru}, jabatan kedaluwarsa dipulihkan ${dipulihkan.count}.`
+      `jabatan baru ${jabatanBaru}, jabatan usang dilepas ${jabatanUsang.length}, jabatan kedaluwarsa dipulihkan ${dipulihkan.count}.`
   );
   return roster;
 }
@@ -210,22 +225,24 @@ interface RencanaKategori {
 }
 
 const RENCANA: Record<string, RencanaKategori> = {
+  // Prodi dinilai pimpinan departemennya. Menurut data resmi, departemen Matematika, Biologi,
+  // Fisika, dan Kimia hanya punya ketua di tingkat departemen — target dua akan selalu kurang calon.
   "01-PUBLIKASI-PRODI": {
-    pimpinan: { target: 2, minimum: 1 },
+    pimpinan: { target: 1, minimum: 1 },
     selain: { target: 8, minimum: 3, scope: "UNIT_DAN_SUBUNIT", jenis: ["DOSEN"] },
   },
   "02-IKU-PRODI": {
-    pimpinan: { target: 2, minimum: 1 },
+    pimpinan: { target: 1, minimum: 1 },
     selain: { target: 8, minimum: 3, scope: "UNIT_DAN_SUBUNIT", jenis: ["DOSEN"] },
   },
-  // Sebuah prodi berisi enam dosen. Untuk satu objek, dirinya sendiri dan koordinator prodi
+  // Sebuah prodi berisi enam dosen. Untuk satu objek, dirinya sendiri dan pimpinan prodi
   // (terpakai kelompok Pimpinan pada objek yang sama) tidak ikut, jadi calonnya empat.
   "03-PUBLIKASI-DOSEN": {
     pimpinan: { target: 1, minimum: 1 },
     selain: { target: 4, minimum: 3, scope: "UNIT_DAN_SUBUNIT", jenis: ["DOSEN"] },
   },
   // Prodi paling kecil (magister) berisi enam dosen dan enam mahasiswa; dikurangi objek itu
-  // sendiri dan koordinatornya, sepuluh orang tersisa sebagai responden.
+  // sendiri dan pimpinannya, sepuluh orang tersisa sebagai responden.
   "04-DOSEN-FAVORIT": {
     pimpinan: { target: 1, minimum: 1 },
     selain: { target: 10, minimum: 5, scope: "UNIT_DAN_SUBUNIT", jenis: [] },
@@ -348,13 +365,29 @@ async function main() {
       },
       orderBy: { loginIdentifier: "asc" },
     });
-  const pimpinanUnit = async (kodeUnit: string) => {
-    const l = await prisma.leadership.findFirst({
-      where: { unitId: unitOleh(kodeUnit).id, active: true, effectiveTo: null },
-      orderBy: { createdAt: "asc" },
-    });
-    return l ? prisma.user.findUniqueOrThrow({ where: { id: l.userId } }) : null;
+  const pemimpinDi = async (kodeUnit: string) =>
+    (
+      await prisma.leadership.findMany({
+        where: { unitId: unitOleh(kodeUnit).id, active: true, effectiveTo: null },
+        orderBy: { createdAt: "asc" },
+        select: { user: true },
+      })
+    ).map((l) => l.user);
+  // Pimpinan mengikuti data resmi fakultas, dan tidak setiap program studi punya pimpinan sendiri
+  // (Sarjana Statistika dan Sarjana Informatika hanya dipimpin departemennya). Unit semacam itu
+  // diwakili unit terdekat di atasnya yang berpimpinan — sebagai penanggung jawab objek dan
+  // sebagai unit pemilik yang menentukan calon kelompok Pimpinan.
+  const unitBerpimpinan = async (kodeUnit: string): Promise<string> => {
+    let kode = kodeUnit;
+    for (;;) {
+      if ((await pemimpinDi(kode)).length > 0) return kode;
+      const induk = unit.find((u) => u.id === unitOleh(kode).parentId);
+      if (!induk) return kodeUnit;
+      kode = induk.code;
+    }
   };
+  const pimpinanUnit = async (kodeUnit: string) =>
+    (await pemimpinDi(await unitBerpimpinan(kodeUnit)))[0] ?? null;
 
   console.log("\nMembuat periode Dies FSM UNDIP 2026…");
   const periode = await createPeriod(
@@ -440,7 +473,7 @@ async function main() {
 
     if (k.kode === "01-PUBLIKASI-PRODI" || k.kode === "02-IKU-PRODI") {
       for (const p of prodiSemua) {
-        const koordinator = await pimpinanUnit(p.code);
+        const penanggungJawab = await pimpinanUnit(p.code);
         const objek = await createObject(
           {
             typeId: jenisObjekId("UNIT"),
@@ -450,7 +483,7 @@ async function main() {
             ownerUnitId: unitOleh(p.parentCode!).id,
             referenceUserId: null,
             referenceUnitId: unitOleh(p.code).id,
-            responsibleUserId: koordinator?.id ?? null,
+            responsibleUserId: penanggungJawab?.id ?? null,
             url: null,
             description: `Capaian ${p.name} pada periode Dies FSM UNDIP 2026.`,
             contributorUserIds: [],
@@ -464,10 +497,12 @@ async function main() {
     if (k.kode === "03-PUBLIKASI-DOSEN" || k.kode === "04-DOSEN-FAVORIT") {
       for (const p of prodiSemua) {
         const dosen = await orangDi(p.code, "DOSEN");
-        const koordinator = await pimpinanUnit(p.code);
-        // Koordinator tidak dijadikan objek: ia satu-satunya calon kelompok Pimpinan di unitnya,
-        // dan larangan menilai diri sendiri akan mengosongkan kelompok itu.
-        const calon = dosen.filter((d) => d.id !== koordinator?.id);
+        // Pimpinan prodi tidak dijadikan objek: mereka calon kelompok Pimpinan di unitnya, dan
+        // larangan menilai diri sendiri akan mengosongkan kelompok itu. Pejabat asli juga tidak
+        // diberi nilai karangan.
+        const pimpinanProdi = new Set((await pemimpinDi(p.code)).map((u) => u.id));
+        const calon = dosen.filter((d) => !pimpinanProdi.has(d.id));
+        const pemilik = await unitBerpimpinan(p.code);
         // Dua kategori ini mengambil dosen dari ujung daftar yang berlawanan supaya tidak selalu
         // orang yang sama, tetapi prodi yang hanya punya satu calon tetap terwakili di keduanya.
         const terpilih =
@@ -477,7 +512,7 @@ async function main() {
             {
               typeId: jenisObjekId("ORANG"),
               name: d.name,
-              ownerUnitId: unitOleh(p.code).id,
+              ownerUnitId: unitOleh(pemilik).id,
               referenceUserId: d.id,
               referenceUnitId: null,
               responsibleUserId: null,
@@ -494,8 +529,8 @@ async function main() {
 
     if (k.kode === "05-TENDIK-AKADEMIK" || k.kode === "06-TENDIK-SUMBER-DAYA") {
       const tendik = await orangDi("TU-FSM", "TENDIK");
-      const kepala = await pimpinanUnit("TU-FSM");
-      const calon = tendik.filter((t) => t.id !== kepala?.id);
+      const pimpinanTu = new Set((await pemimpinDi("TU-FSM")).map((u) => u.id));
+      const calon = tendik.filter((t) => !pimpinanTu.has(t.id));
       const bagian = k.kode === "05-TENDIK-AKADEMIK" ? calon.slice(0, 8) : calon.slice(8, 16);
       for (const t of bagian) {
         const objek = await createObject(
@@ -522,7 +557,7 @@ async function main() {
           ? prodiSemua.filter((p) => p.name.startsWith("Sarjana"))
           : prodiSemua;
       for (const p of daftar) {
-        const koordinator = await pimpinanUnit(p.code);
+        const penanggungJawab = await pimpinanUnit(p.code);
         const pembuat =
           k.kode === "07-VIDEO-HM"
             ? (await orangDi(p.code, "MAHASISWA")).slice(0, 3)
@@ -539,7 +574,7 @@ async function main() {
             ownerUnitId: unitOleh(UNIT_PANITIA).id,
             referenceUserId: null,
             referenceUnitId: unitOleh(p.code).id,
-            responsibleUserId: koordinator?.id ?? null,
+            responsibleUserId: penanggungJawab?.id ?? null,
             url: `https://video.fsm.undip.ac.id/dies-2026/${p.code.toLowerCase()}`,
             description: null,
             contributorUserIds: pembuat.map((u) => u.id),
@@ -551,6 +586,7 @@ async function main() {
     }
 
     if (k.kode === "09-FSM-GOT-TALENT") {
+      const pimpinanTuSemua = new Set((await pemimpinDi("TU-FSM")).map((u) => u.id));
       const peserta = [
         ...(await orangDi("PS-MAT", "MAHASISWA")).slice(0, 2),
         ...(await orangDi("PS-BIO", "MAHASISWA")).slice(0, 2),
@@ -559,7 +595,9 @@ async function main() {
         ...(await orangDi("PS-STAT", "MAHASISWA")).slice(0, 1),
         ...(await orangDi("PS-INFOR", "MAHASISWA")).slice(0, 1),
         ...(await orangDi("PS-INFOR", "DOSEN")).slice(0, 1),
-        ...(await orangDi("TU-FSM", "TENDIK")).slice(16, 17),
+        ...(await orangDi("TU-FSM", "TENDIK"))
+          .filter((t) => !pimpinanTuSemua.has(t.id))
+          .slice(15, 16),
       ];
       for (const [i, p] of peserta.entries()) {
         const objek = await createObject(

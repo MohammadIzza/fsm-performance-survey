@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { FSM_UNITS } from "../src/lib/data/fsm-org";
+import { pejabatAkunSeed } from "../src/lib/data/fsm-pimpinan";
 
 const db = new PrismaClient();
 
@@ -103,12 +104,14 @@ async function main() {
     create: { id: `${admin.id}-ADMIN`, userId: admin.id, role: "ADMIN" },
   });
 
+  // Akun contoh pimpinan memegang jabatan resmi dan memakai nama pejabatnya (fsm-pimpinan.ts).
+  const jabatanDekan = pejabatAkunSeed("dekan01");
   const dekan = await db.user.upsert({
     where: { loginIdentifier: "dekan01" },
-    update: { name: "Prof. Dr. Sutrisno Hadi, M.Si." },
+    update: { name: jabatanDekan.nama },
     create: {
       loginIdentifier: "dekan01",
-      name: "Prof. Dr. Sutrisno Hadi, M.Si.",
+      name: jabatanDekan.nama,
       userTypeId: dosen.id,
       primaryUnitId: fsm.id,
     },
@@ -118,28 +121,32 @@ async function main() {
     update: {},
     create: { id: `${dekan.id}-DEKAN`, userId: dekan.id, role: "DEKAN" },
   });
-  await pastikanPimpinan(db, dekan.id, fsm.id, "Dekan", new Date("2026-01-01"));
+  await pastikanPimpinan(db, dekan.id, fsm.id, jabatanDekan.jabatan, new Date("2026-01-01"));
 
   // Unit dengan satu pimpinan.
+  const jabatanKaMat = pejabatAkunSeed("dosen1001");
   const kaMat = await db.user.upsert({
     where: { loginIdentifier: "dosen1001" },
-    update: { name: "Prof. Dr. Bambang Waluyo, M.Si." },
+    update: { name: jabatanKaMat.nama },
     create: {
       loginIdentifier: "dosen1001",
-      name: "Prof. Dr. Bambang Waluyo, M.Si.",
+      name: jabatanKaMat.nama,
       userTypeId: dosen.id,
       primaryUnitId: depMat.id,
     },
   });
-  await pastikanPimpinan(db, kaMat.id, depMat.id, "Ketua Departemen", new Date("2026-01-01"));
+  await pastikanPimpinan(db, kaMat.id, depMat.id, jabatanKaMat.jabatan, new Date("2026-01-01"));
 
-  // Unit dengan dua pimpinan (Departemen Fisika: ketua + sekretaris).
+  // Departemen Fisika: ketua resmi. Sekretaris Departemen Fisika tidak diumumkan fakultas, jadi
+  // dosen1003 kini dosen biasa di departemen itu. Uji yang membutuhkan unit berpimpinan dua
+  // (scripts/test-tahap3.ts) membuat jabatan sementaranya sendiri.
+  const jabatanKaFis = pejabatAkunSeed("dosen1002");
   const kaFis = await db.user.upsert({
     where: { loginIdentifier: "dosen1002" },
-    update: { name: "Prof. Dr. Slamet Riyadi, M.Sc." },
+    update: { name: jabatanKaFis.nama },
     create: {
       loginIdentifier: "dosen1002",
-      name: "Prof. Dr. Slamet Riyadi, M.Sc.",
+      name: jabatanKaFis.nama,
       userTypeId: dosen.id,
       primaryUnitId: depFis.id,
     },
@@ -154,8 +161,9 @@ async function main() {
       primaryUnitId: depFis.id,
     },
   });
-  await pastikanPimpinan(db, kaFis.id, depFis.id, "Ketua Departemen", new Date("2026-01-01"));
-  await pastikanPimpinan(db, sekFis.id, depFis.id, "Sekretaris Departemen", new Date("2026-01-01"));
+  await pastikanPimpinan(db, kaFis.id, depFis.id, jabatanKaFis.jabatan, new Date("2026-01-01"));
+  // Basis data yang di-seed sebelumnya masih mencatat dosen1003 sebagai sekretaris; dilepas.
+  await db.leadership.deleteMany({ where: { userId: sekFis.id, unitId: depFis.id, title: "Sekretaris Departemen" } });
 
   // Dosen, tendik, mahasiswa fiktif tambahan tersebar di beberapa unit.
   const extraUsers: Array<{ id: string; name: string; typeId: string; unitId: string }> = [
