@@ -42,37 +42,36 @@
             <img
               alt=""
               decoding="async"
-              height="1080"
+              height="1280"
               loading="lazy"
-              sizes="(min-width: 1440px) 700px, (min-width: 1024px) 500px, (min-width: 577px) 350px, 100vw"
-              src="/assets/images/video-preview-placeholder.svg"
-              width="1080"
+              src="/assets/images/tutorial-survei-fsm-poster.jpg"
+              width="720"
             />
           </picture>
         </div>
         <div class="s__video js-video">
+          {/* preload="none": kunjungan pertama hanya memuat gambar sampulnya (±55 KB); berkas
+              videonya (±4 MB) baru diambil saat tombol putar ditekan. */}
           <video
             preload="none"
             class="s__video-player js-video-player"
-            height="720"
+            height="1920"
             playsinline=""
-            width="720"></video>
+            poster="/assets/images/tutorial-survei-fsm-poster.jpg"
+            src="/assets/media/tutorial-survei-fsm.mp4"
+            width="1080"></video>
         </div>
         <button
           type="button"
-          aria-label="Pratinjau video belum tersedia"
-          class="a-play s__play js-play"
-          disabled></button>
+          aria-label="Putar video tutorial alur penilaian"
+          class="a-play s__play js-play"></button>
       </div>
       <div class="s__text t-t-xl">
-        {/* Penanda diletakkan di kolom teks, bukan di atas bidang videonya: bidang itu dipotong
-            tema menjadi lingkaran (clip-path), jadi apa pun yang ditaruh di tepinya ikut terpotong. */}
-        <p class="s__soon">Segera hadir</p>
         <p>
           <span class="a-bullet-point js-bullet"></span>
 
-          Video ringkasan sistem sedang disiapkan. Sementara itu, alur penilaian
-          selengkapnya sudah bisa dibaca di halaman panduan.
+          Satu menit untuk seluruh alurnya: buka situs, masuk survei, isi skor
+          setiap indikator, lalu kirim sampai tugas tercatat selesai.
         </p>
       </div>
     </div>
