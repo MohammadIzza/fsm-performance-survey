@@ -119,38 +119,39 @@ main:focus {
   cursor: wait;
 }
 
-/* Penanda "segera hadir" pada bidang video di beranda — bagian ini belum berisi video. Tombol putarnya dinonaktifkan — tanpa
-   penanda ini bidang biru itu terbaca seperti video yang gagal dimuat, bukan seperti bagian yang
-   memang belum diisi. */
-.s-video-highlight .s__play:disabled {
-  opacity: 0.45;
-  cursor: default;
+/* Video tutorialnya tegak (9:16, rekaman layar ponsel dengan tulisan di atasnya), sedangkan bidang
+   video tema melebar. Dengan bidang bawaan, video itu terpotong jadi pita tengah dan tulisannya
+   hilang. Bidang video — beserta sapuan biru dan bingkainya, yang ukurannya harus sama — dibuat
+   tegak setinggi 86% bidang kuning dan tetap berpusat di tengahnya. */
+@media only screen and (min-width: 768px) {
+  .s-video-highlight .s__video-mask,
+  .s-video-highlight .s__video-border,
+  .s-video-highlight .s__video-wrapper {
+    width: auto;
+    height: 86%;
+    aspect-ratio: 9 / 16;
+  }
+  .s-video-highlight .s__video-mask {
+    height: calc(86% - 2px);
+  }
+  .s-video-highlight .s__video-border {
+    height: calc(86% + 4px);
+  }
+  /* Lingkaran pengungkap tema (72%) diukur untuk bidang melebar; pada bidang tegak sudut-sudutnya
+     tertinggal di luar lingkaran. */
+  .s-video-highlight.is-in .s__video-wrapper {
+    clip-path: circle(80% at 50% 50%);
+  }
 }
-/* Sampulnya juga tidak lagi bisa diklik selama videonya belum ada; tema memberinya
-   `cursor: pointer` karena di sana sampul itu memang tombol pemutar. */
-.s-video-highlight .s__cover {
-  cursor: default;
-}
-/* Selektor dipanjangkan sampai melewati `.s-video-highlight .s__text p` milik tema — dengan
-   selektor yang lebih pendek, aturan tema yang menang dan penanda ini terbentang selebar kolom. */
-.s-video-highlight .s__text p.s__soon {
-  display: inline-block;
-  margin: 0 0 0.9em;
-  padding: 0.42em 1.1em;
-  /* Putih, bukan merah muda: di ponsel seluruh bidang seksi ini berwarna merah muda, dan penanda
-     sewarna bidangnya sama saja dengan tidak ada penanda. */
-  background: var(--color-white);
-  border-radius: 999px;
-  color: var(--color-black);
-  font: 600 var(--font-size-t-sm) / 1 var(--font-family-text);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  white-space: nowrap;
+/* Seluruh bingkai video tampil utuh — tulisan panduannya ada di tepi atas dan bawah. */
+.s-video-highlight .s__video-player {
+  object-fit: contain;
+  background: var(--color-brand-7);
 }
 
 /* Di bawah 768px tema menyembunyikan seluruh kolom teks bagian video (display:none), padahal
    aturan di sebelahnya — order dan lebar penuh — jelas dirancang untuk menumpuknya di bawah
-   video. Kolom itu dimunculkan lagi supaya keterangan "segera hadir" ikut terbaca di ponsel,
+   video. Kolom itu dimunculkan lagi supaya keterangan videonya ikut terbaca di ponsel,
    bukan hanya di layar lebar. */
 @media only screen and (max-width: 767px) {
   /* Lapisan .s__video-mask adalah sapuan biru untuk animasi pengungkap di layar lebar. Di ponsel
@@ -182,10 +183,10 @@ main:focus {
     font-size: var(--font-size-t-md);
     line-height: 1.45;
   }
-  /* Bidang videonya dibuat 16:9, bukan bujur sangkar: yang ditampilkan gambar pengganti, dan pada
-     bujur sangkar selebar layar gambar itu tenggelam di tengah bidang kuning yang luas. */
+  /* Bidang videonya mengikuti bentuk video tutorial yang tegak (9:16), supaya rekaman layar dan
+     tulisannya tampil utuh selebar layar, tidak terpotong jadi bujur sangkar. */
   .s-video-highlight .s__video-wrapper:before {
-    padding-top: 56.25%;
+    padding-top: 177.78%;
   }
 }
 
