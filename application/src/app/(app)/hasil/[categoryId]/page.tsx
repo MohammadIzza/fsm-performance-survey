@@ -115,8 +115,12 @@ export default async function HasilDetailPage({
 
   const scopeLabel = ctx.isAdmin || ctx.isDekan ? "Seluruh fakultas" : "Unit yang Anda pimpin dan subunitnya";
 
+  // `admin-area` di sini bukan penanda hak akses: kelas itu lingkup gaya daftar data aplikasi —
+  // tata letak kolom, tombol buka-tutup baris, panel detail, dan susunan ponsel. Tanpanya daftar
+  // leaderboard di halaman ini tampil sebagai baris tema polos, berbeda dari leaderboard yang
+  // sama di halaman hasil admin dan dari daftar lain di panel admin.
   return (
-    <div className="space-y-8">
+    <div className="admin-area space-y-8">
       <Link href="/hasil" className="app-back">
         ← Hasil &amp; Leaderboard
       </Link>
