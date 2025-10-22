@@ -1148,11 +1148,35 @@ input[type="range"]:disabled::-moz-range-thumb {
 /* Deret isian yang berdiri sendiri di dalam sebuah bagian. */
 .app-stack {display:flex;flex-direction:column;gap:.65rem}
 
-/* Kartu peringkat di layar sempit: memakai kerangka baris daftar tema — garis hitam di atas dan
-   bawah, tanpa sudut membulat maupun bayangan. */
-.leaderboard-card {border-top:2px solid var(--color-black)}
-.leaderboard-card:last-child {border-bottom:2px solid var(--color-black)}
-.leaderboard-card__panel {border-top:1px solid var(--color-grey-2);padding:.75rem;background:transparent}
+/* Leaderboard di daftar data standar. Nomor peringkat berdiri di depan nama objek dengan lebar
+   tetap, supaya nama-nama di bawahnya tetap rata meski nomornya satu atau dua digit; tiga teratas
+   diberi mahkota tema di depan nomornya. */
+.leaderboard-rank {
+  display:inline-flex;align-items:center;justify-content:flex-start;gap:.25rem;
+  min-width:2.6em;margin-right:.35em;font-weight:600;
+}
+.leaderboard-rank__crown {width:.95em;height:.95em;flex:0 0 auto}
+.leaderboard-rank__number {font-variant-numeric:tabular-nums}
+/* Nilai adalah angka yang dicari orang di baris ini — satu tingkat lebih tebal dari bidang lain. */
+.leaderboard-score {font-weight:600;font-variant-numeric:tabular-nums}
+.leaderboard-detail {display:grid;gap:.4rem;margin:0;padding:0;list-style:none}
+.leaderboard-detail li {
+  display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.2rem 1rem;
+  font-size:.62rem;line-height:1.45;
+}
+.leaderboard-detail__muted {color:var(--color-text)}
+/* Lebar kolom leaderboard. Daftar accordion admin mengunci kolom Status 6rem — cukup untuk
+   "Aktif" dan "Nonaktif". Di sini isinya "Memenuhi syarat" dan "Belum ada penilaian", yang
+   meluber sampai menutupi tombol buka-tutup di kolom Aksi. Status dilebarkan, dan jatahnya
+   diambil dari Respons dan Nilai — dua kolom yang isinya cuma angka pendek. */
+@media only screen and (min-width:1180px) {
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list:has(.sb__disclosure)
+    .sb-course .sb__link > .sb__dates {flex:0 0 10.5rem}
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list:has(.sb__disclosure)
+    .sb-course .sb__link > .sb__duration {flex:1.5 1 0}
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list:has(.sb__disclosure)
+    .sb-course .sb__link > :is(.sb__location,.sb__topic) {flex:.7 1 0}
+}
 
 /* Simpul pohon organisasi: kotak beige bergaris hitam seperti sel tabel, bukan kartu berbayang. */
 .org-tree__node {
