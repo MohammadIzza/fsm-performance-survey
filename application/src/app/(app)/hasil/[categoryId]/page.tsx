@@ -140,14 +140,6 @@ export default async function HasilDetailPage({
         />
       </PageIntro>
 
-      {latestRun && (
-        <p>
-          <a href={`/hasil/${categoryId}/export`} className="app-btn">
-            Unduh Excel
-          </a>
-        </p>
-      )}
-
       {!latestRun ? (
         <p className="app-empty">Belum ada penilaian.</p>
       ) : (
@@ -158,6 +150,11 @@ export default async function HasilDetailPage({
           selainEntries={selainEntries}
           selainMinimum={selainRule?.minimum ?? 0}
           selainDetail={selainDetail}
+          action={
+            <a href={`/hasil/${categoryId}/export`} className="app-btn">
+              Unduh Excel
+            </a>
+          }
         />
       )}
 

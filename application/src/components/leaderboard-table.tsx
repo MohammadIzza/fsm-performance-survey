@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import type { RankedEntry } from "@/lib/services/rankings";
 import {
   DataList,
@@ -12,6 +12,8 @@ import {
   RowTitle,
 } from "@/components/theme/data-list";
 import { StatusPill } from "@/components/theme/status-pill";
+import { FilterBar, FilterField } from "@/components/theme/filter-bar";
+import { TextInput } from "@/components/theme/form-field";
 
 export interface DetailData {
   parameterResults: { parameterName: string; aggregate: number; contribution: number; weight: number }[];
@@ -237,7 +239,10 @@ export function LeaderboardGroups({
   selainEntries,
   selainMinimum,
   selainDetail,
+  action,
 }: {
+  /** Tindakan di ujung bilah penyaring, sejajar dengan kolom cari — mis. tombol Unduh Excel. */
+  action?: ReactNode;
   pimpinanEntries: RankedEntry[];
   pimpinanMinimum: number;
   pimpinanDetail?: Map<string, DetailData>;
@@ -253,16 +258,21 @@ export function LeaderboardGroups({
   // melewati tepi layar ponsel.
   return (
     <div className="space-y-6">
-      <label className="admin-tools__field">
-        <span>Cari objek</span>
-        <input
-          type="search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Nama objek di kedua leaderboard…"
-          className="form__control"
-        />
-      </label>
+      {/* Bilah penyaring yang sama dipakai daftar Pengguna dan Objek: label kecil kapital, kolom
+          cari berlebar terbatas, dan tindakan halaman di ujungnya — bukan kolom cari selebar
+          halaman dengan tombol yang berdiri sendiri di atasnya. */}
+      <FilterBar>
+        <FilterField label="Cari objek" htmlFor="cari-objek-leaderboard" wide>
+          <TextInput
+            id="cari-objek-leaderboard"
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Nama objek di kedua leaderboard…"
+          />
+        </FilterField>
+        {action && <div className="filter-bar__action">{action}</div>}
+      </FilterBar>
 
       <div>
         <h2 className="app-panel__label">Leaderboard Pimpinan</h2>
