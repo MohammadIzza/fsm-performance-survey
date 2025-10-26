@@ -2336,6 +2336,29 @@ input[type="range"]:disabled::-moz-range-thumb {
 .site-head__menu--stack .menu-link {display:block;padding:.5em 0 .5em 1.4rem}
 .site-head__menu--stack .menu-link:before {display:block}
 
+/* ——— Menu samping: gerak saat disorot ———
+   Teks bergeser sedikit ke kanan dan berwarna biru, sementara titik penanda halaman aktif milik
+   tema muncul setengah besar — pratinjau dari titik yang akan menetap bila tautan itu diklik.
+   Tidak ada kotak latar: yang berubah hanya hal-hal yang memang sudah ada di menu ini. */
+.site-head__menu--stack .menu-item__text {
+  display:inline-block;transition:transform .32s cubic-bezier(.19,1,.22,1);
+}
+.site-head__menu--stack .menu-link:hover,
+.site-head__menu--stack .menu-link:focus-visible {color:var(--color-brand-5)}
+.site-head__menu--stack .menu-link:hover .menu-item__text,
+.site-head__menu--stack .menu-link:focus-visible .menu-item__text {transform:translate3d(.35rem,0,0)}
+.site-head__menu--stack .menu-item:not(.current-menu-item) .menu-link:hover:before,
+.site-head__menu--stack .menu-item:not(.current-menu-item) .menu-link:focus-visible:before {
+  transform:translate3d(0,0,0) scale(.5);
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-head__menu--stack .menu-item__text {transition:none}
+  .site-head__menu--stack .menu-link:hover .menu-item__text,
+  .site-head__menu--stack .menu-link:focus-visible .menu-item__text {transform:none}
+}
+/* ——— akhir gerak sorot ——— */
+
+
 .survey-side {background:var(--color-beige);border-right:1px solid var(--color-grey-2);
   padding:1.5rem 1.25rem;gap:1.5rem}
 .survey-side--drawer {border-right:0;padding-top:1.25rem}
