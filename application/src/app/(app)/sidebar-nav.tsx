@@ -1,13 +1,40 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
 interface NavLink {
   href: string;
   label: string;
+}
+
+/**
+ * Isi sebuah tautan menu: teksnya, lalu penanda "sedang memuat" yang muncul selama halaman tujuan
+ * belum tiba.
+ *
+ * Tanpa penanda ini, klik pada menu tidak memberi tanda apa pun sampai halaman baru selesai
+ * dirender server — halaman admin yang berat bisa makan hampir setengah detik, dan selama itu
+ * pengguna tidak tahu apakah kliknya tercatat, lalu mengeklik lagi. `useLinkStatus` harus
+ * dipanggil dari komponen yang berada DI DALAM <Link>, karena status yang dibacanya milik tautan
+ * pembungkus terdekat — itulah sebabnya bagian ini dipisah jadi komponen sendiri.
+ */
+function MenuLinkIsi({ label }: { label: string }) {
+  const { pending } = useLinkStatus();
+  return (
+    <>
+      <span className="menu-item__text" data-text={label}>
+        {label}
+      </span>
+      <span className={`menu-link__muat${pending ? " is-pending" : ""}`} aria-hidden="true" />
+      {pending && (
+        <span className="u-sr-only" role="status">
+          Memuat {label}…
+        </span>
+      )}
+    </>
+  );
 }
 
 // Sidebar tetap di kiri untuk desktop (≥lg) — pola navigasi khas aplikasi kerja (mis. dashboard
@@ -67,9 +94,7 @@ export function SidebarNav({
             className="menu-link"
             aria-current={isActive(l.href) ? "page" : undefined}
           >
-            <span className="menu-item__text" data-text={l.label}>
-              {l.label}
-            </span>
+            <MenuLinkIsi label={l.label} />
           </Link>
         </li>
       ))}
