@@ -1,6 +1,6 @@
 export const site = {
   name: 'Survei Penilaian FSM UNDIP',
-  email: 'survei.fsm@undip.ac.id',
+  email: 'up2ti@live.undip.ac.id',
   navigation: [
     { label: 'Panduan Penilai', href: '/panduan-penilai' },
     { label: 'Panduan Pimpinan', href: '/panduan-pimpinan' },

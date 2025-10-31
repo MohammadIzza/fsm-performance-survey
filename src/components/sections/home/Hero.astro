@@ -94,10 +94,13 @@
   </div>
   <div class="s__content">
     <div class="u-container">
+      {/* Hanya baris utama. Baris kedua bawaan tema tidak pernah terlihat di sini — animasi
+          pengungkapnya tidak dijalankan, opacity-nya tetap 0 — tetapi tetap memakan lebih dari
+          seribu piksel tinggi, dan itulah ruang kosong besar yang selama ini menganga di bawah
+          judul beranda. Keterangan lengkapnya sudah ada di kolom teks sebelah kanan. */}
       <h1 class="s__title s__title--lg t-h-xs">
-        <span class="s__title__main" data-lg-reveal="letters"> 9 tahap </span>
-        <span class="s__title__secondary" data-lg-reveal="heading">
-          dari Data Organisasi sampai Arsip Periode
+        <span class="s__title__main" data-lg-reveal="letters">
+          Ruang penilaian
         </span>
       </h1>
       <div

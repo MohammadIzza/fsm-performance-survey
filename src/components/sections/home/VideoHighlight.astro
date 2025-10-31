@@ -61,14 +61,18 @@
         <button
           type="button"
           aria-label="Pratinjau video belum tersedia"
-          class="a-play s__play js-play"></button>
+          class="a-play s__play js-play"
+          disabled></button>
       </div>
       <div class="s__text t-t-xl">
+        {/* Penanda diletakkan di kolom teks, bukan di atas bidang videonya: bidang itu dipotong
+            tema menjadi lingkaran (clip-path), jadi apa pun yang ditaruh di tepinya ikut terpotong. */}
+        <p class="s__soon">Segera hadir</p>
         <p>
           <span class="a-bullet-point js-bullet"></span>
 
-          Ringkasan video belum tersedia. Baca alur penilaian lengkap di
-          halaman panduan.
+          Video ringkasan sistem sedang disiapkan. Sementara itu, alur penilaian
+          selengkapnya sudah bisa dibaca di halaman panduan.
         </p>
       </div>
     </div>

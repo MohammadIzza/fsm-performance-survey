@@ -118,3 +118,41 @@ main:focus {
   opacity: 0.5;
   cursor: wait;
 }
+
+/* Penanda "segera hadir" pada bidang video di beranda — bagian ini belum berisi video. Tombol putarnya dinonaktifkan — tanpa
+   penanda ini bidang biru itu terbaca seperti video yang gagal dimuat, bukan seperti bagian yang
+   memang belum diisi. */
+.s-video-highlight .s__play:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+/* Sampulnya juga tidak lagi bisa diklik selama videonya belum ada; tema memberinya
+   `cursor: pointer` karena di sana sampul itu memang tombol pemutar. */
+.s-video-highlight .s__cover {
+  cursor: default;
+}
+/* Selektor dipanjangkan sampai melewati `.s-video-highlight .s__text p` milik tema — dengan
+   selektor yang lebih pendek, aturan tema yang menang dan penanda ini terbentang selebar kolom. */
+.s-video-highlight .s__text p.s__soon {
+  display: inline-block;
+  margin: 0 0 0.9em;
+  padding: 0.42em 1.1em;
+  background: var(--color-brand-9);
+  border-radius: 999px;
+  color: var(--color-black);
+  font: 600 var(--font-size-t-sm) / 1 var(--font-family-text);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Di bawah 768px tema menyembunyikan seluruh kolom teks bagian video (display:none), padahal
+   aturan di sebelahnya — order dan lebar penuh — jelas dirancang untuk menumpuknya di bawah
+   video. Kolom itu dimunculkan lagi supaya keterangan "segera hadir" ikut terbaca di ponsel,
+   bukan hanya di layar lebar. */
+@media only screen and (max-width: 767px) {
+  .s-video-highlight .s__text {
+    display: flex;
+    padding-top: 1.6rem;
+  }
+}
