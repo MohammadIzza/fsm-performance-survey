@@ -24,13 +24,35 @@ export interface ParameterInput {
   name: string;
   indicator: string | null;
   weight: number;
-  order: number;
+  /** Dipertahankan opsional untuk pemanggil lama; urutan baru selalu ditentukan oleh server. */
+  order?: number;
 }
 
 // INS-02: bobot parameter persentase nonnegatif.
 function validateWeight(weight: number) {
   if (!Number.isFinite(weight) || weight < 0 || weight > 100) {
     throw new ServiceError("Bobot harus berupa angka antara 0 dan 100.");
+  }
+}
+
+async function validateTotalWeight(
+  instrumentVersionId: string,
+  weight: number,
+  excludedParameterId?: string
+) {
+  const current = await prisma.parameter.aggregate({
+    where: {
+      instrumentVersionId,
+      ...(excludedParameterId ? { id: { not: excludedParameterId } } : {}),
+    },
+    _sum: { weight: true },
+  });
+  const used = current._sum.weight ?? 0;
+  if (used + weight > 100 + 0.000001) {
+    const remaining = Math.max(0, 100 - used);
+    throw new ServiceError(
+      `Total bobot tidak boleh lebih dari 100%. Bobot yang masih tersedia ${remaining}%.`
+    );
   }
 }
 
@@ -44,6 +66,13 @@ async function addParameterImpl(
   const name = input.name.trim();
   if (!name) throw new ServiceError("Nama parameter wajib diisi.");
   validateWeight(input.weight);
+  await validateTotalWeight(instrumentVersionId, input.weight);
+
+  const lastParameter = await prisma.parameter.findFirst({
+    where: { instrumentVersionId },
+    orderBy: { order: "desc" },
+    select: { order: true },
+  });
 
   const parameter = await prisma.parameter.create({
     data: {
@@ -51,7 +80,7 @@ async function addParameterImpl(
       name,
       indicator: input.indicator?.trim() || null,
       weight: input.weight,
-      order: input.order,
+      order: (lastParameter?.order ?? 0) + 1,
     },
   });
 
@@ -79,6 +108,7 @@ async function updateParameterImpl(
   const name = input.name.trim();
   if (!name) throw new ServiceError("Nama parameter wajib diisi.");
   validateWeight(input.weight);
+  await validateTotalWeight(before.instrumentVersionId, input.weight, parameterId);
 
   const parameter = await prisma.parameter.update({
     where: { id: parameterId },
@@ -86,7 +116,6 @@ async function updateParameterImpl(
       name,
       indicator: input.indicator?.trim() || null,
       weight: input.weight,
-      order: input.order,
     },
   });
 
@@ -103,12 +132,24 @@ async function updateParameterImpl(
   return parameter;
 }
 
-export async function deleteParameter(parameterId: string, actor: AuthContext) {
+async function deleteParameterImpl(parameterId: string, actor: AuthContext) {
   const before = await prisma.parameter.findUnique({ where: { id: parameterId } });
   if (!before) throw new ServiceError("Parameter tidak ditemukan.");
   await assertDraftInstrument(before.instrumentVersionId);
 
   await prisma.parameter.delete({ where: { id: parameterId } });
+
+  const remaining = await prisma.parameter.findMany({
+    where: { instrumentVersionId: before.instrumentVersionId },
+    orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+    select: { id: true, order: true },
+  });
+  for (const [index, parameter] of remaining.entries()) {
+    const nextOrder = index + 1;
+    if (parameter.order !== nextOrder) {
+      await prisma.parameter.update({ where: { id: parameter.id }, data: { order: nextOrder } });
+    }
+  }
 
   await writeAudit({
     actorId: actor.userId,
@@ -228,6 +269,10 @@ export async function addParameter(...args: Parameters<typeof addParameterImpl>)
 
 export async function updateParameter(...args: Parameters<typeof updateParameterImpl>): Promise<Awaited<ReturnType<typeof updateParameterImpl>>> {
   return atomic(() => updateParameterImpl(...args));
+}
+
+export async function deleteParameter(...args: Parameters<typeof deleteParameterImpl>): Promise<Awaited<ReturnType<typeof deleteParameterImpl>>> {
+  return atomic(() => deleteParameterImpl(...args));
 }
 
 export async function duplicateInstrumentFrom(...args: Parameters<typeof duplicateInstrumentFromImpl>): Promise<Awaited<ReturnType<typeof duplicateInstrumentFromImpl>>> {
