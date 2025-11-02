@@ -19,6 +19,7 @@ export interface FormState {
 }
 
 function revalidateCategory(periodId: string, categoryId: string) {
+  revalidatePath(`/admin/periode/${periodId}`);
   revalidatePath(`/admin/periode/${periodId}/kategori/${categoryId}`);
 }
 
@@ -34,7 +35,6 @@ export async function addParameterAction(_prev: FormState, formData: FormData): 
         name: String(formData.get("name") ?? ""),
         indicator: (formData.get("indicator") as string) || null,
         weight: Number(formData.get("weight") ?? 0),
-        order: Number(formData.get("order") ?? 0),
       },
       actor
     );
@@ -61,7 +61,6 @@ export async function updateParameterAction(
         name: String(formData.get("name") ?? ""),
         indicator: (formData.get("indicator") as string) || null,
         weight: Number(formData.get("weight") ?? 0),
-        order: Number(formData.get("order") ?? 0),
       },
       actor
     );
