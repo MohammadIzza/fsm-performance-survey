@@ -41,9 +41,14 @@ export async function getPeriodDetail(periodId: string) {
         orderBy: { code: "asc" },
         include: {
           objectType: true,
-          _count: { select: { categoryObjects: true } },
+          _count: { select: { categoryObjects: true, assignmentBatches: true } },
+          categoryObjects: {
+            orderBy: { createdAt: "asc" },
+            include: { object: { include: { type: true } } },
+          },
           instrumentVersions: { orderBy: { revision: "desc" }, take: 1, include: { parameters: true } },
           groupRules: true,
+          assignmentRules: true,
         },
       },
     },
