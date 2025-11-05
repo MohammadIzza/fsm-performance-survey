@@ -96,7 +96,7 @@ export function DataRow({
   children,
 }: {
   href?: string;
-  /** Tambahkan tombol buka-tutup untuk bidang ber-`detail` pada baris ini (hanya tampak di ponsel). */
+  /** Jadikan baris sebagai accordion dengan tombol panah dan panel detail. */
   collapsible?: boolean;
   /**
    * Isi yang terbuka di bawah barisnya, selebar baris — dipakai daftar admin untuk form sunting
@@ -108,10 +108,15 @@ export function DataRow({
 }) {
   if (!href) {
     return (
-      <li className="s__course sb-course sb-course--static" data-detail-open="false">
+      <li
+        className="s__course sb-course sb-course--static"
+        data-collapsible={collapsible ? "true" : undefined}
+        data-detail-open={collapsible ? "false" : undefined}
+      >
         <div className="sb__link">
           {children}
           {collapsible && <RowDisclosure />}
+          <span className="sb__background" aria-hidden="true" />
         </div>
         {panel && <div className="sb__panel">{panel}</div>}
       </li>
@@ -142,6 +147,48 @@ export function DataRow({
  */
 export function RowActions({ children }: { children: ReactNode }) {
   return <span className="sb__price sb__actions">{children}</span>;
+}
+
+/** Detail berlabel yang ditampilkan di dalam panel accordion baris admin. */
+export function RowPanelDetails({ children }: { children: ReactNode }) {
+  return <dl className="admin-row-details">{children}</dl>;
+}
+
+export function RowPanelField({
+  label,
+  children,
+}: {
+  label: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <div className="admin-row-details__field">
+      <dt>{label}</dt>
+      <dd>{children}</dd>
+    </div>
+  );
+}
+
+/** Deret tombol kecil yang hanya muncul setelah baris accordion dibuka. */
+export function RowPanelActions({ children }: { children: ReactNode }) {
+  return <div className="admin-row-panel-actions">{children}</div>;
+}
+
+export function RowActionMenu({
+  label = "Buka aksi",
+  children,
+}: {
+  label?: string;
+  children: ReactNode;
+}) {
+  return (
+    <details className="row-action-menu">
+      <summary aria-label={label}>
+        <span className="row-action-menu__arrow" aria-hidden="true" />
+      </summary>
+      <div className="row-action-menu__items">{children}</div>
+    </details>
+  );
 }
 
 /**
