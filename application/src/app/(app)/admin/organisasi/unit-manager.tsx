@@ -1,7 +1,16 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { DataList, DataRow, RowTitle, RowField, RowActions } from "@/components/theme/data-list";
+import {
+  DataList,
+  DataRow,
+  RowTitle,
+  RowField,
+  RowPanelDetails,
+  RowPanelField,
+  RowPanelActions,
+} from "@/components/theme/data-list";
+import { AdminActionList, AdminAction } from "@/components/theme/admin-actions";
 import { StatusPill } from "@/components/theme/status-pill";
 import { createUnitAction, updateUnitAction, setUnitActiveAction } from "@/lib/actions/admin-units";
 import { assignLeadershipAction, endLeadershipAction } from "@/lib/actions/admin-leadership";
@@ -28,11 +37,12 @@ export function UnitManager({
 
   return (
     <div className="space-y-6">
-      <div className="app-panel app-panel--ruled">
-        <h2 className="app-panel__label">
-          Tambah unit
-        </h2>
-        <form action={createFormAction} className="grid gap-3 sm:grid-cols-4">
+      <AdminActionList>
+        <AdminAction
+          name="Tambah unit"
+          description="Menambah satu unit baru ke pohon organisasi."
+        >
+        <form action={createFormAction} className="admin-inline-form grid gap-3 sm:grid-cols-4">
           <input
             name="code"
             placeholder="Kode (mis. PS-INF)"
@@ -72,7 +82,8 @@ export function UnitManager({
             </button>
           </div>
         </form>
-      </div>
+        </AdminAction>
+      </AdminActionList>
 
       <DataList
         columns={[
@@ -136,19 +147,6 @@ function UnitRow({
           {unit.active ? "Aktif" : "Nonaktif"}
         </StatusPill>
       </RowField>
-      <RowActions>
-        <button type="button" onClick={() => setEditing(true)}>
-          Edit
-        </button>
-        <button type="button" onClick={() => setLeadershipOpen((v) => !v)}>
-          Pimpinan
-        </button>
-        <form action={setUnitActiveAction}>
-          <input type="hidden" name="unitId" value={unit.id} />
-          <input type="hidden" name="active" value={(!unit.active).toString()} />
-          <button type="submit">{unit.active ? "Nonaktifkan" : "Aktifkan"}</button>
-        </form>
-      </RowActions>
     </>
   );
 
@@ -159,8 +157,61 @@ function UnitRow({
     <DataRow
       collapsible
       panel={
-        editing ? (
-          <form action={updateFormAction} className="grid gap-3 sm:grid-cols-4">
+        <div className="admin-row-panel">
+          <RowPanelDetails>
+            <RowPanelField label="Kode">{unit.code}</RowPanelField>
+            <RowPanelField label="Induk">{parent ? parent.name : "—"}</RowPanelField>
+            <RowPanelField label="Pimpinan aktif">
+              {unit.currentLeaders.length === 0
+                ? "Belum ada pimpinan"
+                : unit.currentLeaders.map((leader) => (
+                    <span key={leader.id} className="sb__stack">
+                      {leader.user.name}
+                      <span className="sb__subtitle">{leader.title}</span>
+                    </span>
+                  ))}
+            </RowPanelField>
+            <RowPanelField label="Status">
+              <StatusPill tone={unit.active ? "selesai" : "netral"}>
+                {unit.active ? "Aktif" : "Nonaktif"}
+              </StatusPill>
+            </RowPanelField>
+          </RowPanelDetails>
+
+          <RowPanelActions>
+            <button
+              type="button"
+              className="app-btn app-btn--primary"
+              aria-expanded={editing}
+              onClick={() => {
+                setEditing((value) => !value);
+                setLeadershipOpen(false);
+              }}
+            >
+              {editing ? "Tutup edit" : "Edit"}
+            </button>
+            <button
+              type="button"
+              className="app-btn"
+              aria-expanded={leadershipOpen}
+              onClick={() => {
+                setLeadershipOpen((value) => !value);
+                setEditing(false);
+              }}
+            >
+              {leadershipOpen ? "Tutup pimpinan" : "Pimpinan"}
+            </button>
+            <form action={setUnitActiveAction}>
+              <input type="hidden" name="unitId" value={unit.id} />
+              <input type="hidden" name="active" value={(!unit.active).toString()} />
+              <button type="submit" className="app-btn">
+                {unit.active ? "Nonaktifkan" : "Aktifkan"}
+              </button>
+            </form>
+          </RowPanelActions>
+
+          {editing && (
+          <form action={updateFormAction} className="admin-inline-form grid gap-3 sm:grid-cols-4">
             <input type="hidden" name="unitId" value={unit.id} />
             <input
               name="code"
@@ -208,7 +259,9 @@ function UnitRow({
               )}
             </div>
           </form>
-        ) : leadershipOpen ? (
+          )}
+
+          {leadershipOpen && (
           <div className="space-y-4">
               {unit.leaderships.length > 0 && (
                 <ul className="space-y-1.5">
@@ -247,7 +300,7 @@ function UnitRow({
                 </ul>
               )}
 
-              <form action={assignFormAction} className="grid gap-2 sm:grid-cols-4">
+              <form action={assignFormAction} className="admin-inline-form grid gap-2 sm:grid-cols-4">
                 <input type="hidden" name="unitId" value={unit.id} />
                 <select
                   name="userId"
@@ -291,7 +344,8 @@ function UnitRow({
                 )}
               </form>
             </div>
-        ) : null
+          )}
+        </div>
       }
     >
       {rowFields}
