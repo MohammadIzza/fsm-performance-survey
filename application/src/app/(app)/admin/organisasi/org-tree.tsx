@@ -24,7 +24,7 @@ export function OrgTree({ units }: { units: UnitWithMeta[] }) {
 
   return (
     <div className="app-table-wrap">
-      <ul className="org-tree min-w-max">
+      <ul className="org-tree">
         {roots.map((u) => (
           <TreeNode key={u.id} unit={u} byParent={byParent} isRoot />
         ))}
