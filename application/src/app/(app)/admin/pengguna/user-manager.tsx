@@ -1,7 +1,16 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { DataList, DataRow, RowTitle, RowField, RowActions } from "@/components/theme/data-list";
+import {
+  DataList,
+  DataRow,
+  RowTitle,
+  RowField,
+  RowPanelDetails,
+  RowPanelField,
+  RowPanelActions,
+} from "@/components/theme/data-list";
+import { AdminActionList, AdminAction } from "@/components/theme/admin-actions";
 import { StatusPill } from "@/components/theme/status-pill";
 import { FilterBar, FilterField } from "@/components/theme/filter-bar";
 import { TextInput } from "@/components/theme/form-field";
@@ -29,7 +38,6 @@ export function UserManager({
 }) {
   const [createState, createFormAction, createPending] = useActionState(createUserAction, {});
   const [typeState, typeFormAction, typePending] = useActionState(createUserTypeAction, {});
-  const [showTypeForm, setShowTypeForm] = useState(false);
   // Bab 16.2: "Tabel panjang memiliki pencarian, filter, pagination, dan state kosong" — daftar
   // pengguna tumbuh dengan cepat (satu baris per orang di fakultas), jadi pencarian bukan opsional.
   const [search, setSearch] = useState("");
@@ -46,58 +54,11 @@ export function UserManager({
 
   return (
     <div className="space-y-6">
-      <div className="app-panel app-panel--ruled">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="app-panel__label app-panel__label--tight">
-            Tambah pengguna
-          </h2>
-          <button
-            type="button"
-            onClick={() => setShowTypeForm((v) => !v)}
-            className="app-text-xs font-medium text-[var(--accent)] hover:underline"
-          >
-            {showTypeForm ? "Tutup" : "Kelola jenis pengguna"}
-          </button>
-        </div>
-
-        {showTypeForm && (
-          <form
-            action={typeFormAction}
-            className="app-note mb-4 flex flex-wrap items-end gap-2"
-          >
-            <div className="flex flex-col gap-1">
-              <label className="app-text-xs text-[var(--muted)]">Kode</label>
-              <input
-                name="code"
-                placeholder="mis. LABORAN"
-                required
-                className="rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 app-text-sm outline-none focus:border-[var(--accent)]"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="app-text-xs text-[var(--muted)]">Nama</label>
-              <input
-                name="name"
-                placeholder="mis. Laboran"
-                required
-                className="rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 app-text-sm outline-none focus:border-[var(--accent)]"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={typePending}
-              className="rounded-lg bg-[var(--accent)] px-3 py-1.5 app-text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
-            >
-              {typePending ? "Menyimpan…" : "Tambah jenis"}
-            </button>
-            {typeState.error && (
-              <p role="alert" className="text-sm text-[var(--danger)]">
-                {typeState.error}
-              </p>
-            )}
-          </form>
-        )}
-
+      <AdminActionList>
+        <AdminAction
+          name="Tambah pengguna"
+          description="Identitas baru yang langsung dapat masuk dan menerima tugas."
+        >
         <form action={createFormAction} className="grid gap-3 sm:grid-cols-4">
           <input
             name="loginIdentifier"
@@ -153,7 +114,28 @@ export function UserManager({
             </button>
           </div>
         </form>
-      </div>
+        </AdminAction>
+
+        <AdminAction
+          name="Kelola jenis pengguna"
+          description="Daftar jenis yang dapat dipilih saat menambah pengguna."
+        >
+          <form action={typeFormAction} className="grid gap-3 sm:grid-cols-4">
+            <input name="code" placeholder="Kode (mis. LABORAN)" required className="form__control" />
+            <input name="name" placeholder="Nama (mis. Laboran)" required className="form__control" />
+            <div className="sm:col-span-4">
+              {typeState.error && (
+                <p role="alert" className="mb-2 app-text-sm" style={{ color: "var(--color-brand-1)" }}>
+                  {typeState.error}
+                </p>
+              )}
+              <button type="submit" disabled={typePending} className="app-btn app-btn--primary">
+                {typePending ? "Menyimpan…" : "Tambah jenis"}
+              </button>
+            </div>
+          </form>
+        </AdminAction>
+      </AdminActionList>
 
       <FilterBar>
         <FilterField label="Cari pengguna" htmlFor="cari-pengguna" wide>
@@ -243,19 +225,6 @@ function UserRow({
           {user.active ? "Aktif" : "Nonaktif"}
         </StatusPill>
       </RowField>
-      <RowActions>
-        <button type="button" onClick={() => setEditing(true)}>
-          Edit
-        </button>
-        <button type="button" onClick={() => setRolesOpen((v) => !v)}>
-          Peran
-        </button>
-        <form action={setUserActiveAction}>
-          <input type="hidden" name="userId" value={user.id} />
-          <input type="hidden" name="active" value={(!user.active).toString()} />
-          <button type="submit">{user.active ? "Nonaktifkan" : "Aktifkan"}</button>
-        </form>
-      </RowActions>
     </>
   );
 
@@ -265,8 +234,73 @@ function UserRow({
     <DataRow
       collapsible
       panel={
-        editing ? (
-          <form action={updateFormAction} className="grid gap-3 sm:grid-cols-4">
+        <div className="admin-row-panel">
+          <RowPanelDetails>
+            <RowPanelField label="ID pengguna">{user.loginIdentifier}</RowPanelField>
+            <RowPanelField label="Jenis">{user.userType.name}</RowPanelField>
+            <RowPanelField label="Unit utama">
+              {user.primaryUnit ? user.primaryUnit.name : "—"}
+            </RowPanelField>
+            <RowPanelField label="Peran">
+              {user.roleGrants.length === 0 && user.leaderships.length === 0 ? (
+                "Pengguna"
+              ) : (
+                <>
+                  {user.roleGrants.map((grant) => (
+                    <span key={grant.id} className="sb__stack">
+                      {grant.role === "ADMIN" ? "Admin" : "Dekan"}
+                    </span>
+                  ))}
+                  {user.leaderships.map((leadership) => (
+                    <span key={leadership.id} className="sb__stack">
+                      {leadership.title}
+                      <span className="sb__subtitle">{leadership.unit.code}</span>
+                    </span>
+                  ))}
+                </>
+              )}
+            </RowPanelField>
+            <RowPanelField label="Status">
+              <StatusPill tone={user.active ? "selesai" : "netral"}>
+                {user.active ? "Aktif" : "Nonaktif"}
+              </StatusPill>
+            </RowPanelField>
+          </RowPanelDetails>
+
+          <RowPanelActions>
+            <button
+              type="button"
+              className="app-btn app-btn--primary"
+              aria-expanded={editing}
+              onClick={() => {
+                setEditing((value) => !value);
+                setRolesOpen(false);
+              }}
+            >
+              {editing ? "Tutup edit" : "Edit"}
+            </button>
+            <button
+              type="button"
+              className="app-btn"
+              aria-expanded={rolesOpen}
+              onClick={() => {
+                setRolesOpen((value) => !value);
+                setEditing(false);
+              }}
+            >
+              {rolesOpen ? "Tutup peran" : "Peran"}
+            </button>
+            <form action={setUserActiveAction}>
+              <input type="hidden" name="userId" value={user.id} />
+              <input type="hidden" name="active" value={(!user.active).toString()} />
+              <button type="submit" className="app-btn">
+                {user.active ? "Nonaktifkan" : "Aktifkan"}
+              </button>
+            </form>
+          </RowPanelActions>
+
+          {editing && (
+          <form action={updateFormAction} className="admin-inline-form grid gap-3 sm:grid-cols-4">
             <input type="hidden" name="userId" value={user.id} />
             <input
               name="loginIdentifier"
@@ -326,7 +360,9 @@ function UserRow({
               )}
             </div>
           </form>
-        ) : rolesOpen ? (
+          )}
+
+          {rolesOpen && (
           <div className="space-y-3">
               {user.roleGrants.length > 0 && (
                 <ul className="flex flex-wrap gap-2">
@@ -359,7 +395,7 @@ function UserRow({
                   <select
                     name="role"
                     defaultValue="ADMIN"
-                    className="rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 app-text-sm outline-none focus:border-[var(--accent)]"
+                    className="form__control"
                   >
                     <option value="ADMIN">Admin</option>
                     <option value="DEKAN">Dekan</option>
@@ -379,7 +415,8 @@ function UserRow({
                 )}
               </form>
             </div>
-        ) : null
+          )}
+        </div>
       }
     >
       {rowFields}
