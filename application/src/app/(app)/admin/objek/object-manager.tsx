@@ -1,7 +1,16 @@
 "use client";
 
 import { useActionState, useMemo, useState } from "react";
-import { DataList, DataRow, RowTitle, RowField, RowActions } from "@/components/theme/data-list";
+import {
+  DataList,
+  DataRow,
+  RowTitle,
+  RowField,
+  RowPanelDetails,
+  RowPanelField,
+  RowPanelActions,
+} from "@/components/theme/data-list";
+import { AdminActionList, AdminAction } from "@/components/theme/admin-actions";
 import { StatusPill } from "@/components/theme/status-pill";
 import { FilterBar, FilterField } from "@/components/theme/filter-bar";
 import { TextInput } from "@/components/theme/form-field";
@@ -32,7 +41,6 @@ export function ObjectManager({
   units: Unit[];
   users: UserOption[];
 }) {
-  const [showTypeForm, setShowTypeForm] = useState(false);
   const [typeState, typeFormAction, typePending] = useActionState(createObjectTypeAction, {});
   // Bab 16.2: "Tabel panjang memiliki pencarian, filter, pagination, dan state kosong" — master
   // objek mencakup seluruh orang/unit/karya lintas kategori, jadi bisa cepat panjang.
@@ -51,66 +59,40 @@ export function ObjectManager({
 
   return (
     <div className="space-y-6">
-      <div className="app-panel app-panel--ruled">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="app-panel__label app-panel__label--tight">
-            Tambah objek
-          </h2>
-          <button
-            type="button"
-            onClick={() => setShowTypeForm((v) => !v)}
-            className="app-text-xs font-medium text-[var(--accent)] hover:underline"
-          >
-            {showTypeForm ? "Tutup" : "Kelola jenis objek"}
-          </button>
-        </div>
+      <AdminActionList>
+        <AdminAction
+          name="Tambah objek"
+          description="Master objek yang dapat dinilai, lalu dipilih sebagai peserta kategori."
+        >
+          <ObjectForm
+            action={createObjectAction}
+            objectTypes={objectTypes}
+            units={units}
+            users={users}
+            submitLabel="Tambah objek"
+          />
+        </AdminAction>
 
-        {showTypeForm && (
-          <form
-            action={typeFormAction}
-            className="app-note mb-4 flex flex-wrap items-end gap-2"
-          >
-            <div className="flex flex-col gap-1">
-              <label className="app-text-xs text-[var(--muted)]">Kode</label>
-              <input
-                name="code"
-                placeholder="mis. PRESTASI"
-                required
-                className="rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 app-text-sm outline-none focus:border-[var(--accent)]"
-              />
+        <AdminAction
+          name="Kelola jenis objek"
+          description="Daftar jenis yang dapat dipilih saat menambah objek."
+        >
+          <form action={typeFormAction} className="grid gap-3 sm:grid-cols-4">
+            <input name="code" placeholder="Kode (mis. PRESTASI)" required className="form__control" />
+            <input name="name" placeholder="Nama (mis. Prestasi)" required className="form__control" />
+            <div className="sm:col-span-4">
+              {typeState.error && (
+                <p role="alert" className="mb-2 app-text-sm" style={{ color: "var(--color-brand-1)" }}>
+                  {typeState.error}
+                </p>
+              )}
+              <button type="submit" disabled={typePending} className="app-btn app-btn--primary">
+                {typePending ? "Menyimpan…" : "Tambah jenis"}
+              </button>
             </div>
-            <div className="flex flex-col gap-1">
-              <label className="app-text-xs text-[var(--muted)]">Nama</label>
-              <input
-                name="name"
-                placeholder="mis. Prestasi"
-                required
-                className="rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 app-text-sm outline-none focus:border-[var(--accent)]"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={typePending}
-              className="rounded-lg bg-[var(--accent)] px-3 py-1.5 app-text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
-            >
-              {typePending ? "Menyimpan…" : "Tambah jenis"}
-            </button>
-            {typeState.error && (
-              <p role="alert" className="text-sm text-[var(--danger)]">
-                {typeState.error}
-              </p>
-            )}
           </form>
-        )}
-
-        <ObjectForm
-          action={createObjectAction}
-          objectTypes={objectTypes}
-          units={units}
-          users={users}
-          submitLabel="Tambah objek"
-        />
-      </div>
+        </AdminAction>
+      </AdminActionList>
 
       <FilterBar>
         <FilterField label="Cari objek" htmlFor="cari-objek" wide>
@@ -175,17 +157,57 @@ function ObjectRow({
     <DataRow
       collapsible
       panel={
-        editing ? (
-          <ObjectForm
-            action={updateObjectAction}
-            objectTypes={objectTypes}
-            units={units}
-            users={users}
-            submitLabel="Simpan"
-            defaultValues={object}
-            onCancel={() => setEditing(false)}
-          />
-        ) : null
+        <div className="admin-row-panel">
+          <RowPanelDetails>
+            <RowPanelField label="Jenis">{object.type.name}</RowPanelField>
+            <RowPanelField label="Unit pemilik">{object.ownerUnit.name}</RowPanelField>
+            <RowPanelField label="Penanggung jawab">
+              {object.responsibleUser ? object.responsibleUser.name : "—"}
+            </RowPanelField>
+            {object.url && (
+              <RowPanelField label="Tautan">
+                <a href={object.url} target="_blank" rel="noreferrer">
+                  Buka objek ↗
+                </a>
+              </RowPanelField>
+            )}
+            <RowPanelField label="Status">
+              <StatusPill tone={object.active ? "selesai" : "netral"}>
+                {object.active ? "Aktif" : "Nonaktif"}
+              </StatusPill>
+            </RowPanelField>
+          </RowPanelDetails>
+
+          <RowPanelActions>
+            <button
+              type="button"
+              className="app-btn app-btn--primary"
+              aria-expanded={editing}
+              onClick={() => setEditing((value) => !value)}
+            >
+              {editing ? "Tutup edit" : "Edit"}
+            </button>
+            <form action={setObjectActiveAction}>
+              <input type="hidden" name="objectId" value={object.id} />
+              <input type="hidden" name="active" value={(!object.active).toString()} />
+              <button type="submit" className="app-btn">
+                {object.active ? "Nonaktifkan" : "Aktifkan"}
+              </button>
+            </form>
+          </RowPanelActions>
+
+          {editing && (
+            <ObjectForm
+              action={updateObjectAction}
+              objectTypes={objectTypes}
+              units={units}
+              users={users}
+              submitLabel="Simpan"
+              defaultValues={object}
+              onCancel={() => setEditing(false)}
+            />
+          )}
+        </div>
       }
     >
       <RowTitle>
@@ -216,16 +238,6 @@ function ObjectRow({
           {object.active ? "Aktif" : "Nonaktif"}
         </StatusPill>
       </RowField>
-      <RowActions>
-        <button type="button" onClick={() => setEditing(true)}>
-          Edit
-        </button>
-        <form action={setObjectActiveAction}>
-          <input type="hidden" name="objectId" value={object.id} />
-          <input type="hidden" name="active" value={(!object.active).toString()} />
-          <button type="submit">{object.active ? "Nonaktifkan" : "Aktifkan"}</button>
-        </form>
-      </RowActions>
     </DataRow>
   );
 }
@@ -261,7 +273,10 @@ function ObjectForm({
   const defaultContributorIds = defaultValues?.contributors.map((c) => c.userId) ?? [];
 
   return (
-    <form action={formAction} className="grid gap-3 sm:grid-cols-3">
+    <form
+      action={formAction}
+      className={`${defaultValues ? "admin-inline-form " : ""}grid gap-3 sm:grid-cols-3`}
+    >
       {defaultValues && <input type="hidden" name="objectId" value={defaultValues.id} />}
 
       <select
