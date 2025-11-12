@@ -1,5 +1,6 @@
 "use client";
 
+import { AdminActionList, AdminAction } from "@/components/theme/admin-actions";
 import { useActionState, useState } from "react";
 import { previewImportAction, applyImportAction } from "@/lib/actions/imports";
 
@@ -21,18 +22,17 @@ export function ImportForm() {
   const canApply = preview && preview.errors.length === 0 && preview.totalRows > 0 && !applyState.success;
 
   return (
-    <div className="app-panel app-panel--ruled">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="app-panel__label app-panel__label--tight">
-          Unggah berkas
-        </h2>
-        <a
-          href={`/admin/impor/template/${entity.toLowerCase()}`}
-          className="app-text-sm font-medium text-[var(--accent)] hover:underline"
-        >
+    <AdminActionList>
+      <AdminAction
+        name="Unggah berkas"
+        description="Berkas dibaca sebagai pratinjau dulu; tidak ada yang masuk sebelum diterapkan."
+        defaultOpen
+      >
+      <p className="mb-3">
+        <a href={`/admin/impor/template/${entity.toLowerCase()}`} className="app-text-sm">
           Unduh template {entityOptions.find((e) => e.value === entity)?.label}
         </a>
-      </div>
+      </p>
 
       <form action={previewAction} className="grid gap-3 sm:grid-cols-3">
         <select
@@ -116,6 +116,7 @@ export function ImportForm() {
           )}
         </div>
       )}
-    </div>
+      </AdminAction>
+    </AdminActionList>
   );
 }
