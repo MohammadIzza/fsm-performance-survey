@@ -1,6 +1,7 @@
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import { listPeriods } from "@/lib/services/periods";
 import { PeriodCreateForm } from "./period-create-form";
+import { AdminActionList, AdminAction } from "@/components/theme/admin-actions";
 import { PageIntro, SummaryCard } from "@/components/theme/summary";
 import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 import { StatusPill } from "@/components/theme/status-pill";
@@ -47,12 +48,14 @@ async function PeriodePage() {
         />
       </PageIntro>
 
-      <div className="app-panel app-panel--ruled">
-        <h2 className="app-panel__label">
-          Buat periode baru
-        </h2>
-        <PeriodCreateForm />
-      </div>
+      <AdminActionList>
+        <AdminAction
+          name="Buat periode baru"
+          description="Periode baru dimulai berstatus Draf dan belum terlihat oleh penilai."
+        >
+          <PeriodCreateForm />
+        </AdminAction>
+      </AdminActionList>
 
       {periods.length === 0 ? (
         <p className="t-t-md" style={{ color: "var(--color-text)" }}>
@@ -67,7 +70,7 @@ async function PeriodePage() {
             ["price", "Status"],
           ]}
         >
-          {periods.map((p, i) => (
+          {periods.map((p) => (
             <DataRow
               key={p.id}
               href={`/admin/periode/${p.id}`}
