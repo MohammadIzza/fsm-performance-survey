@@ -45,13 +45,14 @@ export function StatusActions({
 
   return (
     <div className="app-panel app-panel--ruled">
+      <h2 className="app-panel__label">Buka atau tutup pengisian</h2>
       <div className="flex flex-wrap items-center gap-3">
         {status === "DRAF" && (
           <TransitionButton
             formAction={formAction}
             periodId={periodId}
             target="SIAP"
-            label="Tandai siap"
+            label="Periksa kesiapan"
             pending={pending}
           />
         )}
@@ -60,17 +61,20 @@ export function StatusActions({
             <TransitionButton
               formAction={formAction}
               periodId={periodId}
-              target="DRAF"
-              label="Kembali ke draf"
+              target="AKTIF"
+              label="Buka pengisian"
               pending={pending}
             />
             <TransitionButton
               formAction={formAction}
               periodId={periodId}
-              target="AKTIF"
-              label="Buka periode"
+              target="DRAF"
+              label="Kembali untuk memperbaiki"
               pending={pending}
             />
+            <span className="app-text-sm text-[var(--muted)]">
+              Semua pengaturan siap. Buka pengisian saat periode akan dimulai.
+            </span>
           </>
         )}
         {status === "AKTIF" && (
@@ -79,7 +83,7 @@ export function StatusActions({
               formAction={formAction}
               periodId={periodId}
               target="DITUTUP"
-              label="Tutup periode"
+              label="Tutup pengisian"
               pending={pending}
             />
             <span className="app-text-sm text-[var(--muted)]">
@@ -93,7 +97,7 @@ export function StatusActions({
               formAction={formAction}
               periodId={periodId}
               target="DITUTUP"
-              label="Selesaikan koreksi (kembali ke Ditutup)"
+              label="Selesaikan koreksi"
               pending={pending}
             />
             <span className="app-text-sm text-[var(--muted)]">
@@ -112,7 +116,7 @@ export function StatusActions({
       {status === "DRAF" && problems.length > 0 && (
         <div className="mt-4 app-note app-note--perhatian">
           <p className="mb-2 app-text-sm font-medium text-amber-900">
-            Belum memenuhi syarat &ldquo;Siap&rdquo;:
+            Selesaikan ini sebelum membuka pengisian:
           </p>
           <ul className="list-disc space-y-1 pl-5 app-text-sm text-amber-900">
             {problems.map((p, i) => (
@@ -123,7 +127,7 @@ export function StatusActions({
       )}
       {status === "DRAF" && problems.length === 0 && (
         <p className="mt-4 app-text-sm text-[var(--success)]">
-          Semua syarat konfigurasi terpenuhi — siap ditandai Siap.
+          Semua pengaturan sudah lengkap. Pilih Periksa kesiapan untuk melanjutkan.
         </p>
       )}
     </div>

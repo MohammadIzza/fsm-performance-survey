@@ -21,52 +21,33 @@ export function PeriodSettingsForm({ period }: { period: Period }) {
     <form action={formAction} className="grid gap-3">
       <input type="hidden" name="periodId" value={period.id} />
       <div className="grid gap-3 sm:grid-cols-2">
-        <input
-          name="code"
-          defaultValue={period.code}
-          disabled={!editable}
-          required
-          className={fieldClass}
-        />
-        <input
-          name="name"
-          defaultValue={period.name}
-          disabled={!editable}
-          required
-          className={fieldClass}
-        />
+        <label className="admin-tools__field">
+          <span>Kode periode</span>
+          <input name="code" defaultValue={period.code} disabled={!editable} required className={fieldClass} />
+        </label>
+        <label className="admin-tools__field">
+          <span>Nama periode</span>
+          <input name="name" defaultValue={period.name} disabled={!editable} required className={fieldClass} />
+        </label>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
-        <input
-          name="startsAt"
-          type="date"
-          defaultValue={toDateInput(period.startsAt)}
-          disabled={!editable}
-          required
-          className={fieldClass}
-        />
-        <input
-          name="endsAt"
-          type="date"
-          defaultValue={toDateInput(period.endsAt)}
-          disabled={!editable}
-          required
-          className={fieldClass}
-        />
+        <label className="admin-tools__field">
+          <span>Tanggal mulai</span>
+          <input name="startsAt" type="date" defaultValue={toDateInput(period.startsAt)} disabled={!editable} required className={fieldClass} />
+        </label>
+        <label className="admin-tools__field">
+          <span>Tanggal selesai</span>
+          <input name="endsAt" type="date" defaultValue={toDateInput(period.endsAt)} disabled={!editable} required className={fieldClass} />
+        </label>
       </div>
-      <input
-        name="timezone"
-        defaultValue={period.timezone}
-        disabled={!editable}
-        className={fieldClass}
-      />
-      <textarea
-        name="description"
-        defaultValue={period.description ?? ""}
-        disabled={!editable}
-        rows={2}
-        className={fieldClass}
-      />
+      <label className="admin-tools__field">
+        <span>Zona waktu</span>
+        <input name="timezone" defaultValue={period.timezone} disabled={!editable} className={fieldClass} />
+      </label>
+      <label className="admin-tools__field">
+        <span>Catatan periode</span>
+        <textarea name="description" defaultValue={period.description ?? ""} disabled={!editable} rows={2} className={fieldClass} />
+      </label>
       {editable ? (
         <div className="flex items-center gap-2">
           <button
