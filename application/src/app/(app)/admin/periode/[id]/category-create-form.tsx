@@ -18,24 +18,36 @@ export function CategoryCreateForm({
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-4">
       <input type="hidden" name="periodId" value={periodId} />
-      <input name="code" placeholder="Kode (mis. KINERJA-DOSEN)" required className={fieldClass} />
-      <input name="name" placeholder="Nama kategori" required className={`${fieldClass} sm:col-span-2`} />
-      <select name="objectTypeId" required defaultValue="" className={fieldClass}>
-        <option value="" disabled>
-          Jenis objek…
-        </option>
-        {objectTypes.map((t) => (
-          <option key={t.id} value={t.id}>
-            {t.name}
+      <label className="admin-tools__field">
+        <span>Kode kategori</span>
+        <input name="code" placeholder="Kode (mis. KINERJA-DOSEN)" required className={fieldClass} />
+      </label>
+      <label className="admin-tools__field sm:col-span-2">
+        <span>Nama kategori</span>
+        <input name="name" placeholder="Nama kategori" required className={fieldClass} />
+      </label>
+      <label className="admin-tools__field">
+        <span>Yang akan dinilai</span>
+        <select name="objectTypeId" required defaultValue="" className={fieldClass}>
+          <option value="" disabled>
+            Pilih jenis objek…
           </option>
-        ))}
-      </select>
-      <textarea
-        name="description"
-        placeholder="Deskripsi (opsional)"
-        rows={2}
-        className={`${fieldClass} sm:col-span-3`}
-      />
+          {objectTypes.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="admin-tools__field sm:col-span-3">
+        <span>Tujuan penilaian</span>
+        <textarea
+          name="description"
+          placeholder="Deskripsi (opsional)"
+          rows={2}
+          className={fieldClass}
+        />
+      </label>
       <label className="flex items-center gap-2 app-text-sm text-[var(--foreground)]">
         <input type="checkbox" name="excludeContributors" defaultChecked className="h-4 w-4" />
         Kecualikan pembuat karya sebagai penilai
