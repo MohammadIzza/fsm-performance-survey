@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useId, useState } from "react";
 import {
   addParameterAction,
   updateParameterAction,
@@ -27,15 +27,17 @@ export function ParameterManager({
   editable: boolean;
 }) {
   const [addState, addFormAction, addPending] = useActionState(addParameterAction, {});
+  const addFormId = useId();
+  const totalWeight = parameters.reduce((total, parameter) => total + parameter.weight, 0);
+  const remainingWeight = Math.max(0, Math.round((100 - totalWeight) * 100) / 100);
 
   return (
     <div className="space-y-4">
-      {parameters.length > 0 && (
+      {(parameters.length > 0 || editable) && (
         <div className="app-table-wrap">
-          <table className="w-full min-w-[600px] text-left app-text-sm">
+          <table className="parameter-table w-full text-left app-text-sm">
             <thead>
               <tr>
-                <th className="px-3 py-2 font-medium">Urutan</th>
                 <th className="px-3 py-2 font-medium">Nama</th>
                 <th className="px-3 py-2 font-medium">Indikator</th>
                 <th className="px-3 py-2 font-medium">Bobot</th>
@@ -53,53 +55,58 @@ export function ParameterManager({
                     periodId={periodId}
                     categoryId={categoryId}
                     editable={editable}
+                    totalWeight={totalWeight}
                   />
                 ))}
+              {editable && (
+                <tr className="parameter-row parameter-add-row">
+                  <td data-label="Nama" className="px-3 py-2">
+                    <input
+                      form={addFormId}
+                      name="name"
+                      placeholder="Nama parameter"
+                      required
+                      className={fieldClass}
+                    />
+                  </td>
+                  <td data-label="Indikator" className="px-3 py-2">
+                    <input
+                      form={addFormId}
+                      name="indicator"
+                      placeholder="Indikator (opsional)"
+                      className={fieldClass}
+                    />
+                  </td>
+                  <td data-label="Bobot" className="px-3 py-2">
+                    <input
+                      form={addFormId}
+                      name="weight"
+                      type="number"
+                      step="any"
+                      min={0}
+                      max={remainingWeight}
+                      placeholder={`Maks. ${remainingWeight}%`}
+                      required
+                      className={fieldClass}
+                    />
+                  </td>
+                  <td data-label="Aksi" className="parameter-add-row__action px-3 py-2">
+                    <form id={addFormId} action={addFormAction}>
+                      <input type="hidden" name="instrumentVersionId" value={instrumentVersionId} />
+                      <input type="hidden" name="periodId" value={periodId} />
+                      <input type="hidden" name="categoryId" value={categoryId} />
+                      <button type="submit" disabled={addPending} className="app-btn app-btn--primary">
+                        {addPending ? "Menyimpan…" : "Tambah"}
+                      </button>
+                    </form>
+                    <span>Sisa {remainingWeight}%</span>
+                    {addState.error && <p role="alert">{addState.error}</p>}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
-      )}
-
-      {editable && (
-        <form action={addFormAction} className="grid gap-2 sm:grid-cols-5">
-          <input type="hidden" name="instrumentVersionId" value={instrumentVersionId} />
-          <input type="hidden" name="periodId" value={periodId} />
-          <input type="hidden" name="categoryId" value={categoryId} />
-          <input
-            name="order"
-            type="number"
-            defaultValue={parameters.length + 1}
-            placeholder="Urutan"
-            required
-            className={fieldClass}
-          />
-          <input name="name" placeholder="Nama parameter" required className={`${fieldClass} sm:col-span-2`} />
-          <input name="indicator" placeholder="Indikator (opsional)" className={fieldClass} />
-          <input
-            name="weight"
-            type="number"
-            step="any"
-            min={0}
-            max={100}
-            placeholder="Bobot %"
-            required
-            className={fieldClass}
-          />
-          <div className="sm:col-span-5">
-            <button
-              type="submit"
-              disabled={addPending}
-              className="app-btn app-btn--primary"
-            >
-              {addPending ? "Menyimpan…" : "Tambah parameter"}
-            </button>
-            {addState.error && (
-              <p role="alert" className="mt-2 text-sm text-[var(--danger)]">
-                {addState.error}
-              </p>
-            )}
-          </div>
-        </form>
       )}
 
       {!editable && parameters.length === 0 && (
@@ -114,99 +121,97 @@ function ParameterRow({
   periodId,
   categoryId,
   editable,
+  totalWeight,
 }: {
   parameter: Parameter;
   periodId: string;
   categoryId: string;
   editable: boolean;
+  totalWeight: number;
 }) {
   const [editing, setEditing] = useState(false);
   const [state, formAction, pending] = useActionState(updateParameterAction, {});
+  const editFormId = `edit-parameter-${parameter.id}`;
 
   if (editing) {
     return (
-      <tr className="border-b border-[var(--border)] bg-black/[0.015] last:border-b-0">
-        <td colSpan={5} className="px-3 py-3">
-          <form action={formAction} className="grid gap-2 sm:grid-cols-5">
+      <tr className="parameter-row parameter-row--editing">
+        <td data-label="Nama" className="px-3 py-2">
+          <input
+            form={editFormId}
+            name="name"
+            defaultValue={parameter.name}
+            required
+            className={fieldClass}
+          />
+        </td>
+        <td data-label="Indikator" className="px-3 py-2">
+          <input
+            form={editFormId}
+            name="indicator"
+            defaultValue={parameter.indicator ?? ""}
+            className={fieldClass}
+          />
+        </td>
+        <td data-label="Bobot" className="px-3 py-2">
+          <input
+            form={editFormId}
+            name="weight"
+            type="number"
+            step="any"
+            min={0}
+            max={Math.max(0, 100 - (totalWeight - parameter.weight))}
+            defaultValue={parameter.weight}
+            required
+            className={fieldClass}
+          />
+        </td>
+        <td data-label="Aksi" className="parameter-row__actions px-3 py-2">
+          <form id={editFormId} action={formAction} className="parameter-row__actions-inner">
             <input type="hidden" name="parameterId" value={parameter.id} />
             <input type="hidden" name="periodId" value={periodId} />
             <input type="hidden" name="categoryId" value={categoryId} />
-            <input
-              name="order"
-              type="number"
-              defaultValue={parameter.order}
-              required
-              className={fieldClass}
-            />
-            <input
-              name="name"
-              defaultValue={parameter.name}
-              required
-              className={`${fieldClass} sm:col-span-2`}
-            />
-            <input name="indicator" defaultValue={parameter.indicator ?? ""} className={fieldClass} />
-            <input
-              name="weight"
-              type="number"
-              step="any"
-              min={0}
-              max={100}
-              defaultValue={parameter.weight}
-              required
-              className={fieldClass}
-            />
-            <div className="flex items-center gap-2 sm:col-span-5">
-              <button
-                type="submit"
-                disabled={pending}
-                className="rounded-lg bg-[var(--accent)] px-3 py-1.5 app-text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
-              >
-                {pending ? "Menyimpan…" : "Simpan"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setEditing(false)}
-                className="rounded-lg border border-[var(--border)] px-3 py-1.5 app-text-sm font-medium text-[var(--foreground)] hover:bg-black/[0.03]"
-              >
-                Batal
-              </button>
-              {state.error && (
-                <p role="alert" className="text-sm text-[var(--danger)]">
-                  {state.error}
-                </p>
-              )}
-            </div>
+            <button type="submit" disabled={pending}>
+              {pending ? "Menyimpan…" : "Simpan"}
+            </button>
+            <button type="button" onClick={() => setEditing(false)}>
+              Batal
+            </button>
           </form>
+          {state.error && <p role="alert" className="parameter-row__error">{state.error}</p>}
         </td>
       </tr>
     );
   }
 
   return (
-    <tr className="border-b border-[var(--border)] last:border-b-0">
-      <td data-label="Urutan" className="px-3 py-2 text-[var(--muted)]">{parameter.order}</td>
+    <tr className="parameter-row">
       <td data-label="Nama" className="px-3 py-2 font-medium text-[var(--foreground)]">{parameter.name}</td>
       <td data-label="Indikator" className="px-3 py-2 text-[var(--muted)]">{parameter.indicator || "—"}</td>
       <td data-label="Bobot" className="px-3 py-2 text-[var(--foreground)]">{parameter.weight}%</td>
       {editable && (
-        <td data-label="Aksi" className="px-3 py-2">
-          <div className="flex items-center gap-2">
+        <td data-label="Aksi" className="parameter-row__actions px-3 py-2">
+          <div className="parameter-row__actions-inner">
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="app-text-xs font-medium text-[var(--accent)] hover:underline"
+              aria-label="Edit parameter"
+              title="Edit"
             >
-              Edit
+              <span className="parameter-action__label">Edit</span>
+              <svg className="parameter-action__icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 20h4l11-11-4-4L4 16v4Zm10-14 4 4m-9 9H5v-4L15 5l4 4L9 19Z" />
+              </svg>
             </button>
             <form action={deleteParameterAction}>
               <input type="hidden" name="parameterId" value={parameter.id} />
               <input type="hidden" name="periodId" value={periodId} />
               <input type="hidden" name="categoryId" value={categoryId} />
-              <button
-                type="submit"
-                className="app-text-xs font-medium text-[var(--muted)] hover:text-[var(--danger)] hover:underline"
-              >
-                Hapus
+              <button type="submit" aria-label="Hapus parameter" title="Hapus">
+                <span className="parameter-action__label">Hapus</span>
+                <svg className="parameter-action__icon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M5 7h14M9 7V4h6v3m2 0-1 13H8L7 7m3 4v5m4-5v5" />
+                </svg>
               </button>
             </form>
           </div>
