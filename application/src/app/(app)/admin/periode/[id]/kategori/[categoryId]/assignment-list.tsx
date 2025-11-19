@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useState } from "react";
+import { RowActionMenu } from "@/components/theme/data-list";
 import { cancelAssignmentAction } from "@/lib/actions/admin-assignments";
 import type { listAssignmentsForCategory } from "@/lib/services/assignments";
 
@@ -108,7 +109,7 @@ function AssignmentRow({
       <td data-label="Aksi" className="px-3 py-2">
         {canCancel &&
           (cancelling ? (
-            <form action={formAction} className="flex flex-col gap-1.5">
+            <form action={formAction} className="admin-inline-form flex flex-col gap-1.5">
               <input type="hidden" name="assignmentId" value={assignment.id} />
               <input type="hidden" name="periodId" value={periodId} />
               <input type="hidden" name="categoryId" value={categoryId} />
@@ -116,7 +117,7 @@ function AssignmentRow({
                 name="reason"
                 placeholder="Alasan pembatalan"
                 required
-                className="rounded-lg border border-[var(--border)] bg-transparent px-2 py-1 app-text-xs outline-none focus:border-[var(--accent)]"
+                className="form__control app-text-xs"
               />
               <div className="flex gap-2">
                 <button
@@ -137,13 +138,11 @@ function AssignmentRow({
               {state.error && <p className="app-text-xs text-[var(--danger)]">{state.error}</p>}
             </form>
           ) : (
-            <button
-              type="button"
-              onClick={() => setCancelling(true)}
-              className="app-text-xs font-medium text-[var(--muted)] hover:text-[var(--danger)] hover:underline"
-            >
-              Batalkan
-            </button>
+            <RowActionMenu>
+              <button type="button" onClick={() => setCancelling(true)}>
+                Batalkan
+              </button>
+            </RowActionMenu>
           ))}
       </td>
     </tr>

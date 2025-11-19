@@ -20,10 +20,13 @@ import { CategoryTabs } from "./category-tabs";
 
 async function CategoryDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string; categoryId: string }>;
+  searchParams: Promise<{ bagian?: string }>;
 }) {
   const { id: periodId, categoryId } = await params;
+  const { bagian } = await searchParams;
   const category = await getCategoryDetail(categoryId);
   if (!category || category.periodId !== periodId) notFound();
 
@@ -99,10 +102,11 @@ async function CategoryDetailPage({
       </PageIntro>
 
       <CategoryTabs
+        initialKey={bagian}
         tabs={[
           {
             key: "instrumen",
-            label: "Instrumen",
+            label: "Pertanyaan & Bobot",
             content: (
               <>
                 <div className="grid gap-6 lg:grid-cols-2">
@@ -116,7 +120,7 @@ async function CategoryDetailPage({
                   {instrument && (
                     <div className="app-panel app-panel--ruled">
                       <h2 className="app-panel__label">
-                        Skala instrumen
+                        Rentang nilai
                       </h2>
                       <ScaleForm
                         instrument={instrument}
@@ -166,11 +170,11 @@ async function CategoryDetailPage({
           },
           {
             key: "kelompok",
-            label: "Kelompok & Kelayakan",
+            label: "Aturan Penilai",
             content: (
               <>
                 <div>
-                  <p className="eyebrow mb-3">Aturan kelompok</p>
+                  <p className="eyebrow mb-3">Jumlah penilai dan perhitungan</p>
                   <div className="grid gap-6 sm:grid-cols-2">
                     {category.groupRules
                       .slice()
@@ -195,7 +199,7 @@ async function CategoryDetailPage({
                 </div>
 
                 <div>
-                  <p className="eyebrow mb-3">Aturan kelayakan</p>
+                  <p className="eyebrow mb-3">Syarat penilai</p>
                   <div className="grid gap-6 sm:grid-cols-2">
                     {category.assignmentRules
                       .slice()
@@ -224,11 +228,11 @@ async function CategoryDetailPage({
           },
           {
             key: "peserta",
-            label: `Peserta (${category.categoryObjects.length})`,
+            label: `Yang Dinilai (${category.categoryObjects.length})`,
             content: (
               <div className="app-panel app-panel--ruled">
                 <h2 className="app-panel__label">
-                  Peserta ({category.categoryObjects.length})
+                  Objek yang dinilai ({category.categoryObjects.length})
                 </h2>
                 <ParticipantManager
                   periodId={periodId}
@@ -242,12 +246,12 @@ async function CategoryDetailPage({
           },
           {
             key: "penugasan",
-            label: `Penugasan (${assignments.length})`,
+            label: `Pembagian Tugas (${assignments.length})`,
             content: (
               <>
                 <div className="app-panel app-panel--ruled">
                   <h2 className="app-panel__label">
-                    Pengacakan penugasan
+                    Buat pembagian tugas
                   </h2>
                   <AssignmentPlanner periodId={periodId} categoryId={categoryId} editable={editable} />
                 </div>
@@ -261,7 +265,7 @@ async function CategoryDetailPage({
                     {editable && category.categoryObjects.length > 0 && (
                       <div className="border-t border-[var(--border)] pt-4">
                         <h3 className="app-panel__label">
-                          Tugaskan manual
+                          Tambah penilai secara manual
                         </h3>
                         <ManualAssignForm
                           periodId={periodId}

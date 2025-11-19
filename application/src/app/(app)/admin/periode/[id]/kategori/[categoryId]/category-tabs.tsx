@@ -13,8 +13,9 @@ interface TabDef {
 // — berat dipindai terutama di layar sempit. Dipecah jadi tab bertema; semua panel tetap ter-mount
 // (disembunyikan lewat atribut `hidden`, bukan unmount) agar state form/edit di tiap panel tidak
 // hilang saat berpindah tab.
-export function CategoryTabs({ tabs }: { tabs: TabDef[] }) {
-  const [active, setActive] = useState(tabs[0]?.key);
+export function CategoryTabs({ tabs, initialKey }: { tabs: TabDef[]; initialKey?: string }) {
+  const initialTab = tabs.some((tab) => tab.key === initialKey) ? initialKey : tabs[0]?.key;
+  const [active, setActive] = useState(initialTab);
 
   return (
     <div>

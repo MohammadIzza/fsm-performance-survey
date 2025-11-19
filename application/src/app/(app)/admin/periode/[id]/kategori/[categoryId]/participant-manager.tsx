@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { RowActionMenu } from "@/components/theme/data-list";
 import { addCategoryObjectsAction, removeCategoryObjectAction } from "@/lib/actions/admin-categories";
 import type { getCategoryDetail } from "@/lib/services/categories";
 
@@ -33,17 +34,14 @@ export function ParticipantManager({
                 <span className="app-text-xs text-[var(--muted)]">— {p.unitSnapshot}</span>
               </div>
               {editable && (
-                <form action={removeCategoryObjectAction}>
-                  <input type="hidden" name="categoryObjectId" value={p.id} />
-                  <input type="hidden" name="periodId" value={periodId} />
-                  <input type="hidden" name="categoryId" value={categoryId} />
-                  <button
-                    type="submit"
-                    className="app-text-xs font-medium text-[var(--muted)] hover:text-[var(--danger)] hover:underline"
-                  >
-                    Keluarkan
-                  </button>
-                </form>
+                <RowActionMenu>
+                  <form action={removeCategoryObjectAction}>
+                    <input type="hidden" name="categoryObjectId" value={p.id} />
+                    <input type="hidden" name="periodId" value={periodId} />
+                    <input type="hidden" name="categoryId" value={categoryId} />
+                    <button type="submit">Keluarkan</button>
+                  </form>
+                </RowActionMenu>
               )}
             </li>
           ))}
