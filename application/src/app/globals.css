@@ -655,9 +655,12 @@ input[type="range"]:disabled::-moz-range-thumb {
   content:"";position:absolute;inset:0;background:var(--color-brand-7);transform:scaleY(0);
   transform-origin:bottom;transition:transform .2s cubic-bezier(.23,1,.32,1);
 }
+/* Pink hanya sebagai kilasan saat tetikus lewat atau fokus papan ketik mendarat. Langkah yang
+   sedang terbuka tidak ikut: ia yang sedang dibaca, bukan yang bermasalah — dan pink permanen di
+   beberapa langkah sekaligus membuat halamannya terbaca seperti daftar peringatan. */
 .period-stepper__list details > .period-stepper__summary:hover::before,
-.period-stepper__list details > .period-stepper__summary:focus-visible::before,
-.period-stepper__list details[open] > .period-stepper__summary::before {transform:scaleY(1)}
+.period-stepper__list details > .period-stepper__summary:focus-visible::before {transform:scaleY(1)}
+.period-stepper__list details[open] > .period-stepper__summary {background:var(--color-beige-dark)}
 .period-stepper__list li[data-state="current"] > details > .period-stepper__summary {
   box-shadow:inset 3px 0 0 var(--color-brand-3);
 }
@@ -713,8 +716,10 @@ input[type="range"]:disabled::-moz-range-thumb {
   padding:.55rem .35rem;color:var(--color-black);cursor:pointer;list-style:none;
 }
 .period-stepper__categories > details > summary::-webkit-details-marker {display:none}
-.period-stepper__categories > details > summary:hover,
-.period-stepper__categories > details[open] > summary {background:var(--color-brand-7)}
+/* Sama seperti langkah di atasnya: pink hanya saat disorot, kartu yang terbuka memakai warna
+   panelnya sendiri. */
+.period-stepper__categories > details > summary:hover {background:var(--color-brand-7)}
+.period-stepper__categories > details[open] > summary {background:var(--color-beige-dark)}
 .period-stepper__categories summary strong {display:block;font-size:.64rem;line-height:1.3}
 .period-stepper__categories summary small {
   display:block;margin-top:.08rem;color:var(--color-text);font-size:.52rem;line-height:1.35;
@@ -833,9 +838,13 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 /* Isian di bagian ini mengikuti skalanya: aturan .form__control umum dibuat untuk form setinggi
    halaman, terlalu besar untuk tiga baris tindakan sesekali. */
-.survey-shell main .admin-tools .form__control,
-.survey-shell main .filter-bar .form__control,
-.survey-shell main .assessment-actions--admin .form__control {
+/* Ukuran kolom isian di seluruh ruang survei. Ukuran bawaan tema dibuat untuk formulir pendaftaran
+   setinggi halaman di situs publik — 46px dengan huruf 20px — dan di layar kerja ia satu setengah
+   kali lebih besar daripada teks di sekitarnya. Aturan ini dulu hanya menyebut beberapa
+   pembungkus, sehingga halaman yang tidak memakai salah satunya (mis. layar kategori) tetap
+   memakai ukuran situs publik. Sekarang berlaku untuk semua, dan halaman masuk tidak
+   terpengaruh karena berada di luar .survey-shell. */
+.survey-shell main .form__control {
   width:100%;min-width:0;min-height:1.85rem;padding:.3rem .55rem;
   border-radius:.3rem;font-size:.65rem;
 }
@@ -1741,7 +1750,14 @@ input[type="range"]:disabled::-moz-range-thumb {
   border-radius:.3rem;
   background:var(--color-white);
   color:var(--color-black);
-  font:inherit;
+  /* `font: inherit` dulu dipakai supaya hurufnya sama dengan teks di sekitarnya, tetapi yang
+     diwarisi adalah ukuran badan tema — 20px — sehingga kolom isian di layar admin setengah kali
+     lebih besar daripada teks tabel di bawahnya. Ukurannya disebut langsung, keluarga hurufnya
+     tetap diwarisi. */
+  font-family:inherit;
+  font-size:.65rem;
+  font-weight:400;
+  line-height:1.35;
   line-height:1.35;
 }
 .admin-area select.form__control {
