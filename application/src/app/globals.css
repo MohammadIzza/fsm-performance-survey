@@ -483,6 +483,30 @@ input[type="range"]:disabled::-moz-range-thumb {
   /* Baris tidak lagi punya kolom, jadi latar penuhnya saat disorot tidak lagi membantu. */
   .survey-shell .s-courses-list .sb-course .sb__arrow {display:none}
 }
+/* Daftar admin menumpuk lebih awal daripada daftar lain: ia membawa enam bidang, bukan empat,
+   jadi batas 987px masih terlalu sempit untuknya. Deklarasinya sama persis dengan blok di atas. */
+@media only screen and (min-width:988px) and (max-width:1179px) {
+  .survey-shell .admin-area .s-courses-list .sb-course--head {display:none}
+  .survey-shell .admin-area .s-courses-list .sb-course .sb__link {
+    flex-direction:column;align-items:flex-start;justify-content:flex-start;
+    gap:.3rem;padding:.95rem 0;
+  }
+  .survey-shell .admin-area .s-courses-list .sb-course .sb__title,
+  .survey-shell .admin-area .s-courses-list .sb-course .sb__topic,
+  .survey-shell .admin-area .s-courses-list .sb-course .sb__dates,
+  .survey-shell .admin-area .s-courses-list .sb-course .sb__duration,
+  .survey-shell .admin-area .s-courses-list .sb-course .sb__location,
+  .survey-shell .admin-area .s-courses-list .sb-course .sb__price {
+    width:auto;max-width:100%;margin:0;order:0;text-align:left;flex:0 0 auto;
+  }
+  .survey-shell .admin-area .s-courses-list .sb-course .sb__title {
+    font-size:.9375rem;font-weight:600;
+  }
+  .survey-shell .admin-area .s-courses-list .sb-course .sb__actions {
+    width:auto;justify-content:flex-start;margin-top:.2rem;
+  }
+  .survey-shell .admin-area .s-courses-list .sb-course .sb__arrow {display:none}
+}
 
 /* Baris penyaring — lihat catatan pada FilterBar di components/theme/filter-bar.tsx. Rata kiri
    dengan daftar di bawahnya, tanpa kartu pembungkus. */
@@ -590,6 +614,206 @@ input[type="range"]:disabled::-moz-range-thumb {
 .admin-actions__note {max-width:34rem;color:var(--color-text);font-size:.62rem;line-height:1.45}
 .admin-actions__run {display:flex;flex:0 0 auto;justify-content:flex-end}
 .admin-actions__error {flex:1 1 100%;color:var(--color-brand-1);font-size:.62rem}
+
+/* Alur kerja periode berupa accordion satu langkah per baris. Langkah berikutnya tetap terlihat
+   sebagai arah kerja, tetapi baru dapat dibuka setelah langkah sebelumnya selesai. */
+.period-stepper {margin:0}
+.period-stepper__heading {
+  display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:.65rem;
+}
+.period-stepper__heading .eyebrow {margin:0 0 .22rem;font-size:.55rem}
+.period-stepper__heading h2 {
+  margin:0;font:600 1rem/1.15 var(--font-family-heading);letter-spacing:-.025em;
+}
+.period-stepper__heading p:not(.eyebrow) {
+  margin:.28rem 0 0;color:var(--color-text);font-size:.62rem;line-height:1.4;
+}
+.period-stepper__heading > strong {
+  flex:0 0 auto;font:600 1rem/1 var(--font-family-heading);color:var(--color-brand-3);
+}
+.period-stepper__progress {height:3px;margin-bottom:.7rem;background:var(--color-grey-2);overflow:hidden}
+.period-stepper__progress > span {
+  display:block;height:100%;background:var(--color-brand-3);transition:width .2s ease;
+}
+.period-stepper__list {
+  display:block;margin:0;padding:0;border-top:2px solid var(--color-black);list-style:none;
+}
+.period-stepper__list li {min-width:0;border-bottom:2px solid var(--color-black)}
+.period-stepper__list details {display:block}
+.period-stepper__summary {
+  position:relative;display:grid;grid-template-columns:1.65rem minmax(0,1fr) .42rem;
+  align-items:center;gap:.7rem;min-height:4rem;padding:.65rem .7rem;color:var(--color-black);
+  overflow:hidden;list-style:none;
+}
+.period-stepper__summary::-webkit-details-marker {display:none}
+.period-stepper__summary::before {
+  content:"";position:absolute;inset:0;background:var(--color-brand-7);transform:scaleY(0);
+  transform-origin:bottom;transition:transform .2s cubic-bezier(.23,1,.32,1);
+}
+.period-stepper__list details > .period-stepper__summary:hover::before,
+.period-stepper__list details > .period-stepper__summary:focus-visible::before,
+.period-stepper__list details[open] > .period-stepper__summary::before {transform:scaleY(1)}
+.period-stepper__list li[data-state="current"] > details > .period-stepper__summary {
+  box-shadow:inset 3px 0 0 var(--color-brand-3);
+}
+.period-stepper__summary > * {position:relative;z-index:1}
+.period-stepper__summary--locked {cursor:not-allowed;opacity:.55}
+.period-stepper__number {
+  display:inline-flex;width:1.55rem;height:1.55rem;align-items:center;justify-content:center;
+  border-radius:999em;background:var(--color-grey-2);font-size:.62rem;font-weight:600;
+}
+.period-stepper__list li[data-state="done"] .period-stepper__number {background:var(--color-brand-4)}
+.period-stepper__list li[data-state="current"] .period-stepper__number {background:var(--color-brand-2)}
+.period-stepper__content {display:flex;min-width:0;flex-direction:column;gap:.16rem}
+.period-stepper__content strong {font-size:.68rem;line-height:1.3;overflow-wrap:anywhere}
+.period-stepper__content > span:not(.period-stepper__state) {
+  color:var(--color-text);font-size:.56rem;line-height:1.35;
+}
+.period-stepper__content small {margin-top:.14rem;color:var(--color-black);font-size:.5rem;line-height:1.3}
+.period-stepper__state {
+  color:var(--color-text);font-size:.46rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+}
+.period-stepper__list li[data-state="current"] .period-stepper__state {color:var(--color-brand-3)}
+.period-stepper__arrow {
+  width:.38rem;height:.38rem;border-top:1.5px solid currentColor;
+  border-right:1.5px solid currentColor;transform:rotate(45deg);
+  transition:transform .15s ease;
+}
+.period-stepper__list details[open] .period-stepper__arrow {transform:rotate(135deg)}
+.period-stepper__summary--locked .period-stepper__arrow {border-color:var(--color-text)}
+.period-stepper__panel {
+  padding:.9rem 3rem 1.1rem;background:var(--color-beige-dark);border-top:1px solid var(--color-grey-2);
+}
+.period-stepper__panel .app-panel,
+.period-stepper__panel .period-stepper__form-section {
+  border:0;padding:0;background:transparent;
+}
+.period-stepper__form-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem 1.5rem}
+.period-stepper__form-section > h3 {
+  margin:0 0 .6rem;color:var(--color-text);font-size:.54rem;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;
+}
+/* Form di dalam langkah mengikuti skala teks admin di sekitarnya. Aturan ini juga mengimbangi
+   batas 16px umum pada input mobile, yang terlalu besar untuk daftar kerja ringkas ini. */
+.survey-shell main .period-stepper__panel :is(input,select,textarea).form__control {
+  min-height:1.9rem;padding:.38rem .52rem;font-family:var(--font-family-text);
+  font-size:.62rem!important;line-height:1.35;
+}
+.survey-shell main .period-stepper__panel .app-btn {min-height:1.85rem;padding:.36rem .78rem;font-size:.6rem}
+.period-stepper__category-intro {margin:0 0 .55rem;color:var(--color-text);font-size:.6rem;line-height:1.45}
+.period-stepper__categories {border-top:1px solid var(--color-grey-2)}
+.period-stepper__categories > details {border-bottom:1px solid var(--color-grey-2)}
+.period-stepper__categories > details > summary {
+  display:grid;grid-template-columns:minmax(0,1fr) .4rem;align-items:center;gap:.75rem;
+  padding:.55rem .35rem;color:var(--color-black);cursor:pointer;list-style:none;
+}
+.period-stepper__categories > details > summary::-webkit-details-marker {display:none}
+.period-stepper__categories > details > summary:hover,
+.period-stepper__categories > details[open] > summary {background:var(--color-brand-7)}
+.period-stepper__categories summary strong {display:block;font-size:.64rem;line-height:1.3}
+.period-stepper__categories summary small {
+  display:block;margin-top:.08rem;color:var(--color-text);font-size:.52rem;line-height:1.35;
+}
+.period-stepper__category-arrow {
+  width:.36rem;height:.36rem;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  transform:rotate(45deg);transition:transform .15s ease;
+}
+.period-stepper__categories > details[open] > summary .period-stepper__category-arrow {transform:rotate(225deg)}
+.period-stepper__category-form {padding:.75rem .35rem 1rem}
+.period-stepper__form-status {
+  margin:0;color:var(--color-brand-4-dark);font-size:.58rem;font-weight:600;
+}
+.period-stepper__rules-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.period-stepper__rules-grid .period-stepper__form-section {
+  padding:.7rem;border-top:1px solid var(--color-grey-2);background:rgba(255,255,255,.32);
+}
+.period-stepper__secondary-link {
+  display:inline-block;color:var(--color-brand-3);font-size:.58rem;font-weight:600;text-decoration:none;
+}
+.period-stepper__secondary-link:hover {text-decoration:underline}
+.parameter-table {table-layout:fixed}
+.parameter-table th:nth-child(1) {width:30%}
+.parameter-table th:nth-child(2) {width:auto}
+.parameter-table th:nth-child(3) {width:12%}
+.parameter-table th:nth-child(4) {width:8rem}
+.parameter-row__actions-inner {
+  display:flex;align-items:center;justify-content:flex-end;gap:.3rem;
+}
+.parameter-row__actions-inner form {margin:0}
+.parameter-row--editing {background:var(--color-brand-7)}
+.survey-shell main .parameter-row--editing .form__control {
+  width:100%;min-height:1.7rem;padding:.28rem .4rem;
+}
+.survey-shell main .parameter-row__actions-inner button {
+  display:inline-flex;min-height:1.7rem;align-items:center;justify-content:center;
+  padding:.25rem .55rem;border:0;border-radius:999em;
+  background:var(--color-white);color:var(--color-brand-3);font:600 .58rem/1 var(--font-family-text);
+}
+.survey-shell main .parameter-row__actions-inner button:hover {background:var(--color-brand-7)}
+.survey-shell main .parameter-row__actions-inner form button {color:var(--color-brand-1)}
+.parameter-action__icon {
+  display:none;width:.72rem;height:.72rem;fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+.parameter-row__error {
+  width:8rem;margin:.3rem 0 0;color:var(--color-brand-1);font-size:.5rem;line-height:1.3;text-align:left;
+}
+.parameter-add-row {background:rgba(255,255,255,.2)}
+.survey-shell main .parameter-add-row .form__control {
+  width:100%;min-height:1.7rem;padding:.28rem .4rem;
+}
+.parameter-add-row__action > form {margin:0}
+.parameter-add-row__action > span {
+  display:block;margin-top:.25rem;color:var(--color-text);font-size:.5rem;line-height:1.2;
+}
+.parameter-add-row__action > [role="alert"] {
+  margin:.3rem 0 0;color:var(--color-brand-1);font-size:.48rem;line-height:1.3;
+}
+.admin-anchor-target {scroll-margin-top:6rem}
+
+@media only screen and (max-width:640px) {
+  .period-stepper__heading {align-items:flex-start}
+  .period-stepper__heading h2 {font-size:.8rem}
+  .period-stepper__heading p:not(.eyebrow) {font-size:.55rem}
+  .period-stepper__heading > strong {font-size:.78rem}
+  .period-stepper__summary {
+    grid-template-columns:1.45rem minmax(0,1fr) .38rem;min-height:0;padding:.58rem .15rem;
+  }
+  .period-stepper__number {width:1.35rem;height:1.35rem;font-size:.55rem}
+  .period-stepper__content strong {font-size:.62rem}
+  .period-stepper__content > span:not(.period-stepper__state) {font-size:.52rem}
+  .period-stepper__content small {font-size:.48rem}
+  .period-stepper__panel {padding:.7rem .55rem .85rem}
+  .period-stepper__form-grid {grid-template-columns:1fr;gap:.8rem}
+  .period-stepper__rules-grid {grid-template-columns:1fr;gap:.65rem}
+  .survey-shell main .period-stepper__panel :is(input,select,textarea).form__control {
+    min-height:1.8rem;padding:.34rem .48rem;font-size:.6rem!important;
+  }
+  .period-stepper__categories > details > summary {padding:.5rem .05rem}
+  .period-stepper__category-form {padding:.65rem .05rem .8rem}
+  .parameter-table {table-layout:auto}
+  .parameter-row__actions-inner {justify-content:flex-start}
+  .parameter-row__actions-inner:has(.parameter-action__icon) {gap:.22rem}
+  .survey-shell main .parameter-row__actions-inner button:has(.parameter-action__icon) {
+    width:1.45rem;height:1.45rem;min-height:1.45rem;padding:0;
+    align-items:center;justify-content:center;
+  }
+  .parameter-action__label {display:none}
+  .parameter-action__icon {display:block}
+  .parameter-row__error {width:auto}
+}
+/* Isi sebuah tindakan yang berupa formulir utuh: ia mengatur petaknya sendiri, jadi diberi seluruh
+   lebar baris alih-alih dibagi dua dengan kolom tombol. */
+.admin-actions__body--full {display:block;padding-right:.1rem}
+.admin-actions__body--full > form {margin:0}
+/* Tombol kirim formulir tambah: sebentuk dengan tombol tindakan lain di bagian ini. */
+.survey-shell main .admin-actions__body--full .app-btn,
+.survey-shell main .admin-actions__body--full button[type="submit"]:not(.btn-plain):not(.admin-action) {
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:1.85rem;padding:.35rem .8rem;border:1px solid transparent;border-radius:999em;
+  background:var(--color-brand-5);color:var(--color-white);
+  font:600 .625rem/1 var(--font-family-text);white-space:nowrap;
+}
 
 .admin-tools__field {display:flex;flex-direction:column;gap:.2rem;min-width:0}
 .admin-tools__field--grow {flex:1 1 12rem}
@@ -773,6 +997,29 @@ input[type="range"]:disabled::-moz-range-thumb {
   padding:.5rem .7rem;border:2px solid var(--color-black);background:var(--color-white);
 }
 .org-tree__node--root {background:var(--color-brand-2)}
+
+/* Diagram organisasi melebar berdasarkan jumlah anak akar. Pada desktop setiap cabang diberi
+   jatah yang sama dan teks boleh membungkus, sehingga seluruh pohon muat di satu frame serta akar
+   tetap tepat di tengah. Di layar sempit lebar minimum dipertahankan agar node tidak menjadi
+   terlalu kecil untuk dibaca dan wadahnya tetap dapat digeser. */
+.org-tree {width:100%;min-width:44rem}
+.org-tree > li {width:100%;padding-top:0}
+.org-tree__node {max-width:10rem}
+.org-tree__node > span {white-space:normal!important;overflow-wrap:anywhere}
+@media only screen and (min-width:900px) {
+  .app-table-wrap > .org-tree {min-width:0;padding-right:0}
+  .org-tree ul {width:100%}
+  .org-tree li {min-width:0;flex:1 1 0;padding:1.05rem .22rem 0}
+  .org-tree ul {padding-top:1.05rem}
+  .org-tree li::before,
+  .org-tree li::after,
+  .org-tree ul::before {height:1.05rem}
+  .org-tree__node {
+    width:min(100%,6.5rem);max-width:6.5rem;padding:.3rem .38rem;border-width:1px;
+  }
+  .org-tree__node .app-text-sm {font-size:.52rem;line-height:1.22}
+  .org-tree__node .app-text-xs {font-size:.46rem;line-height:1.2}
+}
 
 /* Petak angka pada Pemantauan: sel bernomor, bukan catatan — jadi tanpa garis aksen di kiri. */
 .survey-shell main .app-note.app-stat-cell {
@@ -1212,8 +1459,53 @@ input[type="range"]:disabled::-moz-range-thumb {
 
 /* Panel yang terbuka di bawah sebuah baris (form sunting, daftar pimpinan). Diberi latar sedikit
    berbeda supaya terbaca sebagai milik baris di atasnya, bukan baris baru. */
-.survey-shell .sb__panel {padding:0 0 1.25rem;background:var(--color-beige-dark)}
+.survey-shell .sb__panel {position:relative;z-index:3;padding:0 0 1.25rem;background:var(--color-beige-dark)}
 .survey-shell .sb__panel > * {padding:1.25rem}
+.survey-shell .admin-area .sb-course[data-detail-open="false"] > .sb__panel {display:none}
+
+/* Panel accordion CRUD: detail lengkap di atas, lalu tindakan kecil dan form yang sedang dibuka.
+   Susunan ini dipakai Organisasi, Pengguna, dan Objek agar perilakunya sama di semua daftar. */
+.admin-row-panel {display:grid;gap:1rem}
+/* Di layar lebar barisnya sudah memperlihatkan seluruh kolomnya, jadi daftar detail di dalam panel
+   hanya mengulang yang persis di atasnya. Yang tersisa di sana adalah tindakannya. */
+@media only screen and (min-width:1180px) {
+  .survey-shell main .admin-area .admin-row-details {display:none}
+}
+.admin-row-details {
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.8rem 1rem;
+  margin:0;padding:0!important;
+}
+.admin-row-details__field {min-width:0}
+.admin-row-details dt {
+  margin-bottom:.22rem;color:var(--color-text);
+  font-size:.58rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+}
+.admin-row-details dd {margin:0;color:var(--color-black);font-size:.7rem;line-height:1.4;overflow-wrap:anywhere}
+.admin-row-details a {color:var(--color-brand-3);font-weight:600}
+.admin-row-panel-actions {display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;padding:0!important}
+.admin-row-panel-actions form {margin:0}
+.survey-shell main .admin-row-panel-actions .app-btn {
+  min-height:1.85rem;padding:.35rem .75rem;font-size:.62rem;
+}
+
+/* Panah accordion menempati satu-satunya kontrol pada kolom Aksi. */
+.survey-shell main .admin-area .sb__disclosure {display:flex;align-items:center;justify-content:flex-end}
+.survey-shell main .admin-area .sb__detail-toggle {
+  position:relative;z-index:3;display:inline-flex;width:1.9rem;height:1.9rem;flex:0 0 1.9rem;
+  align-items:center;justify-content:center;margin:0;padding:0;border:0;border-radius:999em;
+  background:var(--color-white);color:var(--color-black);
+  font-size:1.9rem;
+}
+.survey-shell main .admin-area .sb__detail-toggle::after {
+  content:"";width:.3em;height:.3em;
+  border-right:.075em solid currentColor;border-bottom:.075em solid currentColor;
+  transform:rotate(45deg) translate(-.05em,-.05em);
+  transition:transform .15s ease;
+}
+.survey-shell main .admin-area .sb-course[data-detail-open="true"] .sb__detail-toggle::after {
+  transform:rotate(225deg) translate(-.05em,-.05em);
+}
+.survey-shell main .admin-area .sb__detail-toggle:hover {background:var(--color-beige-dark)}
 
 /* Kolom aksi di baris daftar: aksinya berjajar mendatar, rata kanan seperti kolom terakhir
    lainnya, dan tidak membungkus jadi dua baris. */
@@ -1223,9 +1515,27 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell .sb__actions a:hover,
 .survey-shell .sb__actions button:hover {text-decoration:underline}
 
-/* Baris tanpa tautan (daftar admin yang punya aksi sendiri per baris): tidak ada isian latar saat
-   disorot, karena tidak ada satu tujuan yang bisa diklik dari seluruh barisnya. */
+/* Baris admin tanpa tautan tetap memberi umpan balik yang sama dengan daftar Tugas Saya. Warna
+   pink naik saat baris disorot, difokuskan, atau accordion-nya sedang terbuka. */
 .survey-shell .sb-course--static .sb__link {cursor:default}
+/* `:has(:focus-visible)`, bukan `:focus-within`: tombol accordion tetap memegang fokus setelah
+   diklik dengan tetikus, sehingga barisnya bertahan pink selama panelnya terbuka. Fokus papan
+   ketik tetap ditandai. */
+.survey-shell .s-courses-list .sb-course--static .sb__link:hover .sb__background,
+.survey-shell .s-courses-list .sb-course--static .sb__link:has(:focus-visible) .sb__background {
+  transform:scaleY(1);
+  transition:transform .2s cubic-bezier(.23,1,.32,1);
+}
+/* Baris terbuka tidak ikut disorot: yang dibaca adalah panelnya, bukan barisnya. */
+.survey-shell .s-courses-list .sb-course--static[data-detail-open="true"] .sb__background {
+  transform:scaleY(0);
+}
+/* Baris yang sedang terbuka memakai warna panelnya sendiri, bukan pink sorot. Pink itu dirancang
+   sebagai kilasan saat tetikus lewat; dipasang permanen pada tiap baris terbuka, ia terbaca
+   sebagai peringatan — dan baris terbuka justru yang sedang dibaca, bukan yang bermasalah. */
+.survey-shell .s-courses-list .sb-course--static[data-detail-open="true"] > .sb__link {
+  background:var(--color-beige-dark);
+}
 
 /* Baris kedua di dalam judul baris — kode periode, NIP, dan sejenisnya. Tema tidak punya slot
    untuk ini; barisnya hanya mengenal satu judul. Dibuat di sini sebagai baris kecil di bawah judul,
@@ -1373,18 +1683,112 @@ input[type="range"]:disabled::-moz-range-thumb {
   white-space:nowrap;
 }
 .survey-shell main tbody td {padding:1em;border-bottom:2px solid var(--color-black)}
-/* Aksi di dalam sel (Edit, Peran, Nonaktifkan) memang aksi tersier, jadi dibiarkan berupa tautan
-   teks seperti aslinya — hanya warnanya disamakan dengan warna tautan tema.
-
-   Wadahnya dipaksa tidak membungkus: dengan `flex-wrap` bawaannya, tiga aksi pendek pecah jadi dua
-   baris ("Edit Peran" lalu "Nonaktifkan") dan menggandakan tinggi setiap baris tabel. */
+/* Aksi tersier di dalam sel tabel tetap memakai warna tautan tema. Pada daftar CRUD, beberapa
+   aksi per baris dikumpulkan oleh RowActionMenu supaya kolom terakhir tetap ringkas. */
 .survey-shell main td button:not(.btn-plain),
 .survey-shell main td a {color:var(--color-brand-3);font-size:.75rem;white-space:nowrap}
 .survey-shell main td > div[class*="flex"] {flex-wrap:nowrap;justify-content:flex-end;gap:.9rem}
 .survey-shell main thead th:last-child,
 .survey-shell main tbody td:last-child {text-align:right}
 
-.survey-shell main tbody tr:hover {background:var(--color-beige-dark)}
+.survey-shell main .admin-area tbody tr:hover {background:var(--color-brand-7)}
+
+/* Semua form CRUD dan detail di area admin memakai bentuk yang sama dengan kotak skor lembar
+   penilaian: latar putih, tanpa bingkai kotak, dan garis bawah tipis hanya saat berinteraksi.
+   Cakupannya sengaja langsung pada .admin-area; form pengaturan Periode dan Kategori tidak berada
+   di dalam .admin-tools/.sb__panel, sehingga selector wrapper sebelumnya melewatkan halaman itu. */
+.admin-area :is(input,select,textarea).form__control {
+  min-height:1.9rem;
+  padding:.45rem .55rem;
+  border:0;
+  border-bottom:1px solid transparent;
+  border-radius:.3rem;
+  background:var(--color-white);
+  color:var(--color-black);
+  font:inherit;
+  line-height:1.35;
+}
+.admin-area select.form__control {
+  padding-right:1.7rem;
+}
+.admin-area textarea.form__control {
+  line-height:1.45;
+}
+.admin-area :is(input,select,textarea).form__control:hover:not(:disabled) {
+  border-bottom-color:var(--color-beige-dark);
+}
+.admin-area :is(input,select,textarea).form__control:focus {
+  border-bottom-color:var(--color-brand-5);
+  outline:none;
+}
+.admin-area :is(input,select,textarea).form__control:disabled {
+  background:var(--color-white);
+  color:var(--color-black);
+}
+.admin-area .row-action-menu {
+  position:relative;
+  display:inline-flex;
+  justify-content:flex-end;
+  color:var(--color-black);
+}
+.admin-area .row-action-menu summary {
+  display:inline-flex;
+  width:1.9rem;
+  height:1.9rem;
+  align-items:center;
+  justify-content:center;
+  border:0;
+  border-radius:999em;
+  background:var(--color-white);
+  color:var(--color-black);
+  cursor:pointer;
+  list-style:none;
+}
+.admin-area .row-action-menu summary::-webkit-details-marker {display:none}
+.admin-area .row-action-menu__arrow {
+  width:.42rem;height:.42rem;border-right:2px solid currentColor;border-bottom:2px solid currentColor;
+  transform:rotate(45deg) translate(-.08rem,-.08rem);transition:transform .15s ease;
+}
+.admin-area .row-action-menu[open] .row-action-menu__arrow {
+  transform:rotate(225deg) translate(-.08rem,-.08rem);
+}
+.admin-area .row-action-menu summary:hover,
+.admin-area .row-action-menu[open] summary {background:var(--color-beige-dark)}
+.admin-area .row-action-menu summary:focus-visible {
+  outline:2px solid var(--color-brand-5);
+  outline-offset:2px;
+}
+.admin-area .row-action-menu__items {
+  position:absolute;
+  z-index:10;
+  top:calc(100% + .35rem);
+  right:0;
+  display:grid;
+  min-width:9rem;
+  padding:.35rem;
+  border:1px solid var(--color-grey-2);
+  border-radius:.35rem;
+  background:var(--color-white);
+  box-shadow:0 .35rem 1rem rgba(0,0,0,.08);
+  text-align:left;
+}
+.admin-area .row-action-menu__items :is(button,a) {
+  display:block;
+  width:100%;
+  padding:.45rem .55rem;
+  border:0;
+  border-radius:.25rem;
+  background:transparent;
+  color:var(--color-black);
+  font:600 .68rem/1.25 var(--font-family-text);
+  text-align:left;
+  white-space:nowrap;
+}
+.admin-area .row-action-menu__items :is(button,a):hover {
+  background:var(--color-beige-dark);
+  color:var(--color-brand-3);
+}
+.admin-area .row-action-menu__items form {display:block;margin:0}
 
 /* Daftar admin membawa lebih banyak bidang daripada daftar di situs publik — status, nama, induk,
    pimpinan, lalu deretan aksi. Lebar persen bawaan tema dijumlahkan untuk lima bidang; begitu ada
@@ -1393,9 +1797,17 @@ input[type="range"]:disabled::-moz-range-thumb {
    isinya. Di sini lebarnya dibagi rata oleh flex, bukan ditetapkan satu per satu: berapa pun
    jumlah bidangnya, semuanya tetap dalam satu baris dan kepala kolomnya ikut sejajar karena
    memakai kelas yang sama. */
-@media only screen and (min-width:641px) {
+/* Mulai 1180px ke atas saja. Baris admin membawa enam kolom beserta kolom aksi selebar 11rem;
+   di bawah itu kolom yang tersisa tinggal puluhan piksel dan isinya terpotong. Di bawah 1180px
+   barisnya disusun menurun — perlakuan yang sama yang sudah dipakai seluruh daftar di bawah 987px,
+   diperluas untuk daftar admin saja tepat di bawah ini. */
+@media only screen and (min-width:1180px) {
 .admin-area .s-courses-list .sb-course .sb__link {
   flex-wrap:nowrap;align-items:center;gap:1rem;
+  /* Tema melipat barisnya di bawah 1280px dan menyisakan 8rem di kanan untuk tombol daftar
+     kursusnya. Baris admin tidak punya tombol itu dan tidak melipat, jadi ruang itu hanya
+     menyempitkan kolomnya. */
+  padding-right:0;
 }
 .admin-area .s-courses-list .sb-course .sb__link > .sb__title,
 .survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__topic,
@@ -1404,12 +1816,35 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__location,
 .survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__price {
   width:auto;flex:1 1 0;min-width:0;
+  /* Di bawah 1280px tema memberi tiap bidang nomor urut sendiri untuk susunan terlipatnya.
+     Baris admin tetap satu baris, jadi nomor itu hanya mengacak kolomnya — nama entri bisa
+     muncul setelah statusnya. Urutannya dikembalikan ke urutan markah. */
+  order:0;
 }
 /* Nama entri dapat dua bagian: ia bidang terpanjang dan yang dibaca lebih dulu. */
 .survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__title {flex:2 1 0}
-/* Aksi mendapat jatah yang sama seperti bidang lain, hanya isinya dirapatkan ke kanan. Kalau
-   dibuat selebar isinya saja, kolom terakhir pada baris data dan pada kepala kolom punya lebar
-   berbeda — dan seluruh kolom sebelumnya ikut bergeser karena sisa ruangnya tidak sama. */
+/* Kolom aksi diberi lebar tetap, bukan jatah yang sama dengan bidang lain. Tiga tautan pendek
+   ("Edit Peran Nonaktifkan") butuh sekitar 11rem dan tidak boleh membungkus; dengan jatah yang
+   sama ia hanya dapat sepertujuh baris dan isinya meluber menutupi kolom status di sebelahnya.
+   Lebar tetap itu berlaku untuk kepala kolomnya juga: kalau hanya baris datanya, sisa ruang untuk
+   kolom lain berbeda antara kepala dan isi, dan seluruh kolom ikut bergeser. */
+.survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__price {
+  flex:0 0 3.6rem;
+}
+/* Kolom ini memuat hal yang tidak bisa dibungkus: lencana status di daftar Pengguna dan Objek,
+   rentang tanggal di daftar Periode. Diberi dasar 5,5rem dan tetap boleh tumbuh — cukup untuk
+   "Nonaktif" di layar 1280px, dan cukup melebar untuk rentang dua tanggal. */
+.survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__dates {
+  flex:1 1 5.5rem;
+}
+/* Isi kolom lain boleh membungkus. Tema menahannya satu baris karena isinya "Jakarta" atau
+   "3 bulan"; di sini isinya nama unit dan nama jabatan, dan satu baris berarti terpotong. */
+.survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__title,
+.survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__topic,
+.survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__duration,
+.survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__location {
+  white-space:normal;overflow-wrap:anywhere;
+}
 .survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__actions {
   justify-content:flex-end;
 }
@@ -1421,7 +1856,33 @@ input[type="range"]:disabled::-moz-range-thumb {
    disembunyikan secara visual. */
 @media only screen and (max-width: 640px) {
   .survey-shell main .admin-area .s-courses-list .sb-course .sb__link {
-    gap:.18rem;padding:.58rem .1rem;
+    grid-template-columns:minmax(0,1fr) auto;grid-auto-flow:row;
+    gap:.18rem .5rem;min-height:2.7rem;padding:.58rem .1rem;
+    border-bottom:1px solid var(--color-grey-2);border-radius:0;background:transparent;
+  }
+  /* Ringkasan mobile hanya memuat nama dan panah. Kode, status, dan kolom lain tersedia lengkap
+     di panel setelah panah ditekan. */
+  .survey-shell main .admin-area .s-courses-list
+    :is(.sb-course[data-collapsible="true"],.sb-course:not(.sb-course--static):not(.sb-course--head))
+    .sb__link > :is(.sb__topic,.sb__dates,.sb__duration,.sb__location,.sb__price):not(.sb__disclosure) {
+    display:none;
+  }
+  .survey-shell main .admin-area .s-courses-list
+    :is(.sb-course[data-collapsible="true"],.sb-course:not(.sb-course--static):not(.sb-course--head))
+    .sb__title > .sb__subtitle {display:none}
+  .survey-shell main .admin-area .s-courses-list .sb-course .sb__disclosure {
+    display:flex;grid-column:2;grid-row:1;align-self:center;justify-self:end;width:auto;margin:0;
+  }
+  .survey-shell main .admin-area .s-courses-list .sb-course .sb__detail-toggle {
+    /* font-size ikut mengecil: panahnya diukur dalam `em`, jadi tanpa ini ia tetap sebesar panah
+       tombol layar lebar dan memenuhi lingkaran yang lebih kecil ini. */
+    width:1.65rem;height:1.65rem;flex-basis:1.65rem;font-size:1.65rem;
+  }
+  /* Baris yang membuka halaman detail memakai panah tema pada petak kanan yang sama. */
+  .survey-shell main .admin-area .s-courses-list
+    .sb-course:not(.sb-course--static):not(.sb-course--head) .sb__arrow {
+    position:static;display:block;grid-column:2;grid-row:1;align-self:center;
+    width:.42rem;height:auto;margin:0 .55rem 0 0;
   }
   /* Seukuran judul baris di daftar lain, bukan setingkat lebih besar. */
   .survey-shell main .admin-area .s-courses-list .sb-course .sb__title {
@@ -1447,6 +1908,11 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell main .admin-area .status-pill {padding:.25em .65em;font-size:.56rem}
   .admin-area .sb__panel {padding-bottom:.65rem}
   .admin-area .sb__panel > * {padding:.7rem}
+  .admin-row-panel {gap:.75rem}
+  .admin-row-details {grid-template-columns:1fr;gap:.55rem}
+  .admin-row-details dt {font-size:.5rem}
+  .admin-row-details dd {font-size:.62rem}
+  .admin-row-panel-actions {gap:.35rem}
 
   .admin-area div.overflow-x-auto:has(> table) {
     overflow:visible;background:transparent;border:0;border-radius:0;
