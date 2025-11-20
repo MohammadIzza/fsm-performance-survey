@@ -369,7 +369,7 @@ function UserRow({
                   {user.roleGrants.map((g) => (
                     <li
                       key={g.id}
-                      className="flex items-center gap-2 rounded-lg bg-[var(--surface)] px-3 py-1.5 app-text-sm"
+                      className="flex items-center gap-2 admin-row-list__item app-text-sm"
                     >
                       <span className="font-medium text-[var(--foreground)]">
                         {g.role === "ADMIN" ? "Admin" : "Dekan"}

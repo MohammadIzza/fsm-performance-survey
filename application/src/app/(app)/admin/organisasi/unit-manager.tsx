@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState } from "react";
 import {
   DataList,
   DataRow,
@@ -111,8 +111,6 @@ function UnitRow({
   allUnits: UnitWithMeta[];
   activeUsers: ActiveUser[];
 }) {
-  const [editing, setEditing] = useState(false);
-  const [leadershipOpen, setLeadershipOpen] = useState(false);
   const [updateState, updateFormAction, updatePending] = useActionState(updateUnitAction, {});
   const [assignState, assignFormAction, assignPending] = useActionState(assignLeadershipAction, {});
 
@@ -178,39 +176,8 @@ function UnitRow({
             </RowPanelField>
           </RowPanelDetails>
 
-          <RowPanelActions>
-            <button
-              type="button"
-              className="app-btn app-btn--primary"
-              aria-expanded={editing}
-              onClick={() => {
-                setEditing((value) => !value);
-                setLeadershipOpen(false);
-              }}
-            >
-              {editing ? "Tutup edit" : "Edit"}
-            </button>
-            <button
-              type="button"
-              className="app-btn"
-              aria-expanded={leadershipOpen}
-              onClick={() => {
-                setLeadershipOpen((value) => !value);
-                setEditing(false);
-              }}
-            >
-              {leadershipOpen ? "Tutup pimpinan" : "Pimpinan"}
-            </button>
-            <form action={setUnitActiveAction}>
-              <input type="hidden" name="unitId" value={unit.id} />
-              <input type="hidden" name="active" value={(!unit.active).toString()} />
-              <button type="submit" className="app-btn">
-                {unit.active ? "Nonaktifkan" : "Aktifkan"}
-              </button>
-            </form>
-          </RowPanelActions>
-
-          {editing && (
+          <section className="admin-row-section">
+          <h3 className="app-panel__label app-panel__label--tight">Ubah unit</h3>
           <form action={updateFormAction} className="admin-inline-form grid gap-3 sm:grid-cols-4">
             <input type="hidden" name="unitId" value={unit.id} />
             <input
@@ -245,23 +212,17 @@ function UnitRow({
               >
                 {updatePending ? "Menyimpan…" : "Simpan"}
               </button>
-              <button
-                type="button"
-                onClick={() => setEditing(false)}
-                className="app-btn"
-              >
-                Batal
-              </button>
               {updateState.error && (
-                <p role="alert" className="text-sm text-[var(--danger)]">
+                <p role="alert" className="app-text-sm" style={{ color: "var(--color-brand-1)" }}>
                   {updateState.error}
                 </p>
               )}
             </div>
           </form>
-          )}
+          </section>
 
-          {leadershipOpen && (
+          <section className="admin-row-section">
+          <h3 className="app-panel__label app-panel__label--tight">Pimpinan</h3>
           <div className="space-y-4">
               {unit.leaderships.length > 0 && (
                 <ul className="space-y-1.5">
@@ -270,7 +231,7 @@ function UnitRow({
                     return (
                       <li
                         key={l.id}
-                        className="flex items-center justify-between rounded-lg bg-[var(--surface)] px-3 py-2 app-text-sm"
+                        className="flex items-center justify-between admin-row-list__item app-text-sm"
                       >
                         <span>
                           <span className="font-medium text-[var(--foreground)]">
@@ -344,7 +305,17 @@ function UnitRow({
                 )}
               </form>
             </div>
-          )}
+          </section>
+
+          <RowPanelActions>
+            <form action={setUnitActiveAction}>
+              <input type="hidden" name="unitId" value={unit.id} />
+              <input type="hidden" name="active" value={(!unit.active).toString()} />
+              <button type="submit" className="app-btn">
+                {unit.active ? "Nonaktifkan unit" : "Aktifkan unit"}
+              </button>
+            </form>
+          </RowPanelActions>
         </div>
       }
     >

@@ -1482,7 +1482,23 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 .admin-row-details dd {margin:0;color:var(--color-black);font-size:.7rem;line-height:1.4;overflow-wrap:anywhere}
 .admin-row-details a {color:var(--color-brand-3);font-weight:600}
+/* Daftar di dalam panel — riwayat jabatan, peran yang dipegang — memakai garis pemisah seperti
+   baris daftar di halaman ini, bukan kartu putih bersudut membulat. */
+.admin-row-list__item {
+  padding:.5rem .1rem;border-bottom:1px solid var(--color-grey-2);font-size:.7rem;
+}
+.admin-row-list__item:first-child {border-top:1px solid var(--color-grey-2)}
+
+/* Panel yang isinya beberapa bagian sekaligus — ubah data, kelola pimpinan — dipisah garis tipis
+   supaya terbaca sebagai dua pekerjaan, bukan satu formulir panjang. */
+.admin-row-section {padding:0!important}
+.admin-row-section + .admin-row-section {
+  border-top:1px solid var(--color-grey-2);padding-top:.9rem!important;
+}
 .admin-row-panel-actions {display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;padding:0!important}
+.admin-row-section + .admin-row-panel-actions {
+  border-top:1px solid var(--color-grey-2);padding-top:.9rem!important;
+}
 .admin-row-panel-actions form {margin:0}
 .survey-shell main .admin-row-panel-actions .app-btn {
   min-height:1.85rem;padding:.35rem .75rem;font-size:.62rem;
