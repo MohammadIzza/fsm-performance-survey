@@ -257,7 +257,15 @@ function ObjectForm({
   onCancel?: () => void;
 }) {
   const [state, formAction, pending] = useActionState(action, {});
-  const [typeId, setTypeId] = useState(defaultValues?.typeId ?? objectTypes[0]?.id ?? "");
+  // Bawaannya Orang, bukan yang pertama menurut abjad. Daftar jenis diurutkan per nama, jadi
+  // "Karya" selalu di depan — padahal sebagian besar objek yang didaftarkan adalah orang, dan
+  // jenis itulah yang paling sering dipilih.
+  const [typeId, setTypeId] = useState(
+    defaultValues?.typeId ??
+      objectTypes.find((t) => t.code === "ORANG")?.id ??
+      objectTypes[0]?.id ??
+      ""
+  );
 
   const selectedType = useMemo(
     () => objectTypes.find((t) => t.id === typeId),
