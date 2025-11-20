@@ -184,8 +184,6 @@ function UserRow({
   userTypes: UserType[];
   units: Unit[];
 }) {
-  const [editing, setEditing] = useState(false);
-  const [rolesOpen, setRolesOpen] = useState(false);
   const [updateState, updateFormAction, updatePending] = useActionState(updateUserAction, {});
   const [grantState, grantFormAction, grantPending] = useActionState(grantRoleAction, {});
 
@@ -267,39 +265,8 @@ function UserRow({
             </RowPanelField>
           </RowPanelDetails>
 
-          <RowPanelActions>
-            <button
-              type="button"
-              className="app-btn app-btn--primary"
-              aria-expanded={editing}
-              onClick={() => {
-                setEditing((value) => !value);
-                setRolesOpen(false);
-              }}
-            >
-              {editing ? "Tutup edit" : "Edit"}
-            </button>
-            <button
-              type="button"
-              className="app-btn"
-              aria-expanded={rolesOpen}
-              onClick={() => {
-                setRolesOpen((value) => !value);
-                setEditing(false);
-              }}
-            >
-              {rolesOpen ? "Tutup peran" : "Peran"}
-            </button>
-            <form action={setUserActiveAction}>
-              <input type="hidden" name="userId" value={user.id} />
-              <input type="hidden" name="active" value={(!user.active).toString()} />
-              <button type="submit" className="app-btn">
-                {user.active ? "Nonaktifkan" : "Aktifkan"}
-              </button>
-            </form>
-          </RowPanelActions>
-
-          {editing && (
+          <section className="admin-row-section">
+          <h3 className="app-panel__label app-panel__label--tight">Ubah pengguna</h3>
           <form action={updateFormAction} className="admin-inline-form grid gap-3 sm:grid-cols-4">
             <input type="hidden" name="userId" value={user.id} />
             <input
@@ -346,23 +313,17 @@ function UserRow({
               >
                 {updatePending ? "Menyimpan…" : "Simpan"}
               </button>
-              <button
-                type="button"
-                onClick={() => setEditing(false)}
-                className="app-btn"
-              >
-                Batal
-              </button>
               {updateState.error && (
-                <p role="alert" className="text-sm text-[var(--danger)]">
+                <p role="alert" className="app-text-sm" style={{ color: "var(--color-brand-1)" }}>
                   {updateState.error}
                 </p>
               )}
             </div>
           </form>
-          )}
+          </section>
 
-          {rolesOpen && (
+          <section className="admin-row-section">
+          <h3 className="app-panel__label app-panel__label--tight">Peran sistem</h3>
           <div className="space-y-3">
               {user.roleGrants.length > 0 && (
                 <ul className="flex flex-wrap gap-2">
@@ -388,34 +349,42 @@ function UserRow({
                 </ul>
               )}
 
-              <form action={grantFormAction} className="flex flex-wrap items-end gap-2">
+              <form action={grantFormAction} className="admin-inline-form grid gap-3 sm:grid-cols-4">
                 <input type="hidden" name="userId" value={user.id} />
-                <div className="flex flex-col gap-1">
-                  <label className="app-text-xs text-[var(--muted)]">Beri peran</label>
-                  <select
-                    name="role"
-                    defaultValue="ADMIN"
-                    className="form__control"
-                  >
+                <label className="admin-tools__field">
+                  <span>Beri peran</span>
+                  <select name="role" defaultValue="ADMIN" className="form__control">
                     <option value="ADMIN">Admin</option>
                     <option value="DEKAN">Dekan</option>
                   </select>
+                </label>
+                <div className="flex flex-wrap items-center gap-2 self-end sm:col-span-3">
+                  <button
+                    type="submit"
+                    disabled={grantPending}
+                    className="app-btn app-btn--primary"
+                  >
+                    {grantPending ? "Menyimpan…" : "Tetapkan"}
+                  </button>
+                  {grantState.error && (
+                    <p role="alert" className="app-text-sm" style={{ color: "var(--color-brand-1)" }}>
+                      {grantState.error}
+                    </p>
+                  )}
                 </div>
-                <button
-                  type="submit"
-                  disabled={grantPending}
-                  className="rounded-lg bg-[var(--accent)] px-3 py-1.5 app-text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
-                >
-                  {grantPending ? "Menyimpan…" : "Tetapkan"}
-                </button>
-                {grantState.error && (
-                  <p role="alert" className="text-sm text-[var(--danger)]">
-                    {grantState.error}
-                  </p>
-                )}
               </form>
             </div>
-          )}
+          </section>
+
+          <RowPanelActions>
+            <form action={setUserActiveAction}>
+              <input type="hidden" name="userId" value={user.id} />
+              <input type="hidden" name="active" value={(!user.active).toString()} />
+              <button type="submit" className="app-btn">
+                {user.active ? "Nonaktifkan pengguna" : "Aktifkan pengguna"}
+              </button>
+            </form>
+          </RowPanelActions>
         </div>
       }
     >

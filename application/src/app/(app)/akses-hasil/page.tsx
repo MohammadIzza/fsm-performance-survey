@@ -20,7 +20,9 @@ export default async function AccessPage() {
   const periods = await listPeriods();
 
   return (
-    <div className="space-y-8">
+    // `admin-area`: halaman ini daftar alat admin seperti Pengguna dan Objek, jadi barisnya
+    // memakai perlakuan yang sama — panah buka-tutup di kolom Aksi dan panel di bawah baris.
+    <div className="admin-area space-y-8">
       <PageIntro
         title="Waktu akses hasil"
         intro="Atur kapan pimpinan, termasuk Dekan, dapat membaca hasil. Setiap perubahan tercatat."

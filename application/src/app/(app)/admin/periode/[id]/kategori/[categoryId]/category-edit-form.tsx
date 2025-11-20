@@ -27,16 +27,25 @@ export function CategoryEditForm({
       <input type="hidden" name="objectTypeId" value={category.objectTypeId} />
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <input name="code" defaultValue={category.code} disabled={!editable} required className={fieldClass} />
-        <input name="name" defaultValue={category.name} disabled={!editable} required className={fieldClass} />
+        <label className="admin-tools__field">
+          <span>Kode kategori</span>
+          <input name="code" defaultValue={category.code} disabled={!editable} required className={fieldClass} />
+        </label>
+        <label className="admin-tools__field">
+          <span>Nama kategori</span>
+          <input name="name" defaultValue={category.name} disabled={!editable} required className={fieldClass} />
+        </label>
       </div>
-      <textarea
-        name="description"
-        defaultValue={category.description ?? ""}
-        disabled={!editable}
-        rows={2}
-        className={fieldClass}
-      />
+      <label className="admin-tools__field">
+        <span>Tujuan penilaian</span>
+        <textarea
+          name="description"
+          defaultValue={category.description ?? ""}
+          disabled={!editable}
+          rows={2}
+          className={fieldClass}
+        />
+      </label>
       <label className="flex items-center gap-2 app-text-sm text-[var(--foreground)]">
         <input
           type="checkbox"

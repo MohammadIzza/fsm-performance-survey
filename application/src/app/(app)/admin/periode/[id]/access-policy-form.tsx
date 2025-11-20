@@ -32,10 +32,12 @@ export function AccessPolicyForm({
   }
 
   return (
-    <form action={formAction} className="grid gap-3">
+    <form action={formAction} className="admin-inline-form grid gap-3 sm:grid-cols-3">
       <input type="hidden" name="periodId" value={periodId} />
       <input type="hidden" name="expectedVersion" value={accessPolicy.version} />
 
+      <label className="admin-tools__field">
+      <span>Kebijakan</span>
       <select
         name="mode"
         value={mode}
@@ -48,8 +50,11 @@ export function AccessPolicyForm({
           </option>
         ))}
       </select>
+      </label>
 
       {mode === "WAKTU_TERTENTU" && (
+        <label className="admin-tools__field">
+        <span>Mulai dapat dibaca</span>
         <input
           name="availableAt"
           type="datetime-local"
@@ -61,9 +66,10 @@ export function AccessPolicyForm({
           required
           className={fieldClass}
         />
+        </label>
       )}
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 self-end sm:col-span-3">
         <button
           type="submit"
           disabled={pending}
@@ -72,14 +78,14 @@ export function AccessPolicyForm({
           {pending ? "Menyimpan…" : "Simpan kebijakan"}
         </button>
         {state.error && (
-          <p role="alert" className="text-sm text-[var(--danger)]">
+          <p role="alert" className="app-text-sm" style={{ color: "var(--color-brand-1)" }}>
             {state.error}
           </p>
         )}
+        <p className="app-text-xs" style={{ color: "var(--color-text)" }}>
+          Terakhir diubah oleh {accessPolicy.changedBy.name}.
+        </p>
       </div>
-      <p className="app-text-xs text-[var(--muted)]">
-        Terakhir diubah oleh {accessPolicy.changedBy.name}.
-      </p>
     </form>
   );
 }

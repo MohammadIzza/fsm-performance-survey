@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { DataRow, RowTitle, RowField, RowActions } from "@/components/theme/data-list";
+import { DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 import { StatusPill } from "@/components/theme/status-pill";
 import { AccessPolicyForm } from "../admin/periode/[id]/access-policy-form";
 
@@ -58,15 +57,18 @@ export function AccessPolicyRow({
     accessPolicy: React.ComponentProps<typeof AccessPolicyForm>["accessPolicy"];
   };
 }) {
-  const [open, setOpen] = useState(false);
   const policy = period.accessPolicy;
 
   return (
     <DataRow
+      collapsible
       panel={
-        open ? (
-          <AccessPolicyForm periodId={period.id} accessPolicy={policy} />
-        ) : null
+        <div className="admin-row-panel">
+          <section className="admin-row-section">
+            <h3 className="app-panel__label app-panel__label--tight">Kapan hasil boleh dibaca</h3>
+            <AccessPolicyForm periodId={period.id} accessPolicy={policy} />
+          </section>
+        </div>
       }
     >
       <RowTitle>
@@ -90,11 +92,6 @@ export function AccessPolicyRow({
           {statusLabel[period.status] ?? period.status}
         </StatusPill>
       </RowField>
-      <RowActions>
-        <button type="button" onClick={() => setOpen((v) => !v)}>
-          {open ? "Tutup" : "Atur"}
-        </button>
-      </RowActions>
     </DataRow>
   );
 }

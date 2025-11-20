@@ -29,8 +29,8 @@ export function ScaleForm({
       <input type="hidden" name="categoryId" value={categoryId} />
 
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
-        <div>
-          <label className="mb-1 block app-text-xs text-[var(--muted)]">Minimum</label>
+        <label className="admin-tools__field">
+          <span>Minimum</span>
           <input
             name="scaleMin"
             type="number"
@@ -40,9 +40,9 @@ export function ScaleForm({
             required
             className={fieldClass}
           />
-        </div>
-        <div>
-          <label className="mb-1 block app-text-xs text-[var(--muted)]">Maksimum</label>
+        </label>
+        <label className="admin-tools__field">
+          <span>Maksimum</span>
           <input
             name="scaleMax"
             type="number"
@@ -52,9 +52,9 @@ export function ScaleForm({
             required
             className={fieldClass}
           />
-        </div>
-        <div>
-          <label className="mb-1 block app-text-xs text-[var(--muted)]">Langkah</label>
+        </label>
+        <label className="admin-tools__field">
+          <span>Langkah</span>
           <input
             name="scaleStep"
             type="number"
@@ -64,7 +64,7 @@ export function ScaleForm({
             required
             className={fieldClass}
           />
-        </div>
+        </label>
       </div>
       <textarea
         name="guide"

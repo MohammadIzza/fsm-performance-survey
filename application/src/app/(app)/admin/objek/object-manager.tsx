@@ -149,7 +149,6 @@ function ObjectRow({
   units: Unit[];
   users: UserOption[];
 }) {
-  const [editing, setEditing] = useState(false);
 
   // Form sunting dulu menempati satu <tr> tambahan ber-colSpan di bawah barisnya; sekarang jadi
   // panel di dalam <li> yang sama, dengan barisnya tetap terlihat selama disunting.
@@ -178,25 +177,8 @@ function ObjectRow({
             </RowPanelField>
           </RowPanelDetails>
 
-          <RowPanelActions>
-            <button
-              type="button"
-              className="app-btn app-btn--primary"
-              aria-expanded={editing}
-              onClick={() => setEditing((value) => !value)}
-            >
-              {editing ? "Tutup edit" : "Edit"}
-            </button>
-            <form action={setObjectActiveAction}>
-              <input type="hidden" name="objectId" value={object.id} />
-              <input type="hidden" name="active" value={(!object.active).toString()} />
-              <button type="submit" className="app-btn">
-                {object.active ? "Nonaktifkan" : "Aktifkan"}
-              </button>
-            </form>
-          </RowPanelActions>
-
-          {editing && (
+          <section className="admin-row-section">
+            <h3 className="app-panel__label app-panel__label--tight">Ubah objek</h3>
             <ObjectForm
               action={updateObjectAction}
               objectTypes={objectTypes}
@@ -204,9 +186,18 @@ function ObjectRow({
               users={users}
               submitLabel="Simpan"
               defaultValues={object}
-              onCancel={() => setEditing(false)}
             />
-          )}
+          </section>
+
+          <RowPanelActions>
+            <form action={setObjectActiveAction}>
+              <input type="hidden" name="objectId" value={object.id} />
+              <input type="hidden" name="active" value={(!object.active).toString()} />
+              <button type="submit" className="app-btn">
+                {object.active ? "Nonaktifkan objek" : "Aktifkan objek"}
+              </button>
+            </form>
+          </RowPanelActions>
         </div>
       }
     >
