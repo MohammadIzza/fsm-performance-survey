@@ -60,18 +60,21 @@ export function UserManager({
           description="Identitas baru yang langsung dapat masuk dan menerima tugas."
         >
         <form action={createFormAction} className="grid gap-3 sm:grid-cols-4">
-          <input
-            name="loginIdentifier"
-            placeholder="ID (NIP/NIM/NIK)"
-            required
-            className="form__control"
-          />
-          <input
-            name="name"
-            placeholder="Nama lengkap"
-            required
-            className="form__control"
-          />
+          <label className="admin-tools__field">
+            <span>ID masuk</span>
+            <input
+              name="loginIdentifier"
+              placeholder="NIP / NIM / NIK"
+              required
+              className="form__control"
+            />
+          </label>
+          <label className="admin-tools__field">
+            <span>Nama lengkap</span>
+            <input name="name" placeholder="Nama lengkap" required className="form__control" />
+          </label>
+          <label className="admin-tools__field">
+          <span>Jenis pengguna</span>
           <select
             name="userTypeId"
             required
@@ -87,18 +90,22 @@ export function UserManager({
               </option>
             ))}
           </select>
+          </label>
+          <label className="admin-tools__field">
+          <span>Unit utama (opsional)</span>
           <select
             name="primaryUnitId"
             defaultValue=""
             className="form__control"
           >
-            <option value="">— Unit utama (opsional) —</option>
+            <option value="">— Tanpa unit utama —</option>
             {units.map((u) => (
               <option key={u.id} value={u.id}>
                 {u.name} ({u.code})
               </option>
             ))}
           </select>
+          </label>
           <div className="sm:col-span-4">
             {createState.error && (
               <p role="alert" className="mb-2 text-sm text-[var(--danger)]">
@@ -121,8 +128,14 @@ export function UserManager({
           description="Daftar jenis yang dapat dipilih saat menambah pengguna."
         >
           <form action={typeFormAction} className="grid gap-3 sm:grid-cols-4">
-            <input name="code" placeholder="Kode (mis. LABORAN)" required className="form__control" />
-            <input name="name" placeholder="Nama (mis. Laboran)" required className="form__control" />
+            <label className="admin-tools__field">
+              <span>Kode jenis</span>
+              <input name="code" placeholder="mis. LABORAN" required className="form__control" />
+            </label>
+            <label className="admin-tools__field">
+              <span>Nama jenis</span>
+              <input name="name" placeholder="mis. Laboran" required className="form__control" />
+            </label>
             <div className="sm:col-span-4">
               {typeState.error && (
                 <p role="alert" className="mb-2 app-text-sm" style={{ color: "var(--color-brand-1)" }}>
@@ -269,42 +282,49 @@ function UserRow({
           <h3 className="app-panel__label app-panel__label--tight">Ubah pengguna</h3>
           <form action={updateFormAction} className="admin-inline-form grid gap-3 sm:grid-cols-4">
             <input type="hidden" name="userId" value={user.id} />
-            <input
-              name="loginIdentifier"
-              defaultValue={user.loginIdentifier}
-              required
-              className="form__control"
-            />
-            <input
-              name="name"
-              defaultValue={user.name}
-              required
-              className="form__control"
-            />
-            <select
-              name="userTypeId"
-              defaultValue={user.userTypeId}
-              required
-              className="form__control"
-            >
-              {userTypes.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-            <select
-              name="primaryUnitId"
-              defaultValue={user.primaryUnitId ?? ""}
-              className="form__control"
-            >
-              <option value="">— Tanpa unit utama —</option>
-              {units.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name} ({u.code})
-                </option>
-              ))}
-            </select>
+            <label className="admin-tools__field">
+              <span>ID masuk</span>
+              <input
+                name="loginIdentifier"
+                defaultValue={user.loginIdentifier}
+                required
+                className="form__control"
+              />
+            </label>
+            <label className="admin-tools__field">
+              <span>Nama lengkap</span>
+              <input name="name" defaultValue={user.name} required className="form__control" />
+            </label>
+            <label className="admin-tools__field">
+              <span>Jenis pengguna</span>
+              <select
+                name="userTypeId"
+                defaultValue={user.userTypeId}
+                required
+                className="form__control"
+              >
+                {userTypes.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="admin-tools__field">
+              <span>Unit utama</span>
+              <select
+                name="primaryUnitId"
+                defaultValue={user.primaryUnitId ?? ""}
+                className="form__control"
+              >
+                <option value="">— Tanpa unit utama —</option>
+                {units.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} ({u.code})
+                  </option>
+                ))}
+              </select>
+            </label>
             <div className="flex items-center gap-2 sm:col-span-4">
               <button
                 type="submit"

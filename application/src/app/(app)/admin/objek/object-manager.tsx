@@ -78,8 +78,14 @@ export function ObjectManager({
           description="Daftar jenis yang dapat dipilih saat menambah objek."
         >
           <form action={typeFormAction} className="grid gap-3 sm:grid-cols-4">
-            <input name="code" placeholder="Kode (mis. PRESTASI)" required className="form__control" />
-            <input name="name" placeholder="Nama (mis. Prestasi)" required className="form__control" />
+            <label className="admin-tools__field">
+              <span>Kode jenis</span>
+              <input name="code" placeholder="mis. PRESTASI" required className="form__control" />
+            </label>
+            <label className="admin-tools__field">
+              <span>Nama jenis</span>
+              <input name="name" placeholder="mis. Prestasi" required className="form__control" />
+            </label>
             <div className="sm:col-span-4">
               {typeState.error && (
                 <p role="alert" className="mb-2 app-text-sm" style={{ color: "var(--color-brand-1)" }}>
@@ -270,6 +276,8 @@ function ObjectForm({
     >
       {defaultValues && <input type="hidden" name="objectId" value={defaultValues.id} />}
 
+      <label className="admin-tools__field">
+      <span>Jenis objek</span>
       <select
         name="typeId"
         required
@@ -283,18 +291,24 @@ function ObjectForm({
           </option>
         ))}
       </select>
+      </label>
 
-      <input
-        name="name"
-        placeholder="Nama objek"
-        required
-        defaultValue={defaultValues?.name}
-        className={`${fieldClass} sm:col-span-2`}
-      />
+      <label className="admin-tools__field sm:col-span-2">
+        <span>Nama objek</span>
+        <input
+          name="name"
+          placeholder="Nama objek"
+          required
+          defaultValue={defaultValues?.name}
+          className={fieldClass}
+        />
+      </label>
 
+      <label className="admin-tools__field">
+      <span>Unit pemilik</span>
       <select name="ownerUnitId" required defaultValue={defaultValues?.ownerUnitId ?? ""} className={fieldClass}>
         <option value="" disabled>
-          Unit pemilik…
+          Pilih unit pemilik…
         </option>
         {units.map((u) => (
           <option key={u.id} value={u.id}>
@@ -302,8 +316,11 @@ function ObjectForm({
           </option>
         ))}
       </select>
+      </label>
 
       {isOrang && (
+        <label className="admin-tools__field">
+        <span>Pengguna terkait</span>
         <select
           name="referenceUserId"
           required
@@ -319,9 +336,12 @@ function ObjectForm({
             </option>
           ))}
         </select>
+        </label>
       )}
 
       {isUnitType && (
+        <label className="admin-tools__field">
+        <span>Unit yang dinilai</span>
         <select
           name="referenceUnitId"
           required
@@ -337,36 +357,45 @@ function ObjectForm({
             </option>
           ))}
         </select>
+        </label>
       )}
 
       {!isOrang && (
+        <label className="admin-tools__field">
+        <span>Penanggung jawab</span>
         <select
           name="responsibleUserId"
           defaultValue={defaultValues?.responsibleUserId ?? ""}
           className={fieldClass}
         >
-          <option value="">— Penanggung jawab (opsional saat draf) —</option>
+          <option value="">— Belum ditentukan (boleh saat draf) —</option>
           {users.map((u) => (
             <option key={u.id} value={u.id}>
               {u.name} ({u.loginIdentifier})
             </option>
           ))}
         </select>
+        </label>
       )}
 
       {isKarya && (
         <>
-          <input
-            name="url"
-            placeholder="URL karya (opsional)"
-            defaultValue={defaultValues?.url ?? ""}
-            className={fieldClass}
-          />
+          <label className="admin-tools__field">
+            <span>URL karya (opsional)</span>
+            <input
+              name="url"
+              placeholder="https://…"
+              defaultValue={defaultValues?.url ?? ""}
+              className={fieldClass}
+            />
+          </label>
+          <label className="admin-tools__field sm:col-span-2">
+          <span>Kontributor (boleh lebih dari satu)</span>
           <select
             name="contributorUserIds"
             multiple
             defaultValue={defaultContributorIds}
-            className={`${fieldClass} h-auto sm:col-span-2`}
+            className={`${fieldClass} h-auto`}
             size={Math.min(4, users.length)}
           >
             {users.map((u) => (
@@ -375,16 +404,20 @@ function ObjectForm({
               </option>
             ))}
           </select>
+          </label>
         </>
       )}
 
-      <textarea
-        name="description"
-        placeholder="Deskripsi (opsional)"
-        defaultValue={defaultValues?.description ?? ""}
-        rows={2}
-        className={`${fieldClass} sm:col-span-3`}
-      />
+      <label className="admin-tools__field sm:col-span-3">
+        <span>Keterangan (opsional)</span>
+        <textarea
+          name="description"
+          placeholder="Keterangan singkat"
+          defaultValue={defaultValues?.description ?? ""}
+          rows={2}
+          className={fieldClass}
+        />
+      </label>
 
       <div className="flex items-center gap-2 sm:col-span-3">
         <button

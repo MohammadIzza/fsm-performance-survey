@@ -35,25 +35,31 @@ export function ImportForm() {
       </p>
 
       <form action={previewAction} className="grid gap-3 sm:grid-cols-3">
-        <select
-          name="entity"
-          value={entity}
-          onChange={(e) => setEntity(e.target.value)}
-          className={fieldClass}
-        >
-          {entityOptions.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-        <input
-          name="file"
-          type="file"
-          accept=".xlsx"
-          required
-          className={`${fieldClass} sm:col-span-2`}
-        />
+        <label className="admin-tools__field">
+          <span>Data yang diimpor</span>
+          <select
+            name="entity"
+            value={entity}
+            onChange={(e) => setEntity(e.target.value)}
+            className={fieldClass}
+          >
+            {entityOptions.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="admin-tools__field sm:col-span-2">
+          <span>Berkas Excel (.xlsx)</span>
+          <input
+            name="file"
+            type="file"
+            accept=".xlsx"
+            required
+            className={fieldClass}
+          />
+        </label>
         <div className="flex items-center gap-2 sm:col-span-3">
           <button
             type="submit"

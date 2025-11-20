@@ -32,18 +32,18 @@ export function AssignmentRuleForm({
       <input type="hidden" name="periodId" value={periodId} />
       <input type="hidden" name="categoryId" value={categoryId} />
 
-      <div>
-        <label className="mb-1 block app-text-xs text-[var(--muted)]">Lingkup calon</label>
+      <label className="admin-tools__field">
+        <span>Lingkup calon</span>
         <select name="scope" defaultValue={rule.scope} disabled={!editable} className={fieldClass}>
           <option value="UNIT_OBJEK">Unit objek saja</option>
           <option value="UNIT_DAN_SUBUNIT">Unit objek dan subunitnya</option>
         </select>
-      </div>
+      </label>
 
-      <div>
-        <label className="mb-1 block app-text-xs text-[var(--muted)]">
+      <label className="admin-tools__field">
+        <span>
           Filter jenis pengguna (kosongkan untuk semua jenis)
-        </label>
+        </span>
         <div className="flex flex-wrap gap-3">
           {userTypes.map((t) => (
             <label key={t.id} className="flex items-center gap-1.5 app-text-sm text-[var(--foreground)]">
@@ -59,7 +59,7 @@ export function AssignmentRuleForm({
             </label>
           ))}
         </div>
-      </div>
+      </label>
 
       {editable ? (
         <div className="flex items-center gap-2">

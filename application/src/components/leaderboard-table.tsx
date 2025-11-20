@@ -289,14 +289,16 @@ export function LeaderboardGroups({
           sekitar 480px pada huruf ponsel) menjadi lantai lebar pembungkusnya dan merentangkan
           seluruh petak melewati tepi layar. Sebagai anak petak langsung, min-width:0 miliknya
           sendiri yang berlaku. */}
-      <input
-        type="search"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Cari nama objek di kedua leaderboard…"
-        aria-label="Cari nama objek di leaderboard"
-        className="form__control"
-      />
+      <label className="admin-tools__field">
+        <span>Cari objek</span>
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Nama objek di kedua leaderboard…"
+          className="form__control"
+        />
+      </label>
 
       <div className="app-panel app-panel--ruled">
         <h2 className="app-panel__label">

@@ -30,8 +30,8 @@ export function GroupRuleForm({
       <input type="hidden" name="periodId" value={periodId} />
       <input type="hidden" name="categoryId" value={categoryId} />
 
-      <div>
-        <label className="mb-1 block app-text-xs text-[var(--muted)]">Metode agregasi</label>
+      <label className="admin-tools__field">
+        <span>Metode agregasi</span>
         <select
           name="aggregation"
           defaultValue={rule.aggregation}
@@ -41,10 +41,10 @@ export function GroupRuleForm({
           <option value="RATA_RATA">Rata-rata</option>
           <option value="TOTAL">Total</option>
         </select>
-      </div>
+      </label>
       <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="mb-1 block app-text-xs text-[var(--muted)]">Target penilai</label>
+        <label className="admin-tools__field">
+          <span>Target penilai</span>
           <input
             name="target"
             type="number"
@@ -54,9 +54,9 @@ export function GroupRuleForm({
             required
             className={fieldClass}
           />
-        </div>
-        <div>
-          <label className="mb-1 block app-text-xs text-[var(--muted)]">Minimum respons</label>
+        </label>
+        <label className="admin-tools__field">
+          <span>Minimum respons</span>
           <input
             name="minimum"
             type="number"
@@ -66,7 +66,7 @@ export function GroupRuleForm({
             required
             className={fieldClass}
           />
-        </div>
+        </label>
       </div>
       <label className="text-sm">Parameter pembeda nilai sama (opsional)
         <select name="tieBreakParameterIds" multiple disabled={!editable} defaultValue={(rule.tieBreakParameterIds as string[]|null)??[]} className={fieldClass+" block w-full"}>

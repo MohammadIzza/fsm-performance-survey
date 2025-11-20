@@ -43,18 +43,16 @@ export function UnitManager({
           description="Menambah satu unit baru ke pohon organisasi."
         >
         <form action={createFormAction} className="admin-inline-form grid gap-3 sm:grid-cols-4">
-          <input
-            name="code"
-            placeholder="Kode (mis. PS-INF)"
-            required
-            className="form__control"
-          />
-          <input
-            name="name"
-            placeholder="Nama unit"
-            required
-            className="form__control sm:col-span-2"
-          />
+          <label className="admin-tools__field">
+            <span>Kode unit</span>
+            <input name="code" placeholder="mis. PS-INF" required className="form__control" />
+          </label>
+          <label className="admin-tools__field sm:col-span-2">
+            <span>Nama unit</span>
+            <input name="name" placeholder="Nama unit" required className="form__control" />
+          </label>
+          <label className="admin-tools__field">
+          <span>Induk</span>
           <select
             name="parentId"
             defaultValue=""
@@ -67,6 +65,7 @@ export function UnitManager({
               </option>
             ))}
           </select>
+          </label>
           <div className="sm:col-span-4">
             {createState.error && (
               <p role="alert" className="mb-2 text-sm text-[var(--danger)]">
@@ -180,18 +179,16 @@ function UnitRow({
           <h3 className="app-panel__label app-panel__label--tight">Ubah unit</h3>
           <form action={updateFormAction} className="admin-inline-form grid gap-3 sm:grid-cols-4">
             <input type="hidden" name="unitId" value={unit.id} />
-            <input
-              name="code"
-              defaultValue={unit.code}
-              required
-              className="form__control"
-            />
-            <input
-              name="name"
-              defaultValue={unit.name}
-              required
-              className="form__control sm:col-span-2"
-            />
+            <label className="admin-tools__field">
+              <span>Kode unit</span>
+              <input name="code" defaultValue={unit.code} required className="form__control" />
+            </label>
+            <label className="admin-tools__field sm:col-span-2">
+              <span>Nama unit</span>
+              <input name="name" defaultValue={unit.name} required className="form__control" />
+            </label>
+            <label className="admin-tools__field">
+            <span>Induk</span>
             <select
               name="parentId"
               defaultValue={unit.parentId ?? ""}
@@ -204,6 +201,7 @@ function UnitRow({
                 </option>
               ))}
             </select>
+            </label>
             <div className="flex items-center gap-2 sm:col-span-4">
               <button
                 type="submit"
@@ -263,6 +261,8 @@ function UnitRow({
 
               <form action={assignFormAction} className="admin-inline-form grid gap-2 sm:grid-cols-4">
                 <input type="hidden" name="unitId" value={unit.id} />
+                <label className="admin-tools__field">
+                <span>Pengguna</span>
                 <select
                   name="userId"
                   required
@@ -278,19 +278,26 @@ function UnitRow({
                     </option>
                   ))}
                 </select>
-                <input
-                  name="title"
-                  placeholder="Jabatan (mis. Ketua Departemen)"
-                  required
-                  className="form__control"
-                />
-                <input
-                  name="effectiveFrom"
-                  type="date"
-                  required
-                  defaultValue={new Date().toISOString().slice(0, 10)}
-                  className="form__control"
-                />
+                </label>
+                <label className="admin-tools__field">
+                  <span>Jabatan</span>
+                  <input
+                    name="title"
+                    placeholder="mis. Ketua Departemen"
+                    required
+                    className="form__control"
+                  />
+                </label>
+                <label className="admin-tools__field">
+                  <span>Menjabat sejak</span>
+                  <input
+                    name="effectiveFrom"
+                    type="date"
+                    required
+                    defaultValue={new Date().toISOString().slice(0, 10)}
+                    className="form__control"
+                  />
+                </label>
                 <button
                   type="submit"
                   disabled={assignPending}

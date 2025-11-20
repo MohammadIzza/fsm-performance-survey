@@ -66,14 +66,17 @@ export function ScaleForm({
           />
         </label>
       </div>
-      <textarea
-        name="guide"
-        placeholder="Panduan pengisian (opsional)"
-        defaultValue={instrument.guide ?? ""}
-        disabled={!editable}
-        rows={2}
-        className={fieldClass}
-      />
+      <label className="admin-tools__field">
+        <span>Panduan pengisian (opsional)</span>
+        <textarea
+          name="guide"
+          placeholder="mis. Nilai 0-100 sesuai bukti yang tersedia"
+          defaultValue={instrument.guide ?? ""}
+          disabled={!editable}
+          rows={2}
+          className={fieldClass}
+        />
+      </label>
       {editable ? (
         <div className="flex items-center gap-2">
           <button
