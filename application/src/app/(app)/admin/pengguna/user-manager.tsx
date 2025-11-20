@@ -345,7 +345,13 @@ function UserRow({
           <section className="admin-row-section">
           <h3 className="app-panel__label app-panel__label--tight">Peran sistem</h3>
           <div className="space-y-3">
-              {user.roleGrants.length > 0 && (
+              <p className="app-text-xs" style={{ color: "var(--color-text)" }}>
+                Peran sistem berlaku di luar jenis pengguna: Admin mengelola seluruh aplikasi,
+                Dekan membaca hasil seluruh fakultas.
+              </p>
+              {user.roleGrants.length === 0 ? (
+                <p className="app-text-sm">Belum memegang peran sistem.</p>
+              ) : (
                 <ul className="flex flex-wrap gap-2">
                   {user.roleGrants.map((g) => (
                     <li
@@ -373,7 +379,13 @@ function UserRow({
                 <input type="hidden" name="userId" value={user.id} />
                 <label className="admin-tools__field">
                   <span>Beri peran</span>
-                  <select name="role" defaultValue="ADMIN" className="form__control">
+                  {/* Tanpa pilihan kosong di depan, kotak ini selalu memperlihatkan "Admin" —
+                      nilai pertama daftarnya — dan pada tiap pengguna terbaca seolah menyatakan
+                      peran yang dipegangnya, bukan peran yang hendak diberikan. */}
+                  <select name="role" required defaultValue="" className="form__control">
+                    <option value="" disabled>
+                      Pilih peran…
+                    </option>
                     <option value="ADMIN">Admin</option>
                     <option value="DEKAN">Dekan</option>
                   </select>

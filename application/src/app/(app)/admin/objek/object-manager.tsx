@@ -390,7 +390,15 @@ function ObjectForm({
             />
           </label>
           <label className="admin-tools__field sm:col-span-2">
-          <span>Kontributor (boleh lebih dari satu)</span>
+          <span>Ikut membuat karya ini</span>
+          {/* Tanpa kalimat ini kolomnya hanya berjudul "Kontributor" dan tidak ada yang
+              menjelaskan akibatnya — padahal satu-satunya gunanya adalah menyingkirkan orang
+              dari daftar penilai karyanya sendiri. */}
+          <span className="admin-tools__hint">
+            Mereka tidak akan ditugaskan menilai karya ini, selama kategorinya menyalakan
+            &ldquo;Kecualikan pembuat karya sebagai penilai&rdquo;. Tahan Ctrl (⌘ di Mac) untuk
+            memilih lebih dari satu.
+          </span>
           <select
             name="contributorUserIds"
             multiple
