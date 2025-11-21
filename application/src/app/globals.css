@@ -1690,7 +1690,11 @@ input[type="range"]:disabled::-moz-range-thumb {
    benar berupa tautan teks tanpa garis — ketiganya berubah jadi pil besar sehingga tiap baris
    tabel membungkus jadi dua baris. Menyaring lewat garis tepi membuat aturan ini hanya mengenai
    elemen yang sejak awal memang berbentuk kotak bergaris. */
-.survey-shell main button[class*="border-"]:not(.btn-plain):not([class*="bg-"]),
+/* Aturan pil untuk tombol ber-utilitas garis tepi sudah dihapus: setiap tombol yang dulu
+   membutuhkannya kini memakai .app-btn, dan satu-satunya elemen yang masih tertangkap adalah tab
+   kategori — yang justru bukan tombol berbentuk pil. Menyaring lewat potongan nama kelas juga
+   berarti setiap utilitas `border-*` baru bisa ikut tersapu tanpa disengaja.
+   Bentuk tautan lama yang masih memakainya: */
 .survey-shell main a[class*="rounded-xl"][class*="border-"] {
   border-radius:999em;
   font:600 var(--font-size-t-sm)/1 var(--font-family-text);
@@ -1698,8 +1702,52 @@ input[type="range"]:disabled::-moz-range-thumb {
   padding:.85em 1.4em;
   transition:border-color .07s linear,color .07s linear;
 }
-.survey-shell main button[class*="border-"]:not(.btn-plain):not([class*="bg-"]):hover,
 .survey-shell main a[class*="rounded-xl"][class*="border-"]:hover {border-color:var(--color-black)}
+
+/* ——— Tab pada halaman kategori ————————————————————————————————————————————————————————
+   Empat sisi pekerjaan satu kategori. Bentuknya mengikuti kepala kolom tabel di halaman ini:
+   nama pendek berhuruf kapital di atas satu garis tebal, dan yang sedang dibuka ditandai garis
+   itu sendiri — bukan pil melayang, bentuk yang tidak dipakai navigasi mana pun di sini. */
+.category-tabs__strip {
+  display:flex;gap:0;overflow-x:auto;margin-bottom:1rem;
+  border-bottom:2px solid var(--color-black);
+}
+.survey-shell main .category-tabs__tab {
+  display:inline-flex;align-items:center;gap:.4rem;flex:0 0 auto;
+  margin-bottom:-2px;padding:.6rem .9rem;
+  border:0;border-bottom:2px solid transparent;border-radius:0;background:none;
+  color:var(--color-text);white-space:nowrap;cursor:pointer;
+  transition:color .12s linear,border-color .12s linear;
+}
+.category-tabs__name {
+  font:600 .6rem/1.2 var(--font-family-text);letter-spacing:.06em;text-transform:uppercase;
+}
+/* Jumlah entri dibaca sebagai angka, bukan bagian dari namanya. */
+.category-tabs__count {
+  display:inline-flex;align-items:center;justify-content:center;min-width:1.25rem;
+  padding:.05rem .3rem;border-radius:999em;background:var(--color-beige-dark);
+  font:600 .55rem/1.4 var(--font-family-text);
+}
+.survey-shell main .category-tabs__tab:hover {color:var(--color-black)}
+.survey-shell main .category-tabs__tab[aria-selected="true"] {
+  border-bottom-color:var(--color-brand-3);color:var(--color-black);
+}
+.survey-shell main .category-tabs__tab[aria-selected="true"] .category-tabs__count {
+  background:var(--color-brand-2);
+}
+/* Jarak bawahnya disebut langsung: keterangan ini anak pertama pembungkus `space-y`, dan aturan
+   jarak itu hanya mengenai saudara sesudahnya — tanpa ini kalimatnya menempel 4px di atas garis
+   bagian berikutnya. */
+.category-tabs__hint {
+  margin:0 0 1.1rem;max-width:44rem;color:var(--color-text);font-size:.66rem;line-height:1.45;
+}
+
+@media only screen and (max-width:640px) {
+  .category-tabs__strip {margin-bottom:.75rem}
+  .survey-shell main .category-tabs__tab {padding:.5rem .6rem}
+  .category-tabs__name {font-size:.52rem}
+  .category-tabs__hint {font-size:.6rem}
+}
 
 /* Tabel: huruf, garis, dan warna kepala kolom dari token tema. Tetap <table> — baris daftar tema
    (.sb-course) dirancang untuk sekitar lima bidang pendek dalam satu baris, sedangkan tabel admin
@@ -1757,7 +1805,6 @@ input[type="range"]:disabled::-moz-range-thumb {
   font-family:inherit;
   font-size:.65rem;
   font-weight:400;
-  line-height:1.35;
   line-height:1.35;
 }
 .admin-area select.form__control {

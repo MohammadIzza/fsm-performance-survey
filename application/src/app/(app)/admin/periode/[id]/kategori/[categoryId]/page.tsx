@@ -107,6 +107,7 @@ async function CategoryDetailPage({
           {
             key: "instrumen",
             label: "Pertanyaan & Bobot",
+            hint: "Aspek apa saja yang dinilai, dan berapa bobot masing-masing. Totalnya harus 100%.",
             content: (
               <>
                 <div className="grid gap-6 lg:grid-cols-2">
@@ -171,6 +172,7 @@ async function CategoryDetailPage({
           {
             key: "kelompok",
             label: "Aturan Penilai",
+            hint: "Siapa yang boleh menilai, berapa orang per objek, dan berapa jawaban minimum agar nilainya sah.",
             content: (
               <>
                 <div>
@@ -228,7 +230,9 @@ async function CategoryDetailPage({
           },
           {
             key: "peserta",
-            label: `Yang Dinilai (${category.categoryObjects.length})`,
+            label: "Yang Dinilai",
+            count: category.categoryObjects.length,
+            hint: "Objek yang masuk kategori ini dan akan mendapat nilai.",
             content: (
               <div className="app-panel app-panel--ruled">
                 <h2 className="app-panel__label">
@@ -246,7 +250,9 @@ async function CategoryDetailPage({
           },
           {
             key: "penugasan",
-            label: `Pembagian Tugas (${assignments.length})`,
+            label: "Pembagian Tugas",
+            count: assignments.length,
+            hint: "Penilai mana menilai objek mana. Dapat diacak otomatis atau ditetapkan satu per satu.",
             content: (
               <>
                 <div className="app-panel app-panel--ruled">
