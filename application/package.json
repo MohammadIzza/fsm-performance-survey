@@ -8,6 +8,7 @@
   "scripts": {
     "db:seed": "tsx prisma/seed.ts",
     "seed:units": "tsx scripts/seed-units-fsm.ts",
+    "seed:dies": "tsx scripts/seed-dies-2026.ts",
     "seed:demo": "tsx scripts/seed-demo.ts",
     "seed:leaderboard": "tsx scripts/seed-leaderboard-demo.ts",
     "scheduler:run": "tsx scripts/run-scheduled-transitions.ts",
