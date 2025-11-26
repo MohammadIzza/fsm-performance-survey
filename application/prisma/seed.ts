@@ -4,6 +4,22 @@ import { FSM_UNITS } from "../src/lib/data/fsm-org";
 
 const db = new PrismaClient();
 
+/**
+ * Jabatan dipasang hanya bila belum ada. `create` biasa akan menggandakan keempat jabatan ini
+ * setiap kali seed dijalankan ulang pada basis data yang sudah berisi.
+ */
+async function pastikanPimpinan(
+  db: PrismaClient,
+  userId: string,
+  unitId: string,
+  title: string,
+  effectiveFrom: Date
+) {
+  const ada = await db.leadership.findFirst({ where: { userId, unitId, title } });
+  if (ada) return ada;
+  return db.leadership.create({ data: { userId, unitId, title, effectiveFrom } });
+}
+
 async function main() {
   const dosen = await db.userType.upsert({
     where: { code: "DOSEN" },
@@ -73,10 +89,10 @@ async function main() {
 
   const admin = await db.user.upsert({
     where: { loginIdentifier: "admin01" },
-    update: {},
+    update: { name: "Rangga Prakoso, S.Kom." },
     create: {
       loginIdentifier: "admin01",
-      name: "Admin Sistem (Dummy)",
+      name: "Rangga Prakoso, S.Kom.",
       userTypeId: tendik.id,
       primaryUnitId: unitAdmin.id,
     },
@@ -89,10 +105,10 @@ async function main() {
 
   const dekan = await db.user.upsert({
     where: { loginIdentifier: "dekan01" },
-    update: {},
+    update: { name: "Prof. Dr. Sutrisno Hadi, M.Si." },
     create: {
       loginIdentifier: "dekan01",
-      name: "Prof. Dekan Fiktif",
+      name: "Prof. Dr. Sutrisno Hadi, M.Si.",
       userTypeId: dosen.id,
       primaryUnitId: fsm.id,
     },
@@ -102,100 +118,72 @@ async function main() {
     update: {},
     create: { id: `${dekan.id}-DEKAN`, userId: dekan.id, role: "DEKAN" },
   });
-  await db.leadership.create({
-    data: {
-      userId: dekan.id,
-      unitId: fsm.id,
-      title: "Dekan",
-      effectiveFrom: new Date("2026-01-01"),
-    },
-  });
+  await pastikanPimpinan(db, dekan.id, fsm.id, "Dekan", new Date("2026-01-01"));
 
   // Unit dengan satu pimpinan.
   const kaMat = await db.user.upsert({
     where: { loginIdentifier: "dosen1001" },
-    update: {},
+    update: { name: "Prof. Dr. Bambang Waluyo, M.Si." },
     create: {
       loginIdentifier: "dosen1001",
-      name: "Dr. Ketua Departemen Matematika",
+      name: "Prof. Dr. Bambang Waluyo, M.Si.",
       userTypeId: dosen.id,
       primaryUnitId: depMat.id,
     },
   });
-  await db.leadership.create({
-    data: {
-      userId: kaMat.id,
-      unitId: depMat.id,
-      title: "Ketua Departemen",
-      effectiveFrom: new Date("2026-01-01"),
-    },
-  });
+  await pastikanPimpinan(db, kaMat.id, depMat.id, "Ketua Departemen", new Date("2026-01-01"));
 
   // Unit dengan dua pimpinan (Departemen Fisika: ketua + sekretaris).
   const kaFis = await db.user.upsert({
     where: { loginIdentifier: "dosen1002" },
-    update: {},
+    update: { name: "Prof. Dr. Slamet Riyadi, M.Sc." },
     create: {
       loginIdentifier: "dosen1002",
-      name: "Dr. Ketua Departemen Fisika",
+      name: "Prof. Dr. Slamet Riyadi, M.Sc.",
       userTypeId: dosen.id,
       primaryUnitId: depFis.id,
     },
   });
   const sekFis = await db.user.upsert({
     where: { loginIdentifier: "dosen1003" },
-    update: {},
+    update: { name: "Dr. Hesti Wulandari, M.Si." },
     create: {
       loginIdentifier: "dosen1003",
-      name: "Dr. Sekretaris Departemen Fisika",
+      name: "Dr. Hesti Wulandari, M.Si.",
       userTypeId: dosen.id,
       primaryUnitId: depFis.id,
     },
   });
-  await db.leadership.create({
-    data: {
-      userId: kaFis.id,
-      unitId: depFis.id,
-      title: "Ketua Departemen",
-      effectiveFrom: new Date("2026-01-01"),
-    },
-  });
-  await db.leadership.create({
-    data: {
-      userId: sekFis.id,
-      unitId: depFis.id,
-      title: "Sekretaris Departemen",
-      effectiveFrom: new Date("2026-01-01"),
-    },
-  });
+  await pastikanPimpinan(db, kaFis.id, depFis.id, "Ketua Departemen", new Date("2026-01-01"));
+  await pastikanPimpinan(db, sekFis.id, depFis.id, "Sekretaris Departemen", new Date("2026-01-01"));
 
   // Dosen, tendik, mahasiswa fiktif tambahan tersebar di beberapa unit.
   const extraUsers: Array<{ id: string; name: string; typeId: string; unitId: string }> = [
-    { id: "dosen1004", name: "Dr. Dosen Matematika A", typeId: dosen.id, unitId: prodiMat.id },
-    { id: "dosen1005", name: "Dr. Dosen Matematika B", typeId: dosen.id, unitId: prodiMat.id },
-    { id: "dosen1006", name: "Dr. Dosen Statistika A", typeId: dosen.id, unitId: prodiStat.id },
-    { id: "dosen1007", name: "Dr. Dosen Fisika A", typeId: dosen.id, unitId: prodiFis.id },
-    { id: "tendik2001", name: "Tendik TU FSM A", typeId: tendik.id, unitId: unitAdmin.id },
-    { id: "tendik2002", name: "Tendik TU FSM B", typeId: tendik.id, unitId: unitAdmin.id },
-    { id: "2311100001", name: "Mahasiswa Matematika A", typeId: mahasiswa.id, unitId: prodiMat.id },
-    { id: "2311100002", name: "Mahasiswa Matematika B", typeId: mahasiswa.id, unitId: prodiMat.id },
-    { id: "2311200001", name: "Mahasiswa Statistika A", typeId: mahasiswa.id, unitId: prodiStat.id },
+    { id: "dosen1004", name: "Dr. Sulistyo Raharjo, S.Si., M.Si.", typeId: dosen.id, unitId: prodiMat.id },
+    { id: "dosen1005", name: "Dr. Ratih Puspaningrum, M.Sc.", typeId: dosen.id, unitId: prodiMat.id },
+    { id: "dosen1006", name: "Dr. Bagus Alamsyah, M.Stat.", typeId: dosen.id, unitId: prodiStat.id },
+    { id: "dosen1007", name: "Dr. Herlambang Susilo, M.Si.", typeId: dosen.id, unitId: prodiFis.id },
+    { id: "tendik2001", name: "Sumarno Hartoyo, S.E.", typeId: tendik.id, unitId: unitAdmin.id },
+    { id: "tendik2002", name: "Retno Palupi, A.Md.", typeId: tendik.id, unitId: unitAdmin.id },
+    { id: "2311100001", name: "Alifia Ramadhani", typeId: mahasiswa.id, unitId: prodiMat.id },
+    { id: "2311100002", name: "Bintang Prayoga", typeId: mahasiswa.id, unitId: prodiMat.id },
+    { id: "2311200001", name: "Chandra Wicaksana", typeId: mahasiswa.id, unitId: prodiStat.id },
     // Bab 23: "Satu unit memiliki >10 calon" — PS-FIS ditambah 8 dosen agar DEP-FIS+PS-FIS
     // (lingkup unit+subunit) memiliki 11 calon aktif (dosen1002, dosen1003, dosen1007, + 8 ini).
-    { id: "dosen1010", name: "Dr. Dosen Fisika B", typeId: dosen.id, unitId: prodiFis.id },
-    { id: "dosen1011", name: "Dr. Dosen Fisika C", typeId: dosen.id, unitId: prodiFis.id },
-    { id: "dosen1012", name: "Dr. Dosen Fisika D", typeId: dosen.id, unitId: prodiFis.id },
-    { id: "dosen1013", name: "Dr. Dosen Fisika E", typeId: dosen.id, unitId: prodiFis.id },
-    { id: "dosen1014", name: "Dr. Dosen Fisika F", typeId: dosen.id, unitId: prodiFis.id },
-    { id: "dosen1015", name: "Dr. Dosen Fisika G", typeId: dosen.id, unitId: prodiFis.id },
-    { id: "dosen1016", name: "Dr. Dosen Fisika H", typeId: dosen.id, unitId: prodiFis.id },
-    { id: "dosen1017", name: "Dr. Dosen Fisika I", typeId: dosen.id, unitId: prodiFis.id },
+    { id: "dosen1010", name: "Dr. Mulyadi Santosa, M.Si.", typeId: dosen.id, unitId: prodiFis.id },
+    { id: "dosen1011", name: "Dr. Ningrum Sasmita, M.Sc.", typeId: dosen.id, unitId: prodiFis.id },
+    { id: "dosen1012", name: "Dr. Oktario Pranaja, M.Si.", typeId: dosen.id, unitId: prodiFis.id },
+    { id: "dosen1013", name: "Dr. Puspita Larasati, M.Sc.", typeId: dosen.id, unitId: prodiFis.id },
+    { id: "dosen1014", name: "Dr. Qori Dwi Anggara, M.Si.", typeId: dosen.id, unitId: prodiFis.id },
+    { id: "dosen1015", name: "Dr. Rusdiana Melati, M.Si.", typeId: dosen.id, unitId: prodiFis.id },
+    { id: "dosen1016", name: "Dr. Samsul Ma\u2019arif, M.Sc.", typeId: dosen.id, unitId: prodiFis.id },
+    { id: "dosen1017", name: "Dr. Tuti Rahmania, M.Si.", typeId: dosen.id, unitId: prodiFis.id },
   ];
 
   for (const u of extraUsers) {
     await db.user.upsert({
       where: { loginIdentifier: u.id },
-      update: {},
+      update: { name: u.name, userTypeId: u.typeId, primaryUnitId: u.unitId },
       create: {
         loginIdentifier: u.id,
         name: u.name,
@@ -227,7 +215,7 @@ async function main() {
     update: { active: false },
     create: {
       loginIdentifier: "dosen1099",
-      name: "Dr. Dosen Nonaktif (Dummy)",
+      name: "Dr. Wahyono Kuncoro, M.Si. (nonaktif)",
       userTypeId: dosen.id,
       primaryUnitId: prodiFis.id,
       active: false,
