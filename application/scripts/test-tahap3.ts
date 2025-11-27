@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { prisma } from "../src/lib/prisma";
+import { getUnitAndDescendantIds } from "../src/lib/units";
 import { ServiceError } from "../src/lib/services/units";
 import { createPeriod, transitionPeriodStatus } from "../src/lib/services/periods";
 import { createCategory, addCategoryObjects } from "../src/lib/services/categories";
@@ -34,6 +35,37 @@ async function expectServiceError(label: string, fn: () => Promise<unknown>) {
       e instanceof ServiceError
     );
   }
+}
+
+/**
+ * Calon kelompok Pimpinan untuk satu unit: pimpinan yang sedang menjabat, dikurangi orang-orang
+ * yang tidak boleh ikut (mis. objek yang dinilai itu sendiri).
+ *
+ * Angka calon dulu ditulis tetap di dalam uji ("3 calon", "9 staf"). Akibatnya uji ikut merah tiap
+ * kali isi unit demo berubah, padahal aturan yang diuji tidak berubah sama sekali. Yang diperiksa
+ * di sini aturannya: siapa yang lolos dan siapa yang tersaring — jumlahnya dihitung dari data.
+ */
+async function calonPimpinan(unitId: string, kecuali: string[]) {
+  const sekarang = new Date();
+  const l = await prisma.leadership.findMany({
+    where: {
+      unitId,
+      active: true,
+      effectiveFrom: { lte: sekarang },
+      OR: [{ effectiveTo: null }, { effectiveTo: { gte: sekarang } }],
+    },
+    select: { userId: true },
+  });
+  return [...new Set(l.map((x) => x.userId))].filter((id) => !kecuali.includes(id));
+}
+
+/** Calon kelompok Selain Pimpinan: anggota aktif unit-unit yang dilingkupi, dikurangi pengecualian. */
+async function calonSelain(unitIds: string[], kecuali: string[]) {
+  const u = await prisma.user.findMany({
+    where: { primaryUnitId: { in: unitIds }, active: true },
+    select: { id: true },
+  });
+  return u.map((x) => x.id).filter((id) => !kecuali.includes(id));
 }
 
 async function main() {
@@ -103,18 +135,26 @@ async function main() {
   console.log("== computePlan: objek biasa (bukan pimpinan) ==");
   let plan = await computePlan(category.id, "test-seed-1");
   const pimpinanEntry1 = plan.entries.find((e) => e.categoryObjectId && e.group === "PIMPINAN")!;
+  const pimpinanMat = await calonPimpinan(depMat.id, [dosen1004.id]);
   ok(
-    "Kelompok Pimpinan: hanya 1 calon (Ketua Dep. Matematika)",
-    pimpinanEntry1.eligibleCount === 1 && pimpinanEntry1.picked[0]?.userId === dosen1001.id
+    `Kelompok Pimpinan: calonnya persis pimpinan Dep. Matematika (${pimpinanMat.length} orang)`,
+    pimpinanEntry1.eligibleCount === pimpinanMat.length &&
+      pimpinanEntry1.picked.length === 1 &&
+      pimpinanEntry1.picked.every((p) => pimpinanMat.includes(p.userId))
   );
   const selainEntry1 = plan.entries.find((e) => e.group === "SELAIN_PIMPINAN")!;
-  // Pool unit+subunit DEP-MAT (tanpa filter jenis pengguna) mencakup dosen1001, dosen1004,
-  // dosen1005, dan 2 mahasiswa di PS-MAT = 5 anggota; dikurangi diri sendiri (dosen1004) dan
-  // dosen1001 yang sudah terpakai kelompok Pimpinan pada objek yang sama (DEF-09) = 3 calon sah.
-  // Statistika tidak ikut: sejak struktur fakultas dibetulkan, PS-STAT berada di bawah DEP-STAT.
+  // Pool = anggota unit+subunit DEP-MAT, dikurangi diri sendiri (dosen1004) dan pimpinan yang
+  // sudah terpilih untuk objek yang sama (DEF-09: satu kelompok per pasangan penilai-objek).
+  const subtreeMat = await getUnitAndDescendantIds(depMat.id);
+  const selainMat = await calonSelain(subtreeMat, [
+    dosen1004.id,
+    ...pimpinanEntry1.picked.map((p) => p.userId),
+  ]);
   ok(
-    "Kelompok Selain Pimpinan: 3 calon (unit+subunit dikurangi diri sendiri & pimpinan terpakai)",
-    selainEntry1.eligibleCount === 3 && selainEntry1.picked.length === 2 && selainEntry1.shortage === 0
+    `Kelompok Selain Pimpinan: unit+subunit dikurangi diri sendiri & pimpinan terpakai (${selainMat.length} calon)`,
+    selainEntry1.eligibleCount === selainMat.length &&
+      selainEntry1.picked.length === 2 &&
+      selainEntry1.shortage === 0
   );
 
   console.log("== commitPlan ==");
@@ -151,9 +191,12 @@ async function main() {
   const pimpinanEntry2 = plan.entries.find(
     (e) => e.categoryObjectId === co1001Early.id && e.group === "PIMPINAN"
   )!;
+  const pimpinanTanpaDiri = await calonPimpinan(depMat.id, [dosen1001.id]);
   ok(
-    "Pimpinan tidak menilai diri sendiri: 0 calon, kekurangan 1",
-    pimpinanEntry2.eligibleCount === 0 && pimpinanEntry2.picked.length === 0 && pimpinanEntry2.shortage === 1
+    `EDGE-06: pimpinan tidak masuk pool penilai dirinya sendiri (tersisa ${pimpinanTanpaDiri.length} calon)`,
+    pimpinanEntry2.eligibleCount === pimpinanTanpaDiri.length &&
+      !pimpinanEntry2.picked.some((p) => p.userId === dosen1001.id) &&
+      pimpinanEntry2.picked.every((p) => pimpinanTanpaDiri.includes(p.userId))
   );
 
   console.log("== Pengganti manual (Bab 10.5) mengisi kekurangan ==");
@@ -183,7 +226,11 @@ async function main() {
 
   plan = await computePlan(category.id, "test-seed-4");
   const pimpinanEntry3 = plan.entries.find((e) => e.categoryObjectId === co1001.id && e.group === "PIMPINAN")!;
-  ok("Setelah dibatalkan, slot kembali kosong (kekurangan 1 lagi)", pimpinanEntry3.shortage === 1);
+  ok(
+    "Setelah dibatalkan, slot kembali terbuka dan penilai yang dibatalkan tidak lagi terhitung",
+    pimpinanEntry3.picked.length + pimpinanEntry3.shortage === 1 &&
+      !pimpinanEntry3.alreadyAssigned.some((a) => a.userId === dosen1007.id)
+  );
 
   const reassigned = await manualAssignEvaluator(
     { categoryObjectId: co1001.id, group: "PIMPINAN", evaluatorId: dosen1007.id },
@@ -231,11 +278,16 @@ async function main() {
     !karyaSelainEntry.picked.some((p) => p.userId === dosen1005.id) &&
       !(await prisma.user.findFirst({ where: { id: dosen1005.id } })) === false // sanity: user masih ada
   );
-  // Pool dasar 5 (unit+subunit DEP-MAT) dikurangi dosen1005 (kontributor karya, dikecualikan)
-  // dan dosen1001 (sudah terpakai kelompok Pimpinan pada objek yang sama) = 3 calon sah.
+  // Pool = anggota unit+subunit DEP-MAT dikurangi dosen1005 (kontributor karya) dan pimpinan yang
+  // sudah terpilih untuk objek yang sama.
+  const karyaPimpinanEntry = karyaPlan.entries.find((e) => e.group === "PIMPINAN")!;
+  const karyaSelainHarusnya = await calonSelain(subtreeMat, [
+    dosen1005.id,
+    ...karyaPimpinanEntry.picked.map((p) => p.userId),
+  ]);
   ok(
-    "Pool Selain Pimpinan karya = 3 calon (dosen1005 dikecualikan sbg kontributor, dosen1001 terpakai Pimpinan)",
-    karyaSelainEntry.eligibleCount === 3
+    `Pool Selain Pimpinan karya: kontributor dan pimpinan terpakai dikecualikan (${karyaSelainHarusnya.length} calon)`,
+    karyaSelainEntry.eligibleCount === karyaSelainHarusnya.length
   );
 
   console.log("== Guard status periode ==");
@@ -347,18 +399,19 @@ async function main() {
 
   console.log("== AC-05/EDGE-07: staf (bukan pimpinan) -> masuk kelompok Selain Pimpinan ==");
   const selainEntry2b = plan2.entries.find((e) => e.group === "SELAIN_PIMPINAN")!;
+  // Pool = anggota DEP-FIS beserta subunitnya, dikurangi kedua pimpinan yang sudah terpakai
+  // kelompok Pimpinan pada objek yang sama (DEF-09).
+  const subtreeFis = await getUnitAndDescendantIds(depFis.id);
+  const selainFis = await calonSelain(subtreeFis, [dosen1002.id, dosen1003.id]);
   ok(
-    // Pool mentah DEP-FIS+PS-FIS = 11 (dosen1002/1003 di DEP-FIS langsung + dosen1007 & dosen1010..1017
-    // di PS-FIS, lihat komentar seed.ts) dikurangi 2 pimpinan yang sudah terpakai kelompok Pimpinan
-    // pada objek yang sama (DEF-09) = 9 staf tersisa.
-    "Pool Selain Pimpinan = 9 staf DEP-FIS+PS-FIS (kedua pimpinan DIKECUALIKAN, sudah terpakai kelompok Pimpinan objek yang sama)",
-    selainEntry2b.eligibleCount === 9 &&
+    `Pool Selain Pimpinan: staf DEP-FIS+subunit tanpa kedua pimpinan yang terpakai (${selainFis.length} calon)`,
+    selainEntry2b.eligibleCount === selainFis.length &&
       !selainEntry2b.picked.some((p) => p.userId === dosen1002.id || p.userId === dosen1003.id)
   );
 
   console.log("== AC-07: pemerataan beban -> calon paling berbeban tidak dipilih saat yang lain nol ==");
   ok(
-    "dosen1010 (beban 3, satu-satunya bukan nol) TIDAK terpilih untuk target 1 di antara 9 calon setara lainnya",
+    "dosen1010 (beban 3, satu-satunya bukan nol) TIDAK terpilih untuk target 1 di antara calon setara lainnya",
     !selainEntry2b.picked.some((p) => p.userId === dosen1010.id) && selainEntry2b.picked.length === 1
   );
 
