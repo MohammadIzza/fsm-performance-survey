@@ -2573,6 +2573,32 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-demo-accounts dd {margin:0}
 .survey-demo-accounts code {font-size:.78rem;color:var(--color-black)}
 
+/* Layar lebar: tinggi halaman dipotong sampai satu layar, dan isi panel kiri diturunkan sampai
+   ujung tangkai huruf bertemu garis bukit di kakinya. Sebelumnya halaman dibuat 8rem lebih tinggi
+   daripada layar — halaman masuk selalu menyisakan gulungan — dan di antara ujung tangkai dan
+   puncak bukit menganga 288px ruang kosong. */
+@media only screen and (min-width:641px) {
+  /* 86px kepala halaman dan ±3,4rem kaki halaman ikut dikurangkan, jadi halaman masuk berhenti
+     tepat di tepi bawah layar dan tidak menyisakan gulungan beberapa puluh piksel. */
+  .survey-login {min-height:calc(100svh - 86px - 3.4rem)}
+  .survey-login-art {justify-content:flex-end;padding-bottom:7.15rem}
+  /* Tinggi kolom kanan yang menentukan tinggi halaman begitu isinya melebihi min-height; jarak
+     atas-bawahnya dirapatkan supaya halaman benar-benar berhenti di tepi layar.
+     Isinya juga dinaikkan ke atas: begitu bukit naik menemui tangkai huruf, daftar akun demo yang
+     tadinya di tengah kolom jatuh persis di atas bukit biru dan hampir tak terbaca. */
+  .survey-login-form {justify-content:flex-start;padding-block:2.4rem}
+  /* Pita bukit dipendekkan dari 17rem ke 13rem. Dengan halaman yang kini hanya setinggi satu
+     layar, pita setinggi 17rem naik sampai ke tengah kolom kanan dan daftar akun demo jatuh di
+     atas bukit biru — terbaca hitam di atas biru tua. Yang dipendekkan pitanya, bukan jarak
+     tangkai ke bukit: jarak itu dijaga lewat padding di bawah. */
+  .survey-login-hills {height:13rem}
+  /* Empat akun demo dirapatkan jadi dua baris berpasangan. Dengan halaman setinggi satu layar,
+     daftar setinggi empat baris menjulur sampai ke bukit biru dan dua baris terakhirnya terbaca
+     samar di atasnya. */
+  .survey-demo-accounts {margin-top:1.6rem;padding-top:1rem}
+  .survey-demo-accounts dl {grid-template-columns:repeat(2,max-content max-content);gap:.4rem 1.2rem}
+}
+
 /* Antara 769 dan 1100px kedua kolom masih berdampingan, tetapi kolom kanan menyempit lebih cepat
    daripada kolom kiri: pada 820px isiannya tinggal 255px — lebih sempit daripada tempat menulis
    satu ID. Di rentang itu lebarnya dibagi rata dan jarak dalamnya dirapatkan. */
