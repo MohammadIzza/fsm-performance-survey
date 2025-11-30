@@ -32,51 +32,57 @@ export function AccessPolicyForm({
   }
 
   return (
-    <form action={formAction} className="admin-inline-form grid gap-3 sm:grid-cols-3">
+    <form action={formAction} className="access-policy-form admin-inline-form">
       <input type="hidden" name="periodId" value={periodId} />
       <input type="hidden" name="expectedVersion" value={accessPolicy.version} />
 
-      <label className="admin-tools__field">
-      <span>Kebijakan</span>
-      <select
-        name="mode"
-        value={mode}
-        onChange={(e) => setMode(e.target.value as AccessMode)}
-        className={fieldClass}
+      <div
+        className="access-policy-form__row"
+        data-has-time={mode === "WAKTU_TERTENTU" ? "true" : "false"}
       >
-        {Object.entries(modeLabel).map(([value, label]) => (
-          <option key={value} value={value}>
-            {label}
-          </option>
-        ))}
-      </select>
-      </label>
-
-      {mode === "WAKTU_TERTENTU" && (
-        <label className="admin-tools__field">
-        <span>Mulai dapat dibaca</span>
-        <input
-          name="availableAt"
-          type="datetime-local"
-          defaultValue={
-            accessPolicy.availableAt
-              ? new Date(accessPolicy.availableAt).toISOString().slice(0, 16)
-              : ""
-          }
-          required
-          className={fieldClass}
-        />
+        <label className="admin-tools__field access-policy-form__policy">
+          <span>Kebijakan</span>
+          <select
+            name="mode"
+            value={mode}
+            onChange={(e) => setMode(e.target.value as AccessMode)}
+            className={fieldClass}
+          >
+            {Object.entries(modeLabel).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
         </label>
-      )}
 
-      <div className="flex flex-wrap items-center gap-2 self-end sm:col-span-3">
+        {mode === "WAKTU_TERTENTU" && (
+          <label className="admin-tools__field access-policy-form__time">
+            <span>Mulai dapat dibaca</span>
+            <input
+              name="availableAt"
+              type="datetime-local"
+              defaultValue={
+                accessPolicy.availableAt
+                  ? new Date(accessPolicy.availableAt).toISOString().slice(0, 16)
+                  : ""
+              }
+              required
+              className={fieldClass}
+            />
+          </label>
+        )}
+
         <button
           type="submit"
           disabled={pending}
-          className="app-btn app-btn--primary"
+          className="app-btn app-btn--primary access-policy-form__submit"
         >
           {pending ? "Menyimpan…" : "Simpan kebijakan"}
         </button>
+      </div>
+
+      <div className="access-policy-form__meta">
         {state.error && (
           <p role="alert" className="app-text-sm" style={{ color: "var(--color-brand-1)" }}>
             {state.error}

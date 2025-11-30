@@ -1809,6 +1809,14 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 .admin-area select.form__control {
   padding-right:1.7rem;
+  /* Aturan form admin memakai shorthand `background`, sehingga gambar panah dari aturan select
+     global ikut terhapus. Pasang ulang komponennya satu per satu agar bidang putih tetap sama
+     dengan input lain dan affordance dropdown tetap terlihat. */
+  background-color:var(--color-white);
+  background-image:url('/assets/images/arrow-select.png');
+  background-position:calc(100% - .65rem) 50%;
+  background-size:.3333rem .302rem;
+  background-repeat:no-repeat;
 }
 .admin-area textarea.form__control {
   line-height:1.45;
@@ -1824,6 +1832,22 @@ input[type="range"]:disabled::-moz-range-thumb {
   background:var(--color-white);
   color:var(--color-black);
 }
+
+/* Kebijakan akses adalah satu keputusan singkat. Pilihan dan tindakannya dibaca dari kiri ke
+   kanan dalam satu baris; keterangan audit tetap berada di bawahnya agar tidak mendesak isian. */
+.access-policy-form {display:grid;gap:.4rem}
+.access-policy-form__row {
+  display:grid;grid-template-columns:minmax(0,18rem) max-content;align-items:end;gap:.5rem;
+  width:min(100%,28rem);
+}
+.access-policy-form__row[data-has-time="true"] {
+  grid-template-columns:minmax(0,12rem) minmax(0,13rem) max-content;width:min(100%,39rem);
+}
+.survey-shell main .access-policy-form__submit {
+  align-self:end;min-height:1.9rem;padding:.38rem .75rem;font-size:.6rem;white-space:nowrap;
+}
+.access-policy-form__meta {display:flex;flex-wrap:wrap;align-items:center;gap:.25rem .65rem}
+.access-policy-form__meta p {margin:0}
 .admin-area .row-action-menu {
   position:relative;
   display:inline-flex;
@@ -1954,6 +1978,13 @@ input[type="range"]:disabled::-moz-range-thumb {
    judul kolom yang sama, sehingga hubungan label–nilai tetap jelas setelah kepala tabel
    disembunyikan secara visual. */
 @media only screen and (max-width: 640px) {
+  .access-policy-form__row,
+  .access-policy-form__row[data-has-time="true"] {
+    grid-template-columns:minmax(0,1fr) max-content;width:100%;gap:.4rem;
+  }
+  .access-policy-form__time {grid-column:1/-1;grid-row:2}
+  .access-policy-form__submit {grid-column:2;grid-row:1}
+
   .survey-shell main .admin-area .s-courses-list .sb-course .sb__link {
     grid-template-columns:minmax(0,1fr) auto;grid-auto-flow:row;
     gap:.18rem .5rem;min-height:2.7rem;padding:.58rem .1rem;
