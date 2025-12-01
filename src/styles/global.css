@@ -31,6 +31,29 @@ main:focus {
   display: none !important;
 }
 
+/* Daftar peringkat memakai gerak garis dan mahkota dari komponen ulasan tema, tetapi isi
+ * penghitungnya adalah nama dosen. Tema menggambar angka 0.0–5.0 dan akhiran /5 melalui
+ * pseudo-element yang digerakkan JavaScript. Aturan ini sengaja global agar tetap aktif saat
+ * runtime berpindah halaman tanpa memuat ulang style komponen Astro. */
+.s-reviews .s__review__rating__counter--name {
+  color: var(--color-black) !important;
+  font: 600 1.05rem/1.2 var(--font-family-text);
+  max-width: 9rem;
+  white-space: normal;
+}
+.s-reviews .s__review__rating__counter--name::after,
+.s-reviews .s__review__rating__note::before,
+.s-reviews .s__review__rating__note::after {
+  content: none !important;
+  display: none !important;
+}
+@media only screen and (max-width: 767px) {
+  .s-reviews .s__review__rating__counter--name {
+    font-size: 0.85rem;
+    max-width: 6.5rem;
+  }
+}
+
 .field-label {
   display: block;
   margin: 0 0 0.4em;

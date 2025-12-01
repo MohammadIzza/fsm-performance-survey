@@ -83,32 +83,3 @@
     </ul>
   </div>
 </div>
-
-<style>
-  /* Angka bawaan tema ("4.8/5") digambar lewat pseudo-element ::after berisi
-     string tersembunyi "0.0 0.1 ... 5.0" yang digulung pakai --y (dihitung JS
-     dari data-note) — teks asli elemen ini SENGAJA transparan (lihat aturan
-     dasar .s__review__rating__counter di sections.css). Supaya nama dosen bisa
-     tampil persis di posisi itu, ::after (si angka) dan "/5" di sebelahnya
-     dimatikan lewat content:none, lalu teks asli elemen (nama) dibuat terlihat
-     lagi. Garis, lingkaran, ikon, dan warna latar tiap baris tetap tema asli.*/
-  .s-reviews .s__review__rating__counter--name {
-    color: var(--color-black);
-    font: 600 1.05rem/1.2 var(--font-family-text);
-    max-width: 9rem;
-    white-space: normal;
-  }
-  .s-reviews .s__review__rating__counter--name:after {
-    content: none;
-  }
-  .s-reviews .s__review__rating__note:before,
-  .s-reviews .s__review__rating__note:after {
-    content: none;
-  }
-  @media only screen and (max-width: 767px) {
-    .s-reviews .s__review__rating__counter--name {
-      font-size: 0.85rem;
-      max-width: 6.5rem;
-    }
-  }
-</style>
