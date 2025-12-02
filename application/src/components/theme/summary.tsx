@@ -1,13 +1,14 @@
 import type { ReactNode } from "react";
 
 /**
- * Kepala halaman: judul, satu kalimat penjelas, lalu deretan angka ringkasan.
+ * Kepala halaman menjadi bagian pertama dari tumpukan kartu, lalu diikuti angka ringkasan.
  *
  * Sempat memakai petak kartu tema (`.s-usps`) apa adanya. Bentuk itu dirancang untuk halaman
  * pemasaran — kartunya setinggi 0,88 × lebarnya dengan judul sebesar judul seksi — sehingga di
  * layar kerja kotaknya jauh lebih besar daripada isinya dan mendorong daftar datanya ke bawah
  * lipatan. Yang dipertahankan dari sana adalah palet dan skala hurufnya; ukurannya diperkecil ke
- * ukuran aplikasi, dan yang ditonjolkan angkanya, bukan labelnya.
+ * ukuran aplikasi. Memasukkan judul ke kartu membuat seluruh pengantar menjadi satu komposisi
+ * visual yang dapat memenuhi area dari tepi sidebar sampai tepi kanan layar.
  */
 export function PageIntro({
   title,
@@ -21,9 +22,16 @@ export function PageIntro({
 }) {
   return (
     <header className="page-intro">
-      <h1 className="page-intro__title">{title}</h1>
-      {intro && <p className="page-intro__text">{intro}</p>}
-      {children && <div className="summary">{children}</div>}
+      <div className="summary">
+        <div
+          className="summary__card summary__card--intro"
+          style={{ backgroundColor: "var(--color-black)" }}
+        >
+          <h1 className="page-intro__title">{title}</h1>
+          {intro && <p className="page-intro__text">{intro}</p>}
+        </div>
+        {children}
+      </div>
     </header>
   );
 }

@@ -343,30 +343,97 @@ input[type="range"]:disabled::-moz-range-thumb {
 /* Kepala halaman dan angka ringkasan — lihat catatan pada PageIntro di
    components/theme/summary.tsx. Warna dan keluarga hurufnya dari token tema; ukurannya ukuran
    aplikasi, bukan ukuran halaman pemasaran. */
-.survey-shell .page-intro {display:flex;flex-direction:column;gap:.5rem}
+.survey-shell {overflow-x:clip}
+.survey-shell .page-intro {display:block}
 .survey-shell .page-intro__title {
   font:600 1.6rem/1.1 var(--font-family-heading);letter-spacing:-.03em;margin:0;
 }
 .survey-shell .page-intro__text {
-  font-size:.8125rem;color:var(--color-text);max-width:52em;margin:0;
+  font-size:.8125rem;color:var(--color-text);max-width:30em;margin:.45rem 0 0;
 }
-/* Petak menyesuaikan sendiri: tiga kotak di layar lebar, dua di tablet, satu di ponsel — tanpa
-   titik pindah yang ditulis satu per satu. */
+/* Judul dan seluruh ringkasan menjadi satu tumpukan. Flex-grow yang berbeda menghasilkan ukuran
+   kartu yang bervariasi, sedangkan pola empat-langkah untuk tinggi, posisi, rotasi, dan z-index
+   berulang otomatis bila jumlah kartunya bertambah. Margin negatif tetap dihitung oleh Flexbox,
+   sehingga berapa pun jumlahnya deretan selalu memakai seluruh lebar yang disediakan. */
 .survey-shell .summary {
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(11.5rem,1fr));gap:0;
-  margin-top:.75rem;margin-bottom:1.1rem;
-}
-/* Kotaknya menempel tanpa jarak lalu digeser berselang-seling, meniru susunan kartu di halaman
-   panduan: rapi karena kisinya tetap, tapi tidak berbaris kaku. Digeser lewat `transform` supaya
-   tinggi barisnya tidak ikut berubah. */
-.survey-shell .summary__card:nth-child(2n) {transform:translateY(1.1rem)}
-@media only screen and (max-width: 480px) {
-  .survey-shell .summary {grid-template-columns:1fr 1fr}
-  .survey-shell .summary__card {padding:.75rem .9rem}
-  .survey-shell .summary__value {font-size:1.3rem}
+  display:flex;align-items:flex-start;width:100%;isolation:isolate;
+  padding:.65rem 0 1.55rem;margin:0 0 .9rem;
 }
 .survey-shell .summary__card {
-  display:flex;flex-direction:column;gap:.15rem;padding:.9rem 1.1rem;color:var(--color-black);
+  position:relative;flex:1 1 0;min-width:0;min-height:7.7rem;
+  display:flex;flex-direction:column;justify-content:center;gap:.15rem;
+  padding:1rem 1.35rem;color:var(--color-black);
+  transform-origin:50% 50%;overflow-wrap:anywhere;
+}
+.survey-shell .summary__card + .summary__card {margin-left:-1.35rem}
+/* Sisi kanan setiap kartu menyisakan ruang sebesar area overlap. Dengan begitu kartu berikutnya
+   boleh berada di lapisan mana pun tanpa pernah menutupi judul, angka, atau catatan. Tingginya
+   tetap minimum, bukan tetap: teks panjang akan membungkus dan memperbesar kartu secara alami. */
+.survey-shell .summary__card:not(:last-child) {padding-right:2.8rem}
+.survey-shell .summary__card:nth-child(4n + 1) {
+  z-index:2;flex-grow:1.25;min-height:9rem;transform:translateY(.8rem) rotate(-.38deg)
+}
+.survey-shell .summary__card:nth-child(4n + 2) {
+  z-index:4;flex-grow:.86;min-height:7.6rem;transform:translateY(0) rotate(.42deg)
+}
+.survey-shell .summary__card:nth-child(4n + 3) {
+  z-index:1;flex-grow:1.12;min-height:8.65rem;transform:translateY(1.5rem) rotate(-.32deg)
+}
+.survey-shell .summary__card:nth-child(4n) {
+  z-index:3;flex-grow:.95;min-height:8rem;transform:translateY(.4rem) rotate(.36deg)
+}
+.survey-shell .summary__card--intro {padding-left:max(1.35rem,4vw);color:var(--color-white)}
+.survey-shell .summary__card--intro .page-intro__text {color:var(--color-white)}
+.survey-shell .summary__card span,
+.survey-shell .summary__card h1,
+.survey-shell .summary__card p {max-width:100%;white-space:normal}
+
+/* Lepaskan tumpukan dari batas maksimum konten. `100cqw` adalah lebar area main, sedangkan ruang
+   desktop yang tersedia adalah viewport dikurangi sidebar 14rem. Separuh selisihnya ditarik ke
+   kiri agar tepinya tepat bertemu sidebar dan sisi kanannya tepat mencapai ujung layar. */
+@media only screen and (min-width: 1024px) {
+  .survey-shell .summary {
+    width:calc(100vw - 14rem);
+    margin-left:calc((100cqw - (100vw - 14rem)) / 2);
+  }
+}
+
+/* Ponsel memakai kisi enam kolom yang rapat. Pola empat kartu menghasilkan campuran persegi dan
+   persegi panjang: 4+2 kolom pada baris pertama, lalu 2+4 pada baris berikutnya. Polanya berulang
+   bila jumlah kartu bertambah. `min-height` membentuk komposisinya, tetapi tidak mengunci tinggi,
+   sehingga tulisan panjang tetap boleh menambah tinggi kartu. */
+@media only screen and (max-width: 640px) {
+  .survey-shell .summary {
+    display:grid;grid-template-columns:repeat(6,minmax(0,1fr));align-items:start;gap:0;
+    width:100%;padding:.1rem 0 .55rem;margin:0 0 .35rem;
+  }
+  .survey-shell .summary__card {
+    min-height:0;margin-left:0!important;padding:.6rem .65rem;flex-grow:initial;
+  }
+  .survey-shell .summary__card:not(:last-child) {padding-right:.65rem}
+  .survey-shell .summary__card:nth-child(4n + 1) {
+    grid-column:span 4;min-height:7rem;transform:translateY(.08rem) rotate(-.18deg)
+  }
+  .survey-shell .summary__card:nth-child(4n + 2) {
+    grid-column:span 2;min-height:7rem;transform:translate(-.08rem,.2rem) rotate(.2deg)
+  }
+  .survey-shell .summary__card:nth-child(4n + 3) {
+    grid-column:span 2;min-height:6rem;transform:translate(.1rem,-.05rem) rotate(-.16deg)
+  }
+  .survey-shell .summary__card:nth-child(4n) {
+    grid-column:span 4;min-height:6rem;transform:translate(-.06rem,.12rem) rotate(.16deg)
+  }
+  .survey-shell .summary__card--intro {padding-left:.75rem}
+  /* Seluruh judul kartu memakai skala yang sama; deskripsi dan catatan juga satu skala kecil.
+     Angka dipertahankan sedikit lebih besar karena merupakan nilai utama, bukan judul kartu. */
+  .survey-shell .summary .page-intro__title,
+  .survey-shell .summary .summary__label {
+    font-size:.65rem;line-height:1.2;font-weight:600;letter-spacing:.025em;
+  }
+  .survey-shell .summary .page-intro__text,
+  .survey-shell .summary .summary__note {font-size:.55rem;line-height:1.3}
+  .survey-shell .summary .page-intro__text {margin-top:.22rem}
+  .survey-shell .summary .summary__value {font-size:.95rem;line-height:1.08}
 }
 .survey-shell .summary__label {
   font-size:.625rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;

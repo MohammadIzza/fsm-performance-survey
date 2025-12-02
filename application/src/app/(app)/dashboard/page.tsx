@@ -60,7 +60,7 @@ export default async function HomePage() {
     <div className="space-y-8">
       <PageIntro
         title={`Selamat datang, ${ctx.name.split(" ")[0]}`}
-        intro={`Masuk sebagai ${ctx.loginIdentifier}, dengan peran ${roleLabel}. ${scopeDescription}`}
+        intro={`Masuk sebagai ${ctx.loginIdentifier}. ${scopeDescription}`}
       >
         <SummaryCard
           tone="biru"
@@ -69,7 +69,7 @@ export default async function HomePage() {
           note="ditugaskan kepada Anda"
         />
         <SummaryCard
-          tone={pendingCount > 0 ? "kuning" : "tosca"}
+          tone="kuning"
           label="Belum selesai"
           value={pendingCount}
           note={pendingCount > 0 ? "menunggu diisi" : "semuanya sudah terkirim"}
