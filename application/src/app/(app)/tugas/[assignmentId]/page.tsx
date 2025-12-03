@@ -6,11 +6,6 @@ import { AssignmentForm } from "./assignment-form";
 import { AdminTools } from "./admin-tools";
 import { PageHero } from "@/components/page-hero";
 
-const groupLabel: Record<string, string> = {
-  PIMPINAN: "Pimpinan",
-  SELAIN_PIMPINAN: "Selain Pimpinan",
-};
-
 const statusLabel: Record<string, string> = {
   BELUM_MULAI: "Belum mulai",
   DRAF: "Draf",
@@ -74,7 +69,7 @@ export default async function AssignmentFormPage({
     (assignment.status === "DIBUKA_KEMBALI" || displayStatus !== "LEWAT_TENGGAT");
 
   return (
-    <div className="space-y-8">
+    <div className="assignment-detail space-y-8">
       <div>
         <PageHero
           compact
@@ -82,10 +77,12 @@ export default async function AssignmentFormPage({
           title={assignment.categoryObject.nameSnapshot}
           description={assignment.categoryObject.unitSnapshot}
         />
-        <div className="flex flex-wrap items-center gap-2 text-[13px] text-[var(--muted)]">
-          <span className="inline-flex rounded-full bg-[var(--accent-tint)] px-2.5 py-1 font-medium text-[var(--accent)]">
-            {groupLabel[assignment.group]}
-          </span>
+        <div className="assignment-detail__meta flex flex-wrap items-center gap-2 text-[13px] text-[var(--muted)]">
+          {assignment.group === "PIMPINAN" && (
+            <span className="inline-flex rounded-full bg-[var(--accent-tint)] px-2.5 py-1 font-medium text-[var(--accent)]">
+              Pimpinan
+            </span>
+          )}
           <span className={`inline-flex rounded-full px-2.5 py-1 font-medium ${statusClass[displayStatus]}`}>
             {statusLabel[displayStatus]}
           </span>
@@ -99,18 +96,18 @@ export default async function AssignmentFormPage({
       </div>
 
       {assignment.status === "DIBUKA_KEMBALI" && (
-        <div className="rounded-xl bg-amber-50 p-4 text-[13px] text-amber-900">
+        <div className="assignment-detail__notice rounded-xl bg-amber-50 p-4 text-[13px] text-amber-900">
           Tugas ini sedang diperbaiki. Jawaban terkirim sebelumnya tetap berlaku sampai revisi
           baru dikirim.
         </div>
       )}
       {assignment.status === "DIBATALKAN" && (
-        <div className="rounded-xl bg-black/5 p-4 text-[13px] text-[var(--muted)]">
+        <div className="assignment-detail__notice rounded-xl bg-black/5 p-4 text-[13px] text-[var(--muted)]">
           Tugas ini telah dibatalkan oleh admin.
         </div>
       )}
       {displayStatus === "LEWAT_TENGGAT" && (
-        <div className="rounded-xl bg-[var(--danger)]/10 p-4 text-[13px] text-[var(--danger)]">
+        <div className="assignment-detail__notice rounded-xl bg-[var(--danger)]/10 p-4 text-[13px] text-[var(--danger)]">
           Survei telah ditutup. Jawaban belum dikirim.
         </div>
       )}

@@ -58,7 +58,7 @@ function ScoreField({
   if (useScaleButtons) {
     const options = Array.from({ length: stepCount }, (_, i) => scale.min + i * stepSize);
     return (
-      <div className="flex flex-wrap gap-2">
+      <div className="assignment-score-buttons flex flex-wrap gap-2">
         {options.map((opt) => {
           const optStr = String(opt);
           const selected = value === optStr;
@@ -84,7 +84,7 @@ function ScoreField({
   }
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="assignment-score-field flex items-center gap-4">
       <input
         type="range"
         min={scale.min}
@@ -211,7 +211,7 @@ export function AssignmentForm({
       onSubmit={() => {
         dirtyRef.current = false;
       }}
-      className="space-y-5"
+      className="assignment-form space-y-5"
     >
       <input type="hidden" name="assignmentId" value={assignmentId} />
       <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
@@ -229,12 +229,12 @@ export function AssignmentForm({
           return (
           <div
             key={p.id}
-            className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm sm:p-6"
+            className="assignment-parameter relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm sm:p-6"
           >
             <span className={`absolute inset-y-0 left-0 w-1.5 ${accent.stripe}`} aria-hidden="true" />
             <input type="hidden" name="parameterId" value={p.id} />
             <input type="hidden" name="scoreValue" value={scores[p.id] ?? ""} />
-            <div className="mb-4 flex items-start justify-between gap-3">
+            <div className="assignment-parameter__head mb-4 flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
                 <span
                   className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold ${accent.badge}`}
