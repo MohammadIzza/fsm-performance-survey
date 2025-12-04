@@ -146,7 +146,7 @@ async function PeriodDetailPage({
                 : 0;
               return (
                 <tr key={cat.id} className="border-b border-[var(--border)] last:border-b-0">
-                  <td className="px-4 py-3">
+                  <td data-label="Kategori" className="px-4 py-3">
                     <Link
                       href={`/admin/periode/${period.id}/kategori/${cat.id}`}
                       className="font-medium text-[var(--accent)] hover:underline"
@@ -155,9 +155,9 @@ async function PeriodDetailPage({
                     </Link>
                     <div className="font-mono text-[12px] text-[var(--muted)]">{cat.code}</div>
                   </td>
-                  <td className="px-4 py-3 text-[var(--muted)]">{cat.objectType.name}</td>
-                  <td className="px-4 py-3 text-[var(--muted)]">{cat._count.categoryObjects}</td>
-                  <td className="px-4 py-3">
+                  <td data-label="Jenis objek" className="px-4 py-3 text-[var(--muted)]">{cat.objectType.name}</td>
+                  <td data-label="Peserta" className="px-4 py-3 text-[var(--muted)]">{cat._count.categoryObjects}</td>
+                  <td data-label="Bobot" className="px-4 py-3">
                     <span
                       className={
                         Math.abs(totalWeight - 100) < 0.001
@@ -168,8 +168,8 @@ async function PeriodDetailPage({
                       {totalWeight}%
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-[var(--muted)]">{cat.groupRules.length}/2 diatur</td>
-                  <td className="px-4 py-3">
+                  <td data-label="Kelompok" className="px-4 py-3 text-[var(--muted)]">{cat.groupRules.length}/2 diatur</td>
+                  <td data-label="Status" className="px-4 py-3">
                     <span
                       className={`inline-flex rounded-full px-2 py-0.5 text-[12px] font-medium ${
                         cat.active

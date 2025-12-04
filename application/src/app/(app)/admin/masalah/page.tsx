@@ -44,7 +44,7 @@ async function MasalahPage() {
             <tbody>
               {issues.map((issue) => (
                 <tr key={issue.id} className="border-b border-[var(--border)] align-top last:border-b-0">
-                  <td className="px-4 py-3">
+                  <td data-label="Tugas" className="px-4 py-3">
                     <Link
                       href={`/tugas/${issue.assignmentId}`}
                       className="font-medium text-[var(--accent)] hover:underline"
@@ -55,10 +55,10 @@ async function MasalahPage() {
                       Penilai: {issue.assignment.evaluator.name}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-[var(--muted)]">{issue.reporter.name}</td>
-                  <td className="px-4 py-3 text-[var(--muted)]">{typeLabel[issue.type]}</td>
-                  <td className="px-4 py-3 text-[var(--foreground)]">{issue.detail}</td>
-                  <td className="px-4 py-3" colSpan={2}>
+                  <td data-label="Pelapor" className="px-4 py-3 text-[var(--muted)]">{issue.reporter.name}</td>
+                  <td data-label="Jenis" className="px-4 py-3 text-[var(--muted)]">{typeLabel[issue.type]}</td>
+                  <td data-label="Keterangan" className="px-4 py-3 text-[var(--foreground)]">{issue.detail}</td>
+                  <td data-label="Penanganan" className="px-4 py-3" colSpan={2}>
                     <IssueRow issue={issue} />
                   </td>
                 </tr>

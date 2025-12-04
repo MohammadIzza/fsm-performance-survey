@@ -82,20 +82,20 @@ function AssignmentRow({
 
   return (
     <tr className="border-b border-[var(--border)] last:border-b-0 align-top">
-      <td className="px-3 py-2 text-[var(--foreground)]">
+      <td data-label="Objek" className="px-3 py-2 text-[var(--foreground)]">
         <Link href={`/tugas/${assignment.id}`} className="hover:underline">
           {assignment.categoryObject.nameSnapshot}
         </Link>
       </td>
-      <td className="px-3 py-2 text-[var(--muted)]">{groupLabel[assignment.group]}</td>
-      <td className="px-3 py-2 text-[var(--foreground)]">
+      <td data-label="Kelompok" className="px-3 py-2 text-[var(--muted)]">{groupLabel[assignment.group]}</td>
+      <td data-label="Penilai" className="px-3 py-2 text-[var(--foreground)]">
         {assignment.evaluator.name}
         <div className="font-mono text-[11px] text-[var(--muted)]">
           {assignment.evaluator.loginIdentifier}
         </div>
       </td>
-      <td className="px-3 py-2 text-[var(--muted)]">{assignment.reason ?? "—"}</td>
-      <td className="px-3 py-2">
+      <td data-label="Asal" className="px-3 py-2 text-[var(--muted)]">{assignment.reason ?? "—"}</td>
+      <td data-label="Status" className="px-3 py-2">
         <span
           className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${statusClass[assignment.status]}`}
         >
@@ -105,7 +105,7 @@ function AssignmentRow({
           <div className="mt-1 text-[11px] text-[var(--muted)]">{assignment.cancelReason}</div>
         )}
       </td>
-      <td className="px-3 py-2">
+      <td data-label="Aksi" className="px-3 py-2">
         {canCancel &&
           (cancelling ? (
             <form action={formAction} className="flex flex-col gap-1.5">

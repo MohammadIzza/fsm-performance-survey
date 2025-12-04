@@ -776,6 +776,75 @@ input[type="range"]:disabled::-moz-range-thumb {
 
 .survey-shell main tbody tr:hover {background:var(--color-beige-dark)}
 
+/* Tampilan daftar dan tabel admin pada ponsel. Setiap baris tabel menjadi kartu berlabel agar
+   seluruh nilai terbaca tanpa menggeser layar ke samping. `data-label` pada sel berasal dari
+   judul kolom yang sama, sehingga hubungan label–nilai tetap jelas setelah kepala tabel
+   disembunyikan secara visual. */
+@media only screen and (max-width: 640px) {
+  .admin-area .s-courses-list .sb-course .sb__link {
+    gap:.18rem;padding:.58rem .1rem;
+  }
+  .admin-area .s-courses-list .sb-course .sb__title {
+    font-size:.72rem;line-height:1.25;
+  }
+  .admin-area .s-courses-list .sb-course .sb__topic,
+  .admin-area .s-courses-list .sb-course .sb__dates,
+  .admin-area .s-courses-list .sb-course .sb__duration,
+  .admin-area .s-courses-list .sb-course .sb__location,
+  .admin-area .s-courses-list .sb-course .sb__price {
+    font-size:.61rem;line-height:1.3;
+  }
+  .admin-area .s-courses-list .sb-course .sb__subtitle {
+    margin-top:.1rem;font-size:.55rem;line-height:1.25;
+  }
+  .admin-area .s-courses-list .sb-course .sb__actions {
+    flex-wrap:wrap;gap:.35rem .65rem;margin-top:.12rem;
+  }
+  .admin-area .s-courses-list .sb-course .sb__actions a,
+  .admin-area .s-courses-list .sb-course .sb__actions button {
+    font-size:.6rem;line-height:1.25;
+  }
+  .admin-area .status-pill {padding:.25em .65em;font-size:.56rem}
+  .admin-area .sb__panel {padding-bottom:.65rem}
+  .admin-area .sb__panel > * {padding:.7rem}
+
+  .admin-area div.overflow-x-auto:has(> table) {
+    overflow:visible;background:transparent;border:0;border-radius:0;
+  }
+  .admin-area table {
+    display:block;min-width:0!important;font-size:.64rem;line-height:1.3;
+  }
+  .admin-area table thead {
+    position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+    clip:rect(0,0,0,0);white-space:nowrap;border:0;
+  }
+  .admin-area table tbody {display:grid;gap:.45rem}
+  .admin-area table tbody tr {
+    display:grid;padding:.5rem .6rem;background:var(--color-white);
+    border:1px solid var(--color-grey-2)!important;border-radius:.6rem;
+  }
+  .survey-shell .admin-area table tbody td {
+    display:grid;grid-template-columns:5.15rem minmax(0,1fr);align-items:start;gap:.45rem;
+    min-width:0;padding:.22rem 0!important;border:0!important;text-align:left!important;
+    overflow-wrap:anywhere;
+  }
+  .admin-area table tbody td[data-label]::before {
+    content:attr(data-label);color:var(--color-text);font-size:.52rem;font-weight:600;
+    letter-spacing:.045em;line-height:1.35;text-transform:uppercase;
+  }
+  .survey-shell .admin-area table tbody td:not([data-label]) {display:block;text-align:center!important}
+  .survey-shell .admin-area table td button:not(.btn-plain),
+  .survey-shell .admin-area table td a {font-size:.6rem}
+  .survey-shell .admin-area table td > div[class*="flex"] {
+    flex-wrap:wrap;justify-content:flex-start;gap:.5rem;
+  }
+  .admin-area table tbody td [class*="text-[11px]"],
+  .admin-area table tbody td [class*="text-[12px]"] {font-size:.56rem}
+  .admin-area ul.divide-y > li {padding:.55rem!important;font-size:.64rem;line-height:1.3}
+  .admin-area form.grid > * {min-width:0;max-width:100%}
+  .admin-area input[type="file"] {width:100%;min-width:0;font-size:.64rem}
+}
+
 /* ── Bilah samping ──────────────────────────────────────────────────────────
    Tautannya memakai .site-head__menu dari tema, jadi huruf, warna keadaan aktif, dan transisinya
    ikut dari sana. Yang perlu disetel di sini cuma arah susunannya: menu tema mendatar untuk kepala

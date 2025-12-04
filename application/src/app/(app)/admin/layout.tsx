@@ -17,5 +17,5 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     );
   }
 
-  return <>{children}</>;
+  return <div className="admin-area">{children}</div>;
 }

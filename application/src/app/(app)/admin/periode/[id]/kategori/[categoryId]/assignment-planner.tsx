@@ -75,14 +75,14 @@ export function AssignmentPlanner({
               <tbody>
                 {plan.entries.map((e, i) => (
                   <tr key={i} className="border-b border-[var(--border)] last:border-b-0">
-                    <td className="px-3 py-2 text-[var(--foreground)]">{e.objectName}</td>
-                    <td className="px-3 py-2 text-[var(--muted)]">{groupLabel[e.group]}</td>
-                    <td className="px-3 py-2 text-[var(--muted)]">{e.eligibleCount}</td>
-                    <td className="px-3 py-2 text-[var(--muted)]">{e.alreadyAssigned.length}</td>
-                    <td className="px-3 py-2 text-[var(--foreground)]">
+                    <td data-label="Objek" className="px-3 py-2 text-[var(--foreground)]">{e.objectName}</td>
+                    <td data-label="Kelompok" className="px-3 py-2 text-[var(--muted)]">{groupLabel[e.group]}</td>
+                    <td data-label="Calon sah" className="px-3 py-2 text-[var(--muted)]">{e.eligibleCount}</td>
+                    <td data-label="Sudah ada" className="px-3 py-2 text-[var(--muted)]">{e.alreadyAssigned.length}</td>
+                    <td data-label="Ditambahkan" className="px-3 py-2 text-[var(--foreground)]">
                       {e.picked.length > 0 ? e.picked.map((p) => p.name).join(", ") : "—"}
                     </td>
-                    <td className="px-3 py-2">
+                    <td data-label="Kekurangan" className="px-3 py-2">
                       {e.shortage > 0 ? (
                         <span className="text-[var(--danger)]">{e.shortage}</span>
                       ) : (

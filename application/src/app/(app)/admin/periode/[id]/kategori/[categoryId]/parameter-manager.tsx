@@ -184,12 +184,12 @@ function ParameterRow({
 
   return (
     <tr className="border-b border-[var(--border)] last:border-b-0">
-      <td className="px-3 py-2 text-[var(--muted)]">{parameter.order}</td>
-      <td className="px-3 py-2 font-medium text-[var(--foreground)]">{parameter.name}</td>
-      <td className="px-3 py-2 text-[var(--muted)]">{parameter.indicator || "—"}</td>
-      <td className="px-3 py-2 text-[var(--foreground)]">{parameter.weight}%</td>
+      <td data-label="Urutan" className="px-3 py-2 text-[var(--muted)]">{parameter.order}</td>
+      <td data-label="Nama" className="px-3 py-2 font-medium text-[var(--foreground)]">{parameter.name}</td>
+      <td data-label="Indikator" className="px-3 py-2 text-[var(--muted)]">{parameter.indicator || "—"}</td>
+      <td data-label="Bobot" className="px-3 py-2 text-[var(--foreground)]">{parameter.weight}%</td>
       {editable && (
-        <td className="px-3 py-2">
+        <td data-label="Aksi" className="px-3 py-2">
           <div className="flex items-center gap-2">
             <button
               type="button"
