@@ -862,9 +862,17 @@ input[type="range"]:disabled::-moz-range-thumb {
 
 .survey-side {background:var(--color-beige);border-right:1px solid var(--color-grey-2);
   padding:1.5rem 1.25rem;gap:1.5rem}
-.survey-side--drawer {border-right:0;padding-top:4.5rem}
+.survey-side--drawer {border-right:0;padding-top:1.25rem}
 .survey-side__nav {flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:.35rem}
 .survey-side__section {margin:1.25rem 0 .35rem;padding-left:1.4rem}
+.survey-side__drawer-head {padding:0 2.8rem .85rem 1.4rem;border-bottom:1px solid var(--color-grey-2)}
+.survey-side__drawer-brand {display:flex;flex-direction:column;align-items:flex-start;gap:.3rem;
+  color:var(--color-black);font:.6rem/1.3 var(--font-family-text)}
+.survey-side__drawer-brand img {display:block;width:5.25rem;height:auto;transform:translateX(-.45rem)}
+.survey-side__drawer-brand span {display:block}
+.survey-side__mobile-guides {display:none}
+.survey-side--drawer .survey-side__mobile-guides {display:block;margin-top:.6rem;padding-top:.6rem;
+  border-top:1px solid var(--color-grey-2)}
 
 .survey-side__foot {border-top:1px solid var(--color-grey-2);padding-top:1rem;display:grid;gap:.6rem}
 .survey-side__user {display:flex;align-items:center;gap:.6rem;min-width:0}
@@ -876,6 +884,18 @@ input[type="range"]:disabled::-moz-range-thumb {
   font:600 var(--font-size-t-sm)/1.25 var(--font-family-text)}
 .survey-side__role {display:block;font-size:.6875rem;color:var(--color-text)}
 
+/* Kaki drawer ponsel dibuat ringkas: identitas tetap mendapat satu baris penuh agar nama tidak
+   terpotong, sedangkan tombol keluar mengikuti lebar teksnya sendiri. */
+.survey-side--drawer .survey-side__foot {gap:.45rem;padding:.7rem 0 0 1.4rem}
+.survey-side--drawer .survey-side__user {gap:.45rem}
+.survey-side--drawer .survey-side__avatar {width:1.65rem;height:1.65rem;flex-basis:1.65rem;
+  font-size:.6875rem}
+.survey-side--drawer .survey-side__name {font-size:.7rem;line-height:1.2}
+.survey-side--drawer .survey-side__role {font-size:.575rem;line-height:1.25}
+.survey-side--drawer .survey-side__foot form {width:max-content;margin-top:0}
+.survey-side--drawer .survey-side__foot button {width:auto!important;min-height:1.9rem;
+  padding:.3rem .75rem!important;border-radius:999px;font-size:.65rem!important;line-height:1}
+
 /* Bilah atas ponsel dan tombol menunya. Bentuk tombol disalin dari .s__toggle tema — bulat 3rem,
    brand-5, dua garis putih yang menyilang saat terbuka — karena aturan aslinya terkunci di bawah
    .site-head, dan kelas itu tidak dipasang di ruang survei (lihat catatan impor di atas). */
@@ -885,16 +905,17 @@ input[type="range"]:disabled::-moz-range-thumb {
    `display:flex` mengalahkan `lg:hidden` dan bilah ponsel ikut muncul di desktop sebagai kolom
    kosong di samping sidebar. */
 @media only screen and (max-width: 1023px) {
+  body:has(.survey-shell) > .survey-header {display:none}
   .survey-side__bar {position:sticky;top:0;z-index:20;display:flex;align-items:center;
-    justify-content:space-between;gap:.75rem;padding:.6rem 1rem;background:var(--color-beige);
+    justify-content:space-between;gap:.75rem;padding:.5rem .75rem;background:var(--color-beige);
     border-bottom:1px solid var(--color-grey-2)}
 }
-.survey-side__bar-brand {display:flex;align-items:center;
-  font:600 var(--font-size-t-sm)/1 var(--font-family-text);color:var(--color-black)}
-.survey-side__toggle {position:relative;width:2.75rem;height:2.75rem;flex:0 0 2.75rem;
+.survey-side__bar-logo {display:flex;align-items:center;padding-left:.35rem}
+.survey-side__bar-logo img {display:block;width:5.5rem;height:auto}
+.survey-side__toggle {position:relative;width:2.2rem;height:2.2rem;flex:0 0 2.2rem;
   background-color:var(--color-brand-5);border:0;border-radius:50%;cursor:pointer}
 .survey-side__toggle .s__toggle__lines {position:absolute;inset:0}
-.survey-side__toggle .s__toggle__line {position:absolute;top:50%;left:50%;width:17px;height:3px;
+.survey-side__toggle .s__toggle__line {position:absolute;top:50%;left:50%;width:14px;height:2.5px;
   background-color:#fff;border-radius:999em;
   transition:translate .2s cubic-bezier(.86,0,.07,1),rotate .2s cubic-bezier(.86,0,.07,1)}
 .survey-side__toggle .s__toggle__line:first-child {translate:-50% calc(-50% - 3.5px) 0}
@@ -902,7 +923,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-side__toggle.is-opened {background-color:var(--color-brand-3)}
 .survey-side__toggle.is-opened .s__toggle__line:first-child {rotate:45deg;translate:-50% -50% 0}
 .survey-side__toggle.is-opened .s__toggle__line:last-child {rotate:-45deg;translate:-50% -50% 0}
-.survey-side__close {position:absolute;top:1rem;right:1rem;z-index:2}
+.survey-side__close {position:absolute;top:.8rem;right:.8rem;z-index:2}
 .survey-shell main>div>div.rounded-2xl,.survey-shell section.rounded-2xl {border-radius:24px}
 .survey-shell main {max-width:1240px}
 /* Sistem kolom tema menghitung lebarnya dari 100vw, karena di situs publik isi halaman memang

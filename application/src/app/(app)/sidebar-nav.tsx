@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
@@ -77,7 +78,6 @@ export function SidebarNav({
 
   const navContent = (
     <>
-
       <nav className="survey-side__nav">
         {menu(mainLinks)}
         {adminLinks.length > 0 && (
@@ -86,6 +86,27 @@ export function SidebarNav({
             {menu(adminLinks)}
           </>
         )}
+        <div className="survey-side__mobile-guides">
+          <ul className="site-head__menu site-head__menu--stack">
+            <li className="menu-item">
+              {/* Halaman panduan adalah dokumen Astro statis; muat sebagai dokumen penuh. */}
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+              <a href="/panduan-penilai/" className="menu-link">
+                <span className="menu-item__text" data-text="Panduan">
+                  Panduan
+                </span>
+              </a>
+            </li>
+            <li className="menu-item">
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+              <a href="/alur-penilaian/" className="menu-link">
+                <span className="menu-item__text" data-text="Alur penilaian">
+                  Alur penilaian
+                </span>
+              </a>
+            </li>
+          </ul>
+        </div>
       </nav>
 
       <div className="survey-side__foot">
@@ -113,10 +134,14 @@ export function SidebarNav({
       {/* Mobile (<lg): top bar ringkas + hamburger yang membuka drawer. Tombolnya memakai bentuk
           dan warna tombol menu tema (.s__toggle): bulat, brand-5, dua garis. */}
       <div className="survey-side__bar lg:hidden">
-        {/* Bukan lambang lagi: kepala situs tepat di atas bilah ini sudah memuatnya, dan dua
-            lambang beruntun hanya jadi pengulangan. */}
-        <Link href="/dashboard" className="survey-side__bar-brand">
-          Ruang Survei
+        <Link href="/dashboard" className="survey-side__bar-logo" aria-label="Beranda ruang survei">
+          <Image
+            src="/assets/images/hero-home-undip.svg"
+            alt="FSM UNDIP"
+            width={88}
+            height={25}
+            priority
+          />
         </Link>
         <button
           type="button"
@@ -158,6 +183,25 @@ export function SidebarNav({
                 <span className="s__toggle__line" />
               </span>
             </button>
+            <div className="survey-side__drawer-head">
+              <Link
+                href="/dashboard"
+                className="survey-side__drawer-brand"
+                onClick={() => setMobileOpen(false)}
+              >
+                <Image
+                  src="/assets/images/hero-home-undip.svg"
+                  alt="FSM UNDIP"
+                  width={92}
+                  height={26}
+                />
+                <span>
+                  Fakultas Sains dan Matematika
+                  <br />
+                  Universitas Diponegoro
+                </span>
+              </Link>
+            </div>
             {navContent}
           </div>
         </div>
