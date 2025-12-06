@@ -370,6 +370,7 @@ input[type="range"]:disabled::-moz-range-thumb {
    boleh berada di lapisan mana pun tanpa pernah menutupi judul, angka, atau catatan. Tingginya
    tetap minimum, bukan tetap: teks panjang akan membungkus dan memperbesar kartu secara alami. */
 .survey-shell .summary__card:not(:last-child) {padding-right:2.8rem}
+.survey-shell .summary__card:not(:first-child) {padding-left:2.8rem}
 .survey-shell .summary__card:nth-child(4n + 1) {
   z-index:2;flex-grow:1.25;min-height:9rem;transform:translateY(.8rem) rotate(-.38deg)
 }
@@ -411,6 +412,7 @@ input[type="range"]:disabled::-moz-range-thumb {
     min-height:0;margin-left:0!important;padding:.6rem .65rem;flex-grow:initial;
   }
   .survey-shell .summary__card:not(:last-child) {padding-right:.65rem}
+  .survey-shell .summary__card:not(:first-child) {padding-left:.65rem}
   .survey-shell .summary__card:nth-child(4n + 1) {
     grid-column:span 4;min-height:7rem;transform:translateY(.08rem) rotate(-.18deg)
   }
