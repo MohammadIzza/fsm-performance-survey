@@ -22,6 +22,7 @@ export function DataList({
   intro,
   headerAction,
   columns,
+  columnHeaderHidden = true,
   // Halaman referensi memakai t-h-md karena judulnya memang judul seksi halaman pemasaran setinggi
   // layar. Di dalam aplikasi judul daftar berdiri di bawah judul halaman, jadi skalanya diturunkan
   // supaya hierarkinya tetap terbaca — kelasnya tetap kelas skala huruf tema.
@@ -40,7 +41,9 @@ export function DataList({
    * mengaitkan sel dengan kepalanya. Nama tiap baris sudah lengkap pada tautannya sendiri, jadi
    * membacakan deretan label ini hanya menambah bising.
    */
-  columns?: [RowKind, string][];
+  columns?: [RowKind, ReactNode][];
+  /** Matikan bila kepala kolom memuat kontrol interaktif seperti filter. */
+  columnHeaderHidden?: boolean;
   titleSize?: "t-h-md" | "t-h-sm" | "t-h-xs" | "t-h-2xs" | "t-h-3xs";
   children: ReactNode;
 }) {
@@ -55,7 +58,10 @@ export function DataList({
       )}
       <ul className="s__courses js-courses">
         {columns && (
-          <li className="sb-course sb-course--head" aria-hidden="true">
+          <li
+            className="sb-course sb-course--head"
+            aria-hidden={columnHeaderHidden ? "true" : undefined}
+          >
             <span className="sb__link">
               {columns.map(([kind, label]) => (
                 <span key={kind} className={`sb__${kind} sb__field--no-icon`}>
