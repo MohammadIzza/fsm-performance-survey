@@ -506,39 +506,94 @@ input[type="range"]:disabled::-moz-range-thumb {
   background: url('/assets/images/icon-date.svg') 0.9em 50%/0.8em 0.8em no-repeat;
 }
 
-/* Filter Tugas Saya menjadi satu bilah ringkas di ponsel. Elemen <details> sengaja tidak memiliki
-   atribut open sehingga tertutup pada pemuatan awal; versi desktop tetap memakai dua kontrol
-   terbuka seperti sebelumnya. */
-.assignment-filter-mobile {display:none}
+/* Filter Tugas Saya menyatu dengan kepala daftar. Periode dan status tetap tepat di atas kolom
+   yang disaring sehingga tidak membutuhkan panel filter terpisah. */
+.assignments-data-list .sb-course--head .sb__link {align-items:center;min-height:3.25rem}
+.assignment-head-filter {display:flex;width:100%;min-width:0;align-items:center;
+  justify-content:space-between;gap:.45rem;text-align:left}
+.assignment-head-filter > span {font-size:.62rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.assignment-head-filter select.form__control {
+  min-width:0;width:auto;max-width:9.5rem;flex:1 1 auto;min-height:2rem;
+  padding:.42em 1.7em .42em .65em;border:1px solid transparent;border-radius:.45rem;
+  background-color:var(--color-beige-dark);font-size:.68rem!important;
+  transition:border-color .18s ease,background-color .18s ease,box-shadow .18s ease;
+}
+.assignment-head-filter select.form__control:hover {border-color:var(--color-grey-2);background-color:var(--color-white)}
+.assignment-head-filter select.form__control:focus {border-color:var(--color-brand-5);
+  background-color:var(--color-white);box-shadow:0 0 0 3px color-mix(in srgb,var(--color-brand-5) 18%,transparent);
+  outline:none}
+
+/* Lembar instrumen menggabungkan keterbacaan formulir satu-per-satu dengan ringkasan kolom pada
+   contoh pengguna. Setiap parameter tetap menjadi satu kelompok visual, tetapi tidak lagi berupa
+   kartu besar yang terpisah jauh. */
+.assignment-detail .summary__value {font-size:.92rem;line-height:1.2;overflow-wrap:anywhere}
+.assignment-detail .summary__note {font-size:.65rem}
+.assessment-sheet {overflow:visible;border:0;border-radius:0;background:transparent}
+.assessment-sheet__intro {display:flex;align-items:flex-start;justify-content:space-between;gap:1.5rem;
+  padding:.25rem 0 1rem;background:transparent}
+.assessment-sheet__intro .eyebrow {font-size:.6rem}
+.assessment-sheet__intro h2 {margin:.3rem 0;font:600 1.25rem/1.15 var(--font-family-heading);
+  letter-spacing:-.025em}
+.assessment-sheet__intro p:not(.eyebrow) {max-width:42rem;color:var(--color-text);font-size:.72rem;line-height:1.4}
+.assessment-grid__head,
+.assessment-question {
+  display:grid;grid-template-columns:3rem minmax(10rem,1.25fr) minmax(13rem,1.8fr) 5rem 7.5rem 6.5rem;
+}
+.assessment-grid__head {align-items:stretch;border-bottom:2px solid var(--color-black);
+  background:transparent;color:var(--color-text);font-size:.62rem;font-weight:600;
+  line-height:1.2;letter-spacing:.055em;text-transform:uppercase}
+.assessment-grid__head > span {display:flex;align-items:center;padding:.65rem .7rem;
+  border-right:0}
+.assessment-question {align-items:center;min-height:5.25rem;border-bottom:2px solid var(--color-black);
+  color:var(--color-black)}
+.assessment-question:nth-child(even) {background:transparent}
+.assessment-question:hover {background:var(--color-beige-dark)}
+.assessment-question > *:not(input[type="hidden"]) {min-width:0;padding:.75rem}
+.assessment-question__number {display:flex;align-items:center;justify-content:center;width:1.55rem;height:1.55rem;
+  margin:auto;padding:0!important;border-radius:50%;background:var(--color-brand-3);
+  color:var(--color-white);font-size:.62rem;font-weight:600}
+.assessment-question__parameter strong {font-size:.73rem;line-height:1.3}
+.assessment-question__indicator {color:var(--color-text);font-size:.66rem;line-height:1.35}
+.assessment-question__weight {text-align:center}
+.assessment-question__weight strong {display:inline-flex;padding:.3rem .5rem;border-radius:.35rem;
+  background:var(--color-brand-2);font-size:.65rem}
+.assessment-question__score,
+.assessment-question__weighted {background:transparent;align-self:stretch;
+  display:flex;align-items:center;justify-content:center}
+.assessment-score-control {display:grid;width:100%;gap:.18rem;text-align:center}
+.survey-shell main .assessment-score-control input[type="number"] {width:100%;min-height:2.25rem;
+  padding:.35rem .45rem;border:1px solid var(--color-grey-2);border-radius:.4rem;background:var(--color-white);
+  text-align:center;font-size:16px!important;font-weight:600}
+.assessment-score-control > span:not(.sr-only) {color:var(--color-text);font-size:.52rem}
+.assessment-question__weighted output {font-size:.76rem;font-weight:600}
+.assessment-cell-label {display:none}
+.assessment-grid__total {
+  display:grid;grid-template-columns:3rem minmax(10rem,1.25fr) minmax(13rem,1.8fr) 5rem 7.5rem 6.5rem;
+  align-items:center;min-height:3rem;border-bottom:2px solid var(--color-black);
+  background:transparent;font-size:.68rem
+}
+.assessment-grid__total strong {grid-column:2/4;text-align:right;padding:.65rem .8rem}
+.assessment-grid__total span {grid-column:4;text-align:center;font-weight:600}
+.assessment-grid__total output {grid-column:6;text-align:center;font-size:.78rem;font-weight:600}
+.assessment-actions {display:flex;align-items:center;flex-wrap:wrap;gap:.65rem;padding-top:.15rem}
+.assessment-actions__draft {min-height:2.6rem;padding:.55rem 1rem;border:1px solid var(--color-grey-2);
+  border-radius:999em;background:transparent;font-size:.72rem;font-weight:600}
+.assessment-actions__submit {font-size:.72rem}
+
 @media only screen and (max-width:640px) {
-  .assignment-filter-desktop {display:none}
-  .assignment-filter-mobile {display:block;margin-bottom:.2rem}
-  .assignment-filter-mobile summary {
-    display:flex;align-items:center;gap:.45rem;min-height:2.35rem;padding:.42rem .65rem;
-    background:var(--color-white);border:1px solid var(--color-grey-2);border-radius:.55rem;
-    cursor:pointer;list-style:none;
-  }
-  .assignment-filter-mobile summary::-webkit-details-marker {display:none}
-  .assignment-filter-mobile__title {flex:0 0 auto;font-size:.62rem;font-weight:600;
-    letter-spacing:.055em;text-transform:uppercase}
-  .assignment-filter-mobile__value {min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;
-    white-space:nowrap;color:var(--color-text);font-size:.58rem;text-align:right}
-  .assignment-filter-mobile__chevron {flex:0 0 auto;font-size:.8rem;line-height:1;
-    transition:transform .15s ease}
-  .assignment-filter-mobile[open] .assignment-filter-mobile__chevron {transform:rotate(180deg)}
-  .assignment-filter-mobile .filter-bar {
-    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.4rem;
-    padding-top:.4rem;
-  }
-  .assignment-filter-mobile .filter-bar__field {min-width:0;max-width:none}
-  .assignment-filter-mobile .filter-bar__label {
-    position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
-    clip:rect(0,0,0,0);white-space:nowrap;border:0;
-  }
-  .assignment-filter-mobile select.form__control {
-    min-width:0;padding:.55em 1.35em .55em .6em;border-width:2px;font-size:16px!important;
-  }
   .assignments-data-list .s-courses-list {margin:.55rem 0 0}
+  .assignments-data-list .s-courses-list .sb-course--head {display:block;margin:0 0 .35rem}
+  .assignments-data-list .s-courses-list .sb-course--head .sb__link {
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.4rem;padding:0;border:0;
+  }
+  .assignments-data-list .sb-course--head .sb__title,
+  .assignments-data-list .sb-course--head .sb__dates {display:none}
+  .assignments-data-list .sb-course--head .sb__location,
+  .assignments-data-list .sb-course--head .sb__price {display:block;width:auto;max-width:none;margin:0}
+  .assignment-head-filter {align-items:stretch;flex-direction:column;gap:.2rem}
+  .assignment-head-filter > span {font-size:.52rem}
+  .assignment-head-filter select.form__control {width:100%;max-width:none;padding:.5em 1.25em .5em .5em;
+    font-size:16px!important}
   .assignments-data-list .s-courses-list .sb-course {margin:.4rem 0}
   .assignments-data-list .s-courses-list .sb-course .sb__link {
     display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
