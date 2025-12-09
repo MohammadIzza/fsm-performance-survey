@@ -17,11 +17,6 @@ export default async function TugasSayaPage() {
     );
     return status === "BELUM_MULAI" || status === "DRAF" || status === "DIBUKA_KEMBALI";
   });
-  // Pengguna biasa (bukan Admin/Dekan/Pimpinan Unit) diarahkan ke sini dari beranda selama masih
-  // punya tugas belum selesai — lihat gerbang di (app)/page.tsx. Pesan ini menjelaskan alasannya
-  // agar tidak terasa seperti "nyasar" tanpa konteks.
-  const isPlainUser = !ctx.isAdmin && !ctx.isDekan && ctx.leadershipUnitIds.length === 0;
-
   const rows: AssignmentRow[] = assignments.map((a) => {
     const period = a.categoryObject.category.period;
     return {
@@ -44,13 +39,10 @@ export default async function TugasSayaPage() {
         title="Tugas Saya"
         intro="Daftar penilaian yang perlu Anda isi, disaring per periode dan status."
       >
+        {pending.length > 0 && (
+          <SummaryCard tone="kuning" label="Menanti diisi" value={pending.length} note="belum selesai" />
+        )}
         <SummaryCard tone="biru" label="Penilaian" value={assignments.length} note="tanggung jawab Anda" />
-        <SummaryCard
-          tone={pending.length > 0 ? "kuning" : "tosca"}
-          label="Menanti diisi"
-          value={pending.length}
-          note={pending.length > 0 ? "belum selesai" : "tidak ada yang tertunda"}
-        />
         <SummaryCard
           tone="tosca"
           label="Sudah terkirim"
@@ -58,14 +50,6 @@ export default async function TugasSayaPage() {
           note="terkunci dan dihitung"
         />
       </PageIntro>
-
-      {pending.length > 0 && isPlainUser && (
-        <div className="rounded-2xl border border-[var(--accent)]/30 bg-[var(--accent-tint)] p-4 text-[13px] text-[var(--foreground)]">
-          Anda memiliki <span className="font-semibold">{pending.length}</span> dari{" "}
-          {assignments.length} tugas penilaian yang belum selesai. Selesaikan seluruh tugas di
-          bawah ini terlebih dahulu sebelum mengakses menu lain.
-        </div>
-      )}
 
       {assignments.length === 0 ? (
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">
