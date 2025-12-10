@@ -4,7 +4,7 @@ import { getAssignmentFormData, computeDisplayStatus } from "@/lib/services/resp
 import { ServiceError } from "@/lib/services/units";
 import { AssignmentForm } from "./assignment-form";
 import { AdminTools } from "./admin-tools";
-import { PageHero } from "@/components/page-hero";
+import { PageIntro, SummaryCard } from "@/components/theme/summary";
 
 const statusLabel: Record<string, string> = {
   BELUM_MULAI: "Belum mulai",
@@ -15,16 +15,13 @@ const statusLabel: Record<string, string> = {
   LEWAT_TENGGAT: "Lewat tenggat",
 };
 
-// Sama seperti palet status di tugas/assignments-list.tsx — dipakai lagi di sini supaya lencana
-// status terasa satu bahasa visual di seluruh alur "Tugas Saya", bukan abu-abu polos di satu
-// tempat dan berwarna di tempat lain.
-const statusClass: Record<string, string> = {
-  BELUM_MULAI: "bg-black/5 text-[var(--muted)]",
-  DRAF: "bg-blue-500/10 text-blue-600",
-  TERKIRIM: "bg-[var(--success)]/10 text-[var(--success)]",
-  DIBUKA_KEMBALI: "bg-amber-500/10 text-amber-600",
-  DIBATALKAN: "bg-black/5 text-[var(--muted)]",
-  LEWAT_TENGGAT: "bg-[var(--danger)]/10 text-[var(--danger)]",
+const statusTone: Record<string, "kuning" | "biru" | "tosca" | "merah"> = {
+  BELUM_MULAI: "biru",
+  DRAF: "biru",
+  TERKIRIM: "tosca",
+  DIBUKA_KEMBALI: "kuning",
+  DIBATALKAN: "merah",
+  LEWAT_TENGGAT: "merah",
 };
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", {
@@ -70,30 +67,25 @@ export default async function AssignmentFormPage({
 
   return (
     <div className="assignment-detail space-y-8">
-      <div>
-        <PageHero
-          compact
-          eyebrow={`${period.name} · ${category.name}`}
-          title={assignment.categoryObject.nameSnapshot}
-          description={assignment.categoryObject.unitSnapshot}
+      <PageIntro
+        title={assignment.categoryObject.nameSnapshot}
+        intro={assignment.categoryObject.unitSnapshot}
+      >
+        <SummaryCard tone="kuning" label="Periode" value={period.name} />
+        <SummaryCard tone="biru" label="Kategori" value={category.name} />
+        <SummaryCard
+          tone={statusTone[displayStatus]}
+          label="Status"
+          value={statusLabel[displayStatus]}
+          note={`Tenggat ${dateFmt.format(period.endsAt)}`}
         />
-        <div className="assignment-detail__meta flex flex-wrap items-center gap-2 text-[13px] text-[var(--muted)]">
-          {assignment.group === "PIMPINAN" && (
-            <span className="inline-flex rounded-full bg-[var(--accent-tint)] px-2.5 py-1 font-medium text-[var(--accent)]">
-              Pimpinan
-            </span>
-          )}
-          <span className={`inline-flex rounded-full px-2.5 py-1 font-medium ${statusClass[displayStatus]}`}>
-            {statusLabel[displayStatus]}
-          </span>
-          <span>Tenggat: {dateFmt.format(period.endsAt)}</span>
-          {!isOwner && ctx.isAdmin && (
-            <span className="inline-flex rounded-full bg-amber-100 px-2.5 py-1 font-medium text-amber-800">
-              Melihat sebagai Admin — penilai: {assignment.evaluator.name}
-            </span>
-          )}
+      </PageIntro>
+
+      {!isOwner && ctx.isAdmin && (
+        <div className="assignment-detail__notice rounded-xl bg-amber-50 p-4 text-[13px] text-amber-900">
+          Melihat sebagai Admin — penilai: {assignment.evaluator.name}
         </div>
-      </div>
+      )}
 
       {assignment.status === "DIBUKA_KEMBALI" && (
         <div className="assignment-detail__notice rounded-xl bg-amber-50 p-4 text-[13px] text-amber-900">
