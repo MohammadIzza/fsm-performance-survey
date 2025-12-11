@@ -629,28 +629,45 @@ input[type="range"]:disabled::-moz-range-thumb {
   .assignment-detail__meta > span:not([class*="rounded-full"]) {padding-left:0}
   .assignment-detail__notice {padding:.7rem .8rem;font-size:.62rem;line-height:1.4}
   .assignment-form.space-y-5 > :not([hidden]) ~ :not([hidden]) {margin-top:.75rem}
-  .assignment-parameter {
-    padding:.72rem .75rem .75rem 1rem!important;border-radius:.7rem!important;
+  .assignment-detail .summary__value {font-size:.62rem}
+  .assignment-detail .summary__note {font-size:.5rem}
+  .assessment-sheet {border-radius:0}
+  .assessment-sheet__intro {gap:.5rem;padding:.7rem .75rem}
+  .assessment-sheet__intro .eyebrow {font-size:.48rem}
+  .assessment-sheet__intro h2 {margin:.18rem 0;font-size:.82rem}
+  .assessment-sheet__intro p:not(.eyebrow) {font-size:.54rem;line-height:1.35}
+  .assessment-grid__head {display:none}
+  .assessment-grid__body {display:grid;gap:.45rem}
+  .assessment-question {display:grid;grid-template-columns:1.5rem minmax(0,1fr) auto;
+    gap:.35rem .5rem;min-height:0;padding:.65rem .7rem;border:1px solid var(--color-grey-2);
+    border-radius:.6rem;background:var(--color-white)}
+  .assessment-question:nth-child(even) {
+    background:color-mix(in srgb,var(--color-brand-5) 7%,white)
   }
-  .assignment-parameter__head {margin-bottom:.6rem;gap:.55rem}
-  .assignment-parameter__head > div {gap:.55rem}
-  .assignment-parameter__head > div > span {
-    width:1.45rem;height:1.45rem;font-size:.6rem;
-  }
-  .assignment-parameter__head p[class*="text-[16px]"] {
-    font-size:.7rem;line-height:1.25;
-  }
-  .assignment-parameter__head p[class*="text-[13px]"] {
-    margin-top:.15rem;font-size:.56rem;line-height:1.3;
-  }
-  .assignment-parameter__head > span {
-    padding:.25rem .5rem;font-size:.5rem;line-height:1.2;
-  }
-  .assignment-score-field {gap:.6rem}
-  .survey-shell main .assignment-score-field input[type="number"] {
-    width:4.5rem;min-height:2.45rem;padding:.35rem .45rem;font-size:16px!important;
-  }
-  .assignment-score-buttons {gap:.4rem}
+  .assessment-question > *:not(input[type="hidden"]) {padding:0}
+  .assessment-question__number {grid-column:1;grid-row:1;width:1.35rem;height:1.35rem;font-size:.54rem}
+  .assessment-question__parameter {grid-column:2;grid-row:1}
+  .assessment-question__parameter strong {font-size:.65rem}
+  .assessment-question__weight {grid-column:3;grid-row:1}
+  .assessment-question__weight strong {padding:.25rem .38rem;font-size:.54rem}
+  .assessment-question__indicator {grid-column:2/4;grid-row:2;font-size:.56rem;line-height:1.35}
+  .assessment-question__score {grid-column:1/3;grid-row:3}
+  .assessment-question__weighted {grid-column:3;grid-row:3;min-width:4.3rem}
+  .assessment-question__score,
+  .assessment-question__weighted {display:grid;align-content:start;gap:.25rem;padding:.45rem!important;
+    border-radius:.45rem}
+  .assessment-cell-label {display:block;color:var(--color-text);font-size:.47rem;font-weight:600;
+    letter-spacing:.045em;text-transform:uppercase}
+  .survey-shell main .assessment-score-control input[type="number"] {min-height:2.1rem}
+  .assessment-question__weighted output {font-size:.7rem}
+  .assessment-grid__total {display:flex;justify-content:flex-end;gap:.65rem;min-height:2.5rem;padding:.55rem .7rem;
+    border-bottom:2px solid var(--color-black);font-size:.58rem}
+  .assessment-grid__total strong {margin-right:auto;padding:0;text-align:left}
+  .assessment-grid__total span,
+  .assessment-grid__total output {padding:0;font-size:.62rem}
+  .assessment-actions {display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+  .assessment-actions__draft,
+  .assessment-actions__submit {width:100%!important;font-size:.62rem}
 }
 
 /* Beberapa nilai bertumpuk dalam satu bidang (mis. dua pimpinan aktif pada satu unit). */

@@ -25,88 +25,144 @@ interface Scale {
 const draftInitial: FormState = {};
 const submitInitial: FormState = {};
 
-// Warna aksen bergilir per kartu parameter, dari palet brand yang sama dipakai home page
-// (kuning/biru/oranye) — supaya formulir tidak terasa seragam abu-abu dibanding home page.
-const accentByIndex = [
-  { badge: "bg-[var(--warm-tint)] text-[var(--warm)]", stripe: "bg-[var(--warm-tint)]" },
-  { badge: "bg-[var(--accent-tint)] text-[var(--accent)]", stripe: "bg-[var(--accent-tint)]" },
-  { badge: "bg-[var(--success-tint)] text-[var(--success)]", stripe: "bg-[var(--success-tint)]" },
-  { badge: "bg-[var(--danger-tint)] text-[var(--danger)]", stripe: "bg-[var(--danger-tint)]" },
-];
-
-// Gaya "Google Forms": satu pertanyaan = satu kartu berdiri sendiri, judul besar, deskripsi
-// (indikator) di bawahnya, dan kontrol jawaban yang besar/mudah disentuh — bukan tabel input
-// angka polos yang rapat.
 function ScoreField({
+  id,
+  label,
   scale,
   value,
   onChange,
   disabled,
 }: {
+  id: string;
+  label: string;
   scale: Scale;
   value: string;
   onChange: (v: string) => void;
   disabled: boolean;
 }) {
-  const stepSize = scale.step || 1;
-  const stepCount = Math.round((scale.max - scale.min) / stepSize) + 1;
-  // Rentang pendek (mis. 1–5, 1–10) ditampilkan sebagai deretan tombol bulat bernomor — persis
-  // "linear scale" ala Google Forms. Rentang panjang (mis. 0–100) tidak praktis sebagai tombol
-  // satu-satu, jadi dipakai slider + kolom angka untuk penyesuaian presisi.
-  const useScaleButtons = Number.isFinite(stepCount) && stepCount >= 2 && stepCount <= 11;
-
-  if (useScaleButtons) {
-    const options = Array.from({ length: stepCount }, (_, i) => scale.min + i * stepSize);
-    return (
-      <div className="assignment-score-buttons flex flex-wrap gap-2">
-        {options.map((opt) => {
-          const optStr = String(opt);
-          const selected = value === optStr;
-          return (
-            <button
-              key={opt}
-              type="button"
-              disabled={disabled}
-              onClick={() => onChange(optStr)}
-              aria-pressed={selected}
-              className={`tap-target flex h-11 min-w-11 items-center justify-center rounded-full border px-3 text-[15px] font-medium transition disabled:cursor-default disabled:opacity-60 ${
-                selected
-                  ? "border-[var(--accent)] bg-[var(--accent)] text-white"
-                  : "border-[var(--border)] text-[var(--foreground)] hover:border-[var(--accent)]"
-              }`}
-            >
-              {opt}
-            </button>
-          );
-        })}
-      </div>
-    );
-  }
-
   return (
-    <div className="assignment-score-field flex items-center gap-4">
+    <label className="assessment-score-control" htmlFor={id}>
+      <span className="sr-only">{label}</span>
       <input
-        type="range"
-        min={scale.min}
-        max={scale.max}
-        step={stepSize}
-        value={value === "" ? scale.min : Number(value)}
-        disabled={disabled}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-2 w-full flex-1 cursor-pointer accent-[var(--accent)] disabled:cursor-default disabled:opacity-60"
-      />
-      <input
+        id={id}
         type="number"
         min={scale.min}
         max={scale.max}
         step={scale.step || "any"}
         value={value}
         disabled={disabled}
-        placeholder={`${scale.min}–${scale.max}`}
+        placeholder="—"
         onChange={(e) => onChange(e.target.value)}
-        className="tap-target w-24 shrink-0 rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-center text-[15px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 disabled:opacity-60"
+        className="tap-target"
       />
-    </div>
+      <span aria-hidden="true">{scale.min}–{scale.max}</span>
+    </label>
+  );
+}
+
+function displayNumber(value: number) {
+  return new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(value);
+}
+
+function AssessmentSheet({
+  parameters,
+  scale,
+  scores,
+  guide,
+  editable,
+  onScoreChange,
+}: {
+  parameters: ParameterView[];
+  scale: Scale;
+  scores: Record<string, string>;
+  guide: string | null;
+  editable: boolean;
+  onScoreChange?: (parameterId: string, value: string) => void;
+}) {
+  const filledCount = parameters.filter((p) => scores[p.id] !== "").length;
+  const totalWeight = parameters.reduce((sum, p) => sum + p.weight, 0);
+  const totalScore = parameters.reduce((sum, p) => {
+    const score = Number(scores[p.id]);
+    return sum + (Number.isFinite(score) ? score * p.weight / 100 : 0);
+  }, 0);
+
+  return (
+    <section className="assessment-sheet" aria-labelledby="assessment-title">
+      <header className="assessment-sheet__intro">
+        <div>
+          <p className="eyebrow">INSTRUMEN PENILAIAN</p>
+          <h2 id="assessment-title">Isi skor setiap parameter</h2>
+          {guide && <p>{guide}</p>}
+        </div>
+      </header>
+
+      <div className="assessment-grid">
+        <div className="assessment-grid__head" aria-hidden="true">
+          <span>No.</span>
+          <span>Parameter</span>
+          <span>Indikator operasional</span>
+          <span>Bobot</span>
+          <span>Skor {scale.min}–{scale.max}</span>
+          <span>Nilai bobot</span>
+        </div>
+
+        <div className="assessment-grid__body">
+          {parameters.map((p, idx) => {
+            const rawValue = scores[p.id] ?? "";
+            const numericValue = Number(rawValue);
+            const weightedValue =
+              rawValue !== "" && Number.isFinite(numericValue)
+                ? displayNumber(numericValue * p.weight / 100)
+                : "—";
+
+            return (
+              <div className="assessment-question" key={p.id}>
+                {editable && (
+                  <>
+                    <input type="hidden" name="parameterId" value={p.id} />
+                    <input type="hidden" name="scoreValue" value={rawValue} />
+                  </>
+                )}
+                <span className="assessment-question__number">{idx + 1}</span>
+                <div className="assessment-question__parameter">
+                  <span className="assessment-cell-label">Parameter</span>
+                  <strong>{p.name}</strong>
+                </div>
+                <div className="assessment-question__indicator">
+                  <span className="assessment-cell-label">Indikator operasional</span>
+                  <span>{p.indicator || "Tidak ada indikator tambahan."}</span>
+                </div>
+                <div className="assessment-question__weight">
+                  <span className="assessment-cell-label">Bobot</span>
+                  <strong>{p.weight}%</strong>
+                </div>
+                <div className="assessment-question__score">
+                  <span className="assessment-cell-label">Skor</span>
+                  <ScoreField
+                    id={`score-${p.id}`}
+                    label={`Skor untuk ${p.name}`}
+                    scale={scale}
+                    value={rawValue}
+                    onChange={(value) => onScoreChange?.(p.id, value)}
+                    disabled={!editable}
+                  />
+                </div>
+                <div className="assessment-question__weighted">
+                  <span className="assessment-cell-label">Nilai bobot</span>
+                  <output>{weightedValue}</output>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <footer className="assessment-grid__total">
+          <strong>Total nilai saat ini</strong>
+          <span>{displayNumber(totalWeight)}%</span>
+          <output>{filledCount ? displayNumber(totalScore) : "—"}</output>
+        </footer>
+      </div>
+    </section>
   );
 }
 
@@ -171,7 +227,7 @@ export function AssignmentForm({
 
   if (isLocked) {
     return (
-      <div className="space-y-4">
+      <div className="assignment-form assignment-form--locked space-y-4">
         {effectiveInfo ? (
           <p className="text-[13px] text-[var(--muted)]">
             Terkirim pada {effectiveInfo.submittedAt} (revisi {effectiveInfo.revision}). Jawaban
@@ -180,24 +236,13 @@ export function AssignmentForm({
         ) : (
           <p className="text-[13px] text-[var(--muted)]">Belum ada penilaian.</p>
         )}
-        <div className="space-y-3">
-          {sortedParameters.map((p) => (
-            <div
-              key={p.id}
-              className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-[15px] font-medium text-[var(--foreground)]">{p.name}</p>
-                  {p.indicator && <p className="mt-1 text-[12px] text-[var(--muted)]">{p.indicator}</p>}
-                </div>
-                <span className="shrink-0 text-[17px] font-semibold text-[var(--foreground)]">
-                  {initialScores[p.id] ?? "—"}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
+        <AssessmentSheet
+          parameters={sortedParameters}
+          scale={scale}
+          scores={scores}
+          guide={guide}
+          editable={false}
+        />
       </div>
     );
   }
@@ -217,63 +262,26 @@ export function AssignmentForm({
       <input type="hidden" name="idempotencyKey" value={idempotencyKey} />
       <input type="hidden" name="expectedVersion" value={expectedVersion ?? ""} />
 
-      {guide && (
-        <p className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 text-[13px] text-[var(--muted)] shadow-sm">
-          {guide}
-        </p>
-      )}
-
-      <div className="space-y-4">
-        {sortedParameters.map((p, idx) => {
-          const accent = accentByIndex[idx % accentByIndex.length];
-          return (
-          <div
-            key={p.id}
-            className="assignment-parameter relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm sm:p-6"
-          >
-            <span className={`absolute inset-y-0 left-0 w-1.5 ${accent.stripe}`} aria-hidden="true" />
-            <input type="hidden" name="parameterId" value={p.id} />
-            <input type="hidden" name="scoreValue" value={scores[p.id] ?? ""} />
-            <div className="assignment-parameter__head mb-4 flex items-start justify-between gap-3">
-              <div className="flex items-start gap-3">
-                <span
-                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold ${accent.badge}`}
-                >
-                  {idx + 1}
-                </span>
-                <div>
-                  <p className="text-[16px] font-medium text-[var(--foreground)] sm:text-[17px]">
-                    {p.name}
-                  </p>
-                  {p.indicator && (
-                    <p className="mt-1 text-[13px] text-[var(--muted)]">{p.indicator}</p>
-                  )}
-                </div>
-              </div>
-              <span className="shrink-0 rounded-full bg-black/[0.04] px-2.5 py-1 text-[11px] font-medium text-[var(--muted)]">
-                Bobot {p.weight}%
-              </span>
-            </div>
-            <ScoreField
-              scale={scale}
-              value={scores[p.id] ?? ""}
-              onChange={(v) => setScores((s) => ({ ...s, [p.id]: v }))}
-              disabled={!canEdit}
-            />
-          </div>
-          );
-        })}
-      </div>
+      <AssessmentSheet
+        parameters={sortedParameters}
+        scale={scale}
+        scores={scores}
+        guide={guide}
+        editable={canEdit}
+        onScoreChange={(parameterId, value) =>
+          setScores((current) => ({ ...current, [parameterId]: value }))
+        }
+      />
 
       {canEdit && (
-        <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-4 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="assessment-actions">
           {/* Urutan disengaja: aksi aman/reversibel (Simpan draf) lebih dulu, aksi final yang
               mengunci jawaban (Kirim) di bawahnya — mengurangi risiko ketuk keliru di layar
               sentuh, tetap dijaga dialog konfirmasi sebagai lapis kedua. */}
           <button
             type="submit"
             disabled={draftPending || submitPending}
-            className="tap-target order-1 w-full rounded-xl border border-[var(--border)] px-4 py-3 text-[15px] font-medium text-[var(--foreground)] transition hover:bg-black/[0.03] disabled:opacity-60 sm:w-auto sm:py-2 sm:text-[14px]"
+            className="assessment-actions__draft tap-target"
           >
             {draftPending ? "Menyimpan…" : "Simpan draf"}
           </button>
@@ -281,7 +289,7 @@ export function AssignmentForm({
             type="submit"
             formAction={submitAction}
             disabled={draftPending || submitPending}
-            className="order-2 w-full sm:w-auto"
+            className="assessment-actions__submit"
             onClick={(e) => {
               if (!confirm("Kirim jawaban? Lengkapi seluruh parameter sebelum mengirim.")) {
                 e.preventDefault();
