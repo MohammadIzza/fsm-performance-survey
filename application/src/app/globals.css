@@ -948,15 +948,18 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-side--drawer .survey-side__mobile-guides {display:block;margin-top:.6rem;padding-top:.6rem;
   border-top:1px solid var(--color-grey-2)}
 
-.survey-side__foot {border-top:1px solid var(--color-grey-2);padding-top:1rem;display:grid;gap:.6rem}
-.survey-side__user {display:flex;align-items:center;gap:.6rem;min-width:0}
-.survey-side__avatar {display:flex;align-items:center;justify-content:center;flex:0 0 2rem;
-  width:2rem;height:2rem;border-radius:50%;background:var(--color-brand-2);
-  font:600 var(--font-size-t-sm)/1 var(--font-family-text);color:var(--color-black)}
+.survey-side__foot {border-top:1px solid var(--color-grey-2);padding-top:.7rem;display:grid;gap:.4rem}
+.survey-side__user {display:flex;align-items:center;gap:.45rem;min-width:0}
+.survey-side__avatar {display:flex;align-items:center;justify-content:center;flex:0 0 1.65rem;
+  width:1.65rem;height:1.65rem;border-radius:50%;background:var(--color-brand-2);
+  font:600 .6875rem/1 var(--font-family-text);color:var(--color-black)}
 .survey-side__who {min-width:0;line-height:1.25}
 .survey-side__name {display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  font:600 var(--font-size-t-sm)/1.25 var(--font-family-text)}
-.survey-side__role {display:block;font-size:.6875rem;color:var(--color-text)}
+  font:600 .7rem/1.2 var(--font-family-text)}
+.survey-side__role {display:block;font-size:.575rem;line-height:1.25;color:var(--color-text)}
+.survey-side__foot form {width:max-content;margin-top:0}
+.survey-side__foot button {width:auto!important;min-height:1.9rem;padding:.3rem .75rem!important;
+  border-radius:999px;font-size:.65rem!important;line-height:1}
 
 /* Kaki drawer ponsel dibuat ringkas: identitas tetap mendapat satu baris penuh agar nama tidak
    terpotong, sedangkan tombol keluar mengikuti lebar teksnya sendiri. */
