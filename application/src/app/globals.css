@@ -506,6 +506,65 @@ input[type="range"]:disabled::-moz-range-thumb {
   background: url('/assets/images/icon-date.svg') 0.9em 50%/0.8em 0.8em no-repeat;
 }
 
+/* Daftar pilihan sebuah <select> digambar oleh sistem operasi, bukan oleh lembar gaya halaman —
+   itu sebabnya warna sorot, huruf, dan sudutnya tidak pernah ikut tema. `appearance: base-select`
+   memindahkan daftar itu menjadi elemen DOM biasa sehingga bisa digayai seperti elemen lain.
+   Dibungkus @supports: peramban yang belum mendukungnya tetap memakai daftar bawaan sistem, tidak
+   ada yang rusak — hanya tidak ikut bergaya. */
+@supports (appearance: base-select) {
+  /* Rantai `.form select.form__control` juga disebut: aturan tema dengan bentuk itu menyetel
+     `appearance: none` dan lebih spesifik daripada `.survey-shell select`, sehingga bilah filter —
+     yang memang dibungkus kelas `form` — tetap memakai daftar bawaan sistem tanpa ini. */
+  .survey-shell select,
+  .survey-shell .form select.form__control,
+  .survey-login select,
+  .survey-login .form select.form__control {
+    appearance: base-select;
+  }
+  /* Panah tema sudah digambar sebagai latar; ikon bawaan base-select dimatikan agar tidak dobel. */
+  .survey-shell select::picker-icon,
+  .survey-login select::picker-icon {
+    display: none;
+  }
+  .survey-shell select::picker(select),
+  .survey-login select::picker(select) {
+    appearance: base-select;
+    /* margin-block, bukan margin-top: peramban membalik daftar ke atas bila ruang di bawah tidak
+       cukup, dan jarak yang hanya diberikan di satu sisi hilang begitu itu terjadi. */
+    margin-block: .3rem;
+    padding: .25rem;
+    background: var(--color-white);
+    border: 1px solid var(--color-grey-2);
+    border-radius: .55rem;
+    font: 400 var(--font-size-t-sm)/1.3 var(--font-family-text);
+    color: var(--color-black);
+  }
+  .survey-shell select option,
+  .survey-login select option {
+    display: flex;
+    align-items: center;
+    padding: .45rem .6rem;
+    border-radius: .4rem;
+    color: var(--color-black);
+    /* Tanda centang bawaan menyisakan kolom kosong di depan setiap baris; keadaan terpilih sudah
+       ditandai warna latar, jadi kolom itu tidak dibutuhkan. */
+    padding-inline-start: .6rem;
+  }
+  .survey-shell select option::checkmark,
+  .survey-login select option::checkmark {
+    display: none;
+  }
+  .survey-shell select option:hover,
+  .survey-login select option:hover {
+    background: var(--color-beige-dark);
+  }
+  .survey-shell select option:checked,
+  .survey-login select option:checked {
+    background: var(--color-brand-2);
+    font-weight: 600;
+  }
+}
+
 /* Filter Tugas Saya menyatu dengan kepala daftar. Periode dan status tetap tepat di atas kolom
    yang disaring sehingga tidak membutuhkan panel filter terpisah. */
 .assignments-data-list .sb-course--head .sb__link {align-items:center;min-height:3.25rem}
