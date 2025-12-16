@@ -402,7 +402,8 @@ input[type="range"]:disabled::-moz-range-thumb {
 /* Ponsel memakai kisi enam kolom yang rapat. Pola empat kartu menghasilkan campuran persegi dan
    persegi panjang: 4+2 kolom pada baris pertama, lalu 2+4 pada baris berikutnya. Polanya berulang
    bila jumlah kartu bertambah. `min-height` membentuk komposisinya, tetapi tidak mengunci tinggi,
-   sehingga tulisan panjang tetap boleh menambah tinggi kartu. */
+   sehingga tulisan panjang tetap boleh menambah tinggi kartu — kartu pengantar yang memuat kalimat
+   penuh tetap memanjang sendiri. */
 @media only screen and (max-width: 640px) {
   .survey-shell .summary {
     display:grid;grid-template-columns:repeat(6,minmax(0,1fr));align-items:start;gap:0;
@@ -414,16 +415,16 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell .summary__card:not(:last-child) {padding-right:.65rem}
   .survey-shell .summary__card:not(:first-child) {padding-left:.65rem}
   .survey-shell .summary__card:nth-child(4n + 1) {
-    grid-column:span 4;min-height:7rem;transform:translateY(.08rem) rotate(-.18deg)
+    grid-column:span 4;min-height:3.6rem;transform:translateY(.08rem) rotate(-.18deg)
   }
   .survey-shell .summary__card:nth-child(4n + 2) {
-    grid-column:span 2;min-height:7rem;transform:translate(-.08rem,.2rem) rotate(.2deg)
+    grid-column:span 2;min-height:3.6rem;transform:translate(-.08rem,.2rem) rotate(.2deg)
   }
   .survey-shell .summary__card:nth-child(4n + 3) {
-    grid-column:span 2;min-height:6rem;transform:translate(.1rem,-.05rem) rotate(-.16deg)
+    grid-column:span 2;min-height:3.2rem;transform:translate(.1rem,-.05rem) rotate(-.16deg)
   }
   .survey-shell .summary__card:nth-child(4n) {
-    grid-column:span 4;min-height:6rem;transform:translate(-.06rem,.12rem) rotate(.16deg)
+    grid-column:span 4;min-height:3.2rem;transform:translate(-.06rem,.12rem) rotate(.16deg)
   }
   /* Pola 4-2-2-4 disusun untuk empat kartu. Bila jumlahnya ganjil, kartu terakhir menyisakan
      lubang di sebelahnya — dibuat memakai seluruh sisa kisi supaya barisnya tetap penuh. */
@@ -510,6 +511,12 @@ input[type="range"]:disabled::-moz-range-thumb {
   background: url('/assets/images/icon-date.svg') 0.9em 50%/0.8em 0.8em no-repeat;
 }
 
+/* Baris "tidak ada hasil": memakai kerangka baris biasa supaya garis dan lebarnya menyatu dengan
+   daftar, tetapi tanpa kolom dan tanpa tautan. */
+.survey-shell .s-courses-list .sb-course--empty .sb__link {
+  display:block;padding:1.6rem 0;color:var(--color-text);font-size:.8125rem;cursor:default;
+}
+
 /* Daftar pilihan sebuah <select> digambar oleh sistem operasi, bukan oleh lembar gaya halaman —
    itu sebabnya warna sorot, huruf, dan sudutnya tidak pernah ikut tema. `appearance: base-select`
    memindahkan daftar itu menjadi elemen DOM biasa sehingga bisa digayai seperti elemen lain.
@@ -575,8 +582,12 @@ input[type="range"]:disabled::-moz-range-thumb {
 .assignment-head-filter {display:flex;width:100%;min-width:0;align-items:center;
   justify-content:space-between;gap:.45rem;text-align:left}
 .assignment-head-filter > span {font-size:.62rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+/* Nilai terpilih bisa sepanjang "Penilaian Kinerja Semester Ganjil 2026", sedangkan kolomnya
+   selebar kolom tabel. Dijaga satu baris dan dipotong dengan elipsis: nama lengkapnya tetap
+   terbaca saat daftarnya dibuka, dan tinggi baris kepala tidak ikut berubah-ubah. */
 .assignment-head-filter select.form__control {
-  min-width:0;width:100%;max-width:none;flex:1 1 auto;min-height:2rem;
+  min-width:0;width:100%;max-width:100%;flex:1 1 auto;min-height:2rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   padding:.42em 1.7em .42em .65em;border:1px solid transparent;border-radius:.45rem;
   background-color:var(--color-beige-dark);font-size:.68rem!important;
   transition:border-color .18s ease,background-color .18s ease,box-shadow .18s ease;
@@ -590,26 +601,42 @@ input[type="range"]:disabled::-moz-range-thumb {
     position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
     clip:rect(0,0,0,0);white-space:nowrap;border:0;
   }
-  /* Di kepala tabel, kontrol ini berdiri sejajar dengan nama kolom lain, jadi ia mengambil bentuk
-     nama kolom: huruf kecil kapital, rata kiri dengan isi kolom di bawahnya, tanpa kotak. Sebagai
-     kotak berlatar ia terbaca sebagai elemen melayang yang tidak sebaris dengan OBJEK dan TENGGAT.
-     Latar hanya muncul saat disorot atau difokus, sebagai penanda bahwa ia memang bisa diklik. */
+  /* Di kepala tabel yang ditampilkan adalah NAMA KOLOM, bukan nilai yang sedang dipilih. Nilai
+     terpilih bisa sepanjang "Penilaian Kinerja Semester Ganjil 2026" dan tidak muat di lebar
+     kolom; dipotong pun tidak rapi, karena teks tombol sebuah <select> tidak dapat diberi elipsis
+     lewat CSS. Lagi pula nilai itu mubazir di sini: begitu penyaringnya aktif, setiap baris di
+     bawahnya menyebut periode yang sama.
+
+     Caranya: nama kolom digambar oleh <span>, dan <select> ditumpuk transparan di atasnya sebagai
+     area klik. Dengan begitu perilaku bawaan <select> tetap utuh — papan ketik, pembaca layar, dan
+     pemilih bawaan ponsel — sementara yang terlihat selalu satu baris dengan lebar tetap. */
+  .assignment-head-filter {position:relative;display:block}
+  .assignment-head-filter > span {
+    position:static;width:auto;height:auto;margin:0;padding:0 1.1em 0 0;overflow:visible;clip:auto;
+    display:inline-block;color:var(--color-text);font-size:.6875rem;font-weight:600;
+    letter-spacing:.06em;text-transform:uppercase;
+  }
+  .assignment-head-filter > span::after {
+    content:"";position:absolute;top:50%;width:.34rem;height:.3rem;margin-top:-.15rem;
+    margin-left:.35em;
+    background:url('/assets/images/arrow-select.png') 50%/contain no-repeat;
+  }
   .assignment-head-filter select.form__control {
-    padding:.15em 1.6em .15em 0;min-height:0;background-color:transparent;border-color:transparent;
-    color:var(--color-text);font-size:.6875rem!important;font-weight:600;letter-spacing:.06em;
-    text-transform:uppercase;
+    position:absolute;inset:0;width:100%;height:100%;padding:0;margin:0;border:0;
+    background:none;opacity:0;cursor:pointer;
   }
-  .assignment-head-filter select.form__control:hover {
-    background-color:var(--color-beige-dark);border-color:transparent;
-    padding-left:.45em;padding-right:1.9em;
+  /* Rantai `.sb-course--head span` disebut ulang: aturan warna nama kolom memakai rantai itu dan
+     lebih spesifik, jadi tanpa ini keadaan sorot/fokus/aktif tidak pernah terlihat. */
+  .survey-shell .s-courses-list .sb-course--head .assignment-head-filter:focus-within > span,
+  .survey-shell .s-courses-list .sb-course--head .assignment-head-filter:hover > span {
+    color:var(--color-black);
   }
-  .assignment-head-filter select.form__control:focus-visible {
-    background-color:var(--color-white);border-color:var(--color-brand-5);
-    padding-left:.45em;padding-right:1.9em;
+  /* Penyaring yang sedang aktif ditandai warna, karena nilainya tidak lagi tertulis di sini. */
+  .survey-shell .s-courses-list .sb-course--head .assignment-head-filter[data-active] > span {
+    color:var(--color-brand-3);
   }
-  /* Kolom terakhir rata kanan — lencana status di bawahnya juga — jadi namanya ikut rata kanan
-     supaya keduanya berbagi tepi yang sama. */
-  .sb__price .assignment-head-filter select.form__control {text-align:right;padding-right:1.95em}
+  /* Kolom terakhir rata kanan — lencana status di bawahnya juga. */
+  .sb__price .assignment-head-filter {text-align:right}
 }
 
 /* Lembar instrumen menggabungkan keterbacaan formulir satu-per-satu dengan ringkasan kolom pada
@@ -671,18 +698,22 @@ input[type="range"]:disabled::-moz-range-thumb {
 
 @media only screen and (max-width:640px) {
   .assignments-data-list .s-courses-list {margin:.55rem 0 0}
-  .assignments-data-list .s-courses-list .sb-course--head {display:block;margin:0 0 .35rem}
+  .assignments-data-list .s-courses-list .sb-course--head {display:block;margin:0 0 .25rem}
   .assignments-data-list .s-courses-list .sb-course--head .sb__link {
-    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.4rem;padding:0;border:0;
+    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.35rem;padding:0;border:0;
   }
   .assignments-data-list .sb-course--head .sb__title,
   .assignments-data-list .sb-course--head .sb__dates {display:none}
   .assignments-data-list .sb-course--head .sb__location,
   .assignments-data-list .sb-course--head .sb__price {display:block;width:auto;max-width:none;margin:0}
-  .assignment-head-filter {align-items:stretch;flex-direction:column;gap:.2rem}
-  .assignment-head-filter > span {font-size:.52rem}
-  .assignment-head-filter select.form__control {width:100%;max-width:none;padding:.5em 2em .5em .55em;
-    font-size:16px!important}
+  /* Ukurannya diturunkan agar sebanding dengan baris daftar di bawahnya; sebelumnya hurufnya dua
+     kali lebih besar daripada isi tabelnya sendiri. Aturan 16px di berkas ini ada untuk mencegah
+     Safari iOS mem-zoom halaman saat kolom isian difokuskan — itu berlaku pada kolom yang diketik,
+     bukan pada <select>, yang membuka pemilih tanpa mengubah perbesaran halaman. */
+  .assignment-head-filter {align-items:stretch;flex-direction:column;gap:.15rem}
+  .assignment-head-filter > span {font-size:.5rem}
+  .assignment-head-filter select.form__control {width:100%;max-width:100%;min-height:1.9rem;
+    padding:.35em 1.7em .35em .5em;font-size:.72rem!important}
   .assignments-data-list .s-courses-list .sb-course {margin:.4rem 0}
   .assignments-data-list .s-courses-list .sb-course .sb__link {
     display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;

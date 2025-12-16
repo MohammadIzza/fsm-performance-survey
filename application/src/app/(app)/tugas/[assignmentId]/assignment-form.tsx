@@ -228,12 +228,10 @@ export function AssignmentForm({
   if (isLocked) {
     return (
       <div className="assignment-form assignment-form--locked space-y-4">
-        {effectiveInfo ? (
-          <p className="text-[13px] text-[var(--muted)]">
-            Terkirim pada {effectiveInfo.submittedAt} (revisi {effectiveInfo.revision}). Jawaban
-            sudah dikirim dan dikunci.
-          </p>
-        ) : (
+        {/* Kalimat "Terkirim pada ... (revisi n)" dihapus: kartu Status di kepala halaman sudah
+            menyatakan keadaan tugasnya, dan baris ini mengulanginya tepat di bawahnya. Kalimat
+            untuk keadaan belum dinilai tetap ada karena tidak ada tempat lain yang menyatakannya. */}
+        {!effectiveInfo && (
           <p className="text-[13px] text-[var(--muted)]">Belum ada penilaian.</p>
         )}
         <AssessmentSheet

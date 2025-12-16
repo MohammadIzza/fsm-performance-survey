@@ -51,12 +51,6 @@ export function AssignmentsList({ assignments }: { assignments: AssignmentRow[] 
   );
   return (
     <>
-      {visible.length === 0 ? (
-        <p className="t-t-md" style={{ color: "var(--color-text)", padding: "2rem 0" }}>
-          Tidak ada tugas yang cocok dengan filter ini.
-        </p>
-      ) : null}
-
       <div className="assignments-data-list">
         <DataList
           columnHeaderHidden={false}
@@ -64,7 +58,7 @@ export function AssignmentsList({ assignments }: { assignments: AssignmentRow[] 
             ["title", "Objek"],
             ["dates", "Tenggat"],
             ["location", (
-              <label className="assignment-head-filter" key="period-filter">
+              <label className="assignment-head-filter" data-active={periodId ? "true" : undefined} key="period-filter">
                 <span>Periode</span>
                 <Select
                   aria-label="Filter periode"
@@ -79,7 +73,7 @@ export function AssignmentsList({ assignments }: { assignments: AssignmentRow[] 
               </label>
             )],
             ["price", (
-              <label className="assignment-head-filter" key="status-filter">
+              <label className="assignment-head-filter" data-active={status ? "true" : undefined} key="status-filter">
                 <span>Status</span>
                 <Select
                   aria-label="Filter status"
@@ -95,6 +89,14 @@ export function AssignmentsList({ assignments }: { assignments: AssignmentRow[] 
             )],
           ]}
         >
+          {/* Pesan kosong berada di dalam daftar, tepat di bawah kepala kolom — bukan di atasnya.
+              Penyaringnya menempel pada kepala itu, jadi kepala harus tetap terlihat saat hasilnya
+              nol supaya penyaringnya masih bisa diubah. */}
+          {visible.length === 0 && (
+            <li className="s__course sb-course sb-course--empty">
+              <div className="sb__link">Tidak ada tugas yang cocok dengan filter ini.</div>
+            </li>
+          )}
           {visible.map((a) => (
             <DataRow key={a.id} href={`/tugas/${a.id}`}>
               <RowTitle>
