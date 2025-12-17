@@ -406,7 +406,10 @@ input[type="range"]:disabled::-moz-range-thumb {
    penuh tetap memanjang sendiri. */
 @media only screen and (max-width: 640px) {
   .survey-shell .summary {
-    display:grid;grid-template-columns:repeat(6,minmax(0,1fr));align-items:start;gap:0;
+    /* `stretch`, bukan `start`: nilai sepanjang nama periode membuat satu kartu jauh lebih tinggi
+       daripada tetangganya, dan barisnya terbaca bertangga. Dibuat setinggi kartu tertinggi di
+       barisnya masing-masing. */
+    display:grid;grid-template-columns:repeat(6,minmax(0,1fr));align-items:stretch;gap:0;
     width:100%;padding:.1rem 0 .55rem;margin:0 0 .35rem;
   }
   .survey-shell .summary__card {
@@ -509,6 +512,32 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell .filter-bar input[type="date"] {
   padding-left: 2.4em;
   background: url('/assets/images/icon-date.svg') 0.9em 50%/0.8em 0.8em no-repeat;
+}
+
+/* Alat admin pada halaman penugasan memakai bentuk tombol yang sama dengan aksi di lembar
+   penilaian di atasnya: pil, bukan kotak bersudut kecil. Sebelumnya bagian ini punya bahasa
+   visualnya sendiri — tombol biru pekat, garis tipis, sudut 0,5rem — sehingga terbaca seperti
+   ditempel dari halaman lain. */
+.survey-shell main .admin-action {
+  min-height:2.6rem;padding:.55rem 1.1rem;border:1px solid var(--color-grey-2);border-radius:999em;
+  background:var(--color-white);color:var(--color-black);
+  font:600 var(--font-size-t-sm)/1 var(--font-family-text);
+  transition:border-color .12s linear,background-color .12s linear;
+}
+.survey-shell main .admin-action:hover {border-color:var(--color-black)}
+.survey-shell main .admin-action--primary {
+  border-color:transparent;background:var(--color-brand-5);color:var(--color-white);
+}
+.survey-shell main .admin-action--primary:hover {border-color:transparent;background:var(--color-brand-8)}
+.survey-shell main .admin-action--danger {border-color:var(--color-brand-9);color:var(--color-brand-1)}
+.survey-shell main .admin-action--danger:hover {border-color:var(--color-brand-1)}
+.survey-shell main .admin-action:disabled {opacity:.6}
+/* Bagian ini bukan kartu: garis pemisahnya cukup satu, sama seperti antar-bagian lembar di atas. */
+.admin-tools-section {border-top:2px solid var(--color-black);padding-top:1.1rem}
+.admin-tools .form__control {width:auto;min-width:10rem}
+@media only screen and (max-width: 640px) {
+  .admin-tools .form__control {width:100%;min-width:0}
+  .survey-shell main .admin-action {width:100%;justify-content:center}
 }
 
 /* Baris "tidak ada hasil": memakai kerangka baris biasa supaya garis dan lebarnya menyatu dengan
@@ -758,10 +787,13 @@ input[type="range"]:disabled::-moz-range-thumb {
   .assessment-sheet__intro p:not(.eyebrow) {font-size:.54rem;line-height:1.35}
   .assessment-grid__head,
   .assessment-question {
-    grid-template-columns:1.25rem minmax(0,1fr) 2.55rem 3.55rem 2.65rem;
+    grid-template-columns:1.25rem minmax(0,1fr) 2.4rem 3.55rem 3rem;
     column-gap:.3rem;
   }
-  .assessment-grid__head {display:grid;min-height:1.8rem;font-size:.42rem;line-height:1.15}
+  /* Jarak antar-huruf dirapatkan dan kolom terakhir dilebarkan sedikit supaya "Nilai bobot" muat
+     satu baris seperti nama kolom lainnya; sebelumnya hanya kolom itu yang membungkus dua baris. */
+  .assessment-grid__head {display:grid;min-height:1.8rem;font-size:.42rem;line-height:1.15;
+    letter-spacing:.02em}
   .assessment-grid__head > span {padding:.35rem .05rem}
   .assessment-grid__head > span:nth-child(1) {grid-column:1}
   .assessment-grid__head > span:nth-child(2) {grid-column:2}
@@ -770,8 +802,10 @@ input[type="range"]:disabled::-moz-range-thumb {
   .assessment-grid__head > span:nth-child(5) {grid-column:4;justify-content:center}
   .assessment-grid__head > span:nth-child(6) {grid-column:5;justify-content:center;text-align:center}
   .assessment-grid__body {display:block}
+  /* Tinggi baris dirapatkan ke sekitar tinggi kotak skornya. Kotak itu sendiri tetap 44px karena
+     merupakan target sentuh; yang dikurangi jarak di sekelilingnya, bukan areanya. */
   .assessment-question {display:grid;grid-template-rows:auto auto;align-items:center;
-    min-height:3.9rem;padding:.42rem 0;border:0;border-bottom:2px solid var(--color-black);
+    min-height:3.1rem;padding:.28rem 0;border:0;border-bottom:2px solid var(--color-black);
     border-radius:0;background:transparent}
   .assessment-question:nth-child(even) {background:transparent}
   .assessment-question > *:not(input[type="hidden"]) {padding:0}
@@ -793,7 +827,7 @@ input[type="range"]:disabled::-moz-range-thumb {
   .assessment-score-control > span:not(.sr-only) {display:none}
   .assessment-question__weighted output {font-size:.57rem}
   .assessment-grid__total {
-    display:grid;grid-template-columns:1.25rem minmax(0,1fr) 2.55rem 3.55rem 2.65rem;
+    display:grid;grid-template-columns:1.25rem minmax(0,1fr) 2.4rem 3.55rem 3rem;
     column-gap:.3rem;min-height:2rem;padding:.4rem 0;border-bottom:2px solid var(--color-black);
     font-size:.5rem
   }
@@ -1166,6 +1200,33 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-login-art h1 {font-size:clamp(48px,6.3vw,94px);line-height:.98;letter-spacing:-.06em;font-weight:600;z-index:1}
 .survey-login-art > p {position:relative;z-index:2}
 .survey-login-form {position:relative;z-index:4}
+/* Kolase di panel kiri halaman masuk: balok biru, bujur sangkar kuning, blok merah muda
+   bersudut, dan bintang tema yang menimpa keduanya — susunan yang sama dipakai seksi sorotan di
+   halaman publik. Ditandai aria-hidden di markahnya karena murni hiasan. */
+.survey-login-collage {
+  position:relative;width:min(20rem,80%);height:9.5rem;margin-top:2.25rem;
+}
+.survey-login-collage > * {position:absolute}
+.survey-login-collage__bar {
+  left:0;top:2.2rem;width:62%;height:2.1rem;background:var(--color-brand-3);
+}
+.survey-login-collage__square {
+  left:8%;top:3.4rem;width:8.2rem;height:5.6rem;background:var(--color-brand-2);
+}
+.survey-login-collage__bubble {
+  right:0;top:0;width:47%;height:4.6rem;background:var(--color-brand-9);
+  border-radius:1.1rem 1.1rem 1.1rem 0;
+}
+.survey-login-collage__star {
+  right:14%;bottom:-.6rem;width:4.5rem;height:auto;
+}
+@media only screen and (max-width: 640px) {
+  /* Disembunyikan di layar sempit: panelnya hanya setinggi beberapa baris teks dan sudah memuat
+     bukit tema di kakinya, sehingga kolase ini bertumpuk dengan bukit itu alih-alih mengisi
+     ruang kosong. */
+  .survey-login-collage {display:none}
+}
+
 .survey-login-hills {position:absolute;inset:auto 0 0;width:100%;height:17rem;overflow:hidden;
   z-index:3;pointer-events:none}
 .survey-login-hills span {position:absolute;bottom:-48%;display:block;border-radius:50% 50% 0 0;

@@ -137,11 +137,16 @@ export default async function AssignmentFormPage({
         }
       />
 
+      {/* Kerangka yang sama dengan lembar penilaian di atasnya — label kecil, judul, lalu isinya —
+          supaya kedua bagian halaman ini terbaca sebagai satu dokumen, bukan kartu tempelan. */}
       {ctx.isAdmin && (
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-          <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
-            Alat Admin
-          </h2>
+        <section className="assessment-sheet admin-tools-section">
+          <header className="assessment-sheet__intro">
+            <div>
+              <p className="eyebrow">ALAT ADMIN</p>
+              <h2>Tindakan atas tugas ini</h2>
+            </div>
+          </header>
           <AdminTools
             assignmentId={assignment.id}
             status={assignment.status}
@@ -159,7 +164,7 @@ export default async function AssignmentFormPage({
               }, {}) ?? {}
             }
           />
-        </div>
+        </section>
       )}
     </div>
   );

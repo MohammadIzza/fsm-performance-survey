@@ -6,6 +6,18 @@ import { RevealOnScroll } from "@/components/reveal-on-scroll";
 export const metadata: Metadata = {
   title: "Survei Penilaian FSM UNDIP",
   description: "Sistem penilaian end-to-end Fakultas Sains dan Matematika UNDIP",
+  // Berkas yang sama dipakai halaman publik (disalin ke public/assets oleh
+  // scripts/prepare-application.mjs), jadi ikon tabnya tidak berubah saat berpindah dari situs ke
+  // ruang survei. Tanpa ini Next memakai favicon bawaannya sendiri.
+  icons: {
+    icon: [
+      { url: "/assets/favicon/favicon.svg?v=undip-1", type: "image/svg+xml" },
+      { url: "/assets/favicon/favicon-32x32.png?v=undip-1", sizes: "32x32", type: "image/png" },
+      { url: "/assets/favicon/favicon-16x16.png?v=undip-1", sizes: "16x16", type: "image/png" },
+    ],
+    apple: "/assets/favicon/apple-touch-icon.png?v=undip-1",
+    other: [{ rel: "mask-icon", url: "/assets/favicon/safari-pinned-tab.svg?v=undip-1" }],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

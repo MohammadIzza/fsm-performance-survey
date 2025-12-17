@@ -35,22 +35,22 @@ export function AdminTools({
   const [showEdit, setShowEdit] = useState(false);
 
   return (
-    <div className="space-y-5">
+    <div className="admin-tools form space-y-5">
       <div className="flex flex-wrap gap-3">
         {status === "TERKIRIM" && (
           <form action={reopenAction} className="flex flex-wrap items-center gap-2">
             <input type="hidden" name="assignmentId" value={assignmentId} />
-            <label className="text-sm">Tenggat koreksi (WIB)<input aria-label="Tenggat koreksi" type="datetime-local" name="correctionEndsAt" required className="block rounded-lg border p-2" /></label>
+            <label className="text-sm">Tenggat koreksi (WIB)<input aria-label="Tenggat koreksi" type="datetime-local" name="correctionEndsAt" required className="form__control" /></label>
             <input
               name="reason"
               placeholder="Alasan pembukaan kembali"
               required
-              className="rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 text-[13px] outline-none focus:border-[var(--accent)]"
+              className="form__control"
             />
             <button
               type="submit"
               disabled={reopenPending}
-              className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-[13px] font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
+              className="admin-action admin-action--primary"
             >
               {reopenPending ? "Memproses…" : "Buka kembali untuk pengisi"}
             </button>
@@ -60,7 +60,7 @@ export function AdminTools({
         <button
           type="button"
           onClick={() => setShowEdit((v) => !v)}
-          className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-[13px] font-medium text-[var(--foreground)] hover:bg-black/[0.03]"
+          className="admin-action"
         >
           {showEdit ? "Tutup edit langsung" : "Edit langsung"}
         </button>
@@ -73,12 +73,12 @@ export function AdminTools({
               name="reason"
               placeholder="Alasan pembatalan jawaban"
               required
-              className="rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 text-[13px] outline-none focus:border-[var(--accent)]"
+              className="form__control"
             />
             <button
               type="submit"
               disabled={voidPending}
-              className="rounded-lg border border-[var(--danger)]/30 px-3 py-1.5 text-[13px] font-medium text-[var(--danger)] hover:bg-[var(--danger)]/5 disabled:opacity-60"
+              className="admin-action admin-action--danger"
             >
               {voidPending ? "Memproses…" : "Batalkan jawaban (keluarkan dari agregasi)"}
             </button>
@@ -112,7 +112,7 @@ export function AdminTools({
                   step={scale.step || "any"}
                   defaultValue={effectiveScores[p.id] ?? ""}
                   required
-                  className="w-full rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 text-[13px] outline-none focus:border-[var(--accent)]"
+                  className="form__control"
                 />
               </div>
             ))}
@@ -120,12 +120,12 @@ export function AdminTools({
             name="reason"
             placeholder="Alasan koreksi (wajib)"
             required
-            className="w-full rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 text-[13px] outline-none focus:border-[var(--accent)]"
+            className="form__control"
           />
           <button
             type="submit"
             disabled={editPending}
-            className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-[13px] font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
+            className="admin-action admin-action--primary"
           >
             {editPending ? "Menyimpan…" : "Simpan koreksi & kirim"}
           </button>

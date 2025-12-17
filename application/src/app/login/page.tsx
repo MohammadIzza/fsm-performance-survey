@@ -8,6 +8,15 @@ export default async function LoginPage() {
   <section className="survey-login-art">
    <h1>Penilaian baik.<br/>Bertumbuh<br/>bersama.</h1>
    <p className="mt-6 max-w-md text-lg">Satu ruang untuk penilaian yang terarah, transparan, dan bermakna bagi FSM UNDIP.</p>
+   {/* Kolase balok warna brand dan bintang tema — bentuk yang sama dipakai seksi sorotan di
+       halaman publik. Semuanya bentuk datar dari palet yang ada, jadi tidak ada aset baru dan
+       tidak ada yang perlu diunduh. */}
+   <div className="survey-login-collage" aria-hidden="true">
+    <span className="survey-login-collage__bar"/>
+    <span className="survey-login-collage__square"/>
+    <span className="survey-login-collage__bubble"/>
+    <img src="/assets/images/asset-star-1.svg" alt="" width="72" height="72" className="survey-login-collage__star"/>
+   </div>
   </section>
   <section className="survey-login-form">
    <p className="eyebrow">SURVEI PENILAIAN · FSM UNDIP</p>
