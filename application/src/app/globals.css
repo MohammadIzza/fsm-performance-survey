@@ -519,9 +519,10 @@ input[type="range"]:disabled::-moz-range-thumb {
    visualnya sendiri — tombol biru pekat, garis tipis, sudut 0,5rem — sehingga terbaca seperti
    ditempel dari halaman lain. */
 .survey-shell main .admin-action {
-  min-height:2.6rem;padding:.55rem 1.1rem;border:1px solid var(--color-grey-2);border-radius:999em;
+  align-self:center;flex:0 0 auto;
+  min-height:2.1rem;padding:.42rem .95rem;border:1px solid var(--color-grey-2);border-radius:999em;
   background:var(--color-white);color:var(--color-black);
-  font:600 var(--font-size-t-sm)/1 var(--font-family-text);
+  font:600 .6875rem/1 var(--font-family-text);letter-spacing:.01em;white-space:nowrap;
   transition:border-color .12s linear,background-color .12s linear;
 }
 .survey-shell main .admin-action:hover {border-color:var(--color-black)}
@@ -534,10 +535,29 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell main .admin-action:disabled {opacity:.6}
 /* Bagian ini bukan kartu: garis pemisahnya cukup satu, sama seperti antar-bagian lembar di atas. */
 .admin-tools-section {border-top:2px solid var(--color-black);padding-top:1.1rem}
-.admin-tools .form__control {width:auto;min-width:10rem}
+.admin-tools-section .assessment-sheet__intro h2 {font-size:1.05rem}
+/* Tiap tindakan berdiri sebagai satu baris sendiri, rata kiri. Sebelumnya semuanya dijejalkan ke
+   dalam satu baris flex: tombol tunggal ikut meregang setinggi form di sebelahnya, dan dengan
+   sudut pil hasilnya elips setinggi 180px. `align-items:flex-start` menghentikan peregangan itu. */
+.admin-tools__actions {display:flex;flex-direction:column;align-items:flex-start;gap:.85rem}
+.admin-tools__actions > form {display:flex;flex-wrap:wrap;align-items:flex-end;gap:.5rem}
+.admin-tools__field {display:flex;flex-direction:column;gap:.25rem}
+.admin-tools__field > span {
+  font-size:.625rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--color-text);
+}
+/* Lebar kolom mengikuti isinya, bukan selebar halaman: satu tanggal dan satu kalimat alasan
+   pendek tidak butuh seribu piksel. */
+.admin-tools .form__control {width:auto;min-width:0}
+.admin-tools input[type="datetime-local"].form__control {width:13rem}
+.admin-tools input[name="reason"].form__control {width:19rem}
+.admin-tools__edit .form__control {width:100%}
 @media only screen and (max-width: 640px) {
-  .admin-tools .form__control {width:100%;min-width:0}
-  .survey-shell main .admin-action {width:100%;justify-content:center}
+  .admin-tools__actions > form {align-items:stretch}
+  .admin-tools .form__control,
+  .admin-tools input[type="datetime-local"].form__control,
+  .admin-tools input[name="reason"].form__control {width:100%}
+  .survey-shell main .admin-action {width:100%}
 }
 
 /* Baris "tidak ada hasil": memakai kerangka baris biasa supaya garis dan lebarnya menyatu dengan
@@ -787,8 +807,8 @@ input[type="range"]:disabled::-moz-range-thumb {
   .assessment-sheet__intro p:not(.eyebrow) {font-size:.54rem;line-height:1.35}
   .assessment-grid__head,
   .assessment-question {
-    grid-template-columns:1.25rem minmax(0,1fr) 2.4rem 3.55rem 3rem;
-    column-gap:.3rem;
+    grid-template-columns:1.25rem minmax(0,1fr) 2.3rem 3.9rem 2.9rem;
+    column-gap:.28rem;
   }
   /* Jarak antar-huruf dirapatkan dan kolom terakhir dilebarkan sedikit supaya "Nilai bobot" muat
      satu baris seperti nama kolom lainnya; sebelumnya hanya kolom itu yang membungkus dua baris. */
@@ -820,15 +840,19 @@ input[type="range"]:disabled::-moz-range-thumb {
   .assessment-question__score,
   .assessment-question__weighted {display:flex;align-self:center;padding:0!important;background:transparent}
   .assessment-cell-label {display:none}
-  .assessment-score-control {width:3.35rem;gap:0}
-  .survey-shell main .assessment-score-control input[type="number"] {
-    width:3.35rem;min-height:1.9rem;padding:.2rem;font-size:16px!important
+  .assessment-score-control {width:3.7rem;gap:0}
+  /* Selektornya menyebut .assessment-question__score juga: aturan padding kolom isian umum di
+     berkas ini punya spesifisitas yang sama dan ditulis lebih dulu, sehingga padding 1em miliknya
+     yang berlaku. Pada lebar 56px, padding 16px di kiri dan kanan hanya menyisakan 24px untuk
+     angkanya — "60" terpotong jadi "6". */
+  .survey-shell main .assessment-question__score .assessment-score-control input[type="number"] {
+    width:3.7rem;min-height:2.2rem;padding:.2rem .15rem;font-size:16px!important;text-align:center;
   }
   .assessment-score-control > span:not(.sr-only) {display:none}
   .assessment-question__weighted output {font-size:.57rem}
   .assessment-grid__total {
-    display:grid;grid-template-columns:1.25rem minmax(0,1fr) 2.4rem 3.55rem 3rem;
-    column-gap:.3rem;min-height:2rem;padding:.4rem 0;border-bottom:2px solid var(--color-black);
+    display:grid;grid-template-columns:1.25rem minmax(0,1fr) 2.3rem 3.9rem 2.9rem;
+    column-gap:.28rem;min-height:2rem;padding:.4rem 0;border-bottom:2px solid var(--color-black);
     font-size:.5rem
   }
   .assessment-grid__total strong {grid-column:2;margin:0;padding:0;text-align:left}

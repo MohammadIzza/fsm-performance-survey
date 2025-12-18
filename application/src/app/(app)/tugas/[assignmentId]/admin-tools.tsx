@@ -36,11 +36,11 @@ export function AdminTools({
 
   return (
     <div className="admin-tools form space-y-5">
-      <div className="flex flex-wrap gap-3">
+      <div className="admin-tools__actions">
         {status === "TERKIRIM" && (
           <form action={reopenAction} className="flex flex-wrap items-center gap-2">
             <input type="hidden" name="assignmentId" value={assignmentId} />
-            <label className="text-sm">Tenggat koreksi (WIB)<input aria-label="Tenggat koreksi" type="datetime-local" name="correctionEndsAt" required className="form__control" /></label>
+            <label className="admin-tools__field"><span>Tenggat koreksi (WIB)</span><input aria-label="Tenggat koreksi" type="datetime-local" name="correctionEndsAt" required className="form__control" /></label>
             <input
               name="reason"
               placeholder="Alasan pembukaan kembali"
