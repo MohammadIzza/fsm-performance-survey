@@ -536,6 +536,74 @@ input[type="range"]:disabled::-moz-range-thumb {
 /* Bagian ini bukan kartu: garis pemisahnya cukup satu, sama seperti antar-bagian lembar di atas. */
 .admin-tools-section {border-top:2px solid var(--color-black);padding-top:1.1rem}
 .admin-tools-section .assessment-sheet__intro h2 {font-size:1.05rem}
+/* Tabel tindakan admin: kisi tiga kolom dengan kepala kolom dan garis pemisah yang sama dengan
+   lembar penilaian di atasnya, sehingga kedua bagian halaman ini punya tepi yang segaris. */
+.admin-actions {display:grid;gap:0}
+.admin-actions__head,
+.admin-actions__row {
+  display:grid;grid-template-columns:minmax(0,15rem) minmax(0,1fr) minmax(8rem,auto);
+  column-gap:1.25rem;align-items:center;
+}
+.admin-actions__head {
+  border-bottom:2px solid var(--color-black);padding:.55rem 0;
+  color:var(--color-text);font-size:.6875rem;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.admin-actions__head > span:last-child {text-align:right}
+.admin-actions__row {
+  border-bottom:2px solid var(--color-black);padding:.9rem 0;min-height:3.6rem;
+}
+.admin-actions__row:last-child {border-bottom:0}
+.admin-actions__name strong {display:block;font-size:.8125rem;line-height:1.25}
+.admin-actions__name > span {
+  display:block;margin-top:.15rem;color:var(--color-text);font-size:.6875rem;line-height:1.35;
+}
+.admin-actions__fields {display:flex;flex-wrap:wrap;align-items:flex-end;gap:.5rem}
+.admin-actions__run {display:flex;justify-content:flex-end}
+
+.admin-tools__field {display:flex;flex-direction:column;gap:.25rem}
+.admin-tools__field--grow {flex:1 1 11rem;min-width:0}
+.admin-tools__field > span {
+  font-size:.5625rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--color-text);
+}
+/* Lebar kolom mengikuti isinya, bukan selebar halaman. */
+.admin-tools .form__control {width:100%;min-width:0}
+.admin-tools input[type="datetime-local"].form__control {width:12.5rem}
+.admin-tools__edit .form__control {width:100%}
+
+@media only screen and (max-width: 860px) {
+  /* Di layar sempit kisinya menurun: nama tindakan, lalu isiannya, lalu tombolnya selebar baris —
+     urutan baca yang sama, tanpa kolom yang saling menghimpit. */
+  .admin-actions__head {display:none}
+  .admin-actions__row {grid-template-columns:minmax(0,1fr);row-gap:.6rem;padding:.9rem 0}
+  .admin-actions__run {justify-content:stretch}
+  .survey-shell main .admin-actions__run .admin-action {width:100%}
+  .admin-tools input[type="datetime-local"].form__control {width:100%}
+}
+
+/* Alat admin pada halaman penugasan memakai bentuk tombol yang sama dengan aksi di lembar
+   penilaian di atasnya: pil, bukan kotak bersudut kecil. Sebelumnya bagian ini punya bahasa
+   visualnya sendiri — tombol biru pekat, garis tipis, sudut 0,5rem — sehingga terbaca seperti
+   ditempel dari halaman lain. */
+.survey-shell main .admin-action {
+  align-self:center;flex:0 0 auto;
+  min-height:2.1rem;padding:.42rem .95rem;border:1px solid var(--color-grey-2);border-radius:999em;
+  background:var(--color-white);color:var(--color-black);
+  font:600 .6875rem/1 var(--font-family-text);letter-spacing:.01em;white-space:nowrap;
+  transition:border-color .12s linear,background-color .12s linear;
+}
+.survey-shell main .admin-action:hover {border-color:var(--color-black)}
+.survey-shell main .admin-action--primary {
+  border-color:transparent;background:var(--color-brand-5);color:var(--color-white);
+}
+.survey-shell main .admin-action--primary:hover {border-color:transparent;background:var(--color-brand-8)}
+.survey-shell main .admin-action--danger {border-color:var(--color-brand-9);color:var(--color-brand-1)}
+.survey-shell main .admin-action--danger:hover {border-color:var(--color-brand-1)}
+.survey-shell main .admin-action:disabled {opacity:.6}
+/* Bagian ini bukan kartu: garis pemisahnya cukup satu, sama seperti antar-bagian lembar di atas. */
+.admin-tools-section {border-top:2px solid var(--color-black);padding-top:1.1rem}
+.admin-tools-section .assessment-sheet__intro h2 {font-size:1.05rem}
 /* Tiap tindakan berdiri sebagai satu baris sendiri, rata kiri. Sebelumnya semuanya dijejalkan ke
    dalam satu baris flex: tombol tunggal ikut meregang setinggi form di sebelahnya, dan dengan
    sudut pil hasilnya elips setinggi 180px. `align-items:flex-start` menghentikan peregangan itu. */

@@ -36,52 +36,98 @@ export function AdminTools({
 
   return (
     <div className="admin-tools form space-y-5">
-      <div className="admin-tools__actions">
+      {/* Disusun sebagai tabel seperti lembar penilaian di atasnya: satu kolom nama tindakan, satu
+          kolom isian, satu kolom tombol — dengan kepala kolom dan garis pemisah yang sama. Sebelumnya
+          ketiganya baris flex lepas dengan lebar berbeda-beda, sehingga tidak ada satu pun tepi yang
+          segaris. */}
+      <div className="admin-actions">
+        <div className="admin-actions__head" aria-hidden="true">
+          <span>Tindakan</span>
+          <span>Keterangan</span>
+          <span>Jalankan</span>
+        </div>
+
         {status === "TERKIRIM" && (
-          <form action={reopenAction} className="flex flex-wrap items-center gap-2">
+          <form action={reopenAction} className="admin-actions__row">
             <input type="hidden" name="assignmentId" value={assignmentId} />
-            <label className="admin-tools__field"><span>Tenggat koreksi (WIB)</span><input aria-label="Tenggat koreksi" type="datetime-local" name="correctionEndsAt" required className="form__control" /></label>
-            <input
-              name="reason"
-              placeholder="Alasan pembukaan kembali"
-              required
-              className="form__control"
-            />
-            <button
-              type="submit"
-              disabled={reopenPending}
-              className="admin-action admin-action--primary"
-            >
-              {reopenPending ? "Memproses…" : "Buka kembali untuk pengisi"}
-            </button>
+            <div className="admin-actions__name">
+              <strong>Buka kembali</strong>
+              <span>Penilai dapat mengisi ulang sampai tenggat koreksi.</span>
+            </div>
+            <div className="admin-actions__fields">
+              <label className="admin-tools__field">
+                <span>Tenggat koreksi (WIB)</span>
+                <input
+                  aria-label="Tenggat koreksi"
+                  type="datetime-local"
+                  name="correctionEndsAt"
+                  required
+                  className="form__control"
+                />
+              </label>
+              <label className="admin-tools__field admin-tools__field--grow">
+                <span>Alasan</span>
+                <input
+                  name="reason"
+                  placeholder="Alasan pembukaan kembali"
+                  required
+                  className="form__control"
+                />
+              </label>
+            </div>
+            <div className="admin-actions__run">
+              <button
+                type="submit"
+                disabled={reopenPending}
+                className="admin-action admin-action--primary"
+              >
+                {reopenPending ? "Memproses…" : "Buka kembali"}
+              </button>
+            </div>
           </form>
         )}
 
-        <button
-          type="button"
-          onClick={() => setShowEdit((v) => !v)}
-          className="admin-action"
-        >
-          {showEdit ? "Tutup edit langsung" : "Edit langsung"}
-        </button>
+        <div className="admin-actions__row">
+          <div className="admin-actions__name">
+            <strong>Edit langsung</strong>
+            <span>Mengoreksi skor tanpa membuka pengisian bagi penilai.</span>
+          </div>
+          <div className="admin-actions__fields" />
+          <div className="admin-actions__run">
+            <button type="button" onClick={() => setShowEdit((v) => !v)} className="admin-action">
+              {showEdit ? "Tutup" : "Buka"}
+            </button>
+          </div>
+        </div>
 
         {status === "TERKIRIM" && effectiveRevisionId && (
-          <form action={voidAction} className="flex flex-wrap items-center gap-2">
+          <form action={voidAction} className="admin-actions__row">
             <input type="hidden" name="assignmentId" value={assignmentId} />
             <input type="hidden" name="responseRevisionId" value={effectiveRevisionId} />
-            <input
-              name="reason"
-              placeholder="Alasan pembatalan jawaban"
-              required
-              className="form__control"
-            />
-            <button
-              type="submit"
-              disabled={voidPending}
-              className="admin-action admin-action--danger"
-            >
-              {voidPending ? "Memproses…" : "Batalkan jawaban (keluarkan dari agregasi)"}
-            </button>
+            <div className="admin-actions__name">
+              <strong>Batalkan jawaban</strong>
+              <span>Jawaban dikeluarkan dari agregasi; riwayatnya tetap tersimpan.</span>
+            </div>
+            <div className="admin-actions__fields">
+              <label className="admin-tools__field admin-tools__field--grow">
+                <span>Alasan</span>
+                <input
+                  name="reason"
+                  placeholder="Alasan pembatalan jawaban"
+                  required
+                  className="form__control"
+                />
+              </label>
+            </div>
+            <div className="admin-actions__run">
+              <button
+                type="submit"
+                disabled={voidPending}
+                className="admin-action admin-action--danger"
+              >
+                {voidPending ? "Memproses…" : "Batalkan"}
+              </button>
+            </div>
           </form>
         )}
       </div>
