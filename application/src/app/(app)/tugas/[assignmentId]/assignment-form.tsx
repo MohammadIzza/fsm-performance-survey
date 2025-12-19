@@ -55,7 +55,6 @@ function ScoreField({
         onChange={(e) => onChange(e.target.value)}
         className="tap-target"
       />
-      <span aria-hidden="true">{scale.min}–{scale.max}</span>
     </label>
   );
 }

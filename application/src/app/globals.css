@@ -768,9 +768,13 @@ input[type="range"]:disabled::-moz-range-thumb {
 .assessment-sheet__intro h2 {margin:.3rem 0;font:600 1.25rem/1.15 var(--font-family-heading);
   letter-spacing:-.025em}
 .assessment-sheet__intro p:not(.eyebrow) {max-width:42rem;color:var(--color-text);font-size:.72rem;line-height:1.4}
+/* Tiga kolom angka di kanan diberi rentang, bukan lebar tetap: di layar lebar mereka mengambil
+   ukuran maksimumnya seperti semula, tetapi saat bilah samping muncul (mulai 1024px) lembarnya
+   menyempit sampai di bawah jumlah lebar tetap tersebut dan kolom terakhir akan terdorong keluar. */
 .assessment-grid__head,
 .assessment-question {
-  display:grid;grid-template-columns:3rem minmax(10rem,1.25fr) minmax(13rem,1.8fr) 5rem 7.5rem 6.5rem;
+  display:grid;grid-template-columns:3rem minmax(8rem,1.25fr) minmax(9rem,1.8fr)
+    minmax(3.6rem,5rem) minmax(5rem,7.5rem) minmax(4.6rem,6.5rem);
 }
 .assessment-grid__head {align-items:stretch;border-bottom:2px solid var(--color-black);
   background:transparent;color:var(--color-text);font-size:.62rem;font-weight:600;
@@ -794,14 +798,29 @@ input[type="range"]:disabled::-moz-range-thumb {
 .assessment-question__weighted {background:transparent;align-self:stretch;
   display:flex;align-items:center;justify-content:center}
 .assessment-score-control {display:grid;width:100%;gap:.18rem;text-align:center}
-.survey-shell main .assessment-score-control input[type="number"] {width:100%;min-height:2.25rem;
-  padding:.35rem .45rem;border:1px solid var(--color-grey-2);border-radius:.4rem;background:var(--color-white);
-  text-align:center;font-size:16px!important;font-weight:600}
-.assessment-score-control > span:not(.sr-only) {color:var(--color-text);font-size:.52rem}
+/* Kolom skor dibaca sebagai angka di dalam tabel, bukan sebagai kotak isian: seukuran nilai
+   berbobot di kolom sebelahnya, tanpa garis tepi, berlatar putih supaya tetap terbaca sebagai
+   tempat mengetik di atas kertas krem lembarnya. Arah tetikus dan keadaan terfokus ditandai garis
+   bawah saja, jadi latarnya tidak pernah berubah warna.
+
+   Selektornya menyebut .assessment-question__score: aturan kolom isian umum di berkas ini punya
+   spesifisitas yang sama dan ditulis lebih dulu, jadi tanpa itu garis tepi 2px miliknya yang
+   berlaku. */
+.survey-shell main .assessment-question__score .assessment-score-control input[type="number"] {
+  width:100%;min-height:1.9rem;
+  padding:.25rem .2rem;border:0;border-bottom:1px solid transparent;border-radius:.3rem;
+  background:var(--color-white);text-align:center;font-size:.76rem!important;font-weight:600}
+.survey-shell main .assessment-question__score .assessment-score-control input[type="number"]:hover:not(:disabled) {
+  border-bottom-color:var(--color-beige-dark)}
+.survey-shell main .assessment-question__score .assessment-score-control input[type="number"]:focus {
+  border-bottom-color:var(--color-brand-5);outline:none}
+.survey-shell main .assessment-question__score .assessment-score-control input[type="number"]:disabled {
+  background:var(--color-white);color:var(--color-black)}
 .assessment-question__weighted output {font-size:.76rem;font-weight:600}
 .assessment-cell-label {display:none}
 .assessment-grid__total {
-  display:grid;grid-template-columns:3rem minmax(10rem,1.25fr) minmax(13rem,1.8fr) 5rem 7.5rem 6.5rem;
+  display:grid;grid-template-columns:3rem minmax(8rem,1.25fr) minmax(9rem,1.8fr)
+    minmax(3.6rem,5rem) minmax(5rem,7.5rem) minmax(4.6rem,6.5rem);
   align-items:center;min-height:3rem;border-bottom:2px solid var(--color-black);
   background:transparent;font-size:.68rem
 }
@@ -812,6 +831,16 @@ input[type="range"]:disabled::-moz-range-thumb {
 .assessment-actions__draft {min-height:2.6rem;padding:.55rem 1rem;border:1px solid var(--color-grey-2);
   border-radius:999em;background:transparent;font-size:.72rem;font-weight:600}
 .assessment-actions__submit {font-size:.72rem}
+
+/* Tablet: lembarnya masih terbaca sebagai tabel, jadi hanya sela dalam selnya yang dirapatkan —
+   belum ditumpuk seperti di layar ponsel. */
+@media only screen and (min-width:641px) and (max-width:900px) {
+  .assessment-grid__head > span {padding:.6rem .35rem}
+  .assessment-question > *:not(input[type="hidden"]) {padding:.6rem .35rem}
+  .assessment-question {min-height:4.4rem}
+  .assessment-question__weight strong {padding:.25rem .3rem;font-size:.6rem}
+  .assessment-grid__total strong {padding:.6rem .4rem}
+}
 
 @media only screen and (max-width:640px) {
   .assignments-data-list .s-courses-list {margin:.55rem 0 0}
@@ -900,7 +929,10 @@ input[type="range"]:disabled::-moz-range-thumb {
   .assessment-question__number {grid-column:1;grid-row:1/3;width:1.05rem;height:1.05rem;font-size:.46rem}
   .assessment-question__parameter {grid-column:2;grid-row:1}
   .assessment-question__parameter strong {font-size:.57rem;line-height:1.2}
-  .assessment-question__weight {grid-column:3;grid-row:1/3}
+  /* Sama seperti kolom skor dan nilai di sebelahnya: petaknya membentang dua baris, jadi tanpa
+     pemusatan ini pilnya menempel di tepi atas dan tidak sebaris dengan keduanya. */
+  .assessment-question__weight {grid-column:3;grid-row:1/3;
+    display:flex;align-items:center;justify-content:center;align-self:center}
   .assessment-question__weight strong {padding:.2rem .25rem;font-size:.46rem}
   .assessment-question__indicator {grid-column:2;grid-row:2;font-size:.46rem;line-height:1.25}
   .assessment-question__score {grid-column:4;grid-row:1/3}
@@ -913,10 +945,12 @@ input[type="range"]:disabled::-moz-range-thumb {
      berkas ini punya spesifisitas yang sama dan ditulis lebih dulu, sehingga padding 1em miliknya
      yang berlaku. Pada lebar 56px, padding 16px di kiri dan kanan hanya menyisakan 24px untuk
      angkanya — "60" terpotong jadi "6". */
+  /* Ukurannya mengikuti teks tabel, sama seperti di layar lebar. Konsekuensinya Safari iOS akan
+     mem-zoom halaman saat kolom ini difokuskan, karena zoom itu terpicu pada kolom isian ber-huruf
+     di bawah 16px. */
   .survey-shell main .assessment-question__score .assessment-score-control input[type="number"] {
-    width:3.7rem;min-height:2.2rem;padding:.2rem .15rem;font-size:16px!important;text-align:center;
+    width:3.7rem;min-height:1.7rem;padding:.15rem .1rem;font-size:.57rem!important;text-align:center;
   }
-  .assessment-score-control > span:not(.sr-only) {display:none}
   .assessment-question__weighted output {font-size:.57rem}
   .assessment-grid__total {
     display:grid;grid-template-columns:1.25rem minmax(0,1fr) 2.3rem 3.9rem 2.9rem;
