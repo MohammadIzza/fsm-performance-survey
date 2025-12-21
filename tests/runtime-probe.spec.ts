@@ -2,12 +2,12 @@ import { expect, test } from '@playwright/test';
 
 const routes = [
   '/',
-  '/alur-penilaian/',
-  '/panduan-penilai/',
-  '/panduan-pimpinan/',
-  '/panduan-admin/',
-  '/kebijakan-data/',
-  '/kebijakan-privasi/',
+  '/alur-penilaian',
+  '/panduan-penilai',
+  '/panduan-pimpinan',
+  '/panduan-admin',
+  '/kebijakan-data',
+  '/kebijakan-privasi',
 ];
 
 // Diagnostic sweep: the theme runtime must boot on every route, bind its

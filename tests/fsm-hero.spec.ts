@@ -157,8 +157,8 @@ test('FSM responds to the pointer, pauses offscreen and survives page transition
         .evaluate((el) => (el as any).plr.controller.isPaused),
     )
     .toBe(false);
-  await page.locator('a[href="/panduan-admin/"]').first().click();
-  await page.waitForURL('**/panduan-admin/');
+  await page.locator('a[href="/panduan-admin"]').first().click();
+  await page.waitForURL('**/panduan-admin');
   // The legacy guide intro is outside the FSM adapter; let it finish.
   await page.waitForTimeout(4500);
   await page.locator('a[href="/"]').first().click();
@@ -186,7 +186,7 @@ test('FSM initializes when the first visit starts on a guide page', async ({
 }) => {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  await page.goto('/panduan-admin/');
+  await page.goto('/panduan-admin');
   await expect(page.locator('html')).toHaveClass(/is-loaded/);
   // Let the unchanged guide hero finish its own intro before leaving it.
   await page.waitForTimeout(4500);

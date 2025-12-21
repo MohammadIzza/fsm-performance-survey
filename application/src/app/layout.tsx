@@ -38,14 +38,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </div>
         <nav aria-label="Navigasi publik">
          <ul className="site-head__menu">
-          <li className="menu-item"><a href="/panduan-penilai/" className="menu-link"><span className="menu-item__text">Panduan</span></a></li>
-          <li className="menu-item"><a href="/alur-penilaian/" className="menu-link"><span className="menu-item__text">Alur penilaian</span></a></li>
+          <li className="menu-item"><a href="/panduan-penilai" className="menu-link"><span className="menu-item__text">Panduan</span></a></li>
+          <li className="menu-item"><a href="/alur-penilaian" className="menu-link"><span className="menu-item__text">Alur penilaian</span></a></li>
           <li className="menu-item"><a href="/dashboard" className="menu-link"><span className="menu-item__text">Ruang survei ↗</span></a></li>
          </ul>
         </nav>
        </header>
        <div id="app-content">{children}</div><ThemeReveal /><RevealOnScroll />
-       <footer className="survey-footer"><span>Survei Penilaian FSM UNDIP · Demonstrasi</span><a href="/kebijakan-privasi/">Kebijakan privasi ↗</a></footer>
+       <footer className="survey-footer"><span>Survei Penilaian FSM UNDIP · Demonstrasi</span><a href="/kebijakan-privasi">Kebijakan privasi ↗</a></footer>
       </body>
     </html>
   );

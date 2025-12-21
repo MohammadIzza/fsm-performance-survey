@@ -3,18 +3,20 @@ import { mkdir } from 'node:fs/promises';
 
 const routes = [
   '/',
-  '/alur-penilaian/',
-  '/panduan-penilai/',
-  '/panduan-pimpinan/',
-  '/panduan-admin/',
-  '/kebijakan-data/',
-  '/kebijakan-privasi/',
+  '/alur-penilaian',
+  '/panduan-penilai',
+  '/panduan-pimpinan',
+  '/panduan-admin',
+  '/kebijakan-data',
+  '/kebijakan-privasi',
 ];
 
 // Routes this Astro static site links to but does not itself serve: the
 // companion Next.js application (`application/`, see scripts/prepare-application.mjs)
 // owns them at runtime. A 404 here against the isolated Astro build is expected.
-const appRoutes = new Set(['/login']);
+// Routes owned by the Next app, not by this static build: the preview server here cannot
+// serve them, so their links are checked for shape only, not fetched.
+const appRoutes = new Set(['/login', '/hasil']);
 
 for (const route of routes) {
   test(`${route} renders content, local assets, and valid links`, async ({
@@ -123,7 +125,7 @@ test('course cards link to the real login page, not a fake application form', as
 test('FAQ opens on click and the content slider changes visible content', async ({
   page,
 }) => {
-  await page.goto('/alur-penilaian/');
+  await page.goto('/alur-penilaian');
   await page.waitForFunction(() => (window as any).luge !== undefined);
   const question = page.locator('.s-faq .sb-question').filter({
     hasText: 'Apa yang terjadi jika periode ditutup saat saya belum mengirim?',
@@ -164,8 +166,8 @@ test('mobile navigation and screenshots', async ({ page }) => {
   await expect(page.locator('body')).toHaveClass(/is-nav-opened/);
   // A top-level entry: the two guide links sit in a submenu whose parent item
   // covers them until it is tapped, which is the theme's own mobile behaviour.
-  await page.locator('#menu-main-menu a[href="/panduan-admin/"]').click();
-  await expect(page).toHaveURL(/\/panduan-admin\/$/);
+  await page.locator('#menu-main-menu a[href="/panduan-admin"]').click();
+  await expect(page).toHaveURL(/\/panduan-admin$/);
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   expect(
     await page.evaluate(

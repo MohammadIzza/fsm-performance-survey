@@ -1,6 +1,8 @@
 ---
 import { site } from '../../data/site';
-const currentPath = Astro.url.pathname;
+// Tanpa garis miring penutup, seperti tautan di src/data/site.ts, supaya penanda menu aktif
+// tidak bergantung pada bentuk alamat yang kebetulan dipakai saat membangun.
+const currentPath = Astro.url.pathname.replace(/(.)\/$/, '$1');
 
 // Mirrors the theme's main menu: Home, a "10-week Bootcamps" dropdown holding the
 // first two navigation entries, then the remaining entries, contact, and the CTA.

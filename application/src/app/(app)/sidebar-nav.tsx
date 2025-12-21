@@ -91,7 +91,7 @@ export function SidebarNav({
             <li className="menu-item">
               {/* Halaman panduan adalah dokumen Astro statis; muat sebagai dokumen penuh. */}
               {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-              <a href="/panduan-penilai/" className="menu-link">
+              <a href="/panduan-penilai" className="menu-link">
                 <span className="menu-item__text" data-text="Panduan">
                   Panduan
                 </span>
@@ -99,7 +99,7 @@ export function SidebarNav({
             </li>
             <li className="menu-item">
               {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-              <a href="/alur-penilaian/" className="menu-link">
+              <a href="/alur-penilaian" className="menu-link">
                 <span className="menu-item__text" data-text="Alur penilaian">
                   Alur penilaian
                 </span>
