@@ -514,118 +514,129 @@ input[type="range"]:disabled::-moz-range-thumb {
   background: url('/assets/images/icon-date.svg') 0.9em 50%/0.8em 0.8em no-repeat;
 }
 
-/* Alat admin pada halaman penugasan memakai bentuk tombol yang sama dengan aksi di lembar
-   penilaian di atasnya: pil, bukan kotak bersudut kecil. Sebelumnya bagian ini punya bahasa
-   visualnya sendiri — tombol biru pekat, garis tipis, sudut 0,5rem — sehingga terbaca seperti
-   ditempel dari halaman lain. */
+/* ——— Alat admin di halaman penugasan ———————————————————————————————————————————————
+   Bagian ini dipakai sesekali dan tidak pernah menjadi tujuan utama halaman, jadi skalanya
+   sengaja lebih kecil daripada lembar penilaian di atasnya: satu ukuran tombol untuk semua,
+   huruf kecil, dan tiap tindakan tertutup sampai diminta. */
+
+/* Satu bentuk tombol untuk seluruh bagian ini — termasuk tombol simpan/batal mode koreksi di
+   lembar penilaian — supaya tidak ada dua bahasa tombol di satu halaman. */
 .survey-shell main .admin-action {
+  display:inline-flex;align-items:center;justify-content:center;
   align-self:center;flex:0 0 auto;
-  min-height:2.1rem;padding:.42rem .95rem;border:1px solid var(--color-grey-2);border-radius:999em;
+  min-height:1.85rem;padding:.35rem .8rem;border:1px solid var(--color-grey-2);border-radius:999em;
   background:var(--color-white);color:var(--color-black);
-  font:600 .6875rem/1 var(--font-family-text);letter-spacing:.01em;white-space:nowrap;
+  font:600 .625rem/1 var(--font-family-text);letter-spacing:.01em;white-space:nowrap;
   transition:border-color .12s linear,background-color .12s linear;
 }
-.survey-shell main .admin-action:hover {border-color:var(--color-black)}
+.survey-shell main .admin-action:hover:not(:disabled) {border-color:var(--color-black)}
 .survey-shell main .admin-action--primary {
   border-color:transparent;background:var(--color-brand-5);color:var(--color-white);
 }
-.survey-shell main .admin-action--primary:hover {border-color:transparent;background:var(--color-brand-8)}
+.survey-shell main .admin-action--primary:hover:not(:disabled) {
+  border-color:transparent;background:var(--color-brand-8);
+}
 .survey-shell main .admin-action--danger {border-color:var(--color-brand-9);color:var(--color-brand-1)}
-.survey-shell main .admin-action--danger:hover {border-color:var(--color-brand-1)}
-.survey-shell main .admin-action:disabled {opacity:.6}
-/* Bagian ini bukan kartu: garis pemisahnya cukup satu, sama seperti antar-bagian lembar di atas. */
-.admin-tools-section {border-top:2px solid var(--color-black);padding-top:1.1rem}
-.admin-tools-section .assessment-sheet__intro h2 {font-size:1.05rem}
-/* Tabel tindakan admin: kisi tiga kolom dengan kepala kolom dan garis pemisah yang sama dengan
-   lembar penilaian di atasnya, sehingga kedua bagian halaman ini punya tepi yang segaris. */
-.admin-actions {display:grid;gap:0}
-.admin-actions__head,
-.admin-actions__row {
-  display:grid;grid-template-columns:minmax(0,15rem) minmax(0,1fr) minmax(8rem,auto);
-  column-gap:1.25rem;align-items:center;
-}
-.admin-actions__head {
-  border-bottom:2px solid var(--color-black);padding:.55rem 0;
-  color:var(--color-text);font-size:.6875rem;font-weight:600;letter-spacing:.06em;
-  text-transform:uppercase;
-}
-.admin-actions__head > span:last-child {text-align:right}
-.admin-actions__row {
-  border-bottom:2px solid var(--color-black);padding:.9rem 0;min-height:3.6rem;
-}
-.admin-actions__row:last-child {border-bottom:0}
-.admin-actions__name strong {display:block;font-size:.8125rem;line-height:1.25}
-.admin-actions__name > span {
-  display:block;margin-top:.15rem;color:var(--color-text);font-size:.6875rem;line-height:1.35;
-}
-.admin-actions__fields {display:flex;flex-wrap:wrap;align-items:flex-end;gap:.5rem}
-.admin-actions__run {display:flex;justify-content:flex-end}
+.survey-shell main .admin-action--danger:hover:not(:disabled) {border-color:var(--color-brand-1)}
+.survey-shell main .admin-action:disabled {opacity:.55;cursor:default}
 
-.admin-tools__field {display:flex;flex-direction:column;gap:.25rem}
-.admin-tools__field--grow {flex:1 1 11rem;min-width:0}
+/* Bagian ini bukan kartu: garis pemisahnya cukup satu, sama seperti antar-bagian lembar di atas. */
+.admin-tools-section {border-top:2px solid var(--color-black);padding-top:.9rem}
+.admin-tools-section .assessment-sheet__intro {padding:.1rem 0 .6rem}
+.admin-tools-section .assessment-sheet__intro .eyebrow {font-size:.55rem}
+.admin-tools-section .assessment-sheet__intro h2 {margin:.2rem 0 0;font-size:.92rem}
+
+.admin-actions {display:grid;gap:0}
+/* Tiap tindakan satu baris tertutup. Garisnya tipis — 1px, bukan 2px seperti lembar penilaian —
+   karena di sini yang dipisahkan cuma tiga pilihan, bukan kolom data. */
+.admin-actions__row {border-bottom:1px solid var(--color-grey-2)}
+.admin-actions__row:first-child {border-top:1px solid var(--color-grey-2)}
+.admin-actions__summary {
+  display:flex;align-items:center;gap:.6rem;
+  padding:.6rem .1rem;list-style:none;cursor:pointer;
+}
+.admin-actions__summary::-webkit-details-marker {display:none}
+/* Segitiga sendiri, bukan penanda bawaan: bawaannya berbeda bentuk di tiap peramban dan tidak
+   bisa diputar saat baris terbuka. */
+.admin-actions__summary::before {
+  content:"";flex:0 0 auto;width:0;height:0;
+  border-left:.3rem solid var(--color-black);
+  border-top:.22rem solid transparent;border-bottom:.22rem solid transparent;
+  transition:transform .15s ease;
+}
+.admin-actions__row[open] > .admin-actions__summary::before {transform:rotate(90deg)}
+.admin-actions__summary:hover {background:var(--color-beige-dark)}
+.admin-actions__name {display:flex;flex-wrap:wrap;align-items:baseline;gap:.15rem .6rem;min-width:0}
+.admin-actions__name strong {font-size:.7rem;line-height:1.3}
+.admin-actions__name > span {color:var(--color-text);font-size:.62rem;line-height:1.3}
+.admin-actions__body {
+  display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;
+  gap:.5rem .9rem;padding:0 .1rem .75rem 1rem;
+}
+.admin-actions__fields {display:flex;flex:1 1 22rem;flex-wrap:wrap;align-items:flex-end;gap:.5rem;min-width:0}
+.admin-actions__note {max-width:34rem;color:var(--color-text);font-size:.62rem;line-height:1.45}
+.admin-actions__run {display:flex;flex:0 0 auto;justify-content:flex-end}
+.admin-actions__error {flex:1 1 100%;color:var(--color-brand-1);font-size:.62rem}
+
+.admin-tools__field {display:flex;flex-direction:column;gap:.2rem;min-width:0}
+.admin-tools__field--grow {flex:1 1 12rem}
 .admin-tools__field > span {
-  font-size:.5625rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  font-size:.52rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
   color:var(--color-text);
 }
-/* Lebar kolom mengikuti isinya, bukan selebar halaman. */
-.admin-tools .form__control {width:100%;min-width:0}
-.admin-tools input[type="datetime-local"].form__control {width:12.5rem}
-.admin-tools__edit .form__control {width:100%}
+/* Isian di bagian ini mengikuti skalanya: aturan .form__control umum dibuat untuk form setinggi
+   halaman, terlalu besar untuk tiga baris tindakan sesekali. */
+.survey-shell main .admin-tools .form__control,
+.survey-shell main .assessment-actions--admin .form__control {
+  width:100%;min-width:0;min-height:1.85rem;padding:.3rem .55rem;
+  border-radius:.3rem;font-size:.65rem;
+}
+.survey-shell main .admin-tools input[type="datetime-local"].form__control {
+  width:11rem;padding-left:1.9em;background-position:.6em 50%;background-size:.7em .7em;
+}
+
+/* ——— Mode koreksi admin di lembar penilaian ————————————————————————————————————————— */
+.assessment-sheet__mode {
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:.3rem .55rem;
+  margin:0 0 .75rem;padding:.5rem .7rem;border-left:3px solid var(--color-brand-5);
+  background:var(--color-brand-2);color:var(--color-black);
+  font-size:.64rem;line-height:1.45;
+}
+.assessment-sheet__mode > span {
+  font-size:.55rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+}
+/* Dalam mode koreksi kotak skornya diberi garis bawah, bukan dibiarkan polos seperti saat dibaca:
+   di sini justru perlu terlihat bahwa angkanya sedang bisa diketik. */
+.survey-shell main .assignment-form--admin-edit .assessment-question__score
+  .assessment-score-control input[type="number"] {
+  border-bottom-color:var(--color-brand-5);
+}
+.assessment-actions--admin {
+  display:flex;flex-wrap:wrap;align-items:flex-end;gap:.55rem .9rem;padding-top:.6rem;
+}
+.assessment-actions--admin .admin-tools__field--grow {flex:1 1 16rem;max-width:26rem}
+.assessment-actions__buttons {display:flex;flex-wrap:wrap;gap:.45rem}
 
 @media only screen and (max-width: 860px) {
-  /* Di layar sempit kisinya menurun: nama tindakan, lalu isiannya, lalu tombolnya selebar baris —
-     urutan baca yang sama, tanpa kolom yang saling menghimpit. */
-  .admin-actions__head {display:none}
-  .admin-actions__row {grid-template-columns:minmax(0,1fr);row-gap:.6rem;padding:.9rem 0}
+  /* Di layar sempit isian dan tombolnya menurun jadi satu kolom, urutan bacanya tetap sama. */
+  /* Kolom: tanpa ini `justify-content:space-between` milik tata letak lebar membagi ruang
+     tegak dan menyisakan jurang antara isian dan tombolnya. */
+  .admin-actions__body {flex-direction:column;align-items:stretch;justify-content:flex-start;
+    padding-left:.9rem}
+  /* flex-grow di tata letak lebar tadi menumbuhkan lebar. Begitu arahnya menjadi kolom, grow
+     yang sama menumbuhkan TINGGI — isian meregang dan meninggalkan jurang di atas tombolnya. */
+  .admin-actions__fields {flex:0 0 auto;flex-direction:column;align-items:stretch}
+  .admin-tools__field--grow {flex:0 0 auto}
   .admin-actions__run {justify-content:stretch}
   .survey-shell main .admin-actions__run .admin-action {width:100%}
-  .admin-tools input[type="datetime-local"].form__control {width:100%}
-}
-
-/* Alat admin pada halaman penugasan memakai bentuk tombol yang sama dengan aksi di lembar
-   penilaian di atasnya: pil, bukan kotak bersudut kecil. Sebelumnya bagian ini punya bahasa
-   visualnya sendiri — tombol biru pekat, garis tipis, sudut 0,5rem — sehingga terbaca seperti
-   ditempel dari halaman lain. */
-.survey-shell main .admin-action {
-  align-self:center;flex:0 0 auto;
-  min-height:2.1rem;padding:.42rem .95rem;border:1px solid var(--color-grey-2);border-radius:999em;
-  background:var(--color-white);color:var(--color-black);
-  font:600 .6875rem/1 var(--font-family-text);letter-spacing:.01em;white-space:nowrap;
-  transition:border-color .12s linear,background-color .12s linear;
-}
-.survey-shell main .admin-action:hover {border-color:var(--color-black)}
-.survey-shell main .admin-action--primary {
-  border-color:transparent;background:var(--color-brand-5);color:var(--color-white);
-}
-.survey-shell main .admin-action--primary:hover {border-color:transparent;background:var(--color-brand-8)}
-.survey-shell main .admin-action--danger {border-color:var(--color-brand-9);color:var(--color-brand-1)}
-.survey-shell main .admin-action--danger:hover {border-color:var(--color-brand-1)}
-.survey-shell main .admin-action:disabled {opacity:.6}
-/* Bagian ini bukan kartu: garis pemisahnya cukup satu, sama seperti antar-bagian lembar di atas. */
-.admin-tools-section {border-top:2px solid var(--color-black);padding-top:1.1rem}
-.admin-tools-section .assessment-sheet__intro h2 {font-size:1.05rem}
-/* Tiap tindakan berdiri sebagai satu baris sendiri, rata kiri. Sebelumnya semuanya dijejalkan ke
-   dalam satu baris flex: tombol tunggal ikut meregang setinggi form di sebelahnya, dan dengan
-   sudut pil hasilnya elips setinggi 180px. `align-items:flex-start` menghentikan peregangan itu. */
-.admin-tools__actions {display:flex;flex-direction:column;align-items:flex-start;gap:.85rem}
-.admin-tools__actions > form {display:flex;flex-wrap:wrap;align-items:flex-end;gap:.5rem}
-.admin-tools__field {display:flex;flex-direction:column;gap:.25rem}
-.admin-tools__field > span {
-  font-size:.625rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
-  color:var(--color-text);
-}
-/* Lebar kolom mengikuti isinya, bukan selebar halaman: satu tanggal dan satu kalimat alasan
-   pendek tidak butuh seribu piksel. */
-.admin-tools .form__control {width:auto;min-width:0}
-.admin-tools input[type="datetime-local"].form__control {width:13rem}
-.admin-tools input[name="reason"].form__control {width:19rem}
-.admin-tools__edit .form__control {width:100%}
-@media only screen and (max-width: 640px) {
-  .admin-tools__actions > form {align-items:stretch}
-  .admin-tools .form__control,
-  .admin-tools input[type="datetime-local"].form__control,
-  .admin-tools input[name="reason"].form__control {width:100%}
-  .survey-shell main .admin-action {width:100%}
+  .survey-shell main .admin-tools input[type="datetime-local"].form__control {width:100%}
+  .assessment-actions--admin {flex-direction:column;align-items:stretch}
+  .assessment-actions--admin .admin-tools__field--grow {flex:0 0 auto;max-width:none}
+  /* Rantai selektornya diulang dari aturan bentuk tombol di atas: tanpa itu `flex:0 0 auto`
+     miliknya yang menang dan kedua tombol ini menciut ke kiri, tidak seperti tombol
+     tindakan lain yang selebar baris di layar sempit. */
+  .assessment-actions__buttons {display:flex}
+  .survey-shell main .assessment-actions__buttons .admin-action {flex:1 1 0}
 }
 
 /* Baris "tidak ada hasil": memakai kerangka baris biasa supaya garis dan lebarnya menyatu dengan
@@ -827,7 +838,11 @@ input[type="range"]:disabled::-moz-range-thumb {
 .assessment-grid__total strong {grid-column:2/4;text-align:right;padding:.65rem .8rem}
 .assessment-grid__total span {grid-column:4;text-align:center;font-weight:600}
 .assessment-grid__total output {grid-column:6;text-align:center;font-size:.78rem;font-weight:600}
-.assessment-actions {display:flex;align-items:center;flex-wrap:wrap;gap:.65rem;padding-top:.15rem}
+/* Baris aksi milik penilai. Varian koreksi admin dikecualikan: ia punya isian alasan di
+   sebelah tombolnya, jadi tata letaknya berbeda — dan aturan ini ditulis setelahnya, sehingga
+   tanpa pengecualian di sini ia yang berlaku. */
+.assessment-actions:not(.assessment-actions--admin) {
+  display:flex;align-items:center;flex-wrap:wrap;gap:.65rem;padding-top:.15rem}
 .assessment-actions__draft {min-height:2.6rem;padding:.55rem 1rem;border:1px solid var(--color-grey-2);
   border-radius:999em;background:transparent;font-size:.72rem;font-weight:600}
 .assessment-actions__submit {font-size:.72rem}
@@ -960,7 +975,8 @@ input[type="range"]:disabled::-moz-range-thumb {
   .assessment-grid__total strong {grid-column:2;margin:0;padding:0;text-align:left}
   .assessment-grid__total span {grid-column:3;padding:0;text-align:center;font-size:.52rem}
   .assessment-grid__total output {grid-column:5;padding:0;text-align:center;font-size:.55rem}
-  .assessment-actions {display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+  .assessment-actions:not(.assessment-actions--admin) {
+    display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
   .assessment-actions__draft,
   .assessment-actions__submit {width:100%!important;font-size:.62rem}
 }

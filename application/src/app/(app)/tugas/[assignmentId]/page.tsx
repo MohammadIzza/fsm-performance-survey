@@ -4,6 +4,7 @@ import { getAssignmentFormData, computeDisplayStatus } from "@/lib/services/resp
 import { ServiceError } from "@/lib/services/units";
 import { AssignmentForm } from "./assignment-form";
 import { AdminTools } from "./admin-tools";
+import { AdminEditProvider } from "./admin-edit-context";
 import { PageIntro, SummaryCard } from "@/components/theme/summary";
 
 const statusLabel: Record<string, string> = {
@@ -104,68 +105,60 @@ export default async function AssignmentFormPage({
         </div>
       )}
 
-      <AssignmentForm
-        assignmentId={assignment.id}
-        parameters={assignment.instrumentVersion.parameters}
-        scale={{
-          min: assignment.instrumentVersion.scaleMin,
-          max: assignment.instrumentVersion.scaleMax,
-          step: assignment.instrumentVersion.scaleStep,
-        }}
-        guide={assignment.instrumentVersion.guide}
-        canEdit={canEdit}
-        initialScores={
-          (editableRevision ?? effectiveRevision)?.scores.reduce<Record<string, number>>(
-            (acc, s) => {
-              acc[s.parameterId] = s.score;
-              return acc;
-            },
-            {}
-          ) ?? {}
-        }
-        initialVersion={editableRevision?.version ?? null}
-        isLocked={!canEdit}
-        effectiveInfo={
-          effectiveRevision
-            ? {
-                submittedAt: effectiveRevision.submittedAt
-                  ? dateFmt.format(effectiveRevision.submittedAt)
-                  : "—",
-                revision: effectiveRevision.revision,
-              }
-            : null
-        }
-      />
-
-      {/* Kerangka yang sama dengan lembar penilaian di atasnya — label kecil, judul, lalu isinya —
-          supaya kedua bagian halaman ini terbaca sebagai satu dokumen, bukan kartu tempelan. */}
-      {ctx.isAdmin && (
-        <section className="assessment-sheet admin-tools-section">
-          <header className="assessment-sheet__intro">
-            <div>
-              <p className="eyebrow">ALAT ADMIN</p>
-              <h2>Tindakan atas tugas ini</h2>
-            </div>
-          </header>
-          <AdminTools
-            assignmentId={assignment.id}
-            status={assignment.status}
-            parameters={assignment.instrumentVersion.parameters}
-            scale={{
-              min: assignment.instrumentVersion.scaleMin,
-              max: assignment.instrumentVersion.scaleMax,
-              step: assignment.instrumentVersion.scaleStep,
-            }}
-            effectiveRevisionId={effectiveRevision?.id ?? null}
-            effectiveScores={
-              effectiveRevision?.scores.reduce<Record<string, number>>((acc, s) => {
+      {/* Lembar penilaian dan alat admin harus menyepakati satu hal: apakah skor sedang dikoreksi
+          admin. Keduanya berada di bawah satu penyedia supaya koreksi punya satu tempat saja. */}
+      <AdminEditProvider>
+        <AssignmentForm
+          assignmentId={assignment.id}
+          parameters={assignment.instrumentVersion.parameters}
+          scale={{
+            min: assignment.instrumentVersion.scaleMin,
+            max: assignment.instrumentVersion.scaleMax,
+            step: assignment.instrumentVersion.scaleStep,
+          }}
+          guide={assignment.instrumentVersion.guide}
+          canEdit={canEdit}
+          initialScores={
+            (editableRevision ?? effectiveRevision)?.scores.reduce<Record<string, number>>(
+              (acc, s) => {
                 acc[s.parameterId] = s.score;
                 return acc;
-              }, {}) ?? {}
-            }
-          />
-        </section>
-      )}
+              },
+              {}
+            ) ?? {}
+          }
+          initialVersion={editableRevision?.version ?? null}
+          isLocked={!canEdit}
+          effectiveInfo={
+            effectiveRevision
+              ? {
+                  submittedAt: effectiveRevision.submittedAt
+                    ? dateFmt.format(effectiveRevision.submittedAt)
+                    : "—",
+                  revision: effectiveRevision.revision,
+                }
+              : null
+          }
+        />
+
+        {/* Kerangka yang sama dengan lembar penilaian di atasnya — label kecil, judul, lalu isinya —
+            supaya kedua bagian halaman ini terbaca sebagai satu dokumen, bukan kartu tempelan. */}
+        {ctx.isAdmin && (
+          <section className="assessment-sheet admin-tools-section">
+            <header className="assessment-sheet__intro">
+              <div>
+                <p className="eyebrow">ALAT ADMIN</p>
+                <h2>Tindakan atas tugas ini</h2>
+              </div>
+            </header>
+            <AdminTools
+              assignmentId={assignment.id}
+              status={assignment.status}
+              effectiveRevisionId={effectiveRevision?.id ?? null}
+            />
+          </section>
+        )}
+      </AdminEditProvider>
     </div>
   );
 }

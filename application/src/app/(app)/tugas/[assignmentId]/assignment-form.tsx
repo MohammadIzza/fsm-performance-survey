@@ -2,11 +2,13 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import {
+  adminEditResponseAction,
   saveDraftAction,
   submitResponseAction,
   type FormState,
 } from "@/lib/actions/responses";
 import { ThemeButton } from "@/components/theme-button";
+import { SHEET_ID, useAdminEdit } from "./admin-edit-context";
 
 interface ParameterView {
   id: string;
@@ -24,6 +26,7 @@ interface Scale {
 
 const draftInitial: FormState = {};
 const submitInitial: FormState = {};
+const adminEditInitial: FormState = {};
 
 function ScoreField({
   id,
@@ -70,6 +73,7 @@ function AssessmentSheet({
   guide,
   editable,
   onScoreChange,
+  adminEditing = false,
 }: {
   parameters: ParameterView[];
   scale: Scale;
@@ -77,6 +81,7 @@ function AssessmentSheet({
   guide: string | null;
   editable: boolean;
   onScoreChange?: (parameterId: string, value: string) => void;
+  adminEditing?: boolean;
 }) {
   const filledCount = parameters.filter((p) => scores[p.id] !== "").length;
   const totalWeight = parameters.reduce((sum, p) => sum + p.weight, 0);
@@ -86,7 +91,11 @@ function AssessmentSheet({
   }, 0);
 
   return (
-    <section className="assessment-sheet" aria-labelledby="assessment-title">
+    <section
+      id={SHEET_ID}
+      className={`assessment-sheet${adminEditing ? " assessment-sheet--admin-edit" : ""}`}
+      aria-labelledby="assessment-title"
+    >
       <header className="assessment-sheet__intro">
         <div>
           <p className="eyebrow">INSTRUMEN PENILAIAN</p>
@@ -94,6 +103,16 @@ function AssessmentSheet({
           {guide && <p>{guide}</p>}
         </div>
       </header>
+
+      {/* Penanda mode koreksi duduk di dalam lembarnya, di atas kepala tabel: satu-satunya tempat
+          yang pasti terlihat saat halaman digulir ke sini dari tombol di alat admin. */}
+      {adminEditing && (
+        <p className="assessment-sheet__mode" role="status">
+          <span>Mode koreksi admin</span>
+          Skor di bawah ini sedang diubah sebagai admin. Simpan untuk menyimpannya sebagai revisi
+          terkirim baru, atau batalkan untuk keluar tanpa mengubah apa pun.
+        </p>
+      )}
 
       <div className="assessment-grid">
         <div className="assessment-grid__head" aria-hidden="true">
@@ -191,6 +210,11 @@ export function AssignmentForm({
 }) {
   const [draftState, draftAction, draftPending] = useActionState(saveDraftAction, draftInitial);
   const [submitState, submitAction, submitPending] = useActionState(submitResponseAction, submitInitial);
+  const [adminState, adminAction, adminPending] = useActionState(
+    adminEditResponseAction,
+    adminEditInitial
+  );
+  const { editing: adminEditing, selesai: selesaiKoreksi } = useAdminEdit();
   const expectedVersion = draftState.version ?? initialVersion;
   // Kunci idempotensi dibuat sekali per pemuatan halaman (bukan saat render, Bab 11.4/EDGE-11).
   const [idempotencyKey] = useState(() =>
@@ -214,6 +238,29 @@ export function AssignmentForm({
     return init;
   });
 
+  // Batal harus mengembalikan angka yang tampil ke keadaan tersimpan. Tanpa ini lembar yang
+  // terkunci tetap memperlihatkan ketikan yang barusan dibuang — angka yang tidak pernah
+  // disimpan, tetapi terbaca sebagai nilai resmi. Ref dipakai, bukan dependensi efek, supaya
+  // potretnya diambil tepat saat mode koreksi menyala dan bukan setiap kali satu angka berubah.
+  const scoresTerkini = useRef(scores);
+  scoresTerkini.current = scores;
+  const scoresSebelumKoreksi = useRef<Record<string, string> | null>(null);
+  useEffect(() => {
+    scoresSebelumKoreksi.current = adminEditing ? scoresTerkini.current : null;
+  }, [adminEditing]);
+
+  function batalkanKoreksi() {
+    if (scoresSebelumKoreksi.current) setScores(scoresSebelumKoreksi.current);
+    selesaiKoreksi();
+  }
+
+  // Aksi mengembalikan objek baru setiap kali dijalankan, jadi identitas objeknya cukup untuk
+  // membedakan "belum pernah dikirim" dari "sudah dikirim": kalau bukan nilai awal dan tidak
+  // membawa galat, koreksinya tersimpan dan mode koreksi ditutup sendiri.
+  useEffect(() => {
+    if (adminState !== adminEditInitial && !adminState.error) selesaiKoreksi();
+  }, [adminState, selesaiKoreksi]);
+
   useEffect(() => {
     function handler(e: BeforeUnloadEvent) {
       if (dirtyRef.current) {
@@ -223,6 +270,60 @@ export function AssignmentForm({
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, []);
+
+  // Mode koreksi admin menggantikan kedua tampilan di bawah: lembar yang sama, tetapi skornya
+  // dapat diketik dan terkirim ke aksi admin, bukan ke draf/kirim milik penilai.
+  if (adminEditing) {
+    return (
+      <form action={adminAction} className="assignment-form assignment-form--admin-edit">
+        <input type="hidden" name="assignmentId" value={assignmentId} />
+        <AssessmentSheet
+          parameters={sortedParameters}
+          scale={scale}
+          scores={scores}
+          guide={guide}
+          editable
+          adminEditing
+          onScoreChange={(parameterId, value) =>
+            setScores((current) => ({ ...current, [parameterId]: value }))
+          }
+        />
+        <div className="assessment-actions assessment-actions--admin">
+          <label className="admin-tools__field admin-tools__field--grow">
+            <span>Alasan koreksi (wajib)</span>
+            <input
+              name="reason"
+              placeholder="Mis. salah ketik pada parameter 2"
+              required
+              className="form__control"
+            />
+          </label>
+          <div className="assessment-actions__buttons">
+            <button
+              type="button"
+              onClick={batalkanKoreksi}
+              disabled={adminPending}
+              className="admin-action"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={adminPending}
+              className="admin-action admin-action--primary"
+            >
+              {adminPending ? "Menyimpan…" : "Simpan koreksi"}
+            </button>
+          </div>
+          {adminState.error && (
+            <p role="alert" className="admin-actions__error">
+              {adminState.error}
+            </p>
+          )}
+        </div>
+      </form>
+    );
+  }
 
   if (isLocked) {
     return (
