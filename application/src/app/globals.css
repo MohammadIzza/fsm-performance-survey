@@ -860,13 +860,20 @@ input[type="range"]:disabled::-moz-range-thumb {
 @media only screen and (max-width:640px) {
   .assignments-data-list .s-courses-list {margin:.55rem 0 0}
   .assignments-data-list .s-courses-list .sb-course--head {display:block;margin:0 0 .25rem}
+  /* Kepala tabel di layar sempit bukan lagi kepala kolom melainkan bilah filter: dua kolom
+     sama lebar, masing-masing satu label kecil di atas satu pilihan. */
   .assignments-data-list .s-courses-list .sb-course--head .sb__link {
-    display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.35rem;padding:0;border:0;
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:end;
+    gap:.4rem;padding:.5rem .55rem;border:0;border-radius:.5rem;overflow:visible;
   }
   .assignments-data-list .sb-course--head .sb__title,
   .assignments-data-list .sb-course--head .sb__dates {display:none}
   .assignments-data-list .sb-course--head .sb__location,
-  .assignments-data-list .sb-course--head .sb__price {display:block;width:auto;max-width:none;margin:0}
+  .assignments-data-list .sb-course--head .sb__price {
+    display:block;grid-row:1;width:auto;max-width:none;margin:0;justify-self:stretch;
+  }
+  .assignments-data-list .sb-course--head .sb__location {grid-column:1}
+  .assignments-data-list .sb-course--head .sb__price {grid-column:2}
   /* Ukurannya diturunkan agar sebanding dengan baris daftar di bawahnya; sebelumnya hurufnya dua
      kali lebih besar daripada isi tabelnya sendiri. Aturan 16px di berkas ini ada untuk mencegah
      Safari iOS mem-zoom halaman saat kolom isian difokuskan — itu berlaku pada kolom yang diketik,
@@ -875,23 +882,23 @@ input[type="range"]:disabled::-moz-range-thumb {
   .assignment-head-filter > span {font-size:.5rem}
   .assignment-head-filter select.form__control {width:100%;max-width:100%;min-height:1.9rem;
     padding:.35em 1.7em .35em .5em;font-size:.72rem!important}
-  .assignments-data-list .s-courses-list .sb-course {margin:.4rem 0}
-  .assignments-data-list .s-courses-list .sb-course .sb__link {
+  .assignments-data-list .s-courses-list .sb-course:not(.sb-course--head) {margin:.4rem 0}
+  .assignments-data-list .s-courses-list .sb-course:not(.sb-course--head) .sb__link {
     display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
     gap:.35rem .6rem;padding:.62rem .68rem;overflow:hidden;border-radius:.6rem;
   }
-  .assignments-data-list .s-courses-list .sb-course .sb__title {
+  .assignments-data-list .s-courses-list .sb-course:not(.sb-course--head) .sb__title {
     grid-column:1;grid-row:1;width:auto;font-size:.68rem;line-height:1.25;
   }
-  .assignments-data-list .s-courses-list .sb-course .sb__dates {
+  .assignments-data-list .s-courses-list .sb-course:not(.sb-course--head) .sb__dates {
     grid-column:2;grid-row:1;width:auto;justify-self:end;padding-left:1.05rem;
     font-size:.56rem;line-height:1.2;white-space:nowrap;
   }
-  .assignments-data-list .s-courses-list .sb-course .sb__dates::before {width:11px;height:10px}
-  .assignments-data-list .s-courses-list .sb-course .sb__location {
+  .assignments-data-list .s-courses-list .sb-course:not(.sb-course--head) .sb__dates::before {width:11px;height:10px}
+  .assignments-data-list .s-courses-list .sb-course:not(.sb-course--head) .sb__location {
     grid-column:1;grid-row:2;width:auto;margin:0;font-size:.56rem;line-height:1.25;
   }
-  .assignments-data-list .s-courses-list .sb-course .sb__price {
+  .assignments-data-list .s-courses-list .sb-course:not(.sb-course--head) .sb__price {
     grid-column:2;grid-row:2;width:auto;justify-self:end;font-size:.56rem;
   }
   .assignments-data-list .status-pill {padding:.25em .65em;font-size:.54rem}
