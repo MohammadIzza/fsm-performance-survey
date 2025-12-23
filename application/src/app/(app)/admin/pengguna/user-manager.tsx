@@ -46,15 +46,15 @@ export function UserManager({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
+      <div className="app-panel app-panel--ruled">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+          <h2 className="app-panel__label app-panel__label--tight">
             Tambah pengguna
           </h2>
           <button
             type="button"
             onClick={() => setShowTypeForm((v) => !v)}
-            className="text-[12px] font-medium text-[var(--accent)] hover:underline"
+            className="app-text-xs font-medium text-[var(--accent)] hover:underline"
           >
             {showTypeForm ? "Tutup" : "Kelola jenis pengguna"}
           </button>
@@ -63,30 +63,30 @@ export function UserManager({
         {showTypeForm && (
           <form
             action={typeFormAction}
-            className="mb-4 flex flex-wrap items-end gap-2 rounded-xl bg-black/[0.02] p-3"
+            className="app-note mb-4 flex flex-wrap items-end gap-2"
           >
             <div className="flex flex-col gap-1">
-              <label className="text-[11px] text-[var(--muted)]">Kode</label>
+              <label className="app-text-xs text-[var(--muted)]">Kode</label>
               <input
                 name="code"
                 placeholder="mis. LABORAN"
                 required
-                className="rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 text-[13px] outline-none focus:border-[var(--accent)]"
+                className="rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 app-text-sm outline-none focus:border-[var(--accent)]"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-[11px] text-[var(--muted)]">Nama</label>
+              <label className="app-text-xs text-[var(--muted)]">Nama</label>
               <input
                 name="name"
                 placeholder="mis. Laboran"
                 required
-                className="rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 text-[13px] outline-none focus:border-[var(--accent)]"
+                className="rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 app-text-sm outline-none focus:border-[var(--accent)]"
               />
             </div>
             <button
               type="submit"
               disabled={typePending}
-              className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-[13px] font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
+              className="rounded-lg bg-[var(--accent)] px-3 py-1.5 app-text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
             >
               {typePending ? "Menyimpan…" : "Tambah jenis"}
             </button>
@@ -103,19 +103,19 @@ export function UserManager({
             name="loginIdentifier"
             placeholder="ID (NIP/NIM/NIK)"
             required
-            className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+            className="form__control"
           />
           <input
             name="name"
             placeholder="Nama lengkap"
             required
-            className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+            className="form__control"
           />
           <select
             name="userTypeId"
             required
             defaultValue=""
-            className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+            className="form__control"
           >
             <option value="" disabled>
               Jenis pengguna…
@@ -129,7 +129,7 @@ export function UserManager({
           <select
             name="primaryUnitId"
             defaultValue=""
-            className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+            className="form__control"
           >
             <option value="">— Unit utama (opsional) —</option>
             {units.map((u) => (
@@ -147,7 +147,7 @@ export function UserManager({
             <button
               type="submit"
               disabled={createPending}
-              className="rounded-xl bg-[var(--accent)] px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-60"
+              className="app-btn app-btn--primary"
             >
               {createPending ? "Menyimpan…" : "Tambah pengguna"}
             </button>
@@ -168,8 +168,8 @@ export function UserManager({
       </FilterBar>
 
       {visibleUsers.length === 0 ? (
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">
-          <p className="text-[15px] text-[var(--muted)]">
+        <div className="app-empty-box">
+          <p className="text-[var(--muted)]">
             Tidak ada pengguna yang cocok dengan &ldquo;{search}&rdquo;.
           </p>
         </div>
@@ -271,19 +271,19 @@ function UserRow({
               name="loginIdentifier"
               defaultValue={user.loginIdentifier}
               required
-              className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+              className="form__control"
             />
             <input
               name="name"
               defaultValue={user.name}
               required
-              className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+              className="form__control"
             />
             <select
               name="userTypeId"
               defaultValue={user.userTypeId}
               required
-              className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+              className="form__control"
             >
               {userTypes.map((t) => (
                 <option key={t.id} value={t.id}>
@@ -294,7 +294,7 @@ function UserRow({
             <select
               name="primaryUnitId"
               defaultValue={user.primaryUnitId ?? ""}
-              className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+              className="form__control"
             >
               <option value="">— Tanpa unit utama —</option>
               {units.map((u) => (
@@ -307,14 +307,14 @@ function UserRow({
               <button
                 type="submit"
                 disabled={updatePending}
-                className="rounded-xl bg-[var(--accent)] px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-60"
+                className="app-btn app-btn--primary"
               >
                 {updatePending ? "Menyimpan…" : "Simpan"}
               </button>
               <button
                 type="button"
                 onClick={() => setEditing(false)}
-                className="rounded-xl border border-[var(--border)] px-4 py-2 text-[14px] font-medium text-[var(--foreground)] transition hover:bg-black/[0.03]"
+                className="app-btn"
               >
                 Batal
               </button>
@@ -332,7 +332,7 @@ function UserRow({
                   {user.roleGrants.map((g) => (
                     <li
                       key={g.id}
-                      className="flex items-center gap-2 rounded-lg bg-[var(--surface)] px-3 py-1.5 text-[13px]"
+                      className="flex items-center gap-2 rounded-lg bg-[var(--surface)] px-3 py-1.5 app-text-sm"
                     >
                       <span className="font-medium text-[var(--foreground)]">
                         {g.role === "ADMIN" ? "Admin" : "Dekan"}
@@ -341,7 +341,7 @@ function UserRow({
                         <input type="hidden" name="grantId" value={g.id} />
                         <button
                           type="submit"
-                          className="text-[12px] font-medium text-[var(--muted)] hover:text-[var(--danger)] hover:underline"
+                          className="app-text-xs font-medium text-[var(--muted)] hover:text-[var(--danger)] hover:underline"
                         >
                           Cabut
                         </button>
@@ -354,11 +354,11 @@ function UserRow({
               <form action={grantFormAction} className="flex flex-wrap items-end gap-2">
                 <input type="hidden" name="userId" value={user.id} />
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] text-[var(--muted)]">Beri peran</label>
+                  <label className="app-text-xs text-[var(--muted)]">Beri peran</label>
                   <select
                     name="role"
                     defaultValue="ADMIN"
-                    className="rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 text-[13px] outline-none focus:border-[var(--accent)]"
+                    className="rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 app-text-sm outline-none focus:border-[var(--accent)]"
                   >
                     <option value="ADMIN">Admin</option>
                     <option value="DEKAN">Dekan</option>
@@ -367,7 +367,7 @@ function UserRow({
                 <button
                   type="submit"
                   disabled={grantPending}
-                  className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-[13px] font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
+                  className="rounded-lg bg-[var(--accent)] px-3 py-1.5 app-text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
                 >
                   {grantPending ? "Menyimpan…" : "Tetapkan"}
                 </button>

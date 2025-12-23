@@ -26,7 +26,7 @@ export function CategoryTabs({ tabs }: { tabs: TabDef[] }) {
             role="tab"
             aria-selected={active === t.key}
             onClick={() => setActive(t.key)}
-            className={`shrink-0 whitespace-nowrap border-b-2 px-4 py-2.5 text-[14px] font-medium transition ${
+            className={`shrink-0 whitespace-nowrap border-b-2 px-4 py-2.5 font-medium transition ${
               active === t.key
                 ? "border-[var(--accent)] text-[var(--accent)]"
                 : "border-transparent text-[var(--muted)] hover:text-[var(--foreground)]"

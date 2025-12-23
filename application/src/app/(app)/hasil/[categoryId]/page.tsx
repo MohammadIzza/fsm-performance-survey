@@ -1,4 +1,4 @@
-import { PageHero } from "@/components/page-hero";
+import { PageIntro, SummaryCard } from "@/components/theme/summary";
 import { getPeriodScope } from "@/lib/authz";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -20,8 +20,8 @@ export default async function HasilDetailPage({
   const ctx = await getCurrentAuthContext();
   if (!ctx || (!ctx.isAdmin && !ctx.isDekan && ctx.leadershipUnitIds.length === 0)) {
     return (
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">
-        <p className="text-[15px] font-medium text-[var(--foreground)]">Tidak berwenang</p>
+      <div className="app-empty-box">
+        <p className="font-medium text-[var(--foreground)]">Tidak berwenang</p>
       </div>
     );
   }
@@ -47,11 +47,11 @@ export default async function HasilDetailPage({
   if (!accessOpen) {
     return (
       <div className="space-y-4">
-        <Link href="/hasil" className="text-[13px] text-[var(--muted)] hover:underline">
+        <Link href="/hasil" className="app-text-sm text-[var(--muted)] hover:underline">
           ← Hasil &amp; Leaderboard
         </Link>
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">
-          <p className="text-[15px] font-medium text-[var(--foreground)]">Hasil belum dapat diakses</p>
+        <div className="app-empty-box">
+          <p className="font-medium text-[var(--foreground)]">Hasil belum dapat diakses</p>
           <p className="mt-1 text-sm text-[var(--muted)]">
             {category.period.accessPolicy
               ? describeAccessCondition(category.period.accessPolicy.mode, category.period.accessPolicy.availableAt)
@@ -117,33 +117,35 @@ export default async function HasilDetailPage({
 
   return (
     <div className="space-y-8">
-      <div>
-        <Link
-          href="/hasil"
-          className="mb-3 inline-block text-[13px] text-[var(--muted)] hover:underline"
-        >
-          ← Hasil &amp; Leaderboard
-        </Link>
-        <PageHero
-          compact
-          eyebrow={`${category.period.name}${category.period.status !== "FINAL" ? " · NILAI SEMENTARA" : ""}`}
-          title={category.name}
-          description={`Lingkup: ${scopeLabel}`}
+      <Link href="/hasil" className="app-back">
+        ← Hasil &amp; Leaderboard
+      </Link>
+      <PageIntro title={category.name} intro={category.period.name}>
+        <SummaryCard
+          tone={category.period.status === "FINAL" ? "tosca" : "kuning"}
+          label="Nilai"
+          value={category.period.status === "FINAL" ? "Final" : "Sementara"}
+          note={category.period.status === "FINAL" ? "sudah dikunci" : "masih dapat berubah"}
         />
-        {latestRun && (
-          <a
-            href={`/hasil/${categoryId}/export`}
-            className="mt-3 inline-block rounded-xl border border-[var(--border)] px-4 py-2 text-[14px] font-medium text-[var(--foreground)] transition hover:bg-black/[0.03]"
-          >
+        <SummaryCard tone="biru" label="Lingkup" value={scopeLabel} />
+        <SummaryCard
+          tone="kuning"
+          label="Peringkat"
+          value={pimpinanEntries.length + selainEntries.length}
+          note="di kedua kelompok"
+        />
+      </PageIntro>
+
+      {latestRun && (
+        <p>
+          <a href={`/hasil/${categoryId}/export`} className="app-btn">
             Unduh Excel
           </a>
-        )}
-      </div>
+        </p>
+      )}
 
       {!latestRun ? (
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">
-          <p className="text-[15px] text-[var(--muted)]">Belum ada penilaian.</p>
-        </div>
+        <p className="app-empty">Belum ada penilaian.</p>
       ) : (
         <LeaderboardGroups
           pimpinanEntries={pimpinanEntries}
@@ -155,7 +157,7 @@ export default async function HasilDetailPage({
         />
       )}
 
-      <p className="text-[11px] text-[var(--muted)]">
+      <p className="app-text-xs text-[var(--muted)]">
         Dihitung {latestRun ? dateFmt.format(latestRun.createdAt) : "—"}
       </p>
     </div>

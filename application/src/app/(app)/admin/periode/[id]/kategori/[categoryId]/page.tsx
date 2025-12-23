@@ -1,6 +1,7 @@
 import { InstrumentRevisionForm } from "./instrument-revision-form";
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import Link from "next/link";
+import { PageIntro, SummaryCard } from "@/components/theme/summary";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCategoryDetail } from "@/lib/services/categories";
@@ -75,28 +76,27 @@ async function CategoryDetailPage({
   return (
     <div className="space-y-6">
       {category.period.status === "REVISI" && <InstrumentRevisionForm categoryId={categoryId} periodId={periodId}/>}
-      <div>
-        <Link
-          href={`/admin/periode/${periodId}`}
-          className="text-[13px] text-[var(--muted)] hover:underline"
-        >
-          ← {category.period.name}
-        </Link>
-        <div className="mt-1 flex items-center gap-3">
-          <h1 className="page-title text-[24px] sm:text-[28px] text-[var(--foreground)]">
-            {category.name}
-          </h1>
-          <Link
-            href={`/admin/periode/${periodId}/kategori/${categoryId}/hasil`}
-            className="text-[13px] font-medium text-[var(--accent)] hover:underline"
-          >
-            Lihat hasil →
-          </Link>
-        </div>
-        <p className="mt-1 font-mono text-[13px] text-[var(--muted)]">
-          {category.code} · {category.objectType.name}
-        </p>
-      </div>
+      <Link href={`/admin/periode/${periodId}`} className="app-back">
+        ← {category.period.name}
+      </Link>
+      <PageIntro title={category.name} intro={`${category.code} · ${category.objectType.name}`}>
+        <SummaryCard tone="biru" label="Jenis objek" value={category.objectType.name} />
+        <SummaryCard
+          tone="kuning"
+          label="Peserta"
+          value={category.categoryObjects.length}
+          note="objek dinilai"
+        />
+        <SummaryCard
+          tone="tosca"
+          label="Hasil"
+          value={
+            <Link href={`/admin/periode/${periodId}/kategori/${categoryId}/hasil`}>
+              Lihat hasil →
+            </Link>
+          }
+        />
+      </PageIntro>
 
       <CategoryTabs
         tabs={[
@@ -106,16 +106,16 @@ async function CategoryDetailPage({
             content: (
               <>
                 <div className="grid gap-6 lg:grid-cols-2">
-                  <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-                    <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+                  <div className="app-panel app-panel--ruled">
+                    <h2 className="app-panel__label">
                       Pengaturan kategori
                     </h2>
                     <CategoryEditForm category={category} periodId={periodId} editable={editable} />
                   </div>
 
                   {instrument && (
-                    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-                      <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+                    <div className="app-panel app-panel--ruled">
+                      <h2 className="app-panel__label">
                         Skala instrumen
                       </h2>
                       <ScaleForm
@@ -129,13 +129,13 @@ async function CategoryDetailPage({
                 </div>
 
                 {instrument && (
-                  <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
+                  <div className="app-panel app-panel--ruled">
                     <div className="mb-4 flex items-center justify-between">
-                      <h2 className="text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+                      <h2 className="app-panel__label app-panel__label--tight">
                         Parameter &amp; bobot
                       </h2>
                       <span
-                        className={`text-[13px] font-medium ${
+                        className={`app-text-sm font-medium ${
                           Math.abs(totalWeight - 100) < 0.001
                             ? "text-[var(--success)]"
                             : "text-[var(--danger)]"
@@ -178,9 +178,9 @@ async function CategoryDetailPage({
                       .map((rule) => (
                         <div
                           key={rule.id}
-                          className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm"
+                          className="app-panel app-panel--ruled"
                         >
-                          <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+                          <h2 className="app-panel__label">
                             {rule.group === "PIMPINAN" ? "Pimpinan" : "Selain Pimpinan"}
                           </h2>
                           <GroupRuleForm parameters={instrument?.parameters ?? []}
@@ -203,9 +203,9 @@ async function CategoryDetailPage({
                       .map((rule) => (
                         <div
                           key={rule.id}
-                          className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm"
+                          className="app-panel app-panel--ruled"
                         >
-                          <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+                          <h2 className="app-panel__label">
                             {rule.group === "PIMPINAN" ? "Pimpinan" : "Selain Pimpinan"}
                           </h2>
                           <AssignmentRuleForm
@@ -226,8 +226,8 @@ async function CategoryDetailPage({
             key: "peserta",
             label: `Peserta (${category.categoryObjects.length})`,
             content: (
-              <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-                <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+              <div className="app-panel app-panel--ruled">
+                <h2 className="app-panel__label">
                   Peserta ({category.categoryObjects.length})
                 </h2>
                 <ParticipantManager
@@ -245,22 +245,22 @@ async function CategoryDetailPage({
             label: `Penugasan (${assignments.length})`,
             content: (
               <>
-                <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-                  <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+                <div className="app-panel app-panel--ruled">
+                  <h2 className="app-panel__label">
                     Pengacakan penugasan
                   </h2>
                   <AssignmentPlanner periodId={periodId} categoryId={categoryId} editable={editable} />
                 </div>
 
-                <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-                  <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+                <div className="app-panel app-panel--ruled">
+                  <h2 className="app-panel__label">
                     Daftar tugas ({assignments.length})
                   </h2>
                   <div className="space-y-4">
                     <AssignmentList assignments={assignments} periodId={periodId} categoryId={categoryId} />
                     {editable && category.categoryObjects.length > 0 && (
                       <div className="border-t border-[var(--border)] pt-4">
-                        <h3 className="mb-2 text-[12px] font-medium uppercase tracking-wide text-[var(--muted)]">
+                        <h3 className="app-panel__label">
                           Tugaskan manual
                         </h3>
                         <ManualAssignForm

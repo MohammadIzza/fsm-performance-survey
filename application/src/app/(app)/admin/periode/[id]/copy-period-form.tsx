@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { copyPeriodAction } from "@/lib/actions/admin-periods";
 
 const fieldClass =
-  "rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20";
+  "form__control";
 
 // UC-10: menyalin konfigurasi kategori/instrumen/aturan/peserta aktif periode ini ke periode draf
 // baru dengan jadwal baru (titik awal yang bisa ditinjau/diubah admin). Penugasan dan jawaban
@@ -30,7 +30,7 @@ export function CopyPeriodForm({ sourcePeriodId }: { sourcePeriodId: string }) {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-xl border border-[var(--border)] px-4 py-2 text-[14px] font-medium text-[var(--foreground)] transition hover:bg-black/5 disabled:opacity-60"
+          className="app-btn"
         >
           {pending ? "Menyalin…" : "Gunakan kembali periode ini"}
         </button>

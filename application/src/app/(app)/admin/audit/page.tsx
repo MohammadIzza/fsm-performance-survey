@@ -118,7 +118,7 @@ async function AuditPage({
       )}
 
       {result.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 text-[13px]">
+        <div className="flex items-center justify-center gap-3 app-text-sm">
           {page > 1 && (
             <Link href={buildHref({ page: String(page - 1) })} className="text-[var(--accent)] hover:underline">
               ← Sebelumnya

@@ -31,7 +31,7 @@ export function AssignmentPlanner({
 
   if (!editable) {
     return (
-      <p className="text-[13px] text-[var(--muted)]">
+      <p className="app-text-sm text-[var(--muted)]">
         Pengacakan penugasan hanya dapat dijalankan selama periode berstatus Draf.
       </p>
     );
@@ -46,7 +46,7 @@ export function AssignmentPlanner({
         <button
           type="submit"
           disabled={previewPending}
-          className="rounded-xl border border-[var(--border)] px-4 py-2 text-[14px] font-medium text-[var(--foreground)] transition hover:bg-black/[0.03] disabled:opacity-60"
+          className="app-btn"
         >
           {previewPending ? "Menghitung…" : "Pratinjau pengacakan"}
         </button>
@@ -60,10 +60,10 @@ export function AssignmentPlanner({
 
       {plan && (
         <div className="space-y-3">
-          <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
-            <table className="w-full min-w-[640px] text-left text-[13px]">
+          <div className="app-table-wrap">
+            <table className="w-full min-w-[640px] text-left app-text-sm">
               <thead>
-                <tr className="border-b border-[var(--border)] text-[11px] uppercase tracking-wide text-[var(--muted)]">
+                <tr>
                   <th className="px-3 py-2 font-medium">Objek</th>
                   <th className="px-3 py-2 font-medium">Kelompok</th>
                   <th className="px-3 py-2 font-medium">Calon sah</th>
@@ -96,7 +96,7 @@ export function AssignmentPlanner({
           </div>
 
           <div className="flex items-center gap-3">
-            <p className="text-[13px] text-[var(--muted)]">
+            <p className="app-text-sm text-[var(--muted)]">
               {plan.totalNewAssignments} tugas baru akan diterbitkan.
             </p>
             {plan.totalNewAssignments > 0 && (
@@ -108,7 +108,7 @@ export function AssignmentPlanner({
                 <button
                   type="submit"
                   disabled={commitPending}
-                  className="rounded-xl bg-[var(--accent)] px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-60"
+                  className="app-btn app-btn--primary"
                 >
                   {commitPending ? "Menerapkan…" : "Terapkan penugasan"}
                 </button>

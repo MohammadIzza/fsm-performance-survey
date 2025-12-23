@@ -28,8 +28,8 @@ export function UnitManager({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-        <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+      <div className="app-panel app-panel--ruled">
+        <h2 className="app-panel__label">
           Tambah unit
         </h2>
         <form action={createFormAction} className="grid gap-3 sm:grid-cols-4">
@@ -37,18 +37,18 @@ export function UnitManager({
             name="code"
             placeholder="Kode (mis. PS-INF)"
             required
-            className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+            className="form__control"
           />
           <input
             name="name"
             placeholder="Nama unit"
             required
-            className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 sm:col-span-2"
+            className="form__control sm:col-span-2"
           />
           <select
             name="parentId"
             defaultValue=""
-            className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+            className="form__control"
           >
             <option value="">— Akar (tanpa induk) —</option>
             {parentOptions.map((u) => (
@@ -66,7 +66,7 @@ export function UnitManager({
             <button
               type="submit"
               disabled={createPending}
-              className="rounded-xl bg-[var(--accent)] px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-60"
+              className="app-btn app-btn--primary"
             >
               {createPending ? "Menyimpan…" : "Tambah unit"}
             </button>
@@ -165,18 +165,18 @@ function UnitRow({
               name="code"
               defaultValue={unit.code}
               required
-              className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+              className="form__control"
             />
             <input
               name="name"
               defaultValue={unit.name}
               required
-              className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 sm:col-span-2"
+              className="form__control sm:col-span-2"
             />
             <select
               name="parentId"
               defaultValue={unit.parentId ?? ""}
-              className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+              className="form__control"
             >
               <option value="">— Akar (tanpa induk) —</option>
               {parentOptions.map((u) => (
@@ -189,14 +189,14 @@ function UnitRow({
               <button
                 type="submit"
                 disabled={updatePending}
-                className="rounded-xl bg-[var(--accent)] px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-60"
+                className="app-btn app-btn--primary"
               >
                 {updatePending ? "Menyimpan…" : "Simpan"}
               </button>
               <button
                 type="button"
                 onClick={() => setEditing(false)}
-                className="rounded-xl border border-[var(--border)] px-4 py-2 text-[14px] font-medium text-[var(--foreground)] transition hover:bg-black/[0.03]"
+                className="app-btn"
               >
                 Batal
               </button>
@@ -216,7 +216,7 @@ function UnitRow({
                     return (
                       <li
                         key={l.id}
-                        className="flex items-center justify-between rounded-lg bg-[var(--surface)] px-3 py-2 text-[13px]"
+                        className="flex items-center justify-between rounded-lg bg-[var(--surface)] px-3 py-2 app-text-sm"
                       >
                         <span>
                           <span className="font-medium text-[var(--foreground)]">
@@ -234,7 +234,7 @@ function UnitRow({
                             <input type="hidden" name="leadershipId" value={l.id} />
                             <button
                               type="submit"
-                              className="text-[12px] font-medium text-[var(--muted)] hover:text-[var(--danger)] hover:underline"
+                              className="app-text-xs font-medium text-[var(--muted)] hover:text-[var(--danger)] hover:underline"
                             >
                               Akhiri jabatan
                             </button>
@@ -252,7 +252,7 @@ function UnitRow({
                   name="userId"
                   required
                   defaultValue=""
-                  className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[13px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+                  className="form__control"
                 >
                   <option value="" disabled>
                     Pilih pengguna…
@@ -267,19 +267,19 @@ function UnitRow({
                   name="title"
                   placeholder="Jabatan (mis. Ketua Departemen)"
                   required
-                  className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[13px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+                  className="form__control"
                 />
                 <input
                   name="effectiveFrom"
                   type="date"
                   required
                   defaultValue={new Date().toISOString().slice(0, 10)}
-                  className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[13px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+                  className="form__control"
                 />
                 <button
                   type="submit"
                   disabled={assignPending}
-                  className="rounded-xl bg-[var(--accent)] px-3 py-2 text-[13px] font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-60"
+                  className="app-btn app-btn--primary"
                 >
                   {assignPending ? "Menyimpan…" : "Tetapkan pimpinan"}
                 </button>

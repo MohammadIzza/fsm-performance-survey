@@ -34,14 +34,14 @@ async function OrganisasiPage() {
       </PageIntro>
 
       <div>
-        <h2 className="mb-3 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+        <h2 className="app-panel__label">
           Struktur organisasi
         </h2>
         <OrgTree units={units} />
       </div>
 
       <div>
-        <h2 className="mb-3 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+        <h2 className="app-panel__label">
           Kelola unit
         </h2>
         <UnitManager units={units} activeUsers={activeUsers} />

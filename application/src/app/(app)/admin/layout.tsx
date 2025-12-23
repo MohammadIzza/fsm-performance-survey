@@ -8,8 +8,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // (Bab 16.3), bukan redirect diam-diam.
   if (!ctx || !ctx.isAdmin) {
     return (
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">
-        <p className="text-[15px] font-medium text-[var(--foreground)]">Tidak berwenang</p>
+      <div className="app-empty-box">
+        <p className="font-medium text-[var(--foreground)]">Tidak berwenang</p>
         <p className="mt-1 text-sm text-[var(--muted)]">
           Halaman ini khusus untuk Admin. Peran Anda saat ini tidak memiliki akses.
         </p>

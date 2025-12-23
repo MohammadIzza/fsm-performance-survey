@@ -1,4 +1,4 @@
-import { PageHero } from "@/components/page-hero";
+import { PageIntro, SummaryCard } from "@/components/theme/summary";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentAuthContext, getPeriodScope } from "@/lib/authz";
@@ -23,9 +23,9 @@ const groupLabel: Record<string, string> = {
 
 function NoticeCard({ title, body }: { title: string; body?: string }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">
-      <p className="text-[15px] font-medium text-[var(--foreground)]">{title}</p>
-      {body && <p className="mt-1 text-sm text-[var(--muted)]">{body}</p>}
+    <div className="app-empty-box">
+      <p><strong>{title}</strong></p>
+      {body && <p className="app-text-sm">{body}</p>}
     </div>
   );
 }
@@ -77,19 +77,25 @@ export default async function Archive({
 
   return (
     <div className="space-y-8">
-      <div>
-        <PageHero
-          compact
-          eyebrow={`ARSIP FINAL · REVISI ${f.revision}`}
-          title={f.period.name}
-          description={`Difinalkan ${dateFmt.format(f.finalizedAt)} WIB`}
+      <PageIntro title={f.period.name} intro={f.note ? `Catatan: ${f.note}` : undefined}>
+        <SummaryCard tone="biru" label="Arsip final" value={`Revisi ${f.revision}`} />
+        <SummaryCard
+          tone="tosca"
+          label="Difinalkan"
+          value={dateFmt.format(f.finalizedAt)}
+          note="WIB"
         />
-        {f.note && <p className="text-[13px] text-[var(--muted)]">Catatan: {f.note}</p>}
-      </div>
+        <SummaryCard
+          tone="kuning"
+          label="Kategori"
+          value={f.calculationRuns.length}
+          note="ikut difinalkan"
+        />
+      </PageIntro>
 
       {f.calculationRuns.map((run) => (
-        <div key={run.id} className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-          <h2 className="mb-4 text-[18px] font-semibold text-[var(--foreground)]">{run.category.name}</h2>
+        <div key={run.id} className="app-panel app-panel--ruled">
+          <h2 className="app-panel__label">{run.category.name}</h2>
           <div className="grid gap-6">
             {(["PIMPINAN", "SELAIN_PIMPINAN"] as const).map((group) => {
               const results = run.objectGroupResults
@@ -103,35 +109,35 @@ export default async function Archive({
 
               return (
                 <div key={group}>
-                  <h3 className="mb-2 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+                  <h3 className="app-panel__label">
                     {groupLabel[group]}
                   </h3>
                   {results.length === 0 ? (
-                    <p className="text-[13px] text-[var(--muted)]">Belum ada penilaian.</p>
+                    <p className="app-empty">Belum ada penilaian.</p>
                   ) : (
-                    <ul className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)]">
+                    <ul className="app-stack">
                       {results.map((r) => (
                         <li key={r.id}>
                           <details className="group px-4 py-3">
                             <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
                               <span className="min-w-0">
-                                <span className="block truncate text-[14px] font-medium text-[var(--foreground)]">
+                                <span className="block truncate font-medium">
                                   {r.categoryObject.nameSnapshot}
                                 </span>
-                                <span className="block truncate text-[12px] text-[var(--muted)]">
+                                <span className="block truncate app-text-xs text-[var(--muted)]">
                                   {r.categoryObject.unitSnapshot} &middot; {r.responseCount} respons
                                 </span>
                               </span>
-                              <span className="shrink-0 text-right text-[15px] font-semibold text-[var(--foreground)]">
+                              <span className="shrink-0 text-right font-semibold text-[var(--foreground)]">
                                 {r.score !== null ? r.score.toFixed(2) : "—"}
                               </span>
                             </summary>
                             <div className="mt-3 space-y-2 border-t border-[var(--border)] pt-3">
-                              <p className="text-[12px] text-[var(--muted)]">
+                              <p className="app-text-xs text-[var(--muted)]">
                                 {eligibilityLabel[r.eligibility] ?? r.eligibility}
                               </p>
                               {r.parameterResults.map((v) => (
-                                <p key={v.id} className="flex items-baseline justify-between text-[12px]">
+                                <p key={v.id} className="flex items-baseline justify-between app-text-xs">
                                   <span className="text-[var(--foreground)]">
                                     {v.parameter.name} <span className="text-[var(--muted)]">({v.parameter.weight}%)</span>
                                   </span>

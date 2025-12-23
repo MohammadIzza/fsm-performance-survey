@@ -29,7 +29,7 @@ export function LeaderboardTable({
   searchTerm?: string;
 }) {
   if (entries.length === 0) {
-    return <p className="text-[13px] text-[var(--muted)]">Belum ada penilaian.</p>;
+    return <p className="app-empty">Belum ada penilaian.</p>;
   }
 
   const term = searchTerm?.trim().toLowerCase();
@@ -39,7 +39,7 @@ export function LeaderboardTable({
 
   if (visible.length === 0) {
     return (
-      <p className="text-[13px] text-[var(--muted)]">
+      <p className="app-empty">
         Tidak ada objek yang cocok dengan &ldquo;{searchTerm}&rdquo; pada lingkup ini.
       </p>
     );
@@ -62,16 +62,16 @@ export function LeaderboardTable({
       </ul>
 
       {/* Desktop (≥md): tabel padat. */}
-      <div className="hidden overflow-x-auto rounded-xl border border-[var(--border)] md:block">
-        <table className="w-full min-w-[640px] text-left text-[13px]">
+      <div className="app-table-wrap hidden md:block">
+        <table className="min-w-[640px]">
           <thead>
-            <tr className="border-b border-[var(--border)] text-[11px] uppercase tracking-wide text-[var(--muted)]">
-              <th className="px-3 py-2 font-medium">Peringkat</th>
-              <th className="px-3 py-2 font-medium">Objek</th>
-              <th className="px-3 py-2 font-medium">Unit</th>
-              <th className="px-3 py-2 font-medium">Respons</th>
-              <th className="px-3 py-2 font-medium">Nilai</th>
-              <th className="px-3 py-2 font-medium">Status</th>
+            <tr>
+              <th className="font-medium">Peringkat</th>
+              <th className="font-medium">Objek</th>
+              <th className="font-medium">Unit</th>
+              <th className="font-medium">Respons</th>
+              <th className="font-medium">Nilai</th>
+              <th className="font-medium">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -104,8 +104,7 @@ function RankBadge({ rank }: { rank: number | null }) {
           : "bg-black/[0.04] text-[var(--foreground)]";
   return (
     <span
-      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[14px] font-semibold ${medal}`}
-    >
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-semibold ${medal}`}>
       {rank ?? "—"}
     </span>
   );
@@ -116,12 +115,12 @@ function DetailPanel({ detail }: { detail: DetailData }) {
     <div className="space-y-3">
       {detail.parameterResults.length > 0 && (
         <div>
-          <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-[var(--muted)]">
+          <p className="app-panel__label app-panel__label--tight">
             Agregasi per parameter
           </p>
           <ul className="space-y-1">
             {detail.parameterResults.map((p) => (
-              <li key={p.parameterName} className="flex items-baseline justify-between text-[12px]">
+              <li key={p.parameterName} className="app-text-xs flex items-baseline justify-between">
                 <span className="text-[var(--foreground)]">
                   {p.parameterName} <span className="text-[var(--muted)]">({p.weight}%)</span>
                 </span>
@@ -135,17 +134,17 @@ function DetailPanel({ detail }: { detail: DetailData }) {
       )}
 
       <div>
-        <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-[var(--muted)]">
+        <p className="app-panel__label app-panel__label--tight">
           Penilai yang berkontribusi
         </p>
         {detail.respondents.length === 0 ? (
-          <p className="text-[12px] text-[var(--muted)]">Belum ada jawaban terkirim.</p>
+          <p className="app-text-xs">Belum ada jawaban terkirim.</p>
         ) : (
           <ul className="space-y-1.5">
             {detail.respondents.map((r, i) => (
-              <li key={i} className="text-[12px]">
+              <li key={i} className="app-text-xs">
                 <span className="font-medium text-[var(--foreground)]">{r.evaluatorName}</span>{" "}
-                <span className="font-mono text-[11px] text-[var(--muted)]">({r.evaluatorLogin})</span>
+                <span className="app-text-xs font-mono">({r.evaluatorLogin})</span>
                 <span className="ml-2 text-[var(--muted)]">
                   {r.scores.map((s) => `${s.parameterName}: ${s.score}`).join(" · ")}
                 </span>
@@ -173,39 +172,38 @@ function EntryCard({
   const canExpand = showDetail && !!detail;
 
   return (
-    <li className="rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+    <li className="leaderboard-card">
       <button
         type="button"
         onClick={canExpand ? () => setOpen((v) => !v) : undefined}
         disabled={!canExpand}
-        className="flex w-full items-center gap-3 p-3 text-left disabled:cursor-default"
-      >
+        className="flex w-full items-center gap-3 p-3 text-left disabled:cursor-default">
         <RankBadge rank={entry.rank} />
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-[14px] font-medium text-[var(--foreground)]">
+          <span className="block truncate font-medium">
             {entry.objectName}
           </span>
-          <span className="block truncate text-[12px] text-[var(--muted)]">{entry.unitName}</span>
+          <span className="app-text-xs block truncate">{entry.unitName}</span>
         </span>
         <span className="shrink-0 text-right">
-          <span className="block text-[16px] font-semibold text-[var(--foreground)]">
+          <span className="app-stat block">
             {entry.score !== null ? entry.score.toFixed(2) : "—"}
           </span>
-          <span className="block text-[11px] text-[var(--muted)]">
+          <span className="app-text-xs block">
             {entry.responseCount} resp.{entry.eligibility !== "MEMENUHI_SYARAT" && ` / min. ${minimum}`}
           </span>
         </span>
         {canExpand && (
-          <span className="shrink-0 text-[11px] text-[var(--accent)]" aria-hidden="true">
+          <span className="app-text-xs shrink-0" aria-hidden="true">
             {open ? "▲" : "▼"}
           </span>
         )}
       </button>
       {entry.eligibility !== "MEMENUHI_SYARAT" && (
-        <p className="px-3 pb-2 text-[11px] text-[var(--warm)]">{eligibilityLabel[entry.eligibility]}</p>
+        <p className="app-text-xs px-3 pb-2">{eligibilityLabel[entry.eligibility]}</p>
       )}
       {open && detail && (
-        <div className="border-t border-[var(--border)] bg-black/[0.015] p-3">
+        <div className="leaderboard-card__panel">
           <DetailPanel detail={detail} />
         </div>
       )}
@@ -231,25 +229,24 @@ function EntryRow({
     <>
       <tr
         className={`border-b border-[var(--border)] last:border-b-0 ${canExpand ? "cursor-pointer hover:bg-black/[0.015]" : ""}`}
-        onClick={canExpand ? () => setOpen((v) => !v) : undefined}
-      >
-        <td className="px-3 py-2">
+        onClick={canExpand ? () => setOpen((v) => !v) : undefined}>
+        <td>
           <RankBadge rank={entry.rank} />
         </td>
-        <td className="px-3 py-2 font-medium text-[var(--foreground)]">
+        <td className="font-medium text-[var(--foreground)]">
           {entry.objectName}
           {canExpand && (
-            <span className="ml-1.5 text-[11px] text-[var(--accent)]">{open ? "▲" : "▼"}</span>
+            <span className="app-text-xs ml-1.5">{open ? "▲" : "▼"}</span>
           )}
         </td>
-        <td className="px-3 py-2 text-[var(--muted)]">{entry.unitName}</td>
-        <td className="px-3 py-2 text-[var(--muted)]">
+        <td className="text-[var(--muted)]">{entry.unitName}</td>
+        <td className="text-[var(--muted)]">
           {entry.responseCount} {entry.eligibility !== "MEMENUHI_SYARAT" && `/ min. ${minimum}`}
         </td>
-        <td className="px-3 py-2 text-[var(--foreground)]">
+        <td className="text-[var(--foreground)]">
           {entry.score !== null ? entry.score.toFixed(2) : "—"}
         </td>
-        <td className="px-3 py-2 text-[var(--muted)]">{eligibilityLabel[entry.eligibility]}</td>
+        <td className="text-[var(--muted)]">{eligibilityLabel[entry.eligibility]}</td>
       </tr>
       {open && detail && (
         <tr className="border-b border-[var(--border)] bg-black/[0.015] last:border-b-0">
@@ -282,21 +279,27 @@ export function LeaderboardGroups({
 }) {
   const [search, setSearch] = useState("");
 
+  // Aliran blok, bukan petak. Pada petak, lebar min-content bawaan kolom cari (20 karakter,
+  // sekitar 480px pada huruf ponsel) menjadi lantai lebar jalurnya — dan min-width:0 pada
+  // kolomnya sendiri tidak menembus lantai itu di Chrome — sehingga seluruh isi meluber
+  // melewati tepi layar ponsel.
   return (
-    <div className="grid gap-6">
-      <div className="relative">
-        <input
-          type="search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Cari nama objek di kedua leaderboard…"
-          aria-label="Cari nama objek di leaderboard"
-          className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-[14px] text-[var(--foreground)] shadow-sm placeholder:text-[var(--muted)]"
-        />
-      </div>
+    <div className="space-y-6">
+      {/* Tanpa pembungkus: sebagai anak petak, lebar min-content bawaan kolom cari (20 karakter,
+          sekitar 480px pada huruf ponsel) menjadi lantai lebar pembungkusnya dan merentangkan
+          seluruh petak melewati tepi layar. Sebagai anak petak langsung, min-width:0 miliknya
+          sendiri yang berlaku. */}
+      <input
+        type="search"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Cari nama objek di kedua leaderboard…"
+        aria-label="Cari nama objek di leaderboard"
+        className="form__control"
+      />
 
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-        <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+      <div className="app-panel app-panel--ruled">
+        <h2 className="app-panel__label">
           Leaderboard Pimpinan
         </h2>
         <LeaderboardTable
@@ -307,8 +310,8 @@ export function LeaderboardGroups({
           searchTerm={search}
         />
       </div>
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-        <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+      <div className="app-panel app-panel--ruled">
+        <h2 className="app-panel__label">
           Leaderboard Selain Pimpinan
         </h2>
         <LeaderboardTable

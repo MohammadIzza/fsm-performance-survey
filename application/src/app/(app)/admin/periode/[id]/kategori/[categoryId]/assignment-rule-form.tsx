@@ -8,7 +8,7 @@ type AssignmentRule = NonNullable<Awaited<ReturnType<typeof getCategoryDetail>>>
 type UserType = { id: string; name: string };
 
 const fieldClass =
-  "rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 disabled:opacity-60";
+  "form__control disabled:opacity-60";
 
 export function AssignmentRuleForm({
   rule,
@@ -33,7 +33,7 @@ export function AssignmentRuleForm({
       <input type="hidden" name="categoryId" value={categoryId} />
 
       <div>
-        <label className="mb-1 block text-[11px] text-[var(--muted)]">Lingkup calon</label>
+        <label className="mb-1 block app-text-xs text-[var(--muted)]">Lingkup calon</label>
         <select name="scope" defaultValue={rule.scope} disabled={!editable} className={fieldClass}>
           <option value="UNIT_OBJEK">Unit objek saja</option>
           <option value="UNIT_DAN_SUBUNIT">Unit objek dan subunitnya</option>
@@ -41,12 +41,12 @@ export function AssignmentRuleForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-[11px] text-[var(--muted)]">
+        <label className="mb-1 block app-text-xs text-[var(--muted)]">
           Filter jenis pengguna (kosongkan untuk semua jenis)
         </label>
         <div className="flex flex-wrap gap-3">
           {userTypes.map((t) => (
-            <label key={t.id} className="flex items-center gap-1.5 text-[13px] text-[var(--foreground)]">
+            <label key={t.id} className="flex items-center gap-1.5 app-text-sm text-[var(--foreground)]">
               <input
                 type="checkbox"
                 name="userTypeIds"
@@ -66,7 +66,7 @@ export function AssignmentRuleForm({
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-[13px] font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
+            className="rounded-lg bg-[var(--accent)] px-3 py-1.5 app-text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
           >
             {pending ? "Menyimpan…" : "Simpan aturan"}
           </button>
@@ -77,7 +77,7 @@ export function AssignmentRuleForm({
           )}
         </div>
       ) : (
-        <p className="text-[13px] text-[var(--muted)]">Terkunci di luar status Draf.</p>
+        <p className="app-text-sm text-[var(--muted)]">Terkunci di luar status Draf.</p>
       )}
     </form>
   );

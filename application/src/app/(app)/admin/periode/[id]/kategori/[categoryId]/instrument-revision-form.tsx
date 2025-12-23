@@ -4,8 +4,8 @@ import { beginInstrumentRevisionAction } from "@/lib/actions/admin-instruments";
 import { ThemeButton } from "@/components/theme-button";
 
 const fieldClass =
-  "mt-1.5 block w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-[15px] outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20";
-const labelClass = "block text-[13px] font-medium text-[var(--foreground)]";
+  "form__control mt-1.5 block w-full";
+const labelClass = "block app-text-sm font-medium text-[var(--foreground)]";
 
 export function InstrumentRevisionForm({
   categoryId,
@@ -17,12 +17,12 @@ export function InstrumentRevisionForm({
   const [state, action, pending] = useActionState(beginInstrumentRevisionAction, {});
 
   return (
-    <form action={action} className="space-y-4 rounded-2xl bg-[var(--warm-tint)] p-6">
+    <form action={action} className="app-panel app-panel--ruled space-y-4">
       <div>
-        <h2 className="text-[17px] font-semibold text-[var(--foreground)]">
+        <h2 className="app-panel__label app-panel__label--tight">
           Revisi instrumen &amp; pengisian ulang
         </h2>
-        <p className="mt-1.5 text-[13px] text-[var(--warm)]">
+        <p className="mt-1.5 app-text-sm text-[var(--warm)]">
           Membuat versi baru yang dapat diedit dan membuka seluruh tugas aktif untuk diisi ulang.
           Jawaban serta hasil final lama tetap tersimpan. Hasil baru menunggu jawaban lengkap pada
           versi yang sama.
@@ -43,7 +43,7 @@ export function InstrumentRevisionForm({
         </label>
       </div>
 
-      <label className="flex items-start gap-2 text-[13px] text-[var(--foreground)]">
+      <label className="flex items-start gap-2 app-text-sm text-[var(--foreground)]">
         <input type="checkbox" required className="mt-0.5 accent-[var(--accent)]" />
         <span>Saya memahami seluruh penilai perlu mengisi ulang.</span>
       </label>
@@ -53,7 +53,7 @@ export function InstrumentRevisionForm({
       </ThemeButton>
 
       {state.error && (
-        <p role="alert" className="text-[13px] text-[var(--danger)]">
+        <p role="alert" className="app-text-sm text-[var(--danger)]">
           {state.error}
         </p>
       )}

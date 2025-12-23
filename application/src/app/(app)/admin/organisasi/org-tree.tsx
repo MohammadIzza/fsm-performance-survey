@@ -19,11 +19,11 @@ export function OrgTree({ units }: { units: UnitWithMeta[] }) {
   const roots = byParent.get(null) ?? [];
 
   if (roots.length === 0) {
-    return <p className="text-[13px] text-[var(--muted)]">Belum ada unit.</p>;
+    return <p className="app-text-sm text-[var(--muted)]">Belum ada unit.</p>;
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm sm:p-10">
+    <div className="app-table-wrap">
       <ul className="org-tree min-w-max">
         {roots.map((u) => (
           <TreeNode key={u.id} unit={u} byParent={byParent} isRoot />
@@ -47,24 +47,24 @@ function TreeNode({
   return (
     <li>
       <div
-        className={`inline-flex flex-col items-center gap-0.5 rounded-xl border px-3.5 py-2.5 text-center shadow-sm ${
-          isRoot ? "border-[var(--accent)] bg-[var(--accent-tint)]" : "border-[var(--border)] bg-[var(--surface)]"
+        className={`org-tree__node inline-flex flex-col items-center gap-0.5 text-center ${
+          isRoot ? "org-tree__node--root" : ""
         } ${!unit.active ? "opacity-50" : ""}`}
       >
         <span
-          className={`whitespace-nowrap text-[13px] font-medium ${
+          className={`whitespace-nowrap app-text-sm font-medium ${
             isRoot ? "text-[var(--accent)]" : "text-[var(--foreground)]"
           }`}
         >
           {unit.name}
         </span>
-        <span className="font-mono text-[10px] text-[var(--muted-2)]">{unit.code}</span>
+        <span className="font-mono app-text-xs text-[var(--muted-2)]">{unit.code}</span>
         {unit.currentLeaders.length > 0 && (
-          <span className="whitespace-nowrap text-[10px] text-[var(--muted)]">
+          <span className="whitespace-nowrap app-text-xs text-[var(--muted)]">
             {unit.currentLeaders.map((l) => l.user.name).join(", ")}
           </span>
         )}
-        {!unit.active && <span className="text-[10px] font-medium text-[var(--muted)]">Nonaktif</span>}
+        {!unit.active && <span className="app-text-xs font-medium text-[var(--muted)]">Nonaktif</span>}
       </div>
       {children.length > 0 && (
         <ul>

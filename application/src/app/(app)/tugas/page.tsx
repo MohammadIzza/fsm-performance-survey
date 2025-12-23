@@ -52,8 +52,8 @@ export default async function TugasSayaPage() {
       </PageIntro>
 
       {assignments.length === 0 ? (
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">
-          <p className="text-[15px] text-[var(--muted)]">Belum ada tugas penilaian untuk Anda.</p>
+        <div className="app-empty-box">
+          <p className="text-[var(--muted)]">Belum ada tugas penilaian untuk Anda.</p>
         </div>
       ) : (
         <AssignmentsList assignments={rows} />

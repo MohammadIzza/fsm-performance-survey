@@ -21,7 +21,7 @@ export function IssueReportForm({ assignmentId }: { assignmentId: string }) {
         name="type"
         required
         defaultValue=""
-        className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+        className="form__control"
       >
         <option value="" disabled>
           Kategori masalah…
@@ -36,17 +36,17 @@ export function IssueReportForm({ assignmentId }: { assignmentId: string }) {
         name="detail"
         placeholder="Keterangan"
         required
-        className="rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 sm:col-span-2"
+        className="form__control sm:col-span-2"
       />
       <div className="sm:col-span-3">
-        <p className="mb-2 text-[12px] text-[var(--muted)]">
+        <p className="mb-2 app-text-xs text-[var(--muted)]">
           Laporan bukan jawaban survei dan tidak membebaskan kewajiban mengisi sebelum admin
           bertindak.
         </p>
         <button
           type="submit"
           disabled={pending}
-          className="rounded-xl border border-[var(--border)] px-4 py-2 text-[14px] font-medium text-[var(--foreground)] transition hover:bg-black/[0.03] disabled:opacity-60"
+          className="app-btn"
         >
           {pending ? "Mengirim…" : "Laporkan"}
         </button>

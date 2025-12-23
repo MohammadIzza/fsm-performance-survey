@@ -13,7 +13,7 @@ export function CalculateButton({ categoryId, periodId }: { categoryId: string; 
       <button
         type="submit"
         disabled={pending}
-        className="rounded-xl bg-[var(--accent)] px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-60"
+        className="app-btn app-btn--primary"
       >
         {pending ? "Menghitung…" : "Jalankan perhitungan"}
       </button>

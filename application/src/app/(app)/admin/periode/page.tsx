@@ -47,8 +47,8 @@ async function PeriodePage() {
         />
       </PageIntro>
 
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-        <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+      <div className="app-panel app-panel--ruled">
+        <h2 className="app-panel__label">
           Buat periode baru
         </h2>
         <PeriodCreateForm />

@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { createCategoryAction } from "@/lib/actions/admin-categories";
 
 const fieldClass =
-  "rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20";
+  "form__control";
 
 export function CategoryCreateForm({
   periodId,
@@ -36,7 +36,7 @@ export function CategoryCreateForm({
         rows={2}
         className={`${fieldClass} sm:col-span-3`}
       />
-      <label className="flex items-center gap-2 text-[13px] text-[var(--foreground)]">
+      <label className="flex items-center gap-2 app-text-sm text-[var(--foreground)]">
         <input type="checkbox" name="excludeContributors" defaultChecked className="h-4 w-4" />
         Kecualikan pembuat karya sebagai penilai
       </label>
@@ -44,7 +44,7 @@ export function CategoryCreateForm({
         <button
           type="submit"
           disabled={pending}
-          className="rounded-xl bg-[var(--accent)] px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-60"
+          className="app-btn app-btn--primary"
         >
           {pending ? "Menyimpan…" : "Tambah kategori"}
         </button>

@@ -7,7 +7,7 @@ import type { getPeriodDetail } from "@/lib/services/periods";
 type Period = NonNullable<Awaited<ReturnType<typeof getPeriodDetail>>>;
 
 const fieldClass =
-  "rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 disabled:opacity-60";
+  "form__control disabled:opacity-60";
 
 function toDateInput(d: Date | string) {
   return new Date(d).toISOString().slice(0, 10);
@@ -72,7 +72,7 @@ export function PeriodSettingsForm({ period }: { period: Period }) {
           <button
             type="submit"
             disabled={pending}
-            className="rounded-xl bg-[var(--accent)] px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-60"
+            className="app-btn app-btn--primary"
           >
             {pending ? "Menyimpan…" : "Simpan"}
           </button>
@@ -83,7 +83,7 @@ export function PeriodSettingsForm({ period }: { period: Period }) {
           )}
         </div>
       ) : (
-        <p className="text-[13px] text-[var(--muted)]">
+        <p className="app-text-sm text-[var(--muted)]">
           Pengaturan dasar terkunci di luar status Draf.
         </p>
       )}

@@ -19,7 +19,7 @@ type Unit = { id: string; code: string; name: string };
 type UserOption = { id: string; name: string; loginIdentifier: string };
 
 const fieldClass =
-  "rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20";
+  "form__control";
 
 export function ObjectManager({
   objects,
@@ -51,15 +51,15 @@ export function ObjectManager({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
+      <div className="app-panel app-panel--ruled">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+          <h2 className="app-panel__label app-panel__label--tight">
             Tambah objek
           </h2>
           <button
             type="button"
             onClick={() => setShowTypeForm((v) => !v)}
-            className="text-[12px] font-medium text-[var(--accent)] hover:underline"
+            className="app-text-xs font-medium text-[var(--accent)] hover:underline"
           >
             {showTypeForm ? "Tutup" : "Kelola jenis objek"}
           </button>
@@ -68,30 +68,30 @@ export function ObjectManager({
         {showTypeForm && (
           <form
             action={typeFormAction}
-            className="mb-4 flex flex-wrap items-end gap-2 rounded-xl bg-black/[0.02] p-3"
+            className="app-note mb-4 flex flex-wrap items-end gap-2"
           >
             <div className="flex flex-col gap-1">
-              <label className="text-[11px] text-[var(--muted)]">Kode</label>
+              <label className="app-text-xs text-[var(--muted)]">Kode</label>
               <input
                 name="code"
                 placeholder="mis. PRESTASI"
                 required
-                className="rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 text-[13px] outline-none focus:border-[var(--accent)]"
+                className="rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 app-text-sm outline-none focus:border-[var(--accent)]"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-[11px] text-[var(--muted)]">Nama</label>
+              <label className="app-text-xs text-[var(--muted)]">Nama</label>
               <input
                 name="name"
                 placeholder="mis. Prestasi"
                 required
-                className="rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 text-[13px] outline-none focus:border-[var(--accent)]"
+                className="rounded-lg border border-[var(--border)] bg-transparent px-2.5 py-1.5 app-text-sm outline-none focus:border-[var(--accent)]"
               />
             </div>
             <button
               type="submit"
               disabled={typePending}
-              className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-[13px] font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
+              className="rounded-lg bg-[var(--accent)] px-3 py-1.5 app-text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
             >
               {typePending ? "Menyimpan…" : "Tambah jenis"}
             </button>
@@ -125,8 +125,8 @@ export function ObjectManager({
       </FilterBar>
 
       {visibleObjects.length === 0 ? (
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">
-          <p className="text-[15px] text-[var(--muted)]">
+        <div className="app-empty-box">
+          <p className="text-[var(--muted)]">
             Tidak ada objek yang cocok dengan &ldquo;{search}&rdquo;.
           </p>
         </div>
@@ -383,7 +383,7 @@ function ObjectForm({
         <button
           type="submit"
           disabled={pending}
-          className="rounded-xl bg-[var(--accent)] px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-60"
+          className="app-btn app-btn--primary"
         >
           {pending ? "Menyimpan…" : submitLabel}
         </button>
@@ -391,7 +391,7 @@ function ObjectForm({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-xl border border-[var(--border)] px-4 py-2 text-[14px] font-medium text-[var(--foreground)] transition hover:bg-black/[0.03]"
+            className="app-btn"
           >
             Batal
           </button>

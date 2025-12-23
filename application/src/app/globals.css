@@ -521,7 +521,8 @@ input[type="range"]:disabled::-moz-range-thumb {
 
 /* Satu bentuk tombol untuk seluruh bagian ini — termasuk tombol simpan/batal mode koreksi di
    lembar penilaian — supaya tidak ada dua bahasa tombol di satu halaman. */
-.survey-shell main .admin-action {
+.survey-shell main .admin-action,
+.survey-shell main .app-btn {
   display:inline-flex;align-items:center;justify-content:center;
   align-self:center;flex:0 0 auto;
   min-height:1.85rem;padding:.35rem .8rem;border:1px solid var(--color-grey-2);border-radius:999em;
@@ -529,16 +530,22 @@ input[type="range"]:disabled::-moz-range-thumb {
   font:600 .625rem/1 var(--font-family-text);letter-spacing:.01em;white-space:nowrap;
   transition:border-color .12s linear,background-color .12s linear;
 }
-.survey-shell main .admin-action:hover:not(:disabled) {border-color:var(--color-black)}
-.survey-shell main .admin-action--primary {
+.survey-shell main .admin-action:hover:not(:disabled),
+.survey-shell main .app-btn:hover:not(:disabled) {border-color:var(--color-black)}
+.survey-shell main .admin-action--primary,
+.survey-shell main .app-btn--primary {
   border-color:transparent;background:var(--color-brand-5);color:var(--color-white);
 }
-.survey-shell main .admin-action--primary:hover:not(:disabled) {
+.survey-shell main .admin-action--primary:hover:not(:disabled),
+.survey-shell main .app-btn--primary:hover:not(:disabled) {
   border-color:transparent;background:var(--color-brand-8);
 }
-.survey-shell main .admin-action--danger {border-color:var(--color-brand-9);color:var(--color-brand-1)}
-.survey-shell main .admin-action--danger:hover:not(:disabled) {border-color:var(--color-brand-1)}
-.survey-shell main .admin-action:disabled {opacity:.55;cursor:default}
+.survey-shell main .admin-action--danger,
+.survey-shell main .app-btn--danger {border-color:var(--color-brand-9);color:var(--color-brand-1)}
+.survey-shell main .admin-action--danger:hover:not(:disabled),
+.survey-shell main .app-btn--danger:hover:not(:disabled) {border-color:var(--color-brand-1)}
+.survey-shell main .admin-action:disabled,
+.survey-shell main .app-btn:disabled {opacity:.55;cursor:default}
 
 /* Bagian ini bukan kartu: garis pemisahnya cukup satu, sama seperti antar-bagian lembar di atas. */
 .admin-tools-section {border-top:2px solid var(--color-black);padding-top:.9rem}
@@ -637,6 +644,131 @@ input[type="range"]:disabled::-moz-range-thumb {
      tindakan lain yang selebar baris di layar sempit. */
   .assessment-actions__buttons {display:flex}
   .survey-shell main .assessment-actions__buttons .admin-action {flex:1 1 0}
+}
+
+/* ——— Kerangka bagian halaman ————————————————————————————————————————————————————————
+   Bentuk yang sama dipakai lembar penilaian di halaman Tugas: label kecil, judul, lalu isinya,
+   dipisahkan garis dan bukan dijadikan kartu. Halaman yang ditulis sebelum kerangka tema dipakai
+   membungkus tiap bagiannya dengan kartu putih bersudut besar dan berbayang; di atas kertas krem
+   tema, kartu seperti itu terbaca sebagai tempelan dari aplikasi lain. */
+.app-panel {overflow:visible;border:0;border-radius:0;background:transparent}
+.app-panel + .app-panel,
+.app-panel--ruled {border-top:2px solid var(--color-black);padding-top:1.1rem}
+.app-panel--plain {border-top:0;padding-top:0}
+.app-panel__intro {
+  display:flex;align-items:flex-start;justify-content:space-between;gap:1.5rem;
+  padding:.25rem 0 .85rem;background:transparent;
+}
+.app-panel__intro .eyebrow {font-size:.6rem}
+.app-panel__intro h2 {
+  margin:.3rem 0 0;font:600 1.05rem/1.15 var(--font-family-heading);letter-spacing:-.025em;
+}
+/* Tautan kembali di atas kepala halaman. Satu bentuk untuk semua halaman turunan; sebelumnya
+   tiap halaman memilih ukuran dan warnanya sendiri. */
+.survey-shell main a.app-back {
+  display:inline-block;margin-bottom:-.35rem;color:var(--color-text);
+  font-size:.68rem;font-weight:600;text-decoration:none;
+}
+.survey-shell main a.app-back:hover {color:var(--color-black);text-decoration:underline}
+
+/* Judul bagian yang berdiri tanpa kepala .app-panel__intro — bentuknya sama dengan .eyebrow,
+   hanya dipasang langsung pada <h2>-nya. */
+.app-panel__label {
+  margin:0 0 .85rem;color:var(--color-text);
+  font:600 .6rem/1.2 var(--font-family-text);letter-spacing:.08em;text-transform:uppercase;
+}
+.app-panel__label--tight {margin-bottom:.3rem}
+.app-panel__text {
+  max-width:44rem;margin-top:.35rem;color:var(--color-text);font-size:.72rem;line-height:1.45;
+}
+/* Baris "belum ada isinya": satu kalimat di atas garis daftar, bukan kotak setinggi 8rem.
+   .app-empty-box adalah pembungkusnya di halaman yang menaruh kalimat itu di dalam <p> sendiri. */
+.app-empty-box {
+  padding:1.5rem 0;border-top:2px solid var(--color-black);border-bottom:2px solid var(--color-black);
+  text-align:center;
+}
+.app-empty-box > p {margin:0;color:var(--color-text);font-size:.75rem}
+.app-empty {
+  margin:0;padding:1.5rem 0;border-top:2px solid var(--color-black);
+  border-bottom:2px solid var(--color-black);
+  color:var(--color-text);font-size:.75rem;text-align:center;
+}
+.app-panel__intro + .app-empty {border-top:2px solid var(--color-black)}
+
+@media only screen and (max-width:640px) {
+  .app-panel + .app-panel,
+  .app-panel--ruled {padding-top:.85rem}
+  .app-panel__intro {gap:.75rem;padding:.15rem 0 .6rem}
+  .app-panel__intro .eyebrow {font-size:.52rem}
+  .app-panel__intro h2 {font-size:.88rem}
+  .survey-shell main a.app-back {font-size:.6rem}
+  .app-panel__label {margin-bottom:.6rem;font-size:.52rem}
+  .app-panel__text {font-size:.62rem}
+  .app-empty {padding:1.1rem 0;font-size:.65rem}
+  .app-empty-box {padding:1.1rem 0}
+  .app-empty-box > p {font-size:.65rem}
+}
+
+/* Tombol di bagian ini sedikit lebih besar daripada di alat admin: ia aksi utama sebuah halaman,
+   bukan tindakan sesekali di baris terakhir. Bentuknya sama persis. */
+.survey-shell main .app-btn {min-height:2.1rem;padding:.42rem .95rem;font-size:.6875rem}
+
+/* Catatan berwarna — peringatan, galat, keberhasilan. Sebelumnya tiap halaman memilih warnanya
+   sendiri (amber-50, danger/10, black/5) dengan sudut dan tebal huruf yang berbeda-beda. */
+.app-note {
+  margin:0;padding:.7rem .85rem;border-left:3px solid var(--color-black);
+  background:var(--color-beige-dark);color:var(--color-black);
+  font-size:.7rem;line-height:1.5;
+}
+.app-note--perhatian {border-left-color:var(--color-brand-2)}
+.app-note--selesai {border-left-color:var(--color-brand-4)}
+.app-note--gagal {border-left-color:var(--color-brand-9);color:var(--color-brand-1)}
+
+/* Kolom isian punya lebar min-content bawaan dari atribut `size`-nya (sekitar 480px untuk kolom
+   cari). Di dalam petak atau baris flex, lebar itu menjadi lantai yang tidak bisa ditembus: petak
+   sempit di layar ponsel tetap direntangkan oleh satu kolom cari sampai melewati tepi halaman.
+   Lantai itu dihapus di sini; lebarnya tetap diatur `width:100%` seperti semula. */
+.survey-shell main input.form__control,
+.survey-shell main select.form__control,
+.survey-shell main textarea.form__control {min-width:0}
+
+/* Tabel lebar tetap boleh digeser ke samping, tapi tanpa kartu yang membungkusnya. */
+.app-table-wrap {overflow-x:auto;border:0;border-radius:0;background:transparent}
+
+/* Deret isian yang berdiri sendiri di dalam sebuah bagian. */
+.app-stack {display:flex;flex-direction:column;gap:.65rem}
+
+/* Kartu peringkat di layar sempit: memakai kerangka baris daftar tema — garis hitam di atas dan
+   bawah, tanpa sudut membulat maupun bayangan. */
+.leaderboard-card {border-top:2px solid var(--color-black)}
+.leaderboard-card:last-child {border-bottom:2px solid var(--color-black)}
+.leaderboard-card__panel {border-top:1px solid var(--color-grey-2);padding:.75rem;background:transparent}
+
+/* Simpul pohon organisasi: kotak beige bergaris hitam seperti sel tabel, bukan kartu berbayang. */
+.org-tree__node {
+  padding:.5rem .7rem;border:2px solid var(--color-black);background:var(--color-white);
+}
+.org-tree__node--root {background:var(--color-brand-2)}
+
+/* Petak angka pada Pemantauan: sel bernomor, bukan catatan — jadi tanpa garis aksen di kiri. */
+.survey-shell main .app-note.app-stat-cell {
+  border-left:0;border-top:2px solid var(--color-black);background:transparent;padding:.6rem .2rem;
+}
+
+/* Angka tunggal pada petak ringkasan kecil (mis. Pemantauan): sebesar judul bagian, bukan
+   sebesar judul halaman. */
+.app-stat {margin:0;font:600 1.05rem/1.1 var(--font-family-heading);letter-spacing:-.02em}
+
+/* Dua tingkat huruf di bawah ukuran teks tema, untuk keterangan dan catatan kaki baris. */
+.app-text-sm {font-size:.7rem;line-height:1.45}
+.app-text-xs {font-size:.62rem;line-height:1.4}
+
+@media only screen and (max-width:640px) {
+  .survey-shell main .app-btn {min-height:1.95rem;padding:.38rem .85rem;font-size:.62rem}
+  .app-note {padding:.55rem .7rem;font-size:.62rem}
+  .app-stat {font-size:.9rem}
+  .app-text-sm {font-size:.62rem}
+  .app-text-xs {font-size:.56rem}
 }
 
 /* Baris "tidak ada hasil": memakai kerangka baris biasa supaya garis dan lebarnya menyatu dengan
@@ -1168,6 +1300,35 @@ input[type="range"]:disabled::-moz-range-thumb {
 
 .survey-shell main tbody tr:hover {background:var(--color-beige-dark)}
 
+/* Daftar admin membawa lebih banyak bidang daripada daftar di situs publik — status, nama, induk,
+   pimpinan, lalu deretan aksi. Lebar persen bawaan tema dijumlahkan untuk lima bidang; begitu ada
+   bidang keenam totalnya melewati 100% dan barisnya membungkus, sehingga "Pimpinan aktif" dan
+   "Aksi" jatuh ke baris kedua — termasuk pada kepala kolomnya, yang lalu tidak lagi sejajar dengan
+   isinya. Di sini lebarnya dibagi rata oleh flex, bukan ditetapkan satu per satu: berapa pun
+   jumlah bidangnya, semuanya tetap dalam satu baris dan kepala kolomnya ikut sejajar karena
+   memakai kelas yang sama. */
+@media only screen and (min-width:641px) {
+.admin-area .s-courses-list .sb-course .sb__link {
+  flex-wrap:nowrap;align-items:center;gap:1rem;
+}
+.admin-area .s-courses-list .sb-course .sb__link > .sb__title,
+.admin-area .s-courses-list .sb-course .sb__link > .sb__topic,
+.admin-area .s-courses-list .sb-course .sb__link > .sb__dates,
+.admin-area .s-courses-list .sb-course .sb__link > .sb__duration,
+.admin-area .s-courses-list .sb-course .sb__link > .sb__location,
+.admin-area .s-courses-list .sb-course .sb__link > .sb__price {
+  width:auto;flex:1 1 0;min-width:0;
+}
+/* Nama entri dapat dua bagian: ia bidang terpanjang dan yang dibaca lebih dulu. */
+.admin-area .s-courses-list .sb-course .sb__link > .sb__title {flex:2 1 0}
+/* Aksi mendapat jatah yang sama seperti bidang lain, hanya isinya dirapatkan ke kanan. Kalau
+   dibuat selebar isinya saja, kolom terakhir pada baris data dan pada kepala kolom punya lebar
+   berbeda — dan seluruh kolom sebelumnya ikut bergeser karena sisa ruangnya tidak sama. */
+.admin-area .s-courses-list .sb-course .sb__link > .sb__actions {
+  justify-content:flex-end;
+}
+}
+
 /* Tampilan daftar dan tabel admin pada ponsel. Setiap baris tabel menjadi kartu berlabel agar
    seluruh nilai terbaca tanpa menggeser layar ke samping. `data-label` pada sel berasal dari
    judul kolom yang sama, sehingga hubungan label–nilai tetap jelas setelah kepala tabel
@@ -1211,10 +1372,16 @@ input[type="range"]:disabled::-moz-range-thumb {
     clip:rect(0,0,0,0);white-space:nowrap;border:0;
   }
   .admin-area table tbody {display:grid;gap:.45rem}
+  /* Tiap baris menjadi satu kartu berlabel. Bentuknya mengikuti baris daftar di halaman Tugas:
+     garis hitam di atas dan bawah, tanpa sudut membulat — bukan kotak putih bergaris rambut. */
   .admin-area table tbody tr {
-    display:grid;padding:.5rem .6rem;background:var(--color-white);
-    border:1px solid var(--color-grey-2)!important;border-radius:.6rem;
+    display:grid;padding:.6rem .1rem;background:transparent;
+    border:0!important;border-top:2px solid var(--color-black)!important;border-radius:0;
   }
+  .admin-area table tbody tr:last-child {border-bottom:2px solid var(--color-black)!important}
+  /* Nilai sel adalah petak kedua dari kolom berlabel, jadi ia meregang selebar sisa baris. Untuk
+     teks itu benar; untuk lencana status hasilnya pil selebar layar. */
+  .survey-shell .admin-area table tbody td .status-pill {justify-self:start}
   .survey-shell .admin-area table tbody td {
     display:grid;grid-template-columns:5.15rem minmax(0,1fr);align-items:start;gap:.45rem;
     min-width:0;padding:.22rem 0!important;border:0!important;text-align:left!important;

@@ -8,8 +8,8 @@ export default async function AccessPage() {
   const ctx = await getCurrentAuthContext();
   if (!ctx || (!ctx.isAdmin && !ctx.isDekan)) {
     return (
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">
-        <p className="text-[15px] font-medium text-[var(--foreground)]">Tidak berwenang</p>
+      <div className="app-empty-box">
+        <p className="font-medium text-[var(--foreground)]">Tidak berwenang</p>
         <p className="mt-1 text-sm text-[var(--muted)]">
           Halaman ini hanya untuk Admin dan Dekan.
         </p>

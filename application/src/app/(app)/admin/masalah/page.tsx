@@ -2,7 +2,7 @@ import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import Link from "next/link";
 import { listAllIssues } from "@/lib/services/assignmentIssues";
 import { IssueRow } from "./issue-row";
-import { PageHero } from "@/components/page-hero";
+import { PageIntro, SummaryCard } from "@/components/theme/summary";
 
 const typeLabel: Record<string, string> = {
   OBJEK_KELIRU: "Objek keliru",
@@ -17,48 +17,58 @@ async function MasalahPage() {
 
   return (
     <div className="space-y-8">
-      <PageHero
-        compact
-        eyebrow="ADMIN · LAPORAN"
-        title="Laporan Masalah Penugasan"
-        description="Laporan dari penilai tentang tugas yang keliru."
-      />
+      <PageIntro
+        title="Laporan Masalah"
+        intro="Laporan dari penilai tentang tugas yang keliru."
+      >
+        <SummaryCard tone="kuning" label="Laporan" value={issues.length} note="seluruhnya" />
+        <SummaryCard
+          tone="merah"
+          label="Terbuka"
+          value={issues.filter((i) => i.status === "TERBUKA").length}
+          note="belum ditangani"
+        />
+        <SummaryCard
+          tone="tosca"
+          label="Selesai"
+          value={issues.filter((i) => i.status === "SELESAI").length}
+          note="sudah ditanggapi"
+        />
+      </PageIntro>
 
       {issues.length === 0 ? (
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">
-          <p className="text-[15px] text-[var(--muted)]">Belum ada laporan masalah.</p>
-        </div>
+        <p className="app-empty">Belum ada laporan masalah.</p>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
-          <table className="w-full min-w-[860px] text-left text-[14px]">
+        <div className="app-table-wrap">
+          <table className="min-w-[860px]">
             <thead>
-              <tr className="border-b border-[var(--border)] text-[12px] uppercase tracking-wide text-[var(--muted)]">
-                <th className="px-4 py-3 font-medium">Tugas</th>
-                <th className="px-4 py-3 font-medium">Pelapor</th>
-                <th className="px-4 py-3 font-medium">Jenis</th>
-                <th className="px-4 py-3 font-medium">Keterangan</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Aksi</th>
+              <tr>
+                <th>Tugas</th>
+                <th>Pelapor</th>
+                <th>Jenis</th>
+                <th>Keterangan</th>
+                <th>Status</th>
+                <th>Aksi</th>
               </tr>
             </thead>
             <tbody>
               {issues.map((issue) => (
                 <tr key={issue.id} className="border-b border-[var(--border)] align-top last:border-b-0">
-                  <td data-label="Tugas" className="px-4 py-3">
+                  <td data-label="Tugas">
                     <Link
                       href={`/tugas/${issue.assignmentId}`}
-                      className="font-medium text-[var(--accent)] hover:underline"
+                      className="font-medium"
                     >
                       {issue.assignment.categoryObject.category.period.name}
                     </Link>
-                    <div className="text-[12px] text-[var(--muted)]">
+                    <div className="app-text-xs" style={{ color: "var(--color-text)" }}>
                       Penilai: {issue.assignment.evaluator.name}
                     </div>
                   </td>
-                  <td data-label="Pelapor" className="px-4 py-3 text-[var(--muted)]">{issue.reporter.name}</td>
-                  <td data-label="Jenis" className="px-4 py-3 text-[var(--muted)]">{typeLabel[issue.type]}</td>
-                  <td data-label="Keterangan" className="px-4 py-3 text-[var(--foreground)]">{issue.detail}</td>
-                  <td data-label="Penanganan" className="px-4 py-3" colSpan={2}>
+                  <td data-label="Pelapor">{issue.reporter.name}</td>
+                  <td data-label="Jenis">{typeLabel[issue.type]}</td>
+                  <td data-label="Keterangan">{issue.detail}</td>
+                  <td data-label="Penanganan" colSpan={2}>
                     <IssueRow issue={issue} />
                   </td>
                 </tr>

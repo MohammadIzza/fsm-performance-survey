@@ -24,7 +24,7 @@ function TransitionButton({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-xl bg-[var(--accent)] px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-60"
+        className="app-btn app-btn--primary"
       >
         {label}
       </button>
@@ -44,7 +44,7 @@ export function StatusActions({
   const [state, formAction, pending] = useActionState(transitionPeriodStatusAction, {});
 
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
+    <div className="app-panel app-panel--ruled">
       <div className="flex flex-wrap items-center gap-3">
         {status === "DRAF" && (
           <TransitionButton
@@ -82,7 +82,7 @@ export function StatusActions({
               label="Tutup periode"
               pending={pending}
             />
-            <span className="text-[13px] text-[var(--muted)]">
+            <span className="app-text-sm text-[var(--muted)]">
               Penilai kini dapat mengisi formulir di halaman Tugas Saya.
             </span>
           </>
@@ -96,7 +96,7 @@ export function StatusActions({
               label="Selesaikan koreksi (kembali ke Ditutup)"
               pending={pending}
             />
-            <span className="text-[13px] text-[var(--muted)]">
+            <span className="app-text-sm text-[var(--muted)]">
               Jendela koreksi terbuka — tugas yang dibuka kembali dapat diperbaiki penilainya.
             </span>
           </>
@@ -110,11 +110,11 @@ export function StatusActions({
       )}
 
       {status === "DRAF" && problems.length > 0 && (
-        <div className="mt-4 rounded-xl bg-amber-50 p-4">
-          <p className="mb-2 text-[13px] font-medium text-amber-900">
+        <div className="mt-4 app-note app-note--perhatian">
+          <p className="mb-2 app-text-sm font-medium text-amber-900">
             Belum memenuhi syarat &ldquo;Siap&rdquo;:
           </p>
-          <ul className="list-disc space-y-1 pl-5 text-[13px] text-amber-900">
+          <ul className="list-disc space-y-1 pl-5 app-text-sm text-amber-900">
             {problems.map((p, i) => (
               <li key={i}>{p}</li>
             ))}
@@ -122,7 +122,7 @@ export function StatusActions({
         </div>
       )}
       {status === "DRAF" && problems.length === 0 && (
-        <p className="mt-4 text-[13px] text-[var(--success)]">
+        <p className="mt-4 app-text-sm text-[var(--success)]">
           Semua syarat konfigurasi terpenuhi — siap ditandai Siap.
         </p>
       )}

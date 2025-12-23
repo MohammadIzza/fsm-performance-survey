@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { createPeriodAction } from "@/lib/actions/admin-periods";
 
 const fieldClass =
-  "rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20";
+  "form__control";
 
 export function PeriodCreateForm() {
   const [state, formAction, pending] = useActionState(createPeriodAction, {});
@@ -31,7 +31,7 @@ export function PeriodCreateForm() {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-xl bg-[var(--accent)] px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-60"
+          className="app-btn app-btn--primary"
         >
           {pending ? "Menyimpan…" : "Buat periode"}
         </button>

@@ -83,24 +83,24 @@ export default async function AssignmentFormPage({
       </PageIntro>
 
       {!isOwner && ctx.isAdmin && (
-        <div className="assignment-detail__notice rounded-xl bg-amber-50 p-4 text-[13px] text-amber-900">
+        <div className="assignment-detail__notice app-note app-note--perhatian app-text-sm text-amber-900">
           Melihat sebagai Admin — penilai: {assignment.evaluator.name}
         </div>
       )}
 
       {assignment.status === "DIBUKA_KEMBALI" && (
-        <div className="assignment-detail__notice rounded-xl bg-amber-50 p-4 text-[13px] text-amber-900">
+        <div className="assignment-detail__notice app-note app-note--perhatian app-text-sm text-amber-900">
           Tugas ini sedang diperbaiki. Jawaban terkirim sebelumnya tetap berlaku sampai revisi
           baru dikirim.
         </div>
       )}
       {assignment.status === "DIBATALKAN" && (
-        <div className="assignment-detail__notice rounded-xl bg-black/5 p-4 text-[13px] text-[var(--muted)]">
+        <div className="assignment-detail__notice app-note">
           Tugas ini telah dibatalkan oleh admin.
         </div>
       )}
       {displayStatus === "LEWAT_TENGGAT" && (
-        <div className="assignment-detail__notice rounded-xl bg-[var(--danger)]/10 p-4 text-[13px] text-[var(--danger)]">
+        <div className="assignment-detail__notice app-note app-note--gagal">
           Survei telah ditutup. Jawaban belum dikirim.
         </div>
       )}

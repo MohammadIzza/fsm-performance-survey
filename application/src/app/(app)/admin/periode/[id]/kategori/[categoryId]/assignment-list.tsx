@@ -40,14 +40,14 @@ export function AssignmentList({
   categoryId: string;
 }) {
   if (assignments.length === 0) {
-    return <p className="text-[13px] text-[var(--muted)]">Belum ada tugas diterbitkan.</p>;
+    return <p className="app-text-sm text-[var(--muted)]">Belum ada tugas diterbitkan.</p>;
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
-      <table className="w-full min-w-[720px] text-left text-[13px]">
+    <div className="app-table-wrap">
+      <table className="w-full min-w-[720px] text-left app-text-sm">
         <thead>
-          <tr className="border-b border-[var(--border)] text-[11px] uppercase tracking-wide text-[var(--muted)]">
+          <tr>
             <th className="px-3 py-2 font-medium">Objek</th>
             <th className="px-3 py-2 font-medium">Kelompok</th>
             <th className="px-3 py-2 font-medium">Penilai</th>
@@ -90,19 +90,19 @@ function AssignmentRow({
       <td data-label="Kelompok" className="px-3 py-2 text-[var(--muted)]">{groupLabel[assignment.group]}</td>
       <td data-label="Penilai" className="px-3 py-2 text-[var(--foreground)]">
         {assignment.evaluator.name}
-        <div className="font-mono text-[11px] text-[var(--muted)]">
+        <div className="font-mono app-text-xs text-[var(--muted)]">
           {assignment.evaluator.loginIdentifier}
         </div>
       </td>
       <td data-label="Asal" className="px-3 py-2 text-[var(--muted)]">{assignment.reason ?? "—"}</td>
       <td data-label="Status" className="px-3 py-2">
         <span
-          className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${statusClass[assignment.status]}`}
+          className={`inline-flex rounded-full px-2 py-0.5 app-text-xs font-medium ${statusClass[assignment.status]}`}
         >
           {statusLabel[assignment.status]}
         </span>
         {assignment.status === "DIBATALKAN" && assignment.cancelReason && (
-          <div className="mt-1 text-[11px] text-[var(--muted)]">{assignment.cancelReason}</div>
+          <div className="mt-1 app-text-xs text-[var(--muted)]">{assignment.cancelReason}</div>
         )}
       </td>
       <td data-label="Aksi" className="px-3 py-2">
@@ -116,31 +116,31 @@ function AssignmentRow({
                 name="reason"
                 placeholder="Alasan pembatalan"
                 required
-                className="rounded-lg border border-[var(--border)] bg-transparent px-2 py-1 text-[12px] outline-none focus:border-[var(--accent)]"
+                className="rounded-lg border border-[var(--border)] bg-transparent px-2 py-1 app-text-xs outline-none focus:border-[var(--accent)]"
               />
               <div className="flex gap-2">
                 <button
                   type="submit"
                   disabled={pending}
-                  className="text-[12px] font-medium text-[var(--danger)] hover:underline disabled:opacity-60"
+                  className="app-text-xs font-medium text-[var(--danger)] hover:underline disabled:opacity-60"
                 >
                   {pending ? "Membatalkan…" : "Konfirmasi"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setCancelling(false)}
-                  className="text-[12px] font-medium text-[var(--muted)] hover:underline"
+                  className="app-text-xs font-medium text-[var(--muted)] hover:underline"
                 >
                   Batal
                 </button>
               </div>
-              {state.error && <p className="text-[11px] text-[var(--danger)]">{state.error}</p>}
+              {state.error && <p className="app-text-xs text-[var(--danger)]">{state.error}</p>}
             </form>
           ) : (
             <button
               type="button"
               onClick={() => setCancelling(true)}
-              className="text-[12px] font-medium text-[var(--muted)] hover:text-[var(--danger)] hover:underline"
+              className="app-text-xs font-medium text-[var(--muted)] hover:text-[var(--danger)] hover:underline"
             >
               Batalkan
             </button>

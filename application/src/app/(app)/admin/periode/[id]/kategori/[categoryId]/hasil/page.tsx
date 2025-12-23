@@ -1,5 +1,6 @@
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import Link from "next/link";
+import { PageIntro, SummaryCard } from "@/components/theme/summary";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getLatestRun, getGroupDetailBulk, listRunsForCategory } from "@/lib/services/calculations";
@@ -76,35 +77,43 @@ async function HasilPage({
 
   return (
     <div className="space-y-8">
-      <div>
-        <Link
-          href={`/admin/periode/${periodId}/kategori/${categoryId}`}
-          className="text-[13px] text-[var(--muted)] hover:underline"
-        >
-          ← {category.name}
-        </Link>
-        <h1 className="mt-1 page-title text-[24px] sm:text-[28px] text-[var(--foreground)]">
-          Hasil — {category.name}
-        </h1>
-      </div>
+      <Link
+        href={`/admin/periode/${periodId}/kategori/${categoryId}`}
+        className="app-back"
+      >
+        ← {category.name}
+      </Link>
+      <PageIntro title={`Hasil — ${category.name}`} intro={category.period.name}>
+        <SummaryCard
+          tone={latestRun ? "tosca" : "kuning"}
+          label="Perhitungan"
+          value={latestRun ? dateFmt.format(latestRun.createdAt) : "Belum pernah"}
+          note={latestRun ? (category.period.status === "FINAL" ? "Final" : "Sementara") : "belum dijalankan"}
+        />
+        <SummaryCard
+          tone="biru"
+          label="Peringkat"
+          value={pimpinanEntries.length + selainEntries.length}
+          note="di kedua kelompok"
+        />
+        <SummaryCard
+          tone={runs.some((r) => r.status === "GAGAL") ? "merah" : "kuning"}
+          label="Riwayat"
+          value={runs.length}
+          note={runs.some((r) => r.status === "GAGAL") ? "ada yang gagal" : "perhitungan"}
+        />
+      </PageIntro>
 
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
+      <div className="app-panel app-panel--ruled">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            {latestRun ? (
-              <p className="text-[13px] text-[var(--muted)]">
-                Perhitungan terakhir: {dateFmt.format(latestRun.createdAt)}
-                {category.period.status === "FINAL" ? " · Final" : " · Sementara"}
-              </p>
-            ) : (
-              <p className="text-[13px] text-[var(--muted)]">Belum pernah dihitung.</p>
-            )}
+            <p className="app-panel__label app-panel__label--tight">Perhitungan</p>
           </div>
           <div className="flex items-center gap-2">
             {latestRun && (
               <a
                 href={`/admin/periode/${periodId}/kategori/${categoryId}/hasil/export`}
-                className="rounded-xl border border-[var(--border)] px-4 py-2 text-[14px] font-medium text-[var(--foreground)] transition hover:bg-black/[0.03]"
+                className="app-btn"
               >
                 Unduh Excel
               </a>
@@ -113,7 +122,7 @@ async function HasilPage({
           </div>
         </div>
         {runs.some((r) => r.status === "GAGAL") && (
-          <p className="mt-2 text-[12px] text-[var(--danger)]">
+          <p className="app-note app-note--gagal mt-2">
             Ada perhitungan yang pernah gagal. Hasil terakhir yang berhasil tetap dipakai di
             bawah ini.
           </p>
@@ -130,11 +139,7 @@ async function HasilPage({
           selainDetail={selainDetail}
         />
       ) : (
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">
-          <p className="text-[15px] text-[var(--muted)]">
-            Jalankan perhitungan untuk melihat hasil.
-          </p>
-        </div>
+        <p className="app-empty">Jalankan perhitungan untuk melihat hasil.</p>
       )}
     </div>
   );

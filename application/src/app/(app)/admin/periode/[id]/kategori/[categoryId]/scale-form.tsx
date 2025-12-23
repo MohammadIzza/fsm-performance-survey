@@ -7,7 +7,7 @@ import type { getCategoryDetail } from "@/lib/services/categories";
 type Instrument = NonNullable<Awaited<ReturnType<typeof getCategoryDetail>>>["instrumentVersions"][number];
 
 const fieldClass =
-  "rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 disabled:opacity-60";
+  "form__control disabled:opacity-60";
 
 export function ScaleForm({
   instrument,
@@ -30,7 +30,7 @@ export function ScaleForm({
 
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <div>
-          <label className="mb-1 block text-[11px] text-[var(--muted)]">Minimum</label>
+          <label className="mb-1 block app-text-xs text-[var(--muted)]">Minimum</label>
           <input
             name="scaleMin"
             type="number"
@@ -42,7 +42,7 @@ export function ScaleForm({
           />
         </div>
         <div>
-          <label className="mb-1 block text-[11px] text-[var(--muted)]">Maksimum</label>
+          <label className="mb-1 block app-text-xs text-[var(--muted)]">Maksimum</label>
           <input
             name="scaleMax"
             type="number"
@@ -54,7 +54,7 @@ export function ScaleForm({
           />
         </div>
         <div>
-          <label className="mb-1 block text-[11px] text-[var(--muted)]">Langkah</label>
+          <label className="mb-1 block app-text-xs text-[var(--muted)]">Langkah</label>
           <input
             name="scaleStep"
             type="number"
@@ -79,7 +79,7 @@ export function ScaleForm({
           <button
             type="submit"
             disabled={pending}
-            className="rounded-xl bg-[var(--accent)] px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-60"
+            className="app-btn app-btn--primary"
           >
             {pending ? "Menyimpan…" : "Simpan skala"}
           </button>
@@ -90,7 +90,7 @@ export function ScaleForm({
           )}
         </div>
       ) : (
-        <p className="text-[13px] text-[var(--muted)]">Terkunci di luar status Draf.</p>
+        <p className="app-text-sm text-[var(--muted)]">Terkunci di luar status Draf.</p>
       )}
     </form>
   );

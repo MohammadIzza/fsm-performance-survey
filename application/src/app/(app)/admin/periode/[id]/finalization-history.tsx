@@ -14,18 +14,18 @@ const dateFmt = new Intl.DateTimeFormat("id-ID", {
 // menampilkan seluruh revisi finalisasi periode, terbaru di atas.
 export function FinalizationHistory({ history }: { history: History }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-      <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+    <div className="app-panel app-panel--ruled">
+      <h2 className="app-panel__label">
         Riwayat finalisasi
       </h2>
       <ul className="space-y-3">
         {history.map((f, i) => (
-          <li key={f.id} className="rounded-xl bg-black/[0.02] p-3 text-[13px]">
+          <li key={f.id} className="app-note">
             <div className="flex items-center justify-between">
               <span className="font-medium text-[var(--foreground)]">
                 Revisi {f.revision} {i === 0 && <span className="text-[var(--success)]">(terkini)</span>}
               </span>
-              <span className="text-[12px] text-[var(--muted)]">{dateFmt.format(f.finalizedAt)}</span>
+              <span className="app-text-xs text-[var(--muted)]">{dateFmt.format(f.finalizedAt)}</span>
             </div>
             <p className="mt-1 text-[var(--muted)]">
               Oleh {f.finalizedBy.name} · {f.calculationRuns.length} kategori dihitung

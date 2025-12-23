@@ -39,28 +39,28 @@ async function PemantauanPage() {
 
 
 
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-        <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+      <div className="app-panel app-panel--ruled">
+        <h2 className="app-panel__label">
           Tugas per status ({summary.validAssignments} berlaku, tidak termasuk yang dibatalkan)
         </h2>
         <div className="grid gap-3 sm:grid-cols-5">
           {summary.assignmentsByStatus.map((s) => (
-            <div key={s.status} className="rounded-xl bg-black/[0.02] p-3 text-center">
-              <p className="text-[20px] font-semibold text-[var(--foreground)]">{s.count}</p>
-              <p className="text-[12px] text-[var(--muted)]">{statusLabel[s.status] ?? s.status}</p>
+            <div key={s.status} className="app-note app-stat-cell text-center">
+              <p className="app-stat">{s.count}</p>
+              <p className="app-text-xs text-[var(--muted)]">{statusLabel[s.status] ?? s.status}</p>
             </div>
           ))}
         </div>
-        <p className="mt-3 text-[12px] text-[var(--muted)]">
+        <p className="mt-3 app-text-xs text-[var(--muted)]">
           {summary.submitted} terkirim dari {summary.validAssignments} tugas berlaku.
         </p>
       </div>
 
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-        <h2 className="mb-2 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+      <div className="app-panel app-panel--ruled">
+        <h2 className="app-panel__label">
           Objek di bawah minimum respons
         </h2>
-        <p className="text-[15px] text-[var(--foreground)]">
+        <p className="text-[var(--foreground)]">
           {summary.belowMinimumObjectCount} objek (dari perhitungan terakhir per kategori) belum
           memenuhi minimum respons atau belum memiliki penilaian sama sekali.
         </p>

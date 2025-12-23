@@ -10,8 +10,8 @@ export default async function HasilListPage() {
   // Bab 4.1: hanya Admin, Dekan, dan Pimpinan Unit yang berwenang melihat rekap/leaderboard.
   if (!ctx || (!ctx.isAdmin && !ctx.isDekan && ctx.leadershipUnitIds.length === 0)) {
     return (
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">
-        <p className="text-[15px] font-medium text-[var(--foreground)]">Tidak berwenang</p>
+      <div className="app-empty-box">
+        <p className="font-medium text-[var(--foreground)]">Tidak berwenang</p>
         <p className="mt-1 text-sm text-[var(--muted)]">
           Halaman ini hanya untuk Admin, Dekan, dan Pimpinan Unit.
         </p>
@@ -60,8 +60,8 @@ export default async function HasilListPage() {
       </PageIntro>
 
       {categories.length === 0 ? (
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">
-          <p className="text-[15px] text-[var(--muted)]">Belum ada kategori dalam lingkup Anda.</p>
+        <div className="app-empty-box">
+          <p className="text-[var(--muted)]">Belum ada kategori dalam lingkup Anda.</p>
         </div>
       ) : (
           <DataList

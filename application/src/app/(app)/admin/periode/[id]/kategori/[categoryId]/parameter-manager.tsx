@@ -11,7 +11,7 @@ import type { getCategoryDetail } from "@/lib/services/categories";
 type Parameter = NonNullable<Awaited<ReturnType<typeof getCategoryDetail>>>["instrumentVersions"][number]["parameters"][number];
 
 const fieldClass =
-  "rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20";
+  "form__control";
 
 export function ParameterManager({
   instrumentVersionId,
@@ -31,10 +31,10 @@ export function ParameterManager({
   return (
     <div className="space-y-4">
       {parameters.length > 0 && (
-        <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
-          <table className="w-full min-w-[600px] text-left text-[13px]">
+        <div className="app-table-wrap">
+          <table className="w-full min-w-[600px] text-left app-text-sm">
             <thead>
-              <tr className="border-b border-[var(--border)] text-[11px] uppercase tracking-wide text-[var(--muted)]">
+              <tr>
                 <th className="px-3 py-2 font-medium">Urutan</th>
                 <th className="px-3 py-2 font-medium">Nama</th>
                 <th className="px-3 py-2 font-medium">Indikator</th>
@@ -89,7 +89,7 @@ export function ParameterManager({
             <button
               type="submit"
               disabled={addPending}
-              className="rounded-xl bg-[var(--accent)] px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-60"
+              className="app-btn app-btn--primary"
             >
               {addPending ? "Menyimpan…" : "Tambah parameter"}
             </button>
@@ -103,7 +103,7 @@ export function ParameterManager({
       )}
 
       {!editable && parameters.length === 0 && (
-        <p className="text-[13px] text-[var(--muted)]">Belum ada parameter.</p>
+        <p className="app-text-sm text-[var(--muted)]">Belum ada parameter.</p>
       )}
     </div>
   );
@@ -159,14 +159,14 @@ function ParameterRow({
               <button
                 type="submit"
                 disabled={pending}
-                className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-[13px] font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
+                className="rounded-lg bg-[var(--accent)] px-3 py-1.5 app-text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
               >
                 {pending ? "Menyimpan…" : "Simpan"}
               </button>
               <button
                 type="button"
                 onClick={() => setEditing(false)}
-                className="rounded-lg border border-[var(--border)] px-3 py-1.5 text-[13px] font-medium text-[var(--foreground)] hover:bg-black/[0.03]"
+                className="rounded-lg border border-[var(--border)] px-3 py-1.5 app-text-sm font-medium text-[var(--foreground)] hover:bg-black/[0.03]"
               >
                 Batal
               </button>
@@ -194,7 +194,7 @@ function ParameterRow({
             <button
               type="button"
               onClick={() => setEditing(true)}
-              className="text-[12px] font-medium text-[var(--accent)] hover:underline"
+              className="app-text-xs font-medium text-[var(--accent)] hover:underline"
             >
               Edit
             </button>
@@ -204,7 +204,7 @@ function ParameterRow({
               <input type="hidden" name="categoryId" value={categoryId} />
               <button
                 type="submit"
-                className="text-[12px] font-medium text-[var(--muted)] hover:text-[var(--danger)] hover:underline"
+                className="app-text-xs font-medium text-[var(--muted)] hover:text-[var(--danger)] hover:underline"
               >
                 Hapus
               </button>

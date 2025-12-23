@@ -12,6 +12,19 @@ import { FinalizationPanel } from "./finalization-panel";
 import { FinalizationHistory } from "./finalization-history";
 import { CategoryCreateForm } from "./category-create-form";
 import { CopyPeriodForm } from "./copy-period-form";
+import { PageIntro, SummaryCard } from "@/components/theme/summary";
+import { DateRange } from "@/components/theme/date-range";
+import { StatusPill } from "@/components/theme/status-pill";
+
+// Nada lencana status mengikuti daftar periode, supaya satu status berwarna sama di mana pun.
+const statusTone = {
+  DRAF: "kuning",
+  SIAP: "biru",
+  AKTIF: "tosca",
+  DITUTUP: "kuning",
+  FINAL: "biru",
+  REVISI: "merah",
+} as const;
 
 const statusLabel: Record<string, string> = {
   DRAF: "Draf",
@@ -46,20 +59,28 @@ async function PeriodDetailPage({
 
   return (
     <div className="space-y-8">
-      <div>
-        <Link href="/admin/periode" className="text-[13px] text-[var(--muted)] hover:underline">
-          ← Semua periode
-        </Link>
-        <div className="mt-1 flex items-center gap-3">
-          <h1 className="page-title text-[24px] sm:text-[28px] text-[var(--foreground)]">
-            {period.name}
-          </h1>
-          <span className="inline-flex rounded-full bg-black/5 px-2.5 py-1 text-[12px] font-medium text-[var(--muted)]">
-            {statusLabel[period.status]}
-          </span>
-        </div>
-        <p className="mt-1 font-mono text-[13px] text-[var(--muted)]">{period.code}</p>
-      </div>
+      <Link href="/admin/periode" className="app-back">
+        ← Semua periode
+      </Link>
+      <PageIntro title={period.name} intro={period.code}>
+        <SummaryCard
+          tone={statusTone[period.status as keyof typeof statusTone]}
+          label="Status"
+          value={statusLabel[period.status]}
+        />
+        <SummaryCard
+          tone="biru"
+          label="Jadwal"
+          value={<DateRange from={period.startsAt} to={period.endsAt} />}
+          note={period.timezone}
+        />
+        <SummaryCard
+          tone="kuning"
+          label="Kategori"
+          value={period.categories.length}
+          note="dalam periode ini"
+        />
+      </PageIntro>
 
       <StatusActions
         periodId={period.id}
@@ -72,21 +93,21 @@ async function PeriodDetailPage({
       {finalizationHistory.length > 0 && <FinalizationHistory history={finalizationHistory} />}
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-          <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+        <div className="app-panel app-panel--ruled">
+          <h2 className="app-panel__label">
             Pengaturan dasar
           </h2>
           <PeriodSettingsForm period={period} />
         </div>
 
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-          <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+        <div className="app-panel app-panel--ruled">
+          <h2 className="app-panel__label">
             Waktu akses hasil
           </h2>
           {canManageAccess ? (
             <AccessPolicyForm periodId={period.id} accessPolicy={period.accessPolicy} />
           ) : (
-            <p className="text-[14px] text-[var(--muted)]">
+            <p className="app-text-sm" style={{ color: "var(--color-text)" }}>
               Hanya Admin atau Dekan yang dapat mengatur kebijakan ini.
               {period.accessPolicy && (
                 <>
@@ -99,18 +120,18 @@ async function PeriodDetailPage({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-        <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+      <div className="app-panel app-panel--ruled">
+        <h2 className="app-panel__label">
           Tambah kategori
         </h2>
         <CategoryCreateForm periodId={period.id} objectTypes={objectTypes} />
       </div>
 
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-        <h2 className="mb-1 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+      <div className="app-panel app-panel--ruled">
+        <h2 className="app-panel__label app-panel__label--tight">
           Gunakan kembali periode ini (UC-10)
         </h2>
-        <p className="mb-4 text-[13px] text-[var(--muted)]">
+        <p className="app-panel__text" style={{ marginTop: 0, marginBottom: ".85rem" }}>
           Menyalin kategori, instrumen, aturan penilaian, dan peserta (hanya yang masih aktif) ke
           periode draf baru dengan jadwal baru — sebagai titik awal yang bisa ditinjau/diubah.
           Penugasan dan seluruh jawaban TIDAK ikut disalin — selalu dievaluasi ulang dari nol untuk
@@ -119,22 +140,22 @@ async function PeriodDetailPage({
         <CopyPeriodForm sourcePeriodId={period.id} />
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
-        <table className="w-full min-w-[760px] text-left text-[14px]">
+      <div className="app-table-wrap">
+        <table className="min-w-[760px]">
           <thead>
-            <tr className="border-b border-[var(--border)] text-[12px] uppercase tracking-wide text-[var(--muted)]">
-              <th className="px-4 py-3 font-medium">Kategori</th>
-              <th className="px-4 py-3 font-medium">Jenis objek</th>
-              <th className="px-4 py-3 font-medium">Peserta</th>
-              <th className="px-4 py-3 font-medium">Bobot instrumen</th>
-              <th className="px-4 py-3 font-medium">Kelompok</th>
-              <th className="px-4 py-3 font-medium">Status</th>
+            <tr>
+              <th >Kategori</th>
+              <th >Jenis objek</th>
+              <th >Peserta</th>
+              <th >Bobot instrumen</th>
+              <th >Kelompok</th>
+              <th >Status</th>
             </tr>
           </thead>
           <tbody>
             {period.categories.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-[var(--muted)]">
+                <td colSpan={6} style={{ textAlign: "center" }}>
                   Belum ada kategori.
                 </td>
               </tr>
@@ -146,18 +167,18 @@ async function PeriodDetailPage({
                 : 0;
               return (
                 <tr key={cat.id} className="border-b border-[var(--border)] last:border-b-0">
-                  <td data-label="Kategori" className="px-4 py-3">
+                  <td data-label="Kategori">
                     <Link
                       href={`/admin/periode/${period.id}/kategori/${cat.id}`}
-                      className="font-medium text-[var(--accent)] hover:underline"
+                      className="font-medium"
                     >
                       {cat.name}
                     </Link>
-                    <div className="font-mono text-[12px] text-[var(--muted)]">{cat.code}</div>
+                    <div className="app-text-xs font-mono" style={{ color: "var(--color-text)" }}>{cat.code}</div>
                   </td>
-                  <td data-label="Jenis objek" className="px-4 py-3 text-[var(--muted)]">{cat.objectType.name}</td>
-                  <td data-label="Peserta" className="px-4 py-3 text-[var(--muted)]">{cat._count.categoryObjects}</td>
-                  <td data-label="Bobot" className="px-4 py-3">
+                  <td data-label="Jenis objek">{cat.objectType.name}</td>
+                  <td data-label="Peserta">{cat._count.categoryObjects}</td>
+                  <td data-label="Bobot">
                     <span
                       className={
                         Math.abs(totalWeight - 100) < 0.001
@@ -168,17 +189,11 @@ async function PeriodDetailPage({
                       {totalWeight}%
                     </span>
                   </td>
-                  <td data-label="Kelompok" className="px-4 py-3 text-[var(--muted)]">{cat.groupRules.length}/2 diatur</td>
-                  <td data-label="Status" className="px-4 py-3">
-                    <span
-                      className={`inline-flex rounded-full px-2 py-0.5 text-[12px] font-medium ${
-                        cat.active
-                          ? "bg-[var(--success)]/10 text-[var(--success)]"
-                          : "bg-black/5 text-[var(--muted)]"
-                      }`}
-                    >
+                  <td data-label="Kelompok">{cat.groupRules.length}/2 diatur</td>
+                  <td data-label="Status">
+                    <StatusPill tone={cat.active ? "selesai" : "netral"}>
                       {cat.active ? "Aktif" : "Nonaktif"}
-                    </span>
+                    </StatusPill>
                   </td>
                 </tr>
               );

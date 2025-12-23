@@ -25,12 +25,12 @@ export function ParticipantManager({
   return (
     <div className="space-y-4">
       {participants.length > 0 ? (
-        <ul className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)]">
+        <ul className="app-stack">
           {participants.map((p) => (
-            <li key={p.id} className="flex items-center justify-between px-4 py-2.5 text-[14px]">
+            <li key={p.id} className="flex items-center justify-between px-4 py-2.5">
               <div>
                 <span className="font-medium text-[var(--foreground)]">{p.nameSnapshot}</span>{" "}
-                <span className="text-[12px] text-[var(--muted)]">— {p.unitSnapshot}</span>
+                <span className="app-text-xs text-[var(--muted)]">— {p.unitSnapshot}</span>
               </div>
               {editable && (
                 <form action={removeCategoryObjectAction}>
@@ -39,7 +39,7 @@ export function ParticipantManager({
                   <input type="hidden" name="categoryId" value={categoryId} />
                   <button
                     type="submit"
-                    className="text-[12px] font-medium text-[var(--muted)] hover:text-[var(--danger)] hover:underline"
+                    className="app-text-xs font-medium text-[var(--muted)] hover:text-[var(--danger)] hover:underline"
                   >
                     Keluarkan
                   </button>
@@ -49,7 +49,7 @@ export function ParticipantManager({
           ))}
         </ul>
       ) : (
-        <p className="text-[13px] text-[var(--muted)]">Belum ada peserta.</p>
+        <p className="app-text-sm text-[var(--muted)]">Belum ada peserta.</p>
       )}
 
       {editable && (
@@ -57,7 +57,7 @@ export function ParticipantManager({
           <input type="hidden" name="periodId" value={periodId} />
           <input type="hidden" name="categoryId" value={categoryId} />
           {candidateObjects.length === 0 ? (
-            <p className="text-[13px] text-[var(--muted)]">
+            <p className="app-text-sm text-[var(--muted)]">
               Tidak ada objek jenis ini yang tersedia. Tambahkan lebih dulu di halaman Objek
               Penilaian.
             </p>
@@ -67,7 +67,7 @@ export function ParticipantManager({
                 name="objectIds"
                 multiple
                 size={Math.min(6, candidateObjects.length)}
-                className="w-full rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+                className="form__control"
               >
                 {candidateObjects.map((o) => (
                   <option key={o.id} value={o.id}>
@@ -78,7 +78,7 @@ export function ParticipantManager({
               <button
                 type="submit"
                 disabled={addPending}
-                className="rounded-xl bg-[var(--accent)] px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-60"
+                className="app-btn app-btn--primary"
               >
                 {addPending ? "Menambahkan…" : "Tambahkan sebagai peserta"}
               </button>

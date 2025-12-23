@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { resolveIssueAction } from "@/lib/actions/assignmentIssues";
 import type { listAllIssues } from "@/lib/services/assignmentIssues";
+import { StatusPill } from "@/components/theme/status-pill";
 
 type Issue = Awaited<ReturnType<typeof listAllIssues>>[number];
 
@@ -12,11 +13,11 @@ const statusLabel: Record<string, string> = {
   SELESAI: "Selesai",
 };
 
-const statusClass: Record<string, string> = {
-  TERBUKA: "bg-[var(--danger)]/10 text-[var(--danger)]",
-  DITANGANI: "bg-amber-500/10 text-amber-600",
-  SELESAI: "bg-[var(--success)]/10 text-[var(--success)]",
-};
+const statusTone = {
+  TERBUKA: "gagal",
+  DITANGANI: "perhatian",
+  SELESAI: "selesai",
+} as const;
 
 export function IssueRow({ issue }: { issue: Issue }) {
   const [open, setOpen] = useState(false);
@@ -25,29 +26,27 @@ export function IssueRow({ issue }: { issue: Issue }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <span
-          className={`inline-flex rounded-full px-2 py-0.5 text-[12px] font-medium ${statusClass[issue.status]}`}
-        >
+        <StatusPill tone={statusTone[issue.status as keyof typeof statusTone]}>
           {statusLabel[issue.status]}
-        </span>
+        </StatusPill>
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="text-[12px] font-medium text-[var(--accent)] hover:underline"
+          className="btn-plain app-text-xs"
         >
           {open ? "Tutup" : "Tangani"}
         </button>
       </div>
       {issue.resolution && !open && (
-        <p className="text-[12px] text-[var(--muted)]">Tanggapan: {issue.resolution}</p>
+        <p className="app-text-xs" style={{ color: "var(--color-text)" }}>Tanggapan: {issue.resolution}</p>
       )}
       {open && (
-        <form action={formAction} className="flex flex-col gap-2 rounded-lg bg-black/[0.02] p-2.5">
+        <form action={formAction} className="app-stack app-note">
           <input type="hidden" name="issueId" value={issue.id} />
           <select
             name="status"
             defaultValue={issue.status === "TERBUKA" ? "DITANGANI" : issue.status}
-            className="rounded-lg border border-[var(--border)] bg-transparent px-2 py-1 text-[12px] outline-none focus:border-[var(--accent)]"
+            className="form__control"
           >
             <option value="TERBUKA">Terbuka</option>
             <option value="DITANGANI">Ditangani</option>
@@ -58,16 +57,20 @@ export function IssueRow({ issue }: { issue: Issue }) {
             placeholder="Tanggapan / tindakan yang diambil"
             defaultValue={issue.resolution ?? ""}
             rows={2}
-            className="rounded-lg border border-[var(--border)] bg-transparent px-2 py-1 text-[12px] outline-none focus:border-[var(--accent)]"
+            className="form__control"
           />
           <button
             type="submit"
             disabled={pending}
-            className="self-start rounded-lg bg-[var(--accent)] px-3 py-1 text-[12px] font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
+            className="app-btn app-btn--primary self-start"
           >
             {pending ? "Menyimpan…" : "Simpan"}
           </button>
-          {state.error && <p className="text-[12px] text-[var(--danger)]">{state.error}</p>}
+          {state.error && (
+            <p role="alert" className="app-text-xs" style={{ color: "var(--color-brand-1)" }}>
+              {state.error}
+            </p>
+          )}
         </form>
       )}
     </div>

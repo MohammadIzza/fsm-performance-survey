@@ -332,7 +332,7 @@ export function AssignmentForm({
             menyatakan keadaan tugasnya, dan baris ini mengulanginya tepat di bawahnya. Kalimat
             untuk keadaan belum dinilai tetap ada karena tidak ada tempat lain yang menyatakannya. */}
         {!effectiveInfo && (
-          <p className="text-[13px] text-[var(--muted)]">Belum ada penilaian.</p>
+          <p className="app-text-sm text-[var(--muted)]">Belum ada penilaian.</p>
         )}
         <AssessmentSheet
           parameters={sortedParameters}
@@ -397,7 +397,7 @@ export function AssignmentForm({
             {submitPending ? "Mengirim…" : "Kirim jawaban"}
           </ThemeButton>
           {draftState.savedAt && (
-            <span className="order-3 text-center text-[12px] text-[var(--success)] sm:text-left">
+            <span className="order-3 text-center app-text-xs text-[var(--success)] sm:text-left">
               Tersimpan {new Date(draftState.savedAt).toLocaleTimeString("id-ID")}
             </span>
           )}
@@ -410,7 +410,7 @@ export function AssignmentForm({
                 <button
                   type="button"
                   onClick={() => window.location.reload()}
-                  className="mt-1 text-[13px] font-medium text-[var(--accent)] hover:underline"
+                  className="mt-1 app-text-sm font-medium text-[var(--accent)] hover:underline"
                 >
                   Muat ulang halaman
                 </button>
