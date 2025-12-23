@@ -384,6 +384,9 @@ input[type="range"]:disabled::-moz-range-thumb {
   z-index:3;flex-grow:.95;min-height:8rem;transform:translateY(.4rem) rotate(.36deg)
 }
 .survey-shell .summary__card--intro {padding-left:max(1.35rem,4vw);color:var(--color-white)}
+/* Kartu terakhir mencapai tepi kanan layar, sama seperti kartu judul mencapai tepi sidebar. Tanpa
+   selokan yang setara, catatannya berhenti tepat di pinggir layar dan terbaca seperti terpotong. */
+.survey-shell .summary__card:last-child {padding-right:max(1.35rem,2.5vw)}
 .survey-shell .summary__card--intro .page-intro__text {color:var(--color-white)}
 .survey-shell .summary__card span,
 .survey-shell .summary__card h1,
@@ -728,12 +731,30 @@ input[type="range"]:disabled::-moz-range-thumb {
    cari). Di dalam petak atau baris flex, lebar itu menjadi lantai yang tidak bisa ditembus: petak
    sempit di layar ponsel tetap direntangkan oleh satu kolom cari sampai melewati tepi halaman.
    Lantai itu dihapus di sini; lebarnya tetap diatur `width:100%` seperti semula. */
+/* Tinggi baris tema untuk kolom isian adalah 1 — sama dengan ukuran hurufnya. Kolom ketik lalu
+   tetap setinggi metrik hurufnya (sekitar 1,35em) sementara <select> menyusut ke tinggi baris itu,
+   sehingga keduanya berselisih 5px bila berdampingan di layar ponsel. Tinggi baris yang sama
+   membuat keduanya dihitung dari angka yang sama. */
 .survey-shell main input.form__control,
 .survey-shell main select.form__control,
-.survey-shell main textarea.form__control {min-width:0}
+.survey-shell main textarea.form__control {min-width:0;line-height:1.35}
+
+/* Kotak daftar pilihan ganda. Tanpa aturan sendiri ia mewarisi padding 0,8em milik .form__control
+   pada setiap barisnya dan tumbuh sampai 800-an piksel — setinggi layar, untuk empat baris yang
+   diminta atribut `size`. Di sini tingginya dikunci sekitar lima baris dan sisanya digulir. */
+.survey-shell main select[multiple].form__control {
+  height:auto;max-height:9.5rem;overflow-y:auto;
+  padding:.35rem;background-image:none;line-height:1.35;
+}
+.survey-shell main select[multiple].form__control option {
+  padding:.3rem .45rem;border-radius:.3rem;
+}
 
 /* Tabel lebar tetap boleh digeser ke samping, tapi tanpa kartu yang membungkusnya. */
 .app-table-wrap {overflow-x:auto;border:0;border-radius:0;background:transparent}
+/* Sedikit ruang di kanan: tanpa ini simpul terakhir pohon berhenti tepat di tepi wadah dan
+   terbaca seperti terpotong, bukan seperti masih ada lanjutannya. */
+.app-table-wrap > .org-tree {padding-right:.75rem}
 
 /* Deret isian yang berdiri sendiri di dalam sebuah bagian. */
 .app-stack {display:flex;flex-direction:column;gap:.65rem}
@@ -797,9 +818,29 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-login select::picker-icon {
     display: none;
   }
+  /* Teks pilihan yang panjang ("— Penanggung jawab (opsional saat draf) —") membungkus ke baris
+     kedua: kotaknya jadi 71px sementara tetangganya 57px, dan barisnya tidak lagi rata. Teksnya
+     dijaga satu baris dan kelebihannya dipotong; ruang di kanan sudah disediakan untuk panahnya. */
+  .survey-shell select:not([multiple]),
+  .survey-shell .form select.form__control:not([multiple]),
+  .survey-login select:not([multiple]),
+  .survey-login .form select.form__control:not([multiple]) {
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  /* Pilihan ganda bukan dropdown melainkan kotak daftar: ia menampilkan barisnya sekaligus, jadi
+     `appearance: base-select` dan panah latar tema tidak berlaku untuknya. */
+  .survey-shell select[multiple],
+  .survey-login select[multiple] {
+    appearance: none;
+  }
   .survey-shell select::picker(select),
   .survey-login select::picker(select) {
     appearance: base-select;
+    /* Daftar sepanjang 23 nama memenuhi layar sampai ke bawah. Dibatasi setinggi kira-kira sepuluh
+       baris, sisanya digulir di dalam daftarnya sendiri. */
+    max-height: 17rem;
+    overflow-y: auto;
     /* margin-block, bukan margin-top: peramban membalik daftar ke atas bila ruang di bawah tidak
        cukup, dan jarak yang hanya diberikan di satu sisi hilang begitu itu terjadi. */
     margin-block: .3rem;
