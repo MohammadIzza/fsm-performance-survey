@@ -52,8 +52,15 @@ window.wpcf7=window.wpcf7||{reset:function(f){if(f&&f.reset)f.reset()}};`;
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
-    <link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/assets/favicon/favicon.svg?v=fsm-1"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="/assets/favicon/apple-touch-icon.png?v=fsm-1"
+    />
     <link
       rel="preload"
       href="/assets/fonts/HeyWow-Book.woff2"
@@ -82,5 +89,8 @@ window.wpcf7=window.wpcf7||{reset:function(f){if(f&&f.reset)f.reset()}};`;
     <SiteScrollbar />
     <script is:inline set:html={plrBootstrap} />
     {themeScripts.map((src) => <script is:inline src={src} />)}
+    <script>
+      import '../scripts/hero-fsm';
+    </script>
   </body>
 </html>
