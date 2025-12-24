@@ -173,6 +173,7 @@ function ObjectRow({
   // panel di dalam <li> yang sama, dengan barisnya tetap terlihat selama disunting.
   return (
     <DataRow
+      collapsible
       panel={
         editing ? (
           <ObjectForm
@@ -201,13 +202,13 @@ function ObjectRow({
           </a>
         )}
       </RowTitle>
-      <RowField kind="duration" icon={false}>
+      <RowField kind="duration" icon={false} detail>
         {object.type.name}
       </RowField>
-      <RowField kind="location" icon={false}>
+      <RowField kind="location" icon={false} detail>
         {object.ownerUnit.name}
       </RowField>
-      <RowField kind="topic" icon={false}>
+      <RowField kind="topic" icon={false} detail>
         {object.responsibleUser ? object.responsibleUser.name : "\u2014"}
       </RowField>
       <RowField kind="dates" icon={false}>

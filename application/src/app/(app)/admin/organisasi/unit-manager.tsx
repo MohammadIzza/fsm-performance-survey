@@ -79,7 +79,7 @@ export function UnitManager({
           ["title", "Unit"],
           ["duration", "Induk"],
           ["location", "Pimpinan aktif"],
-          ["topic", "Status"],
+          ["dates", "Status"],
           ["price", "Aksi"],
         ]}
       >
@@ -114,10 +114,10 @@ function UnitRow({
         {unit.name}
         <span className="sb__subtitle">{unit.code}</span>
       </RowTitle>
-      <RowField kind="duration" icon={false}>
+      <RowField kind="duration" icon={false} detail>
         {parent ? parent.name : "\u2014"}
       </RowField>
-      <RowField kind="location" icon={false}>
+      <RowField kind="location" icon={false} detail>
         {unit.currentLeaders.length === 0 ? (
           "Belum ada pimpinan"
         ) : (
@@ -131,7 +131,7 @@ function UnitRow({
           </>
         )}
       </RowField>
-      <RowField kind="topic" icon={false}>
+      <RowField kind="dates" icon={false}>
         <StatusPill tone={unit.active ? "selesai" : "netral"}>
           {unit.active ? "Aktif" : "Nonaktif"}
         </StatusPill>
@@ -157,6 +157,7 @@ function UnitRow({
   // selama disunting, jadi jelas unit mana yang sedang diubah.
   return (
     <DataRow
+      collapsible
       panel={
         editing ? (
           <form action={updateFormAction} className="grid gap-3 sm:grid-cols-4">

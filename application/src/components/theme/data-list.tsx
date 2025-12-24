@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { SectionHeader } from "./section-header";
+import { RowDisclosure } from "./row-disclosure";
 
 /**
  * Daftar data memakai komponen daftar tema (`.s-courses-list` + baris `.sb-course`) — bentuk yang
@@ -91,9 +92,12 @@ export function DataList({
 export function DataRow({
   href,
   panel,
+  collapsible = false,
   children,
 }: {
   href?: string;
+  /** Tambahkan tombol buka-tutup untuk bidang ber-`detail` pada baris ini (hanya tampak di ponsel). */
+  collapsible?: boolean;
   /**
    * Isi yang terbuka di bawah barisnya, selebar baris — dipakai daftar admin untuk form sunting
    * dan panel pimpinan yang dulu menempati satu <tr> tambahan ber-colSpan. Tetap di dalam <li>
@@ -104,8 +108,11 @@ export function DataRow({
 }) {
   if (!href) {
     return (
-      <li className="s__course sb-course sb-course--static">
-        <div className="sb__link">{children}</div>
+      <li className="s__course sb-course sb-course--static" data-detail-open="false">
+        <div className="sb__link">
+          {children}
+          {collapsible && <RowDisclosure />}
+        </div>
         {panel && <div className="sb__panel">{panel}</div>}
       </li>
     );
@@ -157,9 +164,16 @@ export function RowTitle({ children }: { children: ReactNode }) {
 export function RowField({
   kind,
   icon = true,
+  detail = false,
   children,
 }: {
   kind: "dates" | "duration" | "location" | "price" | "topic";
+  /**
+   * Bidang pelengkap: di layar ponsel ia tersembunyi sampai baris dibuka lewat RowDisclosure.
+   * Dipakai daftar admin, yang barisnya membawa lima sampai enam bidang; tanpa ini satu baris
+   * menumpuk setinggi sepertiga layar. Di layar lebar tidak berpengaruh.
+   */
+  detail?: boolean;
   /**
    * Tiap bidang tema membawa ikonnya sendiri: kalender untuk dates, jam untuk duration, peta untuk
    * location. Di situs publik ikon itu selalu cocok karena isinya memang tanggal/durasi/kota. Isi
@@ -170,6 +184,12 @@ export function RowField({
   children: ReactNode;
 }) {
   return (
-    <span className={`sb__${kind}${icon ? "" : " sb__field--no-icon"}`}>{children}</span>
+    <span
+      className={`sb__${kind}${icon ? "" : " sb__field--no-icon"}${
+        detail ? " sb__field--detail" : ""
+      }`}
+    >
+      {children}
+    </span>
   );
 }

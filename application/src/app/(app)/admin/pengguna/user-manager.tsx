@@ -213,13 +213,13 @@ function UserRow({
         {user.name}
         <span className="sb__subtitle">{user.loginIdentifier}</span>
       </RowTitle>
-      <RowField kind="duration" icon={false}>
+      <RowField kind="duration" icon={false} detail>
         {user.userType.name}
       </RowField>
-      <RowField kind="location" icon={false}>
+      <RowField kind="location" icon={false} detail>
         {user.primaryUnit ? user.primaryUnit.name : "\u2014"}
       </RowField>
-      <RowField kind="topic" icon={false}>
+      <RowField kind="topic" icon={false} detail>
         {user.roleGrants.length === 0 && user.leaderships.length === 0 ? (
           "Pengguna"
         ) : (
@@ -263,6 +263,7 @@ function UserRow({
   // panel di dalam <li> yang sama, dengan barisnya tetap terlihat selama disunting.
   return (
     <DataRow
+      collapsible
       panel={
         editing ? (
           <form action={updateFormAction} className="grid gap-3 sm:grid-cols-4">

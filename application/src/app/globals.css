@@ -795,6 +795,10 @@ input[type="range"]:disabled::-moz-range-thumb {
   .app-text-xs {font-size:.56rem}
 }
 
+/* Tombol buka-tutup bidang pelengkap sebuah baris. Hanya berguna di layar ponsel — di layar lebar
+   seluruh bidang muat dalam satu baris, jadi tombolnya disembunyikan dan tidak ada yang berubah. */
+.survey-shell main .sb__detail-toggle {display:none}
+
 /* Baris "tidak ada hasil": memakai kerangka baris biasa supaya garis dan lebarnya menyatu dengan
    daftar, tetapi tanpa kolom dan tanpa tautan. */
 .survey-shell .s-courses-list .sb-course--empty .sb__link {
@@ -1067,6 +1071,10 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) {margin:.4rem 0}
   .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__link {
     display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
+    /* `dense`: bidang yang dikunci ke kolom kanan mengisi baris lebih dulu, lalu tombol Detail
+       mengisi petak kiri yang ditinggalkannya. Tanpa ini tombolnya jatuh ke baris tersendiri di
+       bawah deretan aksi dan meninggalkan satu petak kosong di tengah baris. */
+    grid-auto-flow:row dense;
     gap:.35rem .6rem;padding:.62rem .68rem;overflow:hidden;border-radius:.6rem;
   }
   .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__title {
@@ -1088,6 +1096,24 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell main .s-courses-list .status-pill {padding:.25em .65em;font-size:.54rem}
   /* Panah baris disembunyikan: pada kisi dua kolom ia merebut satu petak dan mendorong isinya. */
   .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__arrow {display:none}
+
+  /* Baris daftar admin membawa lima sampai enam bidang. Yang tampil hanyalah nama entri, status,
+     dan aksinya — sisanya menunggu diminta, supaya barisnya seringkas baris di Tugas Saya. */
+  .survey-shell main .sb-course[data-detail-open="false"] .sb__field--detail {display:none}
+  .survey-shell main .sb__detail-toggle {
+    display:inline-flex;align-items:center;align-self:start;grid-column:1;
+    margin-top:.1rem;padding:0;border:0;background:none;
+    color:var(--color-brand-3);font-size:.56rem;font-weight:600;
+  }
+  .survey-shell main .sb__detail-toggle::after {
+    content:"";margin-left:.3rem;
+    border-left:.24rem solid currentColor;
+    border-top:.18rem solid transparent;border-bottom:.18rem solid transparent;
+    transition:transform .15s ease;
+  }
+  .survey-shell main .sb-course[data-detail-open="true"] .sb__detail-toggle::after {
+    transform:rotate(90deg);
+  }
   .assignment-row__leadership {display:block;margin-top:.12rem;color:var(--color-text);
     font-size:.52rem;font-weight:400;line-height:1.2}
 
