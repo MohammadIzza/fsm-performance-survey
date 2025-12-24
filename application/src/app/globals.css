@@ -502,9 +502,12 @@ input[type="range"]:disabled::-moz-range-thumb {
 /* Di ponsel tiap kontrol selebar layar dan bertumpuk. Sebagai kolom sempit berdampingan, isian
    tanggal dan pilihan panjang terpotong. */
 @media only screen and (max-width: 640px) {
-  .survey-shell .filter-bar {gap:.75rem}
+  .survey-shell .filter-bar {gap:.55rem}
   .survey-shell .filter-bar__field,
-  .survey-shell .filter-bar__field--wide {flex:1 1 100%;max-width:none}
+  .survey-shell .filter-bar__field--wide {flex:1 1 100%;max-width:none;gap:.18rem}
+  /* Nama penyaring seukuran nama penyaring di kepala daftar Tugas Saya, bukan seukuran nama
+     kolom di layar lebar — supaya bilah ini terbaca sebagai bagian dari daftarnya. */
+  .survey-shell .filter-bar__label {font-size:.5rem}
   .survey-shell .filter-bar__action {width:100%}
   .survey-shell .filter-bar__action .btn-plain {width:100%}
   .survey-shell .filter-bar__action .btn-plain__inner {text-align:center}
@@ -1055,28 +1058,44 @@ input[type="range"]:disabled::-moz-range-thumb {
   .assignment-head-filter > span {font-size:.5rem}
   .assignment-head-filter select.form__control {width:100%;max-width:100%;min-height:1.9rem;
     padding:.35em 1.7em .35em .5em;font-size:.72rem!important}
-  .assignments-data-list .s-courses-list .sb-course:not(.sb-course--head) {margin:.4rem 0}
-  .assignments-data-list .s-courses-list .sb-course:not(.sb-course--head) .sb__link {
+  /* Bentuk baris daftar di layar ponsel, untuk seluruh ruang survei — bukan hanya Tugas Saya.
+     Dua kolom: nama entri dan keterangannya di kiri, angka/tanggal/status di kanan. Nomor
+     barisnya tidak ditetapkan, hanya kolomnya; penempatan otomatis lalu mengisi baris sesuai
+     urutan bidang di markah, sehingga daftar berbidang dua sampai lima sama-sama tertata tanpa
+     aturan sendiri-sendiri. Daftar admin punya bidang jauh lebih banyak dan menimpa ini di
+     bloknya sendiri di bawah. */
+  .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) {margin:.4rem 0}
+  .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__link {
     display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
     gap:.35rem .6rem;padding:.62rem .68rem;overflow:hidden;border-radius:.6rem;
   }
-  .assignments-data-list .s-courses-list .sb-course:not(.sb-course--head) .sb__title {
-    grid-column:1;grid-row:1;width:auto;font-size:.68rem;line-height:1.25;
+  .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__title {
+    grid-column:1;width:auto;font-size:.68rem;line-height:1.25;
   }
-  .assignments-data-list .s-courses-list .sb-course:not(.sb-course--head) .sb__dates {
-    grid-column:2;grid-row:1;width:auto;justify-self:end;padding-left:1.05rem;
+  .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__location,
+  .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__duration,
+  .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__topic {
+    grid-column:1;width:auto;margin:0;font-size:.56rem;line-height:1.25;
+  }
+  .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__dates {
+    grid-column:2;width:auto;justify-self:end;padding-left:1.05rem;
     font-size:.56rem;line-height:1.2;white-space:nowrap;
   }
-  .assignments-data-list .s-courses-list .sb-course:not(.sb-course--head) .sb__dates::before {width:11px;height:10px}
-  .assignments-data-list .s-courses-list .sb-course:not(.sb-course--head) .sb__location {
-    grid-column:1;grid-row:2;width:auto;margin:0;font-size:.56rem;line-height:1.25;
+  .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__dates::before {width:11px;height:10px}
+  .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__price {
+    grid-column:2;width:auto;justify-self:end;text-align:right;font-size:.56rem;
   }
-  .assignments-data-list .s-courses-list .sb-course:not(.sb-course--head) .sb__price {
-    grid-column:2;grid-row:2;width:auto;justify-self:end;font-size:.56rem;
-  }
-  .assignments-data-list .status-pill {padding:.25em .65em;font-size:.54rem}
+  .survey-shell main .s-courses-list .status-pill {padding:.25em .65em;font-size:.54rem}
+  /* Panah baris disembunyikan: pada kisi dua kolom ia merebut satu petak dan mendorong isinya. */
+  .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__arrow {display:none}
   .assignment-row__leadership {display:block;margin-top:.12rem;color:var(--color-text);
     font-size:.52rem;font-weight:400;line-height:1.2}
+
+  /* Judul daftar: di Beranda ia sebesar judul halaman dan mendorong daftarnya ke bawah layar. */
+  .survey-shell main .s-courses-list .s__top {margin:0}
+  .survey-shell main .s-courses-list .s__header {margin-bottom:.45rem}
+  .survey-shell main .s-courses-list .s__title {font-size:.92rem;line-height:1.15}
+  .survey-shell main .s-courses-list .s__intro {margin-top:.2rem;font-size:.62rem;line-height:1.35}
 
   .assignment-detail.space-y-8 > :not([hidden]) ~ :not([hidden]) {margin-top:1rem}
   .assignment-detail .survey-hero {
@@ -1353,19 +1372,19 @@ input[type="range"]:disabled::-moz-range-thumb {
   flex-wrap:nowrap;align-items:center;gap:1rem;
 }
 .admin-area .s-courses-list .sb-course .sb__link > .sb__title,
-.admin-area .s-courses-list .sb-course .sb__link > .sb__topic,
-.admin-area .s-courses-list .sb-course .sb__link > .sb__dates,
-.admin-area .s-courses-list .sb-course .sb__link > .sb__duration,
-.admin-area .s-courses-list .sb-course .sb__link > .sb__location,
-.admin-area .s-courses-list .sb-course .sb__link > .sb__price {
+.survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__topic,
+.survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__dates,
+.survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__duration,
+.survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__location,
+.survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__price {
   width:auto;flex:1 1 0;min-width:0;
 }
 /* Nama entri dapat dua bagian: ia bidang terpanjang dan yang dibaca lebih dulu. */
-.admin-area .s-courses-list .sb-course .sb__link > .sb__title {flex:2 1 0}
+.survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__title {flex:2 1 0}
 /* Aksi mendapat jatah yang sama seperti bidang lain, hanya isinya dirapatkan ke kanan. Kalau
    dibuat selebar isinya saja, kolom terakhir pada baris data dan pada kepala kolom punya lebar
    berbeda — dan seluruh kolom sebelumnya ikut bergeser karena sisa ruangnya tidak sama. */
-.admin-area .s-courses-list .sb-course .sb__link > .sb__actions {
+.survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__actions {
   justify-content:flex-end;
 }
 }
@@ -1375,30 +1394,31 @@ input[type="range"]:disabled::-moz-range-thumb {
    judul kolom yang sama, sehingga hubungan label–nilai tetap jelas setelah kepala tabel
    disembunyikan secara visual. */
 @media only screen and (max-width: 640px) {
-  .admin-area .s-courses-list .sb-course .sb__link {
+  .survey-shell main .admin-area .s-courses-list .sb-course .sb__link {
     gap:.18rem;padding:.58rem .1rem;
   }
-  .admin-area .s-courses-list .sb-course .sb__title {
-    font-size:.72rem;line-height:1.25;
+  /* Seukuran judul baris di daftar lain, bukan setingkat lebih besar. */
+  .survey-shell main .admin-area .s-courses-list .sb-course .sb__title {
+    font-size:.68rem;line-height:1.25;
   }
-  .admin-area .s-courses-list .sb-course .sb__topic,
-  .admin-area .s-courses-list .sb-course .sb__dates,
-  .admin-area .s-courses-list .sb-course .sb__duration,
-  .admin-area .s-courses-list .sb-course .sb__location,
-  .admin-area .s-courses-list .sb-course .sb__price {
-    font-size:.61rem;line-height:1.3;
+  .survey-shell main .admin-area .s-courses-list .sb-course .sb__topic,
+  .survey-shell main .admin-area .s-courses-list .sb-course .sb__dates,
+  .survey-shell main .admin-area .s-courses-list .sb-course .sb__duration,
+  .survey-shell main .admin-area .s-courses-list .sb-course .sb__location,
+  .survey-shell main .admin-area .s-courses-list .sb-course .sb__price {
+    font-size:.56rem;line-height:1.3;
   }
-  .admin-area .s-courses-list .sb-course .sb__subtitle {
+  .survey-shell main .admin-area .s-courses-list .sb-course .sb__subtitle {
     margin-top:.1rem;font-size:.55rem;line-height:1.25;
   }
-  .admin-area .s-courses-list .sb-course .sb__actions {
+  .survey-shell main .admin-area .s-courses-list .sb-course .sb__actions {
     flex-wrap:wrap;gap:.35rem .65rem;margin-top:.12rem;
   }
-  .admin-area .s-courses-list .sb-course .sb__actions a,
-  .admin-area .s-courses-list .sb-course .sb__actions button {
+  .survey-shell main .admin-area .s-courses-list .sb-course .sb__actions a,
+  .survey-shell main .admin-area .s-courses-list .sb-course .sb__actions button {
     font-size:.6rem;line-height:1.25;
   }
-  .admin-area .status-pill {padding:.25em .65em;font-size:.56rem}
+  .survey-shell main .admin-area .status-pill {padding:.25em .65em;font-size:.56rem}
   .admin-area .sb__panel {padding-bottom:.65rem}
   .admin-area .sb__panel > * {padding:.7rem}
 
