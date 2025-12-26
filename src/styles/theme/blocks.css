@@ -1983,50 +1983,53 @@
   transition: transform 0.1s linear 0s;
   will-change: transform;
 }
+/* FSM canvases include 90 units of transparent padding around the artwork.
+ * The same anchor drives both the flower pivot and the stem endpoint. */
+.b-hero-home[data-fsm-hero] .b__letters {
+  width: 64%;
+}
+.b-hero-home[data-fsm-hero] .b__letter {
+  --anchor-x: 50%;
+  --anchor-y: 78.26%;
+}
+.b-hero-home[data-fsm-hero] .b__letter__flower {
+  line-height: 0;
+  transform-origin: var(--anchor-x) var(--anchor-y);
+}
+.b-hero-home[data-fsm-hero] .b__letter__flower svg {
+  display: block;
+}
+.b-hero-home[data-fsm-hero] .b__letter__stem {
+  left: calc(var(--anchor-x) - 25%);
+  width: 50%;
+  height: calc(100% - var(--flower-height) * 0.7826);
+}
 .b-hero-home .b__letters .b__letter--f {
-  left: 2%;
-  width: 28%;
-  height: 98%;
-}
-.b-hero-home .b__letters .b__letter--f .b__letter__flower {
-  transform-origin: 45% 90%;
-}
-.b-hero-home .b__letters .b__letter--f .b__letter__stem {
-  left: 5%;
-  width: 80%;
-  height: 52%;
+  --anchor-x: 30.48%;
+  left: -5%;
+  width: 38%;
+  height: 120%;
 }
 .b-hero-home .b__letters .b__letter--s {
-  left: 35%;
-  width: 28%;
-  height: 95%;
-}
-.b-hero-home .b__letters .b__letter--s .b__letter__flower {
-  transform-origin: 50% 90%;
-}
-.b-hero-home .b__letters .b__letter--s .b__letter__stem {
-  left: 5%;
-  width: 80%;
-  height: 52%;
+  left: 27%;
+  width: 38%;
+  height: 117%;
 }
 .b-hero-home .b__letters .b__letter--m {
-  left: 68%;
-  width: 30%;
-  height: 98%;
+  --anchor-x: 26.667%;
+  left: 59%;
+  width: 43.429%;
+  height: 120%;
 }
-.b-hero-home .b__letters .b__letter--m .b__letter__flower {
-  transform-origin: 50% 90%;
+@media only screen and (max-width: 987px) {
+  .b-hero-home[data-fsm-hero] .b__letters {
+    width: 78%;
+  }
 }
-.b-hero-home .b__letters .b__letter--m .b__letter__stem {
-  left: 5%;
-  width: 80%;
-  height: 52%;
-}
-.fsm-letter-svg {
-  width: 100%;
-  height: auto;
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.05));
-  transition: transform 0.15s ease-out;
+@media only screen and (max-width: 767px) {
+  .b-hero-home[data-fsm-hero] .b__letters {
+    width: 94%;
+  }
 }
 .b-hero-home .b__bootcamp {
   position: absolute;
