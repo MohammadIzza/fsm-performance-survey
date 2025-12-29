@@ -104,6 +104,19 @@ def main() -> int:
         output = (DIST / built).read_text(encoding="utf-8", errors="replace")
         want = extract(source, False)
         got = extract(output, True)
+        # Intentional home rebrand: preserve the original required Lottie hooks,
+        # but expect exactly F/S/M instead of the six archived CODING assets.
+        if route == "/":
+            hero_keys = [key for key in want if any(
+                f"data-lg-lottie=home-hero-{letter}.json" in key[1]
+                for letter in "coding"
+            )]
+            template = next((key for key in hero_keys if "home-hero-c.json" in key[1]), None)
+            for key in hero_keys:
+                del want[key]
+            if template:
+                for letter in "fsm":
+                    want[(template[0], template[1].replace("home-hero-c.json", f"home-hero-{letter}.json"))] = 1
 
         missing = want - got
         extra = got - want
