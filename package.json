@@ -1,0 +1,37 @@
+{
+  "name": "nod-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1 --port 4321",
+    "dev:status": "astro dev status",
+    "dev:stop": "astro dev stop",
+    "start": "npm run dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview --host 127.0.0.1 --port 4322",
+    "check": "astro check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "astro": "7.3.2"
+  },
+  "overrides": {
+    "astro": {
+      "unifont": "0.7.4"
+    }
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@playwright/test": "^1.58.0",
+    "agent-browser": "^0.21.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript": "^5.9.3"
+  }
+}
