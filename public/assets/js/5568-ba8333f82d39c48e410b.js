@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunknod=self.webpackChunknod||[]).push([[5568],{5568:(e,l,s)=>{s.r(l);var t=s(1864),n=s(8520);window.plr.controllers.BHeadingEye2=class extends t.c{onRevealIn(){const e=n.w$.timeline();e.call((()=>{this.refs.title.luge&&this.refs.title.luge.reveal.in()}),null,.1),e.call((()=>{this.refs.text.luge&&this.refs.text.luge.reveal.in()}),null,.7)}}}}]);

@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunknod=self.webpackChunknod||[]).push([[9372],{9372:(e,l,s)=>{s.r(l);var n=s(1864),t=s(8520);window.plr.controllers.BHeadingShapes1=class extends n.c{onRevealIn(){t.w$.timeline().call((()=>{this.refs.title.luge&&this.refs.title.luge.reveal.in()}),null,0)}}}}]);
