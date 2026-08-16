@@ -1,0 +1,7 @@
+/* Preserved theme, split in original cascade order. */
+@import './theme/base.css';
+@import './theme/elements.css';
+@import './theme/blocks.css';
+@import './theme/sections.css';
+@import './theme/shell.css';
+@import './theme/layouts.css';
