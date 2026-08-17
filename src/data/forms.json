@@ -1,0 +1,235 @@
+{
+  "form-52": {
+    "fields": [
+      {
+        "name": "fullname",
+        "type": "text",
+        "label": "Name",
+        "required": true
+      },
+      {
+        "name": "email",
+        "type": "email",
+        "label": "Email",
+        "required": true
+      },
+      {
+        "name": "phone",
+        "type": "tel",
+        "label": "Phone",
+        "required": true
+      },
+      {
+        "name": "message",
+        "type": "textarea",
+        "label": "Motivation",
+        "required": true
+      },
+      {
+        "name": "bootcamp",
+        "type": "select",
+        "label": "Bootcamp",
+        "required": true,
+        "options": [
+          {
+            "value": "",
+            "label": "Select a bootcamp"
+          }
+        ]
+      },
+      {
+        "name": "rgpd",
+        "type": "checkbox",
+        "label": "By submitting this form, you agree to share your data in accordance with our Privacy Policy .",
+        "required": true
+      }
+    ],
+    "submit": "Apply now"
+  },
+  "form-85": {
+    "fields": [
+      {
+        "name": "fullname",
+        "type": "text",
+        "label": "Name",
+        "required": true
+      },
+      {
+        "name": "email",
+        "type": "email",
+        "label": "Email",
+        "required": true
+      },
+      {
+        "name": "phone",
+        "type": "tel",
+        "label": "Phone",
+        "required": true
+      },
+      {
+        "name": "rgpd",
+        "type": "checkbox",
+        "label": "By submitting this form, you agree to share your data in accordance with our Privacy Policy .",
+        "required": true
+      }
+    ],
+    "submit": "Request curriculum"
+  },
+  "form-919": {
+    "fields": [
+      {
+        "name": "fullname",
+        "type": "text",
+        "label": "Name",
+        "required": true
+      },
+      {
+        "name": "email",
+        "type": "email",
+        "label": "Email",
+        "required": true
+      },
+      {
+        "name": "phone",
+        "type": "tel",
+        "label": "Phone",
+        "required": true
+      },
+      {
+        "name": "rgpd",
+        "type": "checkbox",
+        "label": "By submitting this form, you agree to share your data in accordance with our Privacy Policy .",
+        "required": true
+      }
+    ],
+    "submit": "Request curriculum"
+  },
+  "form-78": {
+    "fields": [
+      {
+        "name": "fullname",
+        "type": "text",
+        "label": "Name",
+        "required": true
+      },
+      {
+        "name": "email",
+        "type": "email",
+        "label": "Email",
+        "required": true
+      },
+      {
+        "name": "phone",
+        "type": "tel",
+        "label": "Phone",
+        "required": true
+      },
+      {
+        "name": "message",
+        "type": "textarea",
+        "label": "Message",
+        "required": true
+      },
+      {
+        "name": "rgpd",
+        "type": "checkbox",
+        "label": "By submitting this form, you agree to share your data in accordance with our Privacy Policy .",
+        "required": true
+      }
+    ],
+    "submit": "Send"
+  },
+  "form-1141": {
+    "fields": [
+      {
+        "name": "fullname",
+        "type": "text",
+        "label": "Name",
+        "required": true
+      },
+      {
+        "name": "email",
+        "type": "email",
+        "label": "Email",
+        "required": true
+      },
+      {
+        "name": "phone",
+        "type": "tel",
+        "label": "Phone",
+        "required": true
+      },
+      {
+        "name": "rgpd",
+        "type": "checkbox",
+        "label": "By submitting this form, you agree to share your data in accordance with our Privacy Policy .",
+        "required": true
+      }
+    ],
+    "submit": "Request curriculum"
+  },
+  "form-1146": {
+    "fields": [
+      {
+        "name": "fullname",
+        "type": "text",
+        "label": "Name",
+        "required": true
+      },
+      {
+        "name": "email",
+        "type": "email",
+        "label": "Email",
+        "required": true
+      },
+      {
+        "name": "phone",
+        "type": "tel",
+        "label": "Phone",
+        "required": true
+      },
+      {
+        "name": "message",
+        "type": "textarea",
+        "label": "Message",
+        "required": true
+      },
+      {
+        "name": "rgpd",
+        "type": "checkbox",
+        "label": "By submitting this form, you agree to share your data in accordance with our Privacy Policy .",
+        "required": true
+      }
+    ],
+    "submit": "Send"
+  },
+  "form-1142": {
+    "fields": [
+      {
+        "name": "fullname",
+        "type": "text",
+        "label": "Name",
+        "required": true
+      },
+      {
+        "name": "email",
+        "type": "email",
+        "label": "Email",
+        "required": true
+      },
+      {
+        "name": "phone",
+        "type": "tel",
+        "label": "Phone",
+        "required": true
+      },
+      {
+        "name": "rgpd",
+        "type": "checkbox",
+        "label": "By submitting this form, you agree to share your data in accordance with our Privacy Policy .",
+        "required": true
+      }
+    ],
+    "submit": "Request curriculum"
+  }
+}
