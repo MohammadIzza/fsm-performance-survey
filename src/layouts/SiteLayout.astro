@@ -1,0 +1,91 @@
+---
+import SiteHeader from '../components/layout/SiteHeader.astro';
+import SiteFooter from '../components/layout/SiteFooter.astro';
+import SiteLoader from '../components/layout/SiteLoader.astro';
+import SiteScrollbar from '../components/layout/SiteScrollbar.astro';
+import ApplicationModal from '../components/forms/ApplicationModal.astro';
+import {
+  themeBundles,
+  themeScripts,
+  themeTransitions,
+  themeVersion,
+} from '../data/theme-runtime';
+import '../styles/fonts.css';
+import '../styles/theme.css';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  layout?: string;
+}
+const { title, description, layout = 'l-page' } = Astro.props;
+
+// `data-plr-layout` carries the bare layout name; the class keeps the `l-` prefix.
+const plrLayout = layout.replace(/^l-/, '');
+
+// Serialised for the inline bootstrap below. Transition keys are rebuilt against
+// `location.origin` at runtime because SiteLoader looks them up by absolute URL.
+//
+// The s-form-modal controller closes by calling the Contact Form 7 global
+// (`wpcf7 && form && wpcf7.reset(form)`). Reading an undeclared `wpcf7` throws a
+// ReferenceError under strict mode, so the shim keeps the close button working.
+const plrBootstrap = `window.plr=Object.assign(${JSON.stringify({
+  tpl_dir: '/assets',
+  version: themeVersion,
+  ajaxurl: '',
+  bundles: themeBundles,
+})},{transitions:Object.fromEntries(Object.entries(${JSON.stringify(
+  themeTransitions,
+)}).map(function(e){return [location.origin+e[0],e[1]]}))});
+window.wpcf7=window.wpcf7||{reset:function(f){if(f&&f.reset)f.reset()}};`;
+---
+
+<!doctype html>
+<html lang="en-GB" data-lg-smooth>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f7f7ef" />
+    <title>{title}</title>
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/assets/media/2024/09/Nod-Intro.jpg" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+    <link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png" />
+    <link
+      rel="preload"
+      href="/assets/fonts/HeyWow-Book.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <div class="site-container">
+      <SiteHeader />
+      <main
+        id="main-content"
+        class={layout}
+        data-plr-layout={plrLayout}
+        data-lg-page
+        tabindex="-1"
+      >
+        <slot />
+      </main>
+      <SiteFooter />
+      <ApplicationModal />
+    </div>
+    <!-- .site-container -->
+    <SiteLoader />
+    <SiteScrollbar />
+    <script is:inline set:html={plrBootstrap} />
+    {themeScripts.map((src) => <script is:inline src={src} />)}
+    <script>
+      import '../scripts/main';
+    </script>
+  </body>
+</html>

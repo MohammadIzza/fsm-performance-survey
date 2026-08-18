@@ -1,0 +1,239 @@
+---
+import { site } from '../../data/site';
+const currentPath = Astro.url.pathname;
+
+// Mirrors the theme's main menu: Home, a "10-week Bootcamps" dropdown holding the
+// first two navigation entries, then the remaining entries, contact, and the CTA.
+const [genai, data, ...rest] = site.navigation;
+const dropdown = [genai, data];
+---
+
+<header class="site-head" data-plr-component="site-head">
+  <div class="site-head__inner">
+    <div class="s__logo">
+      <a href="/">
+        <img
+          src="/assets/images/logo-nod.svg"
+          alt="nod"
+          width="87"
+          height="30"
+        />
+      </a>
+    </div>
+    <!-- .s__logo -->
+    <div class="s__toggle js-nav-toggle">
+      <div class="s__toggle__lines">
+        <div class="s__toggle__line"></div>
+        <div class="s__toggle__line"></div>
+      </div>
+      <!-- .s__toggle__lines -->
+    </div>
+    <!-- .s__toggle -->
+    <div class="s__wrapper js-wrapper">
+      <div class="s__wrapper__inner js-wrapper-inner">
+        <div class="nav-main">
+          <ul id="menu-main-menu" class="site-head__menu js-nav">
+            <li
+              class:list={[
+                'menu-item--home menu-item js-item',
+                { 'current-menu-item': currentPath === '/' },
+              ]}
+            >
+              <a
+                href="/"
+                class="menu-link js-link"
+                aria-current={currentPath === '/' ? 'page' : undefined}
+              >
+                <span class="menu-item__text" data-text="Home">Home</span>
+                <svg
+                  width="10"
+                  height="10"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="menu-item__line js-line"
+                  overflow="visible"
+                  preserveAspectRatio="none"
+                >
+                  <path d="M 0 0 L 10 10" class="menu-item__path"></path>
+                  <path d="M 0 0 L 10 10" class="menu-item__path"></path>
+                </svg>
+              </a>
+            </li>
+            <li class="menu-item menu-item-has-children js-item">
+              <a href="#" class="menu-link">
+                <span class="menu-item__text" data-text="10-week Bootcamps"
+                  >10-week Bootcamps<span class="menu-item__arrow">
+                    <svg
+                      width="10"
+                      height="5"
+                      viewBox="0 0 10 5"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M1 1L4.82609 4L9 1"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"></path>
+                    </svg>
+                  </span>
+                </span>
+              </a>
+              <ul class="sub-menu">
+                {
+                  dropdown.map(({ label, href }) => (
+                    <li
+                      class:list={[
+                        'menu-item js-item',
+                        { 'current-menu-item': currentPath === href },
+                      ]}
+                    >
+                      <a
+                        href={href}
+                        class="menu-link"
+                        aria-current={currentPath === href ? 'page' : undefined}
+                      >
+                        <span class="menu-item__text" data-text={label}>
+                          {label}
+                        </span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+            </li>
+            {
+              rest.map(({ label, href }) => (
+                <li
+                  class:list={[
+                    'menu-item js-item',
+                    { 'current-menu-item': currentPath === href },
+                  ]}
+                >
+                  <a
+                    href={href}
+                    class="menu-link js-link"
+                    aria-current={currentPath === href ? 'page' : undefined}
+                  >
+                    <span class="menu-item__text" data-text={label}>
+                      {label}
+                    </span>
+                    <svg
+                      width="10"
+                      height="10"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="menu-item__line js-line"
+                      overflow="visible"
+                      preserveAspectRatio="none"
+                    >
+                      <path d="M 0 0 L 10 10" class="menu-item__path" />
+                      <path d="M 0 0 L 10 10" class="menu-item__path" />
+                    </svg>
+                  </a>
+                </li>
+              ))
+            }
+            <li class="menu-item js-item">
+              <a href={`mailto:${site.email}`} class="menu-link js-link">
+                <span class="menu-item__text" data-text="Contact">Contact</span>
+                <svg
+                  width="10"
+                  height="10"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="menu-item__line js-line"
+                  overflow="visible"
+                  preserveAspectRatio="none"
+                >
+                  <path d="M 0 0 L 10 10" class="menu-item__path"></path>
+                  <path d="M 0 0 L 10 10" class="menu-item__path"></path>
+                </svg>
+              </a>
+            </li>
+            <li class="btn menu-item js-item">
+              <a
+                class="btn-plain btn-plain--sm btn-plain--primary"
+                href="#apply-now"
+                data-plr-component="btn-plain"
+              >
+                <span class="btn-plain__inner">
+                  <span class="btn-plain__text">Apply now</span>
+                  <!-- .btn-plain__text -->
+                  <span class="btn-plain__arrow"></span>
+                </span>
+                <!-- .btn-plain__inner -->
+                <svg
+                  width="10"
+                  height="10"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="btn-plain__background js-background"
+                  overflow="visible"
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    d="M 0 0 L 10 0 L 10 10 L 0 10"
+                    class="btn-plain__path js-background-path"></path>
+                  <path
+                    d="M 0 0 L 10 0 L 10 10 L 0 10"
+                    class="btn-plain__path js-background-path"></path>
+                </svg>
+              </a>
+            </li>
+          </ul>
+        </div>
+        <!-- .nav-main -->
+        <ul
+          class="b-socials s__socials js-socials b-socials--md"
+          data-plr-component="b-socials"
+        >
+          <li class="b__item b__item--linkedin">
+            <a
+              href="https://www.linkedin.com/company/nod-coding/"
+              target="_blank"
+              rel="noreferrer noopener"
+              class="b__link b__link--linkedin"
+            >
+              <span class="u-sr-only">LinkedIn</span>
+            </a>
+          </li>
+          <li class="b__item b__item--youtube">
+            <a
+              href="https://youtube.com/@nodcoding/"
+              target="_blank"
+              rel="noreferrer noopener"
+              class="b__link b__link--youtube"
+            >
+              <span class="u-sr-only">YouTube</span>
+            </a>
+          </li>
+        </ul>
+        <!-- .b-socials -->
+        <div class="s__wrapper__footer">
+          <div class="s__wrapper__footer__background js-background"></div>
+          <div class="b-head s__head js-head" data-plr-component="b-head">
+            <div
+              class="b__eye js-eye"
+              data-lg-mouse
+              data-lg-mouse-inertia="0.05"
+            >
+              <div class="b__pupil js-pupill">
+                <div class="b__pupil__inner b__pupil__inner--main"></div>
+                <div class="b__pupil__inner b__pupil__inner--secondary"></div>
+              </div>
+              <!-- .b__pupil -->
+            </div>
+            <!-- .b__eye -->
+          </div>
+          <!-- .b-head -->
+        </div>
+        <!-- .s__wrapper__footer -->
+      </div>
+      <!-- .s__wrapper__inner -->
+    </div>
+    <!-- .s__wrapper -->
+    <div class="s__background"></div>
+  </div>
+  <!-- .site-head__inner -->
+  <div class="s__overlay"></div>
+</header>
+<!-- .site-head -->
