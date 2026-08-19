@@ -1,0 +1,51 @@
+---
+// The theme's btn-plain: the visible shape is the SVG background, which the
+// btn-plain controller morphs on hover. Rendering it without the SVG would
+// leave the button unstyled.
+interface Props {
+  as?: 'div' | 'button' | 'a';
+  class?: string;
+  label: string;
+  type?: 'submit' | 'button';
+  href?: string;
+}
+// Annotated so `Props` counts as used under `noUnusedLocals`; the dynamic
+// `<Tag>` means Astro cannot infer it from the markup alone.
+const {
+  as: Tag = 'div',
+  class: className,
+  label,
+  type,
+  href,
+}: Props = Astro.props;
+---
+
+<Tag
+  class:list={['btn-plain', className]}
+  data-plr-component="btn-plain"
+  type={type}
+  href={href}
+>
+  <span class="btn-plain__inner">
+    <span class="btn-plain__text">{label}</span>
+    <!-- .btn-plain__text -->
+    <span class="btn-plain__arrow"></span>
+  </span>
+  <!-- .btn-plain__inner -->
+  <svg
+    width="10"
+    height="10"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    class="btn-plain__background js-background"
+    overflow="visible"
+    preserveAspectRatio="none"
+  >
+    <path
+      d="M 0 0 L 10 0 L 10 10 L 0 10"
+      class="btn-plain__path js-background-path"></path>
+    <path
+      d="M 0 0 L 10 0 L 10 10 L 0 10"
+      class="btn-plain__path js-background-path"></path>
+  </svg>
+</Tag>

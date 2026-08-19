@@ -1,0 +1,54 @@
+---
+import BtnPlain from '../ui/BtnPlain.astro';
+interface Props {
+  session: {
+    kind: 'bootcamp' | 'course';
+    option: string;
+    title: string;
+    dates: string;
+    location: string;
+    topic?: string;
+    topicClass?: string;
+    duration?: string;
+    price?: string;
+  };
+}
+const { session } = Astro.props;
+const isBootcamp = session.kind === 'bootcamp';
+---
+
+<li class={isBootcamp ? 's__bootcamp sb-bootcamp' : 's__course sb-course'}>
+  <a class="sb__link" data-option={session.option} href="#apply-now">
+    <span class="sb__title">
+      <span
+        class="a-bullet-point a-bullet-point--outline a-bullet-point--green"
+        aria-hidden="true"></span>
+      {session.title}
+    </span>
+    {session.topic && <span class={session.topicClass}>{session.topic}</span>}
+    <span class="sb__dates">{session.dates}</span>
+    {session.duration && <span class="sb__duration">{session.duration}</span>}
+    <span class={isBootcamp ? 'sb__city' : 'sb__location'}
+      >{session.location}</span
+    >
+    {session.price && <span class="sb__price">{session.price}</span>}
+    {
+      isBootcamp ? (
+        <BtnPlain class="sb__btn-apply" label="Apply" />
+      ) : (
+        <span class="sb__btn">
+          <BtnPlain class="sb__btn__link" label="Apply" />
+        </span>
+      )
+    }
+    <img
+      class="sb__arrow"
+      src="/assets/images/arrow-2-right.svg"
+      alt=""
+      width="9"
+      height="14"
+      loading="lazy"
+    />
+    <span class="sb__background" aria-hidden="true"></span>
+  </a>
+</li>
