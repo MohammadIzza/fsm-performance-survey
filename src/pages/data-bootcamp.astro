@@ -1,0 +1,27 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { pages } from '../data/pages';
+import Hero from '../components/sections/data-bootcamp/Hero.astro';
+import Bootcamps from '../components/sections/data-bootcamp/Bootcamps.astro';
+import Usps from '../components/sections/data-bootcamp/Usps.astro';
+import Separator from '../components/sections/shared/WideSeparator.astro';
+import ContentSlider from '../components/sections/data-bootcamp/ContentSlider.astro';
+import Interlude from '../components/sections/shared/BalloonsInterlude.astro';
+import Instructors from '../components/sections/data-bootcamp/Instructors.astro';
+import Form from '../components/sections/shared/ApplicationSection.astro';
+import Faq from '../components/sections/data-bootcamp/Faq.astro';
+import Curriculum from '../components/sections/data-bootcamp/Curriculum.astro';
+---
+
+<SiteLayout {...pages['data-bootcamp']}>
+  <Hero />
+  <Bootcamps />
+  <Usps />
+  <Separator />
+  <ContentSlider />
+  <Interlude />
+  <Instructors />
+  <Form />
+  <Faq />
+  <Curriculum />
+</SiteLayout>

@@ -1,0 +1,36 @@
+---
+import CourseSession from '../../courses/CourseSession.astro';
+import { sessions, sessionGroups } from '../../../data/courses';
+---
+
+<div
+  class="s-courses-list section-b2b-courses s-courses-list--light"
+  data-plr-component="s-courses-list"
+>
+  <div class="s__top js-top">
+    <div class="u-container">
+      <div class="s__header js-header" data-lg-reveal>
+        <h2
+          class="s__title t-h-md js-title"
+          data-lg-reveal="letters"
+          data-lg-reveal-manual
+        >
+          Professional Trainings
+        </h2>
+        <p class="s__intro js-intro">
+          Explore our upcoming professional training and apply to the one that
+          works best for you.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="u-container">
+    <ul class="s__courses js-courses">
+      {
+        sessionGroups['professionalTraining'].map((key) => (
+          <CourseSession session={sessions[key]} />
+        ))
+      }
+    </ul>
+  </div>
+</div>

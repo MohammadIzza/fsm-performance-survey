@@ -1,0 +1,37 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { pages } from '../data/pages';
+import Hero from '../components/sections/summer-bootcamps/Hero.astro';
+import CoursesList from '../components/sections/summer-bootcamps/CoursesList.astro';
+import TestimonialsClients from '../components/sections/summer-bootcamps/TestimonialsClients.astro';
+import Interlude from '../components/sections/shared/BubblesInterlude.astro';
+import Usps from '../components/sections/summer-bootcamps/Usps.astro';
+import Separator from '../components/sections/shared/AnimatedSeparator.astro';
+import ContentSlider from '../components/sections/summer-bootcamps/ContentSlider.astro';
+import Instructors from '../components/sections/shared/TrainingInstructors.astro';
+import Separator2 from '../components/sections/shared/AnimatedSeparator.astro';
+import Courses from '../components/sections/summer-bootcamps/Courses.astro';
+import Separator3 from '../components/sections/shared/AnimatedSeparator.astro';
+import B2BForm from '../components/sections/summer-bootcamps/B2BForm.astro';
+import Faq from '../components/sections/shared/TrainingFaq.astro';
+import Catalogue from '../components/sections/shared/CatalogueModal.astro';
+import Curriculum from '../components/sections/summer-bootcamps/Curriculum.astro';
+---
+
+<SiteLayout {...pages['summer-bootcamps']}>
+  <Hero />
+  <CoursesList />
+  <TestimonialsClients />
+  <Interlude />
+  <Usps />
+  <Separator />
+  <ContentSlider />
+  <Instructors />
+  <Separator2 />
+  <Courses />
+  <Separator3 />
+  <B2BForm />
+  <Faq />
+  <Catalogue />
+  <Curriculum />
+</SiteLayout>

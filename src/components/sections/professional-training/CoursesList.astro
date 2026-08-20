@@ -1,0 +1,105 @@
+---
+import CourseSession from '../../courses/CourseSession.astro';
+import { sessions, sessionGroups } from '../../../data/courses';
+---
+
+<div
+  class="s-courses-list s-courses-list--full"
+  data-plr-component="s-courses-list"
+>
+  <div class="s__top js-top">
+    <div
+      class="b-hills s__illus b-hills--full"
+      data-lg-scroll
+      data-lg-scroll-end="0.3"
+      data-lg-scroll-start="1"
+      data-plr-component="b-hills"
+    >
+      <div class="b__discs">
+        <div class="b__disc"></div>
+        <div class="b__disc"></div>
+        <div class="b__disc"></div>
+        <div class="b__disc"></div>
+        <div class="b__disc"></div>
+        <div class="b__disc"></div>
+      </div>
+      <svg
+        fill="none"
+        height="401"
+        viewBox="0 0 1920 401"
+        width="1920"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g class="b__row js-row">
+          <g>
+            <path
+              class="b__line js-line"
+              d="M1267 336.696C1381.14 267.696 1500.28 228.696 1675.99 221.196C1858.21 217.696 1964.34 261.196 2098 335.696"
+              stroke="#383030"></path>
+            <path
+              class="b__line js-line"
+              d="M1251.09 337.002C1121.27 252.002 782.023 127 424.09 333.502"
+              stroke="#383030"></path>
+            <path
+              class="b__line js-line"
+              d="M-422.4 337.662C-308.263 268.662 -189.12 229.662 -13.4082 222.162C168.811 218.662 274.939 262.162 408.6 336.662"
+              stroke="#383030"></path>
+          </g>
+          <g>
+            <circle
+              class="b__dot js-dot"
+              cx="1259.09"
+              cy="341"
+              r="9"
+              stroke="#383030"></circle>
+            <circle
+              class="b__dot js-dot"
+              cx="417.09"
+              cy="341"
+              r="9"
+              stroke="#383030"></circle>
+          </g>
+        </g>
+        <g class="b__row js-row">
+          <g>
+            <path
+              class="b__line js-line"
+              d="M1479.5,155.3c114.1-69,233.3-108,409-115.5c182.2-3.5,288.3,40,422,114.5"
+              stroke="#383030"></path>
+            <path
+              class="b__line js-line"
+              d="M1463.6,155.6c-129.8-85-469.1-210-827-3.5"
+              stroke="#383030"></path>
+            <path
+              class="b__line js-line"
+              d="M-209.9,156.3c114.1-69,233.3-108,409-115.5c182.2-3.5,288.3,40,422,114.5"
+              stroke="#383030"></path>
+          </g>
+          <g>
+            <circle
+              class="b__dot js-dot"
+              cx="1471.6"
+              cy="159.6"
+              r="9"
+              stroke="#383030"></circle>
+            <circle
+              class="b__dot js-dot"
+              cx="629.6"
+              cy="159.6"
+              r="9"
+              stroke="#383030"></circle>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <div class="u-container">
+    <ul class="s__courses js-courses">
+      {
+        sessionGroups['professionalTraining'].map((key) => (
+          <CourseSession session={sessions[key]} />
+        ))
+      }
+    </ul>
+  </div>
+</div>
