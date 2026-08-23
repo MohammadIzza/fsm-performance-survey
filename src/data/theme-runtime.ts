@@ -68,12 +68,12 @@ export const themeBundles = {
 // rebuilt against `location.origin` in the browser.
 export const themeTransitions = {
   '/': { layout: 'front-page' },
-  '/cookie-policy/': { layout: 'page' },
-  '/data-bootcamp/': { layout: 'bootcamp' },
-  '/genai-bootcamp/': { layout: 'genai' },
-  '/privacy-policy/': { layout: 'page' },
-  '/professional-training/': { layout: 'b2b' },
-  '/summer-bootcamps/': { layout: 'b2b' },
+  '/alur-penilaian/': { layout: 'bootcamp' },
+  '/kebijakan-data/': { layout: 'page' },
+  '/kebijakan-privasi/': { layout: 'page' },
+  '/panduan-admin/': { layout: 'b2b' },
+  '/panduan-penilai/': { layout: 'bootcamp' },
+  '/panduan-pimpinan/': { layout: 'b2b' },
 } as const;
 
 // Load order matters: the three vendor chunks register themselves on
