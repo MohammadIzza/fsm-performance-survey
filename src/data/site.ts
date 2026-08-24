@@ -1,10 +1,10 @@
 export const site = {
-  name: 'Nod Coding Bootcamp',
-  email: 'info@nodcoding.com',
+  name: 'Survei Penilaian FSM UNDIP',
+  email: 'survei.fsm@undip.ac.id',
   navigation: [
-    { label: 'GenAI Bootcamp', href: '/genai-bootcamp/' },
-    { label: 'Data Bootcamp', href: '/data-bootcamp/' },
-    { label: 'Summer Bootcamps', href: '/summer-bootcamps/' },
-    { label: 'Professional Training', href: '/professional-training/' },
+    { label: 'Panduan Penilai', href: '/panduan-penilai/' },
+    { label: 'Panduan Pimpinan', href: '/panduan-pimpinan/' },
+    { label: 'Alur Penilaian', href: '/alur-penilaian/' },
+    { label: 'Panduan Admin', href: '/panduan-admin/' },
   ],
 } as const;

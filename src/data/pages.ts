@@ -1,49 +1,49 @@
 export const pages = {
-  'cookie-policy': {
-    title: 'Cookie Policy - Nod Coding',
-    description: 'Cookie Policy - Nod Coding',
-    layout: 'l-page',
-    path: '/cookie-policy/',
-  },
-  'data-bootcamp': {
-    title: 'Coding Bootcamp - Learn to code in 10 Weeks',
-    description:
-      'Learn Python in a small classroom setting through a mix of interactive lectures, hands-on exercises and individual projects.',
-    layout: 'l-bootcamp',
-    path: '/data-bootcamp/',
-  },
-  'genai-bootcamp': {
-    title: 'GenAI Coding Bootcamp - Learn to code in 10 Weeks',
-    description:
-      'Learn AI Engineering in a small classroom setting through a mix of interactive lectures, hands-on exercises and individual projects.',
-    layout: 'l-bootcamp',
-    path: '/genai-bootcamp/',
-  },
   home: {
-    title: 'Nod Coding Bootcamp - Learn Python, SQL, Machine Learning',
+    title: 'Survei Penilaian FSM UNDIP - Sistem Penilaian Terstruktur',
     description:
-      'Onsite Coding Bootcamp in Stockholm. Learn to code and switch careers in 10 weeks.',
+      'Sistem penilaian daring Fakultas Sains dan Matematika Universitas Diponegoro: kategori dinamis, penugasan penilai, dan dua leaderboard terpisah.',
     layout: 'l-front-page',
     path: '/',
   },
-  'privacy-policy': {
-    title: 'Privacy Policy - Nod Coding',
-    description: 'Last updated: July 05, 2024',
+  'alur-penilaian': {
+    title: 'Alur Penilaian End-to-End - Survei FSM UNDIP',
+    description:
+      'Sembilan tahap penilaian, dari penyiapan organisasi dan instrumen hingga penugasan, pengisian, perhitungan, finalisasi, dan arsip periode.',
+    layout: 'l-bootcamp',
+    path: '/alur-penilaian/',
+  },
+  'panduan-penilai': {
+    title: 'Panduan Penilai - Survei FSM UNDIP',
+    description:
+      'Cara menerima tugas penilaian, menyimpan draf, melengkapi seluruh parameter, mengirim jawaban, dan melaporkan masalah penugasan.',
+    layout: 'l-bootcamp',
+    path: '/panduan-penilai/',
+  },
+  'panduan-pimpinan': {
+    title: 'Panduan Pimpinan - Survei FSM UNDIP',
+    description:
+      'Pimpinan mengisi formulir penilaian dan menelusuri hasil unit sendiri beserta turunannya sesuai waktu akses yang ditetapkan.',
+    layout: 'l-b2b',
+    path: '/panduan-pimpinan/',
+  },
+  'panduan-admin': {
+    title: 'Panduan Admin - Survei FSM UNDIP',
+    description:
+      'Menyusun periode, kategori, instrumen, dan bobot; menerbitkan penugasan acak yang merata; menutup, memfinalkan, dan membuka revisi.',
+    layout: 'l-b2b',
+    path: '/panduan-admin/',
+  },
+  'kebijakan-privasi': {
+    title: 'Kebijakan Privasi - Survei FSM UNDIP',
+    description: 'Terakhir diperbarui: 9 September 2026',
     layout: 'l-page',
-    path: '/privacy-policy/',
+    path: '/kebijakan-privasi/',
   },
-  'professional-training': {
-    title: 'AI & Data Analytics Training for Companies | Stockholm',
-    description:
-      'Professional Training in AI and Data Analytics for professionals and organizations. Immersive, business-focused programs delivered onsite or online.',
-    layout: 'l-b2b',
-    path: '/professional-training/',
-  },
-  'summer-bootcamps': {
-    title: 'Summer Coding Bootcamp in Stockholm | 3 Weeks',
-    description:
-      'Learn Python and how to build with AI in our intensive onsite program. Ideal for beginners or anyone wanting a head start for university.',
-    layout: 'l-b2b',
-    path: '/summer-bootcamps/',
+  'kebijakan-data': {
+    title: 'Kebijakan Data dan Sesi - Survei FSM UNDIP',
+    description: 'Kebijakan Data dan Sesi - Survei Penilaian FSM UNDIP',
+    layout: 'l-page',
+    path: '/kebijakan-data/',
   },
 } as const;
