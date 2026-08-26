@@ -4,232 +4,232 @@
       {
         "name": "fullname",
         "type": "text",
-        "label": "Name",
+        "label": "Nama lengkap",
         "required": true
       },
       {
         "name": "email",
         "type": "email",
-        "label": "Email",
+        "label": "Email institusi",
         "required": true
       },
       {
         "name": "phone",
         "type": "tel",
-        "label": "Phone",
+        "label": "Nomor telepon",
         "required": true
       },
       {
         "name": "message",
         "type": "textarea",
-        "label": "Motivation",
+        "label": "Unit dan keperluan",
         "required": true
       },
       {
         "name": "bootcamp",
         "type": "select",
-        "label": "Bootcamp",
+        "label": "Periode penilaian",
         "required": true,
         "options": [
           {
             "value": "",
-            "label": "Select a bootcamp"
+            "label": "Pilih periode atau kategori"
           }
         ]
       },
       {
         "name": "rgpd",
         "type": "checkbox",
-        "label": "By submitting this form, you agree to share your data in accordance with our Privacy Policy .",
+        "label": "Saya menyetujui data yang dikirim diproses sesuai Kebijakan Privasi .",
         "required": true
       }
     ],
-    "submit": "Apply now"
+    "submit": "Ajukan akses"
   },
   "form-85": {
     "fields": [
       {
         "name": "fullname",
         "type": "text",
-        "label": "Name",
+        "label": "Nama lengkap",
         "required": true
       },
       {
         "name": "email",
         "type": "email",
-        "label": "Email",
+        "label": "Email institusi",
         "required": true
       },
       {
         "name": "phone",
         "type": "tel",
-        "label": "Phone",
+        "label": "Nomor telepon",
         "required": true
       },
       {
         "name": "rgpd",
         "type": "checkbox",
-        "label": "By submitting this form, you agree to share your data in accordance with our Privacy Policy .",
+        "label": "Saya menyetujui data yang dikirim diproses sesuai Kebijakan Privasi .",
         "required": true
       }
     ],
-    "submit": "Request curriculum"
+    "submit": "Minta dokumen instrumen"
   },
   "form-919": {
     "fields": [
       {
         "name": "fullname",
         "type": "text",
-        "label": "Name",
+        "label": "Nama lengkap",
         "required": true
       },
       {
         "name": "email",
         "type": "email",
-        "label": "Email",
+        "label": "Email institusi",
         "required": true
       },
       {
         "name": "phone",
         "type": "tel",
-        "label": "Phone",
+        "label": "Nomor telepon",
         "required": true
       },
       {
         "name": "rgpd",
         "type": "checkbox",
-        "label": "By submitting this form, you agree to share your data in accordance with our Privacy Policy .",
+        "label": "Saya menyetujui data yang dikirim diproses sesuai Kebijakan Privasi .",
         "required": true
       }
     ],
-    "submit": "Request curriculum"
+    "submit": "Minta dokumen instrumen"
   },
   "form-78": {
     "fields": [
       {
         "name": "fullname",
         "type": "text",
-        "label": "Name",
+        "label": "Nama lengkap",
         "required": true
       },
       {
         "name": "email",
         "type": "email",
-        "label": "Email",
+        "label": "Email institusi",
         "required": true
       },
       {
         "name": "phone",
         "type": "tel",
-        "label": "Phone",
+        "label": "Nomor telepon",
         "required": true
       },
       {
         "name": "message",
         "type": "textarea",
-        "label": "Message",
+        "label": "Pesan",
         "required": true
       },
       {
         "name": "rgpd",
         "type": "checkbox",
-        "label": "By submitting this form, you agree to share your data in accordance with our Privacy Policy .",
+        "label": "Saya menyetujui data yang dikirim diproses sesuai Kebijakan Privasi .",
         "required": true
       }
     ],
-    "submit": "Send"
+    "submit": "Kirim"
   },
   "form-1141": {
     "fields": [
       {
         "name": "fullname",
         "type": "text",
-        "label": "Name",
+        "label": "Nama lengkap",
         "required": true
       },
       {
         "name": "email",
         "type": "email",
-        "label": "Email",
+        "label": "Email institusi",
         "required": true
       },
       {
         "name": "phone",
         "type": "tel",
-        "label": "Phone",
+        "label": "Nomor telepon",
         "required": true
       },
       {
         "name": "rgpd",
         "type": "checkbox",
-        "label": "By submitting this form, you agree to share your data in accordance with our Privacy Policy .",
+        "label": "Saya menyetujui data yang dikirim diproses sesuai Kebijakan Privasi .",
         "required": true
       }
     ],
-    "submit": "Request curriculum"
+    "submit": "Minta dokumen instrumen"
   },
   "form-1146": {
     "fields": [
       {
         "name": "fullname",
         "type": "text",
-        "label": "Name",
+        "label": "Nama lengkap",
         "required": true
       },
       {
         "name": "email",
         "type": "email",
-        "label": "Email",
+        "label": "Email institusi",
         "required": true
       },
       {
         "name": "phone",
         "type": "tel",
-        "label": "Phone",
+        "label": "Nomor telepon",
         "required": true
       },
       {
         "name": "message",
         "type": "textarea",
-        "label": "Message",
+        "label": "Pesan",
         "required": true
       },
       {
         "name": "rgpd",
         "type": "checkbox",
-        "label": "By submitting this form, you agree to share your data in accordance with our Privacy Policy .",
+        "label": "Saya menyetujui data yang dikirim diproses sesuai Kebijakan Privasi .",
         "required": true
       }
     ],
-    "submit": "Send"
+    "submit": "Kirim"
   },
   "form-1142": {
     "fields": [
       {
         "name": "fullname",
         "type": "text",
-        "label": "Name",
+        "label": "Nama lengkap",
         "required": true
       },
       {
         "name": "email",
         "type": "email",
-        "label": "Email",
+        "label": "Email institusi",
         "required": true
       },
       {
         "name": "phone",
         "type": "tel",
-        "label": "Phone",
+        "label": "Nomor telepon",
         "required": true
       },
       {
         "name": "rgpd",
         "type": "checkbox",
-        "label": "By submitting this form, you agree to share your data in accordance with our Privacy Policy .",
+        "label": "Saya menyetujui data yang dikirim diproses sesuai Kebijakan Privasi .",
         "required": true
       }
     ],
-    "submit": "Request curriculum"
+    "submit": "Minta dokumen instrumen"
   }
 }
