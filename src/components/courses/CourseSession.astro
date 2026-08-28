@@ -34,10 +34,10 @@ const isBootcamp = session.kind === 'bootcamp';
     {session.price && <span class="sb__price">{session.price}</span>}
     {
       isBootcamp ? (
-        <BtnPlain class="sb__btn-apply" label="Apply" />
+        <BtnPlain class="sb__btn-apply" label="Lihat" />
       ) : (
         <span class="sb__btn">
-          <BtnPlain class="sb__btn__link" label="Apply" />
+          <BtnPlain class="sb__btn__link" label="Lihat" />
         </span>
       )
     }

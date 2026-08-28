@@ -12,12 +12,12 @@ export function initForms() {
         if (!form.reportValidity()) return;
         if (!endpoint) {
           status.textContent =
-            'Preview only: validation passed. Nothing was sent. Contact info@nodcoding.com to apply.';
+            'Pratinjau saja: validasi lolos. Tidak ada data yang dikirim. Hubungi survei.fsm@undip.ac.id untuk mengajukan akses.';
           return;
         }
         button.disabled = true;
         form.setAttribute('aria-busy', 'true');
-        status.textContent = 'Sending…';
+        status.textContent = 'Mengirim…';
         try {
           const response = await fetch(endpoint, {
             method: 'POST',
@@ -30,11 +30,11 @@ export function initForms() {
             signal: AbortSignal.timeout(15000),
           });
           if (!response.ok) throw new Error('Submission rejected');
-          status.textContent = 'Thank you. Your request has been sent.';
+          status.textContent = 'Terima kasih. Permintaan Anda telah dikirim.';
           form.reset();
         } catch {
           status.textContent =
-            'Unable to send. Your entries have been kept. Please try again or contact info@nodcoding.com.';
+            'Gagal mengirim. Isian Anda tetap tersimpan. Coba lagi atau hubungi survei.fsm@undip.ac.id.';
         } finally {
           button.disabled = false;
           form.removeAttribute('aria-busy');
