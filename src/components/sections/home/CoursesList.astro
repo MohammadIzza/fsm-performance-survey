@@ -15,11 +15,11 @@ import { sessions, sessionGroups } from '../../../data/courses';
           data-lg-reveal="letters"
           data-lg-reveal-manual
         >
-          Summer Bootcamps
+          Kategori Individu
         </h2>
         <p class="s__intro js-intro">
-          Explore our upcoming summer bootcamps and apply to the one that works
-          best for you.
+          Kategori yang menilai orang, misalnya kinerja dosen dan tenaga
+          kependidikan.
         </p>
       </div>
     </div>
@@ -27,7 +27,7 @@ import { sessions, sessionGroups } from '../../../data/courses';
   <div class="u-container">
     <ul class="s__courses js-courses">
       {
-        sessionGroups['summerBootcamps'].map((key) => (
+        sessionGroups['kategoriIndividu'].map((key) => (
           <CourseSession session={sessions[key]} />
         ))
       }

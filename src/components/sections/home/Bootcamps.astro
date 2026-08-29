@@ -12,11 +12,11 @@ import { sessions, sessionGroups } from '../../../data/courses';
           data-lg-reveal="letters"
           data-lg-reveal-manual
         >
-          Upcoming Bootcamps
+          Periode Penilaian
         </h2>
         <p class="s__intro js-intro">
-          Explore our upcoming onsite bootcamps and apply to the one that works
-          best for you.
+          Periode yang dijadwalkan beserta kategori penilaian yang tercakup di
+          dalamnya.
         </p>
       </div>
     </div>
@@ -77,18 +77,18 @@ import { sessions, sessionGroups } from '../../../data/courses';
   </div>
   <div class="u-container">
     <div class="s__price t-t-lg">
-      Tuition Fee: 65,000 SEK or 6,000 € * Money Back Guarantee.
+      Skala bawaan 0-100 dengan total bobot parameter tepat 100%.
     </div>
     <ul class="s__bootcamps js-bootcamps">
       {
-        sessionGroups['dataBootcamps'].map((key) => (
+        sessionGroups['periodePenilaian'].map((key) => (
           <CourseSession session={sessions[key]} />
         ))
       }
     </ul>
     <small class="s__legal">
-      *Price is including VAT when paid privately and excluding VAT when billed
-      to an organisation.
+      Minimum respons per kelompok ditetapkan admin; objek di bawah minimum
+      tetap muncul di rekap tanpa peringkat sah.
     </small>
   </div>
 </div>

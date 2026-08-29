@@ -15,11 +15,11 @@ import { sessions, sessionGroups } from '../../../data/courses';
           data-lg-reveal="letters"
           data-lg-reveal-manual
         >
-          Professional Trainings
+          Kategori Unit dan Karya
         </h2>
         <p class="s__intro js-intro">
-          Explore our upcoming professional training and apply to the one that
-          works best for you.
+          Kategori yang menilai unit kerja, karya, dan luaran. Objek nonorang
+          selalu memiliki unit pemilik dan penanggung jawab.
         </p>
       </div>
     </div>
@@ -27,7 +27,7 @@ import { sessions, sessionGroups } from '../../../data/courses';
   <div class="u-container">
     <ul class="s__courses js-courses">
       {
-        sessionGroups['professionalTraining'].map((key) => (
+        sessionGroups['kategoriUnitKarya'].map((key) => (
           <CourseSession session={sessions[key]} />
         ))
       }
