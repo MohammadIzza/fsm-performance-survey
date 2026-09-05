@@ -2,12 +2,12 @@ import { expect, test } from '@playwright/test';
 
 const routes = [
   '/',
-  '/data-bootcamp/',
-  '/genai-bootcamp/',
-  '/professional-training/',
-  '/summer-bootcamps/',
-  '/cookie-policy/',
-  '/privacy-policy/',
+  '/alur-penilaian/',
+  '/panduan-penilai/',
+  '/panduan-pimpinan/',
+  '/panduan-admin/',
+  '/kebijakan-data/',
+  '/kebijakan-privasi/',
 ];
 
 // Diagnostic sweep: the theme runtime must boot on every route, bind its

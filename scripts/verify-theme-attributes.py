@@ -26,19 +26,27 @@ ATTR_PAIR = re.compile(r'([a-zA-Z_:][-a-zA-Z0-9_:.]*)(?:="([^"]*)")?')
 # Runtime-applied classes and build-time noise that must not affect matching.
 NOISE = re.compile(r"^(is-in|is-loaded|astro-\w+)$")
 
+# Route -> (archived page it was derived from, page in dist/). The routes were
+# renamed for the FSM UNDIP content; the archived filenames stay as they were.
 PAGES = {
     "/": ("index.htm", "index.html"),
-    "/cookie-policy/": ("cookie-policy/index.htm", "cookie-policy/index.html"),
-    "/data-bootcamp/": ("data-bootcamp/index.htm", "data-bootcamp/index.html"),
-    "/genai-bootcamp/": ("genai-bootcamp/index.htm", "genai-bootcamp/index.html"),
-    "/privacy-policy/": ("privacy-policy/index.htm", "privacy-policy/index.html"),
-    "/professional-training/": (
-        "professional-training/index.htm",
-        "professional-training/index.html",
+    "/kebijakan-data/": ("cookie-policy/index.htm", "kebijakan-data/index.html"),
+    "/alur-penilaian/": ("data-bootcamp/index.htm", "alur-penilaian/index.html"),
+    "/panduan-penilai/": (
+        "genai-bootcamp/index.htm",
+        "panduan-penilai/index.html",
     ),
-    "/summer-bootcamps/": (
+    "/kebijakan-privasi/": (
+        "privacy-policy/index.htm",
+        "kebijakan-privasi/index.html",
+    ),
+    "/panduan-pimpinan/": (
+        "professional-training/index.htm",
+        "panduan-pimpinan/index.html",
+    ),
+    "/panduan-admin/": (
         "summer-bootcamps/index.htm",
-        "summer-bootcamps/index.html",
+        "panduan-admin/index.html",
     ),
 }
 

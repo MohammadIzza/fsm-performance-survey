@@ -3,12 +3,12 @@ import { mkdir } from 'node:fs/promises';
 
 const routes = [
   '/',
-  '/data-bootcamp/',
-  '/genai-bootcamp/',
-  '/professional-training/',
-  '/summer-bootcamps/',
-  '/cookie-policy/',
-  '/privacy-policy/',
+  '/alur-penilaian/',
+  '/panduan-penilai/',
+  '/panduan-pimpinan/',
+  '/panduan-admin/',
+  '/kebijakan-data/',
+  '/kebijakan-privasi/',
 ];
 
 for (const route of routes) {
@@ -110,22 +110,24 @@ test('course application preserves selection, validates locally, and closes', as
   const modal = page.locator('#apply-now');
   await page
     .locator(
-      'a.sb__link[data-option="2026 BC#4 • Data Analytics • 12 Oct - 18 Dec"]',
+      'a.sb__link[data-option="Periode Ganjil 2026/2027 • Kinerja Individu • 12 Okt - 18 Des"]',
     )
     .first()
     .click();
   await expect(modal).toHaveClass(/is-opened/);
   await expect(modal.locator('select[name="bootcamp"]')).toHaveValue(
-    '2026 BC#4 • Data Analytics • 12 Oct - 18 Dec',
+    'Periode Ganjil 2026/2027 • Kinerja Individu • 12 Okt - 18 Des',
   );
 
   await modal.locator('input[name="fullname"]').fill('Local Test');
   await modal.locator('input[name="email"]').fill('local@example.test');
   await modal.locator('input[name="phone"]').fill('08123456789');
-  await modal.locator('textarea[name="message"]').fill('Checking validation.');
+  await modal.locator('textarea[name="message"]').fill('Memeriksa validasi.');
   await modal.locator('input[name="rgpd"]').check();
   await modal.locator('button[type="submit"]').click();
-  await expect(modal.locator('.form-status')).toContainText('Nothing was sent');
+  await expect(modal.locator('.form-status')).toContainText(
+    'Tidak ada data yang dikirim',
+  );
   expect(submissions).toEqual([]);
 
   await modal.locator('.js-close').click();
@@ -135,10 +137,10 @@ test('course application preserves selection, validates locally, and closes', as
 test('FAQ opens on click and the content slider changes visible content', async ({
   page,
 }) => {
-  await page.goto('/data-bootcamp/');
+  await page.goto('/alur-penilaian/');
   await page.waitForFunction(() => (window as any).luge !== undefined);
   const question = page.locator('.s-faq .sb-question').filter({
-    hasText: 'What kind of support can I expect as a student at Nod?',
+    hasText: 'Apa yang terjadi jika periode ditutup saat saya belum mengirim?',
   });
   await question.click();
   await expect(question).toHaveClass(/is-opened/);
@@ -174,12 +176,10 @@ test('mobile navigation and screenshots', async ({ page }) => {
 
   await page.locator('.js-nav-toggle').click();
   await expect(page.locator('body')).toHaveClass(/is-nav-opened/);
-  // A top-level entry: the bootcamp links sit in a submenu whose parent item
+  // A top-level entry: the two guide links sit in a submenu whose parent item
   // covers them until it is tapped, which is the theme's own mobile behaviour.
-  await page
-    .locator('#menu-main-menu a[href="/professional-training/"]')
-    .click();
-  await expect(page).toHaveURL(/\/professional-training\/$/);
+  await page.locator('#menu-main-menu a[href="/panduan-admin/"]').click();
+  await expect(page).toHaveURL(/\/panduan-admin\/$/);
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   expect(
     await page.evaluate(
@@ -187,5 +187,5 @@ test('mobile navigation and screenshots', async ({ page }) => {
     ),
   ).toBe(true);
   await page.waitForTimeout(1200);
-  await page.screenshot({ path: '.local-server/b2b-mobile.png' });
+  await page.screenshot({ path: '.local-server/admin-mobile.png' });
 });
