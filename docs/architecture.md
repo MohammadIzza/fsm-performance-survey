@@ -58,3 +58,38 @@ Efek scroll, smooth scrolling, transisi halaman, loader, dan custom scrollbar mi
 `lottie-web` tidak lagi menjadi dependency npm. Pemutarnya ikut dalam bundel tema (`npm-lottie-web.js`) dan dipakai oleh plugin lottie milik Luge, sehingga Astro tidak perlu mem-bundle salinan kedua. Peringatan `eval` saat build pun hilang bersamanya.
 
 Sebelum menyelesaikan perubahan, jalankan `npm run format:check`, `npm run build`, `python scripts/verify-theme-attributes.py`, kemudian `npm test` dengan server lokal aktif. Tes mencakup semua route dan gambar lokal, tautan internal, boot runtime tema di setiap halaman, reveal yang benar-benar terpicu saat scroll, pemutaran lottie, kartu kategori yang menautkan ke `/login` (bukan formulir), FAQ, slider, dan navigasi mobile. Screenshot pengujian disimpan di `.local-server/`; trace kegagalan ada di `test-results/`.
+
+## Hero FSM
+
+Beranda memakai tiga Lottie vektor F/S/M. Sumber bentuk dan keyframe yang bisa
+diedit ada di `scripts/generate-fsm-hero.mjs`; jalankan
+`node scripts/generate-fsm-hero.mjs` untuk meregenerasi ketiga JSON. Setiap kanvas
+memiliki padding 90 unit. Warna dan geometri disimpan sebagai data vektor,
+sehingga tidak membutuhkan font atau gambar raster.
+
+`src/scripts/hero-fsm.ts`, dimuat dari `SiteLayout`, memasang adapter pada
+`beforePageInit`. Saat itu controller tema sudah dibuat, tetapi intro belum
+berjalan. Adapter mengganti pembuka enam huruf menjadi tiga dan membersihkan
+timeline pada `kill()`. Simulasi tangkai, ticker, mouse, viewport observer,
+gelombang dan logo tetap menggunakan runtime tema. Adapter mengakses GSAP
+(module 8520) dan CustomEase (124) melalui registry webpack tema yang dipatok;
+jika bundle vendor diperbarui, verifikasi kedua ID ini dan tes hero. Tidak ada
+bundle vendor yang diedit, pemutar Lottie kedua, atau loop RAF tambahan.
+
+CSS khusus `[data-fsm-hero]` menyamakan pivot dengan pusat tangkai dan menghitung
+panjangnya dari `--flower-height`. Jangan mengganti tinggi tangkai dengan
+persentase tetap. Pembuka Lottie diputar sekali; goyangan berulang berasal dari
+controller tangkai.
+
+Tes terfokus: `npx playwright test tests/fsm-hero.spec.ts`. Browser tanpa jaringan
+bisa memakai `TEST_STATIC_DIR=/path/to/isolated-build` dan
+`TEST_BASE_URL=https://hero-test.local`; fixture memuat hasil build lengkap dari
+disk. Tes mencakup ukuran desktop/mobile/landscape, geometri sambungan, respons
+mouse, pause/resume dan navigasi pulang ke beranda. Pemeriksaan atribut arsip
+menyesuaikan hanya enam referensi Lottie hero menjadi tiga; selisih lama di luar
+hero tetap dilaporkan (pada baseline sebelum FSM: 61 missing, 36 extra).
+
+Batas tes navigasi: intro hero panduan admin dibiarkan selesai sebelum kembali
+ke beranda. Berpindah sebelum intro tersebut selesai dapat memicu error lama
+`BHeroB2b.setPathD` setelah controller dilepas; bundle panduan itu tidak diubah
+oleh pekerjaan FSM ini.
