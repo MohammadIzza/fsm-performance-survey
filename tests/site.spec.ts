@@ -110,13 +110,13 @@ test('course application preserves selection, validates locally, and closes', as
   const modal = page.locator('#apply-now');
   await page
     .locator(
-      'a.sb__link[data-option="Periode Ganjil 2026/2027 • Kinerja Individu • 12 Okt - 18 Des"]',
+      'a.sb__link[data-option="Dies FSM UNDIP 2026 • 9 kategori • Periode berjalan"]',
     )
     .first()
     .click();
   await expect(modal).toHaveClass(/is-opened/);
   await expect(modal.locator('select[name="bootcamp"]')).toHaveValue(
-    'Periode Ganjil 2026/2027 • Kinerja Individu • 12 Okt - 18 Des',
+    'Dies FSM UNDIP 2026 • 9 kategori • Periode berjalan',
   );
 
   await modal.locator('input[name="fullname"]').fill('Local Test');
