@@ -79,10 +79,8 @@ Animasi dijalankan oleh runtime tema asli, bukan kode aplikasi. Detailnya ada di
 
 Struktur mengikuti [konvensi proyek Astro](https://docs.astro.build/en/basics/project-structure/).
 
-## Formulir
+## Akses dan kontak
 
-Secara default, formulir **hanya memvalidasi input secara lokal**. Tidak ada data yang dikirim, disimpan, atau dianggap berhasil terkirim.
-
-Untuk menghubungkan backend milik Anda, salin `.env.example` menjadi `.env`, isi `PUBLIC_FORM_ENDPOINT`, lalu restart server. Endpoint harus menerima POST JSON `{ formId, page, fields }`, memvalidasi input pada server, dan mengembalikan status 2xx hanya setelah permintaan diterima. Endpoint lintas origin memerlukan konfigurasi CORS. Nilai `PUBLIC_` terlihat di browser; jangan masukkan secret.
+Halaman publik ini tidak punya formulir pendaftaran mandiri — ID penilai dan pimpinan disiapkan oleh admin (lihat Bab 5–6 pada requirement), bukan lewat formulir web. Setiap ajakan bertindak ("Masuk Survei", kartu kategori, "Ajukan Akses") menautkan langsung ke `/login`; pertanyaan atau permintaan akses diarahkan ke `mailto:survei.fsm@undip.ac.id`, kontak yang sama yang dipakai di header dan footer.
 
 Detail integrasi dan catatan migrasi tersedia di [docs/architecture.md](docs/architecture.md).

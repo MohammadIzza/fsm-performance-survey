@@ -18,7 +18,7 @@ const isBootcamp = session.kind === 'bootcamp';
 ---
 
 <li class={isBootcamp ? 's__bootcamp sb-bootcamp' : 's__course sb-course'}>
-  <a class="sb__link" data-option={session.option} href="#apply-now">
+  <a class="sb__link" data-option={session.option} href="/login" data-lg-reload>
     <span class="sb__title">
       <span
         class="a-bullet-point a-bullet-point--outline a-bullet-point--green"

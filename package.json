@@ -16,7 +16,9 @@
     "check": "astro check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "playwright test"
+    "test": "playwright test",
+    "build:all": "npm run build && node scripts/prepare-application.mjs && npm --prefix application run build",
+    "start:app": "npm --prefix application run start -- --hostname 127.0.0.1 --port 3920"
   },
   "dependencies": {
     "astro": "7.3.2"

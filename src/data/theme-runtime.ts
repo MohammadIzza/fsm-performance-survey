@@ -39,7 +39,6 @@ export const themeBundles = {
     's-courses-list': { js: true, js_loading: 'defer' },
     's-faq': { js: true, js_loading: 'defer' },
     's-form': {},
-    's-form-modal': { js: true, js_loading: 'defer' },
     's-hero': { js: true, js_loading: 'critical' },
     's-instructors': { js: true, js_loading: 'defer' },
     's-interlude': {},

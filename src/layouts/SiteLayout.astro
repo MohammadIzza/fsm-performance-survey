@@ -3,7 +3,6 @@ import SiteHeader from '../components/layout/SiteHeader.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
 import SiteLoader from '../components/layout/SiteLoader.astro';
 import SiteScrollbar from '../components/layout/SiteScrollbar.astro';
-import ApplicationModal from '../components/forms/ApplicationModal.astro';
 import {
   themeBundles,
   themeScripts,
@@ -27,9 +26,10 @@ const plrLayout = layout.replace(/^l-/, '');
 // Serialised for the inline bootstrap below. Transition keys are rebuilt against
 // `location.origin` at runtime because SiteLoader looks them up by absolute URL.
 //
-// The s-form-modal controller closes by calling the Contact Form 7 global
-// (`wpcf7 && form && wpcf7.reset(form)`). Reading an undeclared `wpcf7` throws a
-// ReferenceError under strict mode, so the shim keeps the close button working.
+// `main.js` references the bare `wpcf7` global unconditionally as part of its
+// site-wide init, not only from the (now-removed) form-modal close handler —
+// every page throws `wpcf7 is not defined` under strict mode without this
+// shim, even pages that never had a modal.
 const plrBootstrap = `window.plr=Object.assign(${JSON.stringify({
   tpl_dir: '/assets',
   version: themeVersion,
@@ -42,7 +42,7 @@ window.wpcf7=window.wpcf7||{reset:function(f){if(f&&f.reset)f.reset()}};`;
 ---
 
 <!doctype html>
-<html lang="en-GB" data-lg-smooth>
+<html lang="id" data-lg-smooth>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -52,7 +52,6 @@ window.wpcf7=window.wpcf7||{reset:function(f){if(f&&f.reset)f.reset()}};`;
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="/assets/media/2024/09/Nod-Intro.jpg" />
     <link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
     <link rel="apple-touch-icon" href="/assets/favicon/apple-touch-icon.png" />
     <link
@@ -64,7 +63,7 @@ window.wpcf7=window.wpcf7||{reset:function(f){if(f&&f.reset)f.reset()}};`;
     />
   </head>
   <body>
-    <a class="skip-link" href="#main-content">Skip to content</a>
+    <a class="skip-link" href="#main-content">Lewati ke konten</a>
     <div class="site-container">
       <SiteHeader />
       <main
@@ -77,15 +76,11 @@ window.wpcf7=window.wpcf7||{reset:function(f){if(f&&f.reset)f.reset()}};`;
         <slot />
       </main>
       <SiteFooter />
-      <ApplicationModal />
     </div>
     <!-- .site-container -->
     <SiteLoader />
     <SiteScrollbar />
     <script is:inline set:html={plrBootstrap} />
     {themeScripts.map((src) => <script is:inline src={src} />)}
-    <script>
-      import '../scripts/main';
-    </script>
   </body>
 </html>

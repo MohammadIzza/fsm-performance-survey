@@ -11,6 +11,11 @@ const routes = [
   '/kebijakan-privasi/',
 ];
 
+// Routes this Astro static site links to but does not itself serve: the
+// companion Next.js application (`application/`, see scripts/prepare-application.mjs)
+// owns them at runtime. A 404 here against the isolated Astro build is expected.
+const appRoutes = new Set(['/login']);
+
 for (const route of routes) {
   test(`${route} renders content, local assets, and valid links`, async ({
     page,
@@ -54,8 +59,10 @@ for (const route of routes) {
           anchors.map((anchor) => (anchor as HTMLAnchorElement).pathname),
         ),
       ]);
-    for (const target of targets)
+    for (const target of targets) {
+      if (appRoutes.has(target)) continue;
       expect((await request.get(target)).status(), target).toBe(200);
+    }
     expect(errors).toEqual([]);
     expect(failedAssets).toEqual([]);
     expect(
@@ -97,41 +104,20 @@ test('the theme runtime boots and reveals content on scroll', async ({
   await expect(page.locator('html')).toHaveClass(/is-loaded/);
 });
 
-test('course application preserves selection, validates locally, and closes', async ({
+test('course cards link to the real login page, not a fake application form', async ({
   page,
 }) => {
-  const submissions: string[] = [];
-  page.on('request', (request) => {
-    if (request.method() === 'POST') submissions.push(request.url());
-  });
   await page.goto('/');
   await page.waitForFunction(() => (window as any).luge !== undefined);
 
-  const modal = page.locator('#apply-now');
-  await page
+  const card = page
     .locator(
       'a.sb__link[data-option="Dies FSM UNDIP 2026 • 9 kategori • Periode berjalan"]',
     )
-    .first()
-    .click();
-  await expect(modal).toHaveClass(/is-opened/);
-  await expect(modal.locator('select[name="bootcamp"]')).toHaveValue(
-    'Dies FSM UNDIP 2026 • 9 kategori • Periode berjalan',
-  );
-
-  await modal.locator('input[name="fullname"]').fill('Local Test');
-  await modal.locator('input[name="email"]').fill('local@example.test');
-  await modal.locator('input[name="phone"]').fill('08123456789');
-  await modal.locator('textarea[name="message"]').fill('Memeriksa validasi.');
-  await modal.locator('input[name="rgpd"]').check();
-  await modal.locator('button[type="submit"]').click();
-  await expect(modal.locator('.form-status')).toContainText(
-    'Tidak ada data yang dikirim',
-  );
-  expect(submissions).toEqual([]);
-
-  await modal.locator('.js-close').click();
-  await expect(modal).not.toHaveClass(/is-opened/);
+    .first();
+  await expect(card).toHaveAttribute('href', '/login');
+  await card.click();
+  await expect(page).toHaveURL(/\/login$/);
 });
 
 test('FAQ opens on click and the content slider changes visible content', async ({

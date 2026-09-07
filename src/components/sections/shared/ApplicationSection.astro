@@ -1,5 +1,5 @@
 ---
-import ContactForm from '../../../components/forms/ContactForm.astro';
+import BtnPlain from '../../ui/BtnPlain.astro';
 ---
 
 <div class="s-form" data-plr-component="s-form">
@@ -37,12 +37,38 @@ import ContactForm from '../../../components/forms/ContactForm.astro';
   <div class="u-container">
     <section class="b-form" data-plr-component="b-form">
       <p class="b__title t-h-4xs">
-        Ingin mengajukan akses sebagai penilai atau pimpinan? Isi formulir
-        berikut untuk memulai pengajuan.
+        ID penilai dan pimpinan disiapkan oleh admin, bukan pendaftaran
+        mandiri. Sudah memiliki ID? Masuk untuk mengisi penilaian. Belum
+        punya akses? Hubungi tim pengelola periode.
       </p>
-      <div class="form">
-        <ContactForm formId="form-52" />
+      <div class="form form--links">
+        <BtnPlain
+          as="a"
+          href="/login"
+          class="btn-plain--lg"
+          label="Masuk Survei"
+        />
+        <BtnPlain
+          as="a"
+          href="mailto:survei.fsm@undip.ac.id?subject=Permintaan%20Akses%20Penilai%20atau%20Pimpinan"
+          class="btn-plain--lg btn-plain--secondary"
+          label="Hubungi Tim Pengelola"
+        />
       </div>
     </section>
+    <!-- .b-form -->
   </div>
 </div>
+
+<style>
+  .form--links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .form--links :global(.btn-plain) {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+</style>

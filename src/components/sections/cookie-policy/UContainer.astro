@@ -6,14 +6,14 @@
       <p>
         Kebijakan ini menjelaskan data apa yang disimpan pada peramban Anda
         ketika memakai Sistem Survei Penilaian FSM UNDIP, untuk apa data itu
-        dipakai, dan pilihan apa yang Anda miliki. Bacalah bersama
-        <a href="/kebijakan-privasi/">Kebijakan Privasi</a> agar gambarannya utuh.
+        dipakai, dan pilihan apa yang Anda miliki. Bacalah bersama <a href="/kebijakan-privasi/">Kebijakan Privasi</a> agar gambarannya utuh.
       </p>
       <p>
         Layanan ini tidak memasang pelacak pihak ketiga, piksel pemantau, alat
         analitik perilaku, maupun cookie periklanan. Penyimpanan pada peramban
-        dipakai sebatas keperluan menjalankan sesi Anda dan menjaga agar isian
-        yang belum terkirim tidak hilang begitu saja.
+        dipakai sebatas satu keperluan: menjaga sesi masuk Anda tetap berjalan.
+        Draf jawaban yang Anda simpan tersimpan di server, bukan di peramban —
+        lihat <a href="/kebijakan-privasi/">Kebijakan Privasi</a>.
       </p>
       <p>
         Kami tidak menyimpan informasi sensitif seperti alamat surat, kata
@@ -63,25 +63,22 @@
       <p>Layanan memakai keduanya untuk keperluan berikut:</p>
       <ul>
         <li>
-          <strong>Sesi dan Autentikasi</strong>. Jenis: sesi. Dikelola oleh:
+          <strong>Sesi dan Autentikasi</strong> (<code>survei_fsm_session</code>).
+          Jenis: sesi, hanya dapat dibaca server (HttpOnly). Dikelola oleh:
           Kami. Tujuan: menandai bahwa Anda sudah masuk sehingga tidak perlu
           mengulang autentikasi pada setiap halaman, serta memastikan permintaan
           simpan dan kirim benar-benar berasal dari akun Anda. Tanpa ini Anda
           tidak dapat memakai Layanan. Logout mengakhiri sesi dan menghapus data
-          privat dari tampilan.
+          privat dari tampilan. Ini satu-satunya penyimpanan peramban yang
+          Kami pasang.
         </li>
         <li>
-          <strong>Draf Pengisian</strong>. Jenis: persisten. Dikelola oleh:
-          Kami. Tujuan: menjaga agar isian yang belum Anda kirim tidak hilang
-          bila halaman tertutup atau sesi terputus. Draf tidak pernah masuk
-          perhitungan hasil dan hanya dapat dilihat oleh Anda sendiri serta
-          administrator.
-        </li>
-        <li>
-          <strong>Preferensi Tampilan</strong>. Jenis: persisten. Dikelola oleh:
-          Kami. Tujuan: mengingat pilihan sederhana seperti penyaring periode
-          atau status pada daftar tugas, agar Anda tidak perlu mengaturnya
-          berulang kali. Data ini tidak dipakai untuk menyusun profil Anda.
+          <strong>Draf jawaban dan pilihan penyaring tampilan</strong>. Tidak
+          disimpan di peramban. Draf yang Anda simpan lewat tombol &ldquo;Simpan
+          draf&rdquo; dikirim dan disimpan di server sebagai Data Penilaian
+          (lihat <a href="/kebijakan-privasi/">Kebijakan Privasi</a>), bukan pada
+          perangkat Anda. Pilihan penyaring pada daftar tugas hanya berlaku
+          selama Anda berada di halaman tersebut dan tidak diingat setelahnya.
         </li>
         <li>
           <strong>Pelacakan dan Periklanan</strong>. Tidak dipakai. Layanan ini
@@ -99,9 +96,9 @@
         dapat masuk maupun mengirim jawaban penilaian.
       </p>
       <p>
-        Menghapus penyimpanan draf dapat menyebabkan isian yang belum terkirim
-        hilang. Jawaban yang sudah Anda kirim tersimpan di server dan tidak
-        terpengaruh oleh penghapusan data peramban.
+        Karena draf dan jawaban Anda tersimpan di server, bukan di peramban,
+        menghapus data peramban tidak akan menghilangkan isian yang sudah Anda
+        simpan atau kirim — dampaknya hanya mengakhiri sesi masuk Anda.
       </p>
       <p>Petunjuk penghapusan berbeda-beda menurut peramban yang Anda pakai:</p>
       <ul>
@@ -127,15 +124,13 @@
       <h3>Informasi Lebih Lanjut</h3>
       <p>
         Penjelasan mengenai data apa yang Kami proses di sisi server, siapa yang
-        dapat melihat jawaban Anda, dan berapa lama data disimpan tersedia pada
-        <a href="/kebijakan-privasi/">Kebijakan Privasi</a>.
+        dapat melihat jawaban Anda, dan berapa lama data disimpan tersedia pada <a href="/kebijakan-privasi/">Kebijakan Privasi</a>.
       </p>
 
       <h2>Hubungi Kami</h2>
       <p>
         Apabila Anda memiliki pertanyaan mengenai Kebijakan ini, Anda dapat
-        menghubungi Kami melalui surel
-        <a href="mailto:survei.fsm@undip.ac.id">survei.fsm@undip.ac.id</a>.
+        menghubungi Kami melalui surel <a href="mailto:survei.fsm@undip.ac.id">survei.fsm@undip.ac.id</a>.
       </p>
     </div>
   </div>

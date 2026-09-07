@@ -11,3 +11,12 @@ playwright-report/
 .DS_Store
 Thumbs.db
 __pycache__/
+
+.next/
+application/src/generated/
+*.tsbuildinfo
+artifacts/
+
+application/public-site/
+application/public/assets/
+application/public/_astro/
