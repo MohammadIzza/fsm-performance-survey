@@ -1,0 +1,12 @@
+[Unit]
+Description=Jalankan fsm-survei-scheduler.service setiap 5 menit (Bab 7.2: buka periode Siap yang jatuh tempo)
+Documentation=file:///home/restart/survey-fsm/application/docs/deployment.md
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+Unit=fsm-survei-scheduler.service
+AccuracySec=30s
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,21 @@
+[Unit]
+Description=PostgreSQL for Survei Penilaian FSM UNDIP (isolated demo instance)
+Documentation=file:///home/restart/survey-fsm/application/docs/deployment.md
+After=network.target
+
+[Service]
+Type=forking
+User=restart
+Group=restart
+Environment=PGDATA=/home/restart/.local/share/survey-fsm/postgres
+ExecStartPre=/bin/mkdir -p /home/restart/.local/run/survey-fsm
+ExecStart=/usr/lib/postgresql/16/bin/pg_ctl start -D /home/restart/.local/share/survey-fsm/postgres -w -t 60 -o "-p 55432 -k /home/restart/.local/run/survey-fsm -h 127.0.0.1"
+ExecStop=/usr/lib/postgresql/16/bin/pg_ctl stop -D /home/restart/.local/share/survey-fsm/postgres -m fast -w -t 60
+ExecReload=/usr/lib/postgresql/16/bin/pg_ctl reload -D /home/restart/.local/share/survey-fsm/postgres
+TimeoutStartSec=90
+TimeoutStopSec=90
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

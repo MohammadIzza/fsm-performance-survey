@@ -1,0 +1,7 @@
+"use client";
+import { useActionState } from "react";
+import { beginInstrumentRevisionAction } from "@/lib/actions/admin-instruments";
+export function InstrumentRevisionForm({categoryId,periodId}:{categoryId:string;periodId:string}){
+ const [state,action,pending]=useActionState(beginInstrumentRevisionAction,{});
+ return <form action={action} className="rounded-2xl bg-[var(--warm-tint)] p-6 space-y-3"><h2 className="text-xl">Revisi instrumen & pengisian ulang</h2><p className="text-sm">Membuat versi baru yang dapat diedit dan membuka seluruh tugas aktif untuk diisi ulang. Jawaban serta hasil final lama tetap tersimpan. Hasil baru menunggu jawaban lengkap pada versi yang sama.</p><input type="hidden" name="categoryId" value={categoryId}/><input type="hidden" name="periodId" value={periodId}/><label className="block">Alasan perubahan<input name="reason" required className="block w-full rounded-xl border bg-white p-3"/></label><label className="block">Tenggat pengisian ulang (WIB)<input type="datetime-local" name="correctionEndsAt" required className="block rounded-xl border bg-white p-3"/></label><label className="block text-sm"><input type="checkbox" required/> Saya memahami seluruh penilai perlu mengisi ulang.</label><button disabled={pending} className="bg-[var(--accent)] text-white px-5 py-3">{pending?'Memproses…':'Buat versi instrumen baru'}</button>{state.error&&<p role="alert">{state.error}</p>}</form>;
+}

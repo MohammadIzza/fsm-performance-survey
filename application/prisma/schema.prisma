@@ -1,0 +1,727 @@
+// Tahap 1 — Fondasi: identitas, unit, kepemimpinan, peran, audit dasar.
+// Tahap 2 — Konfigurasi: periode, kategori, objek penilaian, instrumen, aturan kelompok.
+// Model selanjutnya (penugasan, jawaban, dst.) ditambahkan pada tahap berikutnya.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SystemRole {
+  ADMIN
+  DEKAN
+}
+
+model UserType {
+  id     String  @id @default(cuid())
+  code   String  @unique
+  name   String
+  active Boolean @default(true)
+
+  users User[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_types")
+}
+
+model Unit {
+  id       String  @id @default(cuid())
+  code     String  @unique
+  name     String
+  parentId String?
+  parent   Unit?   @relation("UnitHierarchy", fields: [parentId], references: [id])
+  children Unit[]  @relation("UnitHierarchy")
+  active   Boolean @default(true)
+
+  usersPrimary User[]       @relation("PrimaryUnit")
+  leaderships  Leadership[]
+  ownedObjects     AssessmentObject[] @relation("ObjectOwnerUnit")
+  referencedByObjects AssessmentObject[] @relation("ObjectReferenceUnit")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("units")
+}
+
+// ID login disimpan sebagai teks agar nol awal tidak hilang (Bab 5.2).
+model User {
+  id              String  @id @default(cuid())
+  loginIdentifier String  @unique @map("login_identifier")
+  name            String
+  userTypeId      String  @map("user_type_id")
+  userType        UserType @relation(fields: [userTypeId], references: [id])
+  primaryUnitId   String? @map("primary_unit_id")
+  primaryUnit     Unit?   @relation("PrimaryUnit", fields: [primaryUnitId], references: [id])
+  active          Boolean @default(true)
+
+  leaderships Leadership[]
+  roleGrants  RoleGrant[]
+
+  createdPeriods        Period[]            @relation("PeriodCreator")
+  accessPolicyChanges   AccessPolicy[]      @relation("AccessPolicyChangedBy")
+  referenceForObjects   AssessmentObject[]  @relation("ObjectReferenceUser")
+  responsibleForObjects AssessmentObject[]  @relation("ObjectResponsible")
+  objectContributions   ObjectContributor[]
+  evaluatorAssignments  Assignment[]        @relation("Evaluator")
+  createdAssignmentBatches AssignmentBatch[] @relation("BatchCreator")
+  editedResponseRevisions  ResponseRevision[] @relation("ResponseEditor")
+  voidedResponseRevisions  ResponseRevision[] @relation("ResponseVoider")
+  reportedIssues           AssignmentIssue[]  @relation("IssueReporter")
+  resolvedIssues           AssignmentIssue[]  @relation("IssueResolver")
+  triggeredCalculationRuns CalculationRun[]   @relation("CalculationTrigger")
+  finalizationsPerformed   Finalization[]     @relation("FinalizationActor")
+  importBatchesApplied     ImportBatch[]      @relation("ImportActor")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+// Penetapan jabatan pimpinan pada satu unit; satu unit dapat memiliki >1 pimpinan (Bab 5.1 ORG-05).
+model Leadership {
+  id             String    @id @default(cuid())
+  userId         String    @map("user_id")
+  user           User      @relation(fields: [userId], references: [id])
+  unitId         String    @map("unit_id")
+  unit           Unit      @relation(fields: [unitId], references: [id])
+  title          String
+  effectiveFrom  DateTime  @map("effective_from")
+  effectiveTo    DateTime? @map("effective_to")
+  active         Boolean   @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([unitId])
+  @@index([userId])
+  @@map("leaderships")
+}
+
+// Hak istimewa lintas-unit: Admin (seluruh fakultas) dan Dekan (pimpinan tertinggi fakultas).
+model RoleGrant {
+  id     String     @id @default(cuid())
+  userId String     @map("user_id")
+  user   User       @relation(fields: [userId], references: [id])
+  role   SystemRole
+  active Boolean    @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("role_grants")
+}
+
+// Jejak audit append-only untuk perubahan master (Bab 21.1). Diperluas pada tahap berikutnya
+// untuk mencakup entitas periode/instrumen/jawaban.
+model AuditEvent {
+  id         String   @id @default(cuid())
+  actorId    String?  @map("actor_id")
+  actorRole  String?  @map("actor_role")
+  action     String
+  entity     String
+  entityId   String?  @map("entity_id")
+  before     Json?
+  after      Json?
+  reason     String?
+  requestId  String?  @map("request_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([entity, entityId])
+  @@index([actorId])
+  @@map("audit_events")
+}
+
+// ---------------------------------------------------------------------------
+// Tahap 2 — Konfigurasi
+// ---------------------------------------------------------------------------
+
+enum PeriodStatus {
+  DRAF
+  SIAP
+  AKTIF
+  DITUTUP
+  FINAL
+  REVISI
+}
+
+// Bab 4.3: kapan hasil boleh dilihat pimpinan/Dekan.
+enum AccessMode {
+  SELAMA_AKTIF
+  SETELAH_DITUTUP
+  SETELAH_FINAL
+  WAKTU_TERTENTU
+}
+
+enum AssessmentGroup {
+  PIMPINAN
+  SELAIN_PIMPINAN
+}
+
+enum AggregationMethod {
+  RATA_RATA
+  TOTAL
+}
+
+// Bab 7.1: satu pelaksanaan survei dengan siklus hidup sendiri (state machine Bab 7.2).
+model Period {
+  id            String       @id @default(cuid())
+  code          String       @unique
+  name          String
+  description   String?
+  timezone      String       @default("Asia/Jakarta")
+  startsAt      DateTime     @map("starts_at")
+  endsAt        DateTime     @map("ends_at")
+  unitTreeSnapshot Json? @map("unit_tree_snapshot")
+  status        PeriodStatus @default(DRAF)
+  version       Int          @default(1)
+  createdById   String       @map("created_by_id")
+  createdBy     User         @relation("PeriodCreator", fields: [createdById], references: [id])
+  finalizedAt   DateTime?    @map("finalized_at")
+  // Bab 7.5: periode hasil salinan menandai asalnya; jawaban/hasil lama tidak ikut tersalin.
+  copiedFromId  String?      @map("copied_from_id")
+  copiedFrom    Period?      @relation("PeriodCopy", fields: [copiedFromId], references: [id])
+  copies        Period[]     @relation("PeriodCopy")
+
+  accessPolicy  AccessPolicy?
+  categories    Category[]
+  finalizations Finalization[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("periods")
+}
+
+// Bab 4.3: kebijakan akses hasil per periode, dengan riwayat pelaku & versi untuk optimistic locking.
+model AccessPolicy {
+  id          String     @id @default(cuid())
+  periodId    String     @unique @map("period_id")
+  period      Period     @relation(fields: [periodId], references: [id])
+  mode        AccessMode @default(SETELAH_FINAL)
+  availableAt DateTime?  @map("available_at")
+  version     Int        @default(1)
+  changedById String     @map("changed_by_id")
+  changedBy   User       @relation("AccessPolicyChangedBy", fields: [changedById], references: [id])
+
+  updatedAt DateTime @updatedAt
+
+  @@map("access_policies")
+}
+
+// Bab 8.3: jenis objek (Orang/Unit/Karya/Lainnya), dapat diperluas admin (Bab 8.1).
+model ObjectType {
+  id     String  @id @default(cuid())
+  code   String  @unique
+  name   String
+  active Boolean @default(true)
+
+  objects    AssessmentObject[]
+  categories Category[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("object_types")
+}
+
+// Bab 8.3: master objek yang dapat dinilai, lepas dari kategori/periode tertentu (dipakai ulang lewat CategoryObject).
+model AssessmentObject {
+  id     String @id @default(cuid())
+  typeId String @map("type_id")
+  type   ObjectType @relation(fields: [typeId], references: [id])
+
+  // Hanya terisi untuk objek jenis Orang; dipakai memeriksa larangan menilai diri sendiri (DEF-17).
+  referenceUserId String? @map("reference_user_id")
+  referenceUser   User?   @relation("ObjectReferenceUser", fields: [referenceUserId], references: [id])
+
+  // Hanya terisi untuk objek jenis Unit (menilai kinerja unit itu sendiri).
+  referenceUnitId String? @map("reference_unit_id")
+  referenceUnit   Unit?   @relation("ObjectReferenceUnit", fields: [referenceUnitId], references: [id])
+
+  name String
+
+  ownerUnitId String @map("owner_unit_id")
+  ownerUnit   Unit   @relation("ObjectOwnerUnit", fields: [ownerUnitId], references: [id])
+
+  responsibleUserId String? @map("responsible_user_id")
+  responsibleUser   User?   @relation("ObjectResponsible", fields: [responsibleUserId], references: [id])
+
+  url         String?
+  description String?
+  active      Boolean @default(true)
+
+  contributors    ObjectContributor[]
+  categoryObjects CategoryObject[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("assessment_objects")
+}
+
+// Bab 8.4: anggota pembuat karya, dipakai untuk pengecualian penilai (larangan menilai karya sendiri).
+model ObjectContributor {
+  id       String           @id @default(cuid())
+  objectId String           @map("object_id")
+  object   AssessmentObject @relation(fields: [objectId], references: [id])
+  userId   String           @map("user_id")
+  user     User             @relation(fields: [userId], references: [id])
+  role     String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([objectId, userId])
+  @@map("object_contributors")
+}
+
+// Bab 8.1: konfigurasi pelaksanaan penilaian dalam satu periode.
+model Category {
+  id          String  @id @default(cuid())
+  periodId    String  @map("period_id")
+  period      Period  @relation(fields: [periodId], references: [id])
+  code        String
+  name        String
+  description String?
+
+  objectTypeId String     @map("object_type_id")
+  objectType   ObjectType @relation(fields: [objectTypeId], references: [id])
+
+  // Bab 8.4: bila true, anggota ObjectContributor otomatis dikecualikan sebagai penilai objeknya sendiri.
+  excludeContributors Boolean @default(true) @map("exclude_contributors")
+  active              Boolean @default(true)
+
+  categoryObjects    CategoryObject[]
+  instrumentVersions InstrumentVersion[]
+  groupRules         GroupRule[]
+  assignmentRules    AssignmentRule[]
+  assignmentBatches  AssignmentBatch[]
+  calculationRuns    CalculationRun[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([periodId, code])
+  @@map("categories")
+}
+
+// Bab 8.2: keikutsertaan objek dalam suatu kategori, dengan snapshot nama/unit saat ditetapkan.
+model CategoryObject {
+  id         String           @id @default(cuid())
+  categoryId String           @map("category_id")
+  category   Category         @relation(fields: [categoryId], references: [id])
+  objectId   String           @map("object_id")
+  object     AssessmentObject @relation(fields: [objectId], references: [id])
+
+  unitSnapshot String @map("unit_snapshot")
+  ownerUnitIdSnapshot String? @map("owner_unit_id_snapshot")
+  nameSnapshot String @map("name_snapshot")
+
+  assignments Assignment[]
+  groupResults ObjectGroupResult[]
+
+  createdAt DateTime @default(now())
+
+  @@unique([categoryId, objectId])
+  @@map("category_objects")
+}
+
+// Bab 9: versi instrumen immutable setelah dipakai jawaban (ditegakkan di Tahap 4).
+model InstrumentVersion {
+  id         String   @id @default(cuid())
+  categoryId String   @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id])
+  revision   Int      @default(1)
+
+  scaleMin  Float  @default(0) @map("scale_min")
+  scaleMax  Float  @default(100) @map("scale_max")
+  scaleStep Float  @default(1) @map("scale_step")
+  guide     String?
+
+  parameters      Parameter[]
+  assignments     Assignment[]
+  calculationRuns CalculationRun[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([categoryId, revision])
+  @@map("instrument_versions")
+}
+
+// Bab 9.1: parameter penilaian, bobot dalam persen (total harus 100 per versi instrumen).
+model Parameter {
+  id                  String            @id @default(cuid())
+  instrumentVersionId String            @map("instrument_version_id")
+  instrumentVersion   InstrumentVersion @relation(fields: [instrumentVersionId], references: [id])
+  name                String
+  indicator           String?
+  weight              Float
+  order               Int
+
+  responseScores   ResponseScore[]
+  parameterResults ParameterResult[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("parameters")
+}
+
+// Bab 10.2/12.3/13.1/13.3: aturan per kelompok (Pimpinan / Selain Pimpinan) — keduanya wajib ada.
+model GroupRule {
+  id          String            @id @default(cuid())
+  categoryId  String            @map("category_id")
+  category    Category          @relation(fields: [categoryId], references: [id])
+  group       AssessmentGroup
+  aggregation AggregationMethod @default(RATA_RATA)
+  target      Int               @default(10)
+  minimum     Int               @default(1)
+  // Urutan parameter pembeda saat nilai akhir sama (Bab 13.3); daftar id Parameter, boleh kosong.
+  tieBreakParameterIds Json?    @map("tie_break_parameter_ids")
+  revision    Int               @default(1)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([categoryId, group])
+  @@map("group_rules")
+}
+
+// ---------------------------------------------------------------------------
+// Tahap 3 — Penugasan
+// ---------------------------------------------------------------------------
+
+enum AssignmentScope {
+  UNIT_OBJEK
+  UNIT_DAN_SUBUNIT
+}
+
+enum AssignmentStatus {
+  BELUM_MULAI
+  DRAF
+  TERKIRIM
+  DIBUKA_KEMBALI
+  DIBATALKAN
+  LEWAT_TENGGAT
+}
+
+// Bab 10.2: aturan kelayakan per kelompok sebelum pengacakan. Untuk kelompok Pimpinan, calon
+// selalu diturunkan dari penetapan pimpinan pada unit objek (scope tidak mengubah itu, hanya
+// memperluas apakah subunit ikut dipertimbangkan); untuk Selain Pimpinan, scope+filter jenis
+// pengguna menentukan populasi calon.
+model AssignmentRule {
+  id          String          @id @default(cuid())
+  categoryId  String          @map("category_id")
+  category    Category        @relation(fields: [categoryId], references: [id])
+  group       AssessmentGroup
+  scope       AssignmentScope @default(UNIT_OBJEK)
+  // Daftar id UserType sebagai filter; null/kosong berarti semua jenis pengguna diizinkan.
+  userTypeIds Json?           @map("user_type_ids")
+  revision    Int             @default(1)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([categoryId, group])
+  @@map("assignment_rules")
+}
+
+// Bab 10.4: batch penugasan yang sudah diterapkan (commit), menyimpan snapshot untuk reproduksi
+// dan audit. Preview yang belum diterapkan tidak disimpan (dihitung sesaat, Bab 10.1).
+model AssignmentBatch {
+  id                   String   @id @default(cuid())
+  categoryId           String   @map("category_id")
+  category             Category @relation(fields: [categoryId], references: [id])
+  ruleRevisionSnapshot Json     @map("rule_revision_snapshot")
+  candidateSnapshot    Json     @map("candidate_snapshot")
+  seed                 String
+  resultSummary        Json     @map("result_summary")
+  createdById          String   @map("created_by_id")
+  createdBy            User     @relation("BatchCreator", fields: [createdById], references: [id])
+
+  assignments Assignment[]
+
+  createdAt DateTime @default(now())
+
+  @@map("assignment_batches")
+}
+
+// Bab 10.3/18: satu tugas penilaian; kelompok melekat di sini dan tidak ditafsir ulang saat
+// hasil dihitung. Unik per (objek, penilai) — satu penilai hanya satu kelompok per objek (DEF-09).
+model Assignment {
+  id               String           @id @default(cuid())
+  categoryObjectId String           @map("category_object_id")
+  categoryObject   CategoryObject   @relation(fields: [categoryObjectId], references: [id])
+  evaluatorId      String           @map("evaluator_id")
+  evaluator        User             @relation("Evaluator", fields: [evaluatorId], references: [id])
+  group            AssessmentGroup
+  status           AssignmentStatus @default(BELUM_MULAI)
+  reason           String?
+
+  // Bab 9.1 INS-05/INS-08/18: versi instrumen dipatri saat tugas dibuat, agar revisi instrumen
+  // berikutnya pada kategori tidak pernah mengubah acuan skor tugas yang sudah diterbitkan.
+  instrumentVersionId String            @map("instrument_version_id")
+  instrumentVersion   InstrumentVersion @relation(fields: [instrumentVersionId], references: [id])
+
+  batchId String?          @map("batch_id")
+  batch   AssignmentBatch? @relation(fields: [batchId], references: [id])
+
+  // Tugas pengganti dari tugas yang dibatalkan (Bab 10.6); relasi satu-ke-satu opsional.
+  replacesId String?     @unique @map("replaces_id")
+  replaces   Assignment? @relation("AssignmentReplacement", fields: [replacesId], references: [id])
+  replacedBy Assignment? @relation("AssignmentReplacement")
+
+  correctionEndsAt DateTime? @map("correction_ends_at")
+  evaluatorNameSnapshot String?
+  evaluatorLoginSnapshot String?
+  cancelledAt   DateTime? @map("cancelled_at")
+  cancelReason  String?   @map("cancel_reason")
+
+  responseRevisions ResponseRevision[]
+  issues            AssignmentIssue[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([categoryObjectId, evaluatorId])
+  @@index([evaluatorId])
+  @@index([categoryObjectId])
+  @@map("assignments")
+}
+
+// ---------------------------------------------------------------------------
+// Tahap 4 — Pengisian
+// ---------------------------------------------------------------------------
+
+enum ResponseState {
+  DRAFT
+  SUBMITTED
+}
+
+// Bab 11.5/18: riwayat setiap upaya pengisian. "Respons berlaku" (Bab 3) = revisi SUBMITTED
+// dengan nomor tertinggi yang belum voided pada satu tugas — dihitung, bukan disimpan sebagai flag,
+// supaya revisi draf yang belum dikirim tidak pernah menggeser respons berlaku (Bab 11.5).
+model ResponseRevision {
+  id           String        @id @default(cuid())
+  assignmentId String        @map("assignment_id")
+  assignment   Assignment    @relation(fields: [assignmentId], references: [id])
+  revision     Int
+  state        ResponseState @default(DRAFT)
+  submittedAt  DateTime?     @map("submitted_at")
+  editedById   String        @map("edited_by_id")
+  editedBy     User          @relation("ResponseEditor", fields: [editedById], references: [id])
+  reason       String?
+  // Bab 11.4: mencegah dua respons aktif akibat klik ganda/retry jaringan (EDGE-11, AC-11).
+  idempotencyKey String? @unique @map("idempotency_key")
+  // Bab 6.2/19.1/EDGE-12: optimistic lock draf — "Permintaan simpan/kirim memeriksa ulang ...
+  // versi jawaban" dan "Dua tab mengedit draf → Konflik versi dijelaskan; jangan menimpa diam-diam."
+  version Int @default(1)
+
+  // Bab 10.6: "admin membatalkan respons dengan alasan; data historis tidak dihapus."
+  voided       Boolean   @default(false)
+  voidedAt     DateTime? @map("voided_at")
+  voidedReason String?   @map("voided_reason")
+  voidedById   String?   @map("voided_by_id")
+  voidedBy     User?     @relation("ResponseVoider", fields: [voidedById], references: [id])
+
+  scores ResponseScore[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([assignmentId, revision])
+  @@map("response_revisions")
+}
+
+// Bab 12.1 s(r,p): skor satu parameter dalam satu revisi respons. Unik per revisi+parameter.
+model ResponseScore {
+  id                 String           @id @default(cuid())
+  responseRevisionId String           @map("response_revision_id")
+  responseRevision   ResponseRevision @relation(fields: [responseRevisionId], references: [id])
+  parameterId        String           @map("parameter_id")
+  parameter          Parameter        @relation(fields: [parameterId], references: [id])
+  score              Float
+
+  @@unique([responseRevisionId, parameterId])
+  @@map("response_scores")
+}
+
+enum IssueType {
+  OBJEK_KELIRU
+  UNIT_KELIRU
+  PENGGUNA_NONAKTIF
+  TAUTAN_KARYA_SALAH
+  LAINNYA
+}
+
+enum IssueStatus {
+  TERBUKA
+  DITANGANI
+  SELESAI
+}
+
+// Bab 11.6: laporan bukan jawaban survei dan tidak membebaskan kewajiban sebelum admin bertindak.
+model AssignmentIssue {
+  id           String      @id @default(cuid())
+  assignmentId String      @map("assignment_id")
+  assignment   Assignment  @relation(fields: [assignmentId], references: [id])
+  reporterId   String      @map("reporter_id")
+  reporter     User        @relation("IssueReporter", fields: [reporterId], references: [id])
+  type         IssueType
+  detail       String
+  status       IssueStatus @default(TERBUKA)
+  resolution   String?
+  resolvedById String?     @map("resolved_by_id")
+  resolvedBy   User?       @relation("IssueResolver", fields: [resolvedById], references: [id])
+  resolvedAt   DateTime?   @map("resolved_at")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("assignment_issues")
+}
+
+// ---------------------------------------------------------------------------
+// Tahap 5 — Hasil
+// ---------------------------------------------------------------------------
+
+enum CalculationStatus {
+  BERJALAN
+  BERHASIL
+  GAGAL
+}
+
+// Bab 12.7/18: satu eksekusi perhitungan untuk satu kategori, mematri versi instrumen dan aturan
+// kelompok yang dipakai agar hasil dapat direproduksi (GOAL-03) meski instrumen direvisi kemudian.
+model CalculationRun {
+  id                String            @id @default(cuid())
+  categoryId        String            @map("category_id")
+  category          Category          @relation(fields: [categoryId], references: [id])
+  instrumentVersionId String          @map("instrument_version_id")
+  instrumentVersion InstrumentVersion @relation(fields: [instrumentVersionId], references: [id])
+  // Snapshot GroupRule (aggregation/target/minimum) per kelompok saat perhitungan dijalankan.
+  groupRuleSnapshot Json              @map("group_rule_snapshot")
+  status            CalculationStatus @default(BERJALAN)
+  triggeredById     String            @map("triggered_by_id")
+  triggeredBy       User              @relation("CalculationTrigger", fields: [triggeredById], references: [id])
+  responseSnapshot  Json? @map("response_snapshot")
+  errorMessage      String?           @map("error_message")
+  completedAt       DateTime?         @map("completed_at")
+
+  // Terisi bila run ini adalah snapshot resmi yang dipatri oleh suatu Finalization (Bab 14.2).
+  finalizationId String?       @map("finalization_id")
+  finalization   Finalization? @relation(fields: [finalizationId], references: [id])
+
+  objectGroupResults ObjectGroupResult[]
+
+  createdAt DateTime @default(now())
+
+  @@index([categoryId])
+  @@map("calculation_runs")
+}
+
+enum EligibilityStatus {
+  BELUM_ADA_PENILAIAN
+  BELUM_MEMENUHI_MINIMUM
+  MEMENUHI_SYARAT
+}
+
+// Bab 12/13.1: F(o,g) per objek+kelompok pada satu CalculationRun. Skor nullable ketika n=0
+// (Bab 12.2: "Jangan membagi nol atau menyimpan F = 0" — Score null tidak disamakan dengan nol).
+model ObjectGroupResult {
+  id               String            @id @default(cuid())
+  runId            String            @map("run_id")
+  run              CalculationRun    @relation(fields: [runId], references: [id])
+  categoryObjectId String            @map("category_object_id")
+  categoryObject   CategoryObject    @relation(fields: [categoryObjectId], references: [id])
+  group            AssessmentGroup
+  responseCount    Int               @map("response_count")
+  // Nilai akhir F(o,g); disimpan dengan presisi tinggi (Bab 12.5), null bila responseCount=0.
+  score            Float?
+  eligibility      EligibilityStatus
+
+  parameterResults ParameterResult[]
+
+  @@unique([runId, categoryObjectId, group])
+  @@index([categoryObjectId])
+  @@map("object_group_results")
+}
+
+// Bab 12.1/13.4: A(o,g,p) dan B(o,g,p) — rincian agregasi per parameter untuk penelusuran.
+model ParameterResult {
+  id          String            @id @default(cuid())
+  resultId    String            @map("result_id")
+  result      ObjectGroupResult @relation(fields: [resultId], references: [id])
+  parameterId String            @map("parameter_id")
+  parameter   Parameter         @relation(fields: [parameterId], references: [id])
+  aggregate   Float             @map("aggregate")
+  contribution Float            @map("contribution")
+
+  @@unique([resultId, parameterId])
+  @@map("parameter_results")
+}
+
+// ---------------------------------------------------------------------------
+// Tahap 6 — Siklus lengkap
+// ---------------------------------------------------------------------------
+
+// Bab 14.2/14.3/18: penetapan hasil resmi berversi. Revisi baru TIDAK menimpa yang lama —
+// priorFinalId membentuk rantai sehingga "hasil final lama tetap dapat dilihat sebagai versi
+// terdahulu" (Bab 14.3) tanpa pernah menghapus riwayat.
+model Finalization {
+  id            String         @id @default(cuid())
+  periodId      String         @map("period_id")
+  period        Period         @relation(fields: [periodId], references: [id])
+  revision      Int
+  finalizedById String         @map("finalized_by_id")
+  finalizedBy   User           @relation("FinalizationActor", fields: [finalizedById], references: [id])
+  finalizedAt   DateTime       @default(now()) @map("finalized_at")
+  note          String?
+  priorFinalId  String?        @unique @map("prior_final_id")
+  priorFinal    Finalization?  @relation("FinalizationChain", fields: [priorFinalId], references: [id])
+  nextFinal     Finalization?  @relation("FinalizationChain")
+
+  calculationRuns CalculationRun[]
+
+  @@unique([periodId, revision])
+  @@map("finalizations")
+}
+
+// Bab 15.1: batch impor master (Unit/Pengguna/Pimpinan) — preview dan hasil penerapan tercatat
+// untuk ditelusuri (Bab 18: ImportBatch).
+enum ImportEntity {
+  UNIT
+  PENGGUNA
+  PIMPINAN
+}
+
+enum ImportBatchStatus {
+  PREVIEW
+  DITERAPKAN
+  GAGAL
+}
+
+model ImportBatch {
+  id           String            @id @default(cuid())
+  entity       ImportEntity
+  fileName     String            @map("file_name")
+  status       ImportBatchStatus @default(PREVIEW)
+  rowErrors    Json?             @map("row_errors")
+  summary      Json?
+  appliedById  String            @map("applied_by_id")
+  appliedBy    User              @relation("ImportActor", fields: [appliedById], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("import_batches")
+}

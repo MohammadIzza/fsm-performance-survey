@@ -1,0 +1,193 @@
+@import "tailwindcss";
+
+/* Shared visual language from the repository's original Nod theme. */
+@font-face {font-family:HeyWow;src:url('/assets/fonts/HeyWow-Book.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face {font-family:HeyWow;src:url('/assets/fonts/HeyWow-SemiBold.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face {font-family:HeyWow;src:url('/assets/fonts/HeyWow-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
+:root {
+ --background:#f7f7ef; --surface:#fff; --surface-raised:#f2f2f2;
+ --foreground:#383030; --muted:#625b58; --muted-2:#706965;
+ --border:#dedcd4; --border-strong:#aaa59a;
+ --accent:#3658d3; --accent-hover:#3c61e5; --accent-tint:#e7edfb;
+ --warm:#8c3b13; --warm-tint:#ffd37d;
+ --success:#216252; --success-tint:#c4e6dc;
+ --danger:#a53136; --danger-tint:#ffbaba;
+ --font-app-sans:'HeyWow',sans-serif; --font-app-mono:ui-monospace,monospace;
+}
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-tint: var(--accent-tint);
+  --color-warm: var(--warm);
+  --color-warm-tint: var(--warm-tint);
+  --color-danger: var(--danger);
+  --color-danger-tint: var(--danger-tint);
+  --color-success: var(--success);
+  --color-success-tint: var(--success-tint);
+  --font-sans: var(--font-app-sans);
+  --font-mono: var(--font-app-mono);
+}
+
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-app-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Label kecil huruf kapital + jarak antar-huruf, dipakai sebagai konteks singkat di atas
+   judul halaman (mis. label peran/status) — sans, bukan mono, agar tetap satu keluarga huruf. */
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.page-title {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .transition,
+  .transition-colors {
+    transition-duration: 150ms;
+  }
+}
+
+/* Mobile: paksa ukuran huruf input/select/textarea minimal 16px. Di bawah itu, Safari iOS
+   otomatis mem-zoom halaman saat elemen difokuskan — mengganggu terutama pada formulir
+   penilaian yang berisi banyak input berurutan. Hanya berlaku di layar sempit; tata letak
+   admin desktop yang lebih rapat tidak terpengaruh. */
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Target ketuk minimal ~44px (WCAG 2.5.5 / Apple HIG) untuk tombol dan tautan yang berperan
+   sebagai aksi utama di layar sentuh. */
+@media (max-width: 640px) {
+  .tap-target {
+    min-height: 44px;
+  }
+}
+
+/* Bagan organisasi berbentuk piramida — akar di atas-tengah, anak-anak melebar ke bawah dan
+   dihubungkan garis, bukan daftar menyamping. Teknik CSS org-chart klasik: setiap <li> menaruh
+   konektornya sendiri lewat ::before/::after, berulang otomatis ke kedalaman berapa pun lewat
+   selector turunan (.org-tree ul / .org-tree li mencakup semua level nested). */
+.org-tree,
+.org-tree ul,
+.org-tree li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+.org-tree,
+.org-tree ul {
+  display: flex;
+  justify-content: center;
+}
+.org-tree ul {
+  padding-top: 24px;
+}
+.org-tree li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 10px 0 10px;
+}
+.org-tree li::before,
+.org-tree li::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 50%;
+  width: 50%;
+  height: 24px;
+  border-top: 1px solid var(--border-strong);
+}
+.org-tree li::after {
+  right: auto;
+  left: 50%;
+  border-left: 1px solid var(--border-strong);
+}
+.org-tree li:only-child {
+  padding-top: 0;
+}
+.org-tree li:only-child::before,
+.org-tree li:only-child::after {
+  display: none;
+}
+.org-tree li:first-child::before,
+.org-tree li:last-child::after {
+  border: 0 none;
+}
+.org-tree li:last-child::before {
+  border-right: 1px solid var(--border-strong);
+  border-radius: 0 6px 0 0;
+}
+.org-tree li:first-child::after {
+  border-radius: 6px 0 0 0;
+}
+.org-tree ul::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: 24px;
+  border-left: 1px solid var(--border-strong);
+}
+
+:focus-visible {outline:3px solid #3658d3;outline-offset:4px}
+button,a,input,select,textarea { -webkit-tap-highlight-color:transparent }
+button:not(:disabled), summary {cursor:pointer}
+button[type=submit] {border-radius:999px;min-height:44px}
+button:disabled {cursor:wait}
+.page-title {font-size:clamp(30px,3.5vw,48px);font-weight:600;letter-spacing:-.045em;line-height:1.12}
+main h2 {letter-spacing:-.025em}
+.survey-header {background:#f7f7ef;border-bottom:1px solid #dedcd4;padding:20px 4vw;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.survey-header img {width:140px;height:auto}
+.survey-header nav {display:flex;gap:24px;align-items:center;font-size:15px}
+.survey-header a:hover {color:var(--accent)}
+.survey-brand {display:flex;align-items:center;gap:16px}
+.survey-brand small {border-left:1px solid var(--border-strong);padding-left:16px;font-size:12px;line-height:1.3}
+.survey-hero {position:relative;background:#ffd37d;overflow:hidden;border-radius:26px;padding:30px 34px;margin-bottom:28px;min-height:190px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.survey-hero h2 {font-size:clamp(26px,3vw,40px);line-height:1.1;max-width:470px;font-weight:600;letter-spacing:-.04em}
+.survey-hero p {font-size:14px;max-width:400px;margin-top:12px}
+.survey-motion {display:flex;align-items:center;justify-content:center;gap:8px;width:260px;min-width:160px;height:160px}
+.survey-motion>div {width:32%;height:100%;transform-origin:50% 90%}
+.survey-shell aside {background:#f7f7ef;border-right:0}
+.survey-shell aside nav a {border-radius:999px}
+.survey-shell main>div>div.rounded-2xl,.survey-shell section.rounded-2xl {border-radius:24px}
+.survey-shell main {max-width:1240px}
+.survey-login {display:grid;grid-template-columns:1.12fr 1fr;min-height:calc(100svh - 86px)}
+.survey-login-art {background:#ffd37d;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:60px 8%;position:relative;overflow:hidden}
+.survey-login-art h1 {font-size:clamp(48px,6.3vw,94px);line-height:.98;letter-spacing:-.06em;font-weight:600;z-index:1}
+.survey-login-art .survey-motion {width:min(100%,520px);height:240px;margin-top:30px}
+.survey-login-form {padding:60px 12%;display:flex;flex-direction:column;justify-content:center}
+.survey-login-form h2 {font-size:42px;letter-spacing:-.04em;line-height:1.1;margin:12px 0 20px}
+.survey-login-form input {border-radius:14px;background:white}
+.survey-login-form button[type=submit] {padding:17px;background:#3658d3;transition:transform .25s cubic-bezier(.215,.61,.355,1)}
+.survey-login-form button[type=submit]:hover {transform:translateY(-3px) rotate(-1deg)}
+.survey-demo-accounts {margin-top:24px;border-top:1px solid var(--border);padding-top:20px;font-size:13px}
+.survey-demo-accounts dl {display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.survey-footer {padding:24px 4vw;font-size:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:16px}
+@media(max-width:768px){.survey-header nav{gap:12px;font-size:12px}.survey-brand small{display:none}.survey-login{grid-template-columns:1fr}.survey-login-art{padding:40px 24px}.survey-login-art h1{font-size:54px}.survey-login-art .survey-motion{height:130px;margin:0}.survey-login-form{padding:40px 24px}.survey-hero{padding:24px;min-height:150px}.survey-hero .survey-motion{width:100px;min-width:80px;height:100px}.survey-header{padding:18px 24px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

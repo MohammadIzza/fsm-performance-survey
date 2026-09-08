@@ -1,0 +1,84 @@
+"use client";
+
+import { useActionState } from "react";
+import { updateAssignmentRuleAction } from "@/lib/actions/admin-assignments";
+import type { getCategoryDetail } from "@/lib/services/categories";
+
+type AssignmentRule = NonNullable<Awaited<ReturnType<typeof getCategoryDetail>>>["assignmentRules"][number];
+type UserType = { id: string; name: string };
+
+const fieldClass =
+  "rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 disabled:opacity-60";
+
+export function AssignmentRuleForm({
+  rule,
+  userTypes,
+  periodId,
+  categoryId,
+  editable,
+}: {
+  rule: AssignmentRule;
+  userTypes: UserType[];
+  periodId: string;
+  categoryId: string;
+  editable: boolean;
+}) {
+  const [state, formAction, pending] = useActionState(updateAssignmentRuleAction, {});
+  const currentTypeIds = new Set((rule.userTypeIds as string[] | null) ?? []);
+
+  return (
+    <form action={formAction} className="grid gap-3">
+      <input type="hidden" name="ruleId" value={rule.id} />
+      <input type="hidden" name="periodId" value={periodId} />
+      <input type="hidden" name="categoryId" value={categoryId} />
+
+      <div>
+        <label className="mb-1 block text-[11px] text-[var(--muted)]">Lingkup calon</label>
+        <select name="scope" defaultValue={rule.scope} disabled={!editable} className={fieldClass}>
+          <option value="UNIT_OBJEK">Unit objek saja</option>
+          <option value="UNIT_DAN_SUBUNIT">Unit objek dan subunitnya</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-[11px] text-[var(--muted)]">
+          Filter jenis pengguna (kosongkan untuk semua jenis)
+        </label>
+        <div className="flex flex-wrap gap-3">
+          {userTypes.map((t) => (
+            <label key={t.id} className="flex items-center gap-1.5 text-[13px] text-[var(--foreground)]">
+              <input
+                type="checkbox"
+                name="userTypeIds"
+                value={t.id}
+                defaultChecked={currentTypeIds.has(t.id)}
+                disabled={!editable}
+                className="h-4 w-4"
+              />
+              {t.name}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {editable ? (
+        <div className="flex items-center gap-2">
+          <button
+            type="submit"
+            disabled={pending}
+            className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-[13px] font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
+          >
+            {pending ? "Menyimpan…" : "Simpan aturan"}
+          </button>
+          {state.error && (
+            <p role="alert" className="text-sm text-[var(--danger)]">
+              {state.error}
+            </p>
+          )}
+        </div>
+      ) : (
+        <p className="text-[13px] text-[var(--muted)]">Terkunci di luar status Draf.</p>
+      )}
+    </form>
+  );
+}
