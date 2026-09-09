@@ -16,6 +16,21 @@ function setAllText(selector, values) {
   });
 }
 
+function setAllLabelText(selector, values) {
+  document.querySelectorAll(selector).forEach((element, index) => {
+    const value = values[index];
+    if (!value) return;
+    const textNodes = Array.from(element.childNodes).filter(
+      (node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim()
+    );
+    if (textNodes.length) {
+      textNodes[textNodes.length - 1].textContent = `\n            ${value}          `;
+    } else {
+      element.textContent = value;
+    }
+  });
+}
+
 function setButtonText(selector, value) {
   document.querySelectorAll(selector).forEach((element) => {
     const text = element.querySelector(".btn-plain__text, .btn-text__text");
@@ -35,12 +50,6 @@ function applyCookieCopy() {
   setText(".icr-cc__btn--decline", "Tolak");
   setText(".icr-cc__btn--accept", "Setuju");
   setText(".icr-cc__link--customize", "Atur");
-}
-
-function applyLocalMediaFallback() {
-  document.querySelectorAll('img[data-src*="Nod-Intro"]').forEach((image) => {
-    image.src = "/wp-content/uploads/2024/09/Nod-Intro.jpg";
-  });
 }
 
 export function applyLandingCopy() {
@@ -79,25 +88,25 @@ export function applyLandingCopy() {
   setAllText(".s-success-stories .sb__quote__text", sections.stories);
   setText(".s-bootcamps .s__title", sections.flowTitle);
   setText(".s-bootcamps .s__intro", sections.flowIntro);
-  setAllText(".s-bootcamps .sb__title", sections.flowItems.map(([number, title]) => `${number}  ${title}`));
+  setAllLabelText(".s-bootcamps .sb__title", sections.flowItems.map(([number, title]) => `${number}  ${title}`));
   setAllText(".s-bootcamps .sb__topic", sections.flowItems.map(([, , body]) => body));
   setAllText(".s-bootcamps .sb__dates", ["Tahap 1", "Tahap 2", "Tahap 3"]);
   setAllText(".s-bootcamps .sb__city", ["FSM UNDIP", "FSM UNDIP", "FSM UNDIP"]);
   setText(".section-summer-bootcamps .s__title", sections.modulesTitle);
   setText(".section-summer-bootcamps .s__intro", sections.modulesIntro);
-  setAllText(".section-summer-bootcamps .sb__title", sections.modules);
+  setAllLabelText(".section-summer-bootcamps .sb__title", sections.modules);
   setAllText(".section-summer-bootcamps .sb__dates", sections.modules.map(() => "Modul sistem"));
   setAllText(".section-summer-bootcamps .sb__duration", sections.modules.map(() => "Dapat dikembangkan"));
   setAllText(".section-summer-bootcamps .sb__location", sections.modules.map(() => "FSM UNDIP"));
   setAllText(".section-summer-bootcamps .sb__price", sections.modules.map(() => "Aktif"));
   setText(".section-b2b-courses .s__title", sections.operationsTitle);
   setText(".section-b2b-courses .s__intro", sections.operationsIntro);
-  setAllText(".section-b2b-courses .sb__title", sections.operations);
+  setAllLabelText(".section-b2b-courses .sb__title", sections.operations);
   setAllText(".section-b2b-courses .sb__dates", sections.operations.map(() => "Kebutuhan operasional"));
   setAllText(".section-b2b-courses .sb__duration", sections.operations.map(() => "Terintegrasi"));
   setAllText(".section-b2b-courses .sb__location", sections.operations.map(() => "FSM UNDIP"));
   setAllText(".section-b2b-courses .sb__price", sections.operations.map(() => "Tersedia"));
-  setAllText(".s-content-slider .sb__title", sections.slider.map(([title]) => title));
+  setAllLabelText(".s-content-slider .sb__title", sections.slider.map(([title]) => title));
   setAllText(".s-content-slider .sb__text", sections.slider.map(([, body]) => body));
   setText(".s-content-1 .s__title", sections.ctaTitle);
   const ctaText = document.querySelector(".s-content-1 .s__text");
@@ -110,5 +119,4 @@ export function applyLandingCopy() {
   setButtonText(".site-foot .btn-text", sections.footerAction);
   setText(".site-foot .s__copyright", sections.copyright);
   applyCookieCopy();
-  applyLocalMediaFallback();
 }
