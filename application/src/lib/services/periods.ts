@@ -451,9 +451,13 @@ async function copyPeriodImpl(
           },
         });
       }
+      // Bab 7.5/UC-10: "admin ... memeriksa organisasi dan objek TERKINI" — peserta (CategoryObject)
+      // DISALIN sebagai titik awal yang bisa ditinjau/dihapus admin (hanya objek yang masih aktif
+      // ikut disalin; snapshot nama/unit diambil ulang dari objek saat INI, bukan dari snapshot
+      // lama), bukan diketik ulang dari nol. Yang SENGAJA TIDAK disalin (harus dievaluasi ulang
+      // penuh, sesuai "Tidak ada jawaban lama yang ikut dihitung"): Assignment (penugasan/calon
+      // penilai) dan seluruh Response (jawaban) — periode baru selalu mulai dari nol penugasan.
       await tx.categoryObject.createMany({data:cat.categoryObjects.filter(co=>co.object.active).map(co=>({categoryId:newCat.id,objectId:co.objectId,nameSnapshot:co.object.name,unitSnapshot:co.object.ownerUnit.name,ownerUnitIdSnapshot:co.object.ownerUnitId}))});
-      // Objek peserta (CategoryObject) dan seluruh penugasan (Assignment) sengaja tidak disalin —
-      // Bab 8.2/7.5: keikutsertaan dan calon penilai dievaluasi ulang untuk periode baru.
     }
 
     return p;

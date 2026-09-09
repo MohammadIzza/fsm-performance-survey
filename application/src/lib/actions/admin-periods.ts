@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireAdminActor, getCurrentAuthContext } from "@/lib/authz";
 import {
   createPeriod,
@@ -103,11 +104,15 @@ export async function transitionPeriodStatusAction(
   return {};
 }
 
+// UC-10 "Menggunakan kembali periode": sebelumnya copyPeriod (service) sudah lengkap dan teruji
+// (scripts/test-tahap2.ts) tapi tidak pernah dipanggil dari UI mana pun — ditemukan saat menutup
+// celah UC-10, diperbaiki dengan menambah CopyPeriodForm di halaman detail periode sumber.
 export async function copyPeriodAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const actor = await requireAdminActor();
   const sourcePeriodId = String(formData.get("sourcePeriodId") ?? "");
+  let newPeriodId: string;
   try {
-    await copyPeriod(
+    const newPeriod = await copyPeriod(
       sourcePeriodId,
       {
         code: String(formData.get("code") ?? ""),
@@ -117,10 +122,11 @@ export async function copyPeriodAction(_prev: FormState, formData: FormData): Pr
       },
       actor
     );
+    newPeriodId = newPeriod.id;
   } catch (e) {
     if (e instanceof ServiceError) return { error: e.message };
     throw e;
   }
   revalidatePath("/admin/periode");
-  return {};
+  redirect(`/admin/periode/${newPeriodId}`);
 }

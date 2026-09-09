@@ -11,6 +11,7 @@ import { StatusActions } from "./status-actions";
 import { FinalizationPanel } from "./finalization-panel";
 import { FinalizationHistory } from "./finalization-history";
 import { CategoryCreateForm } from "./category-create-form";
+import { CopyPeriodForm } from "./copy-period-form";
 
 const statusLabel: Record<string, string> = {
   DRAF: "Draf",
@@ -103,6 +104,19 @@ async function PeriodDetailPage({
           Tambah kategori
         </h2>
         <CategoryCreateForm periodId={period.id} objectTypes={objectTypes} />
+      </div>
+
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
+        <h2 className="mb-1 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+          Gunakan kembali periode ini (UC-10)
+        </h2>
+        <p className="mb-4 text-[13px] text-[var(--muted)]">
+          Menyalin kategori, instrumen, aturan penilaian, dan peserta (hanya yang masih aktif) ke
+          periode draf baru dengan jadwal baru — sebagai titik awal yang bisa ditinjau/diubah.
+          Penugasan dan seluruh jawaban TIDAK ikut disalin — selalu dievaluasi ulang dari nol untuk
+          periode baru, jadi tidak ada jawaban lama yang ikut dihitung.
+        </p>
+        <CopyPeriodForm sourcePeriodId={period.id} />
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">

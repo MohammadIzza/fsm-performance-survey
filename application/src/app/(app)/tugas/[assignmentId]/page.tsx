@@ -4,6 +4,7 @@ import { getAssignmentFormData, computeDisplayStatus } from "@/lib/services/resp
 import { ServiceError } from "@/lib/services/units";
 import { AssignmentForm } from "./assignment-form";
 import { AdminTools } from "./admin-tools";
+import { IssueReportForm } from "./issue-report-form";
 
 const groupLabel: Record<string, string> = {
   PIMPINAN: "Pimpinan",
@@ -137,6 +138,19 @@ export default async function AssignmentFormPage({
             : null
         }
       />
+
+      {isOwner && (
+        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
+          <h2 className="mb-1 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
+            Laporkan tugas keliru (UC-06)
+          </h2>
+          <p className="mb-4 text-[13px] text-[var(--muted)]">
+            Laporan bukan pengganti pengisian — kewajiban mengisi tetap berlaku sampai admin
+            bertindak (Bab 11.6).
+          </p>
+          <IssueReportForm assignmentId={assignment.id} />
+        </div>
+      )}
 
       {ctx.isAdmin && (
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">

@@ -10,7 +10,16 @@ Jalankan bukti sendiri sebelum mempercayai baris manapun di sini:
 ```bash
 cd application && npx tsc --noEmit && npm run test:all
 ```
-Terakhir dijalankan: 209/209 assertion lulus di 7 skrip (`test-services`, `test-tahap2`..`test-tahap7`).
+Terakhir dijalankan: 215/215 assertion lulus di 7 skrip (`test-services`, `test-tahap2`..`test-tahap7`).
+
+Untuk bukti UI browser sungguhan (UC-01/02/03/06/07/10, lihat bagian "UC-01..10" di bawah):
+```bash
+# Sekali saja / kalau DB e2e sudah pernah dipakai dan ingin bersih lagi:
+bash scripts/reset-e2e-db.sh
+# Jalankan server terhadap DB e2e (BUKAN survey_fsm_demo) di port terpisah dari demo publik:
+set -a && source .env.e2e && set +a && next start -p 3931 -H 127.0.0.1 &
+npx playwright test   # target default: http://127.0.0.1:3931, lihat playwright.config.ts
+```
 
 ## Legenda
 
@@ -107,17 +116,30 @@ ini yang benar-benar dijalankan dan diamati langsung:
 - **UC-08/09 (menutup/finalisasi, membuka revisi):** dijalankan penuh sebagai kode (bukan lewat
   UI) di `test-tahap6.ts`/`test-tahap7.ts` — Ditutup → Final → buka Revisi → (baru) revisi
   instrumen substantif → kalkulasi ditolak sampai pengisian ulang → Final lagi.
+- **UC-01/02/03/06/07/10 (✅ baru):** `tests/e2e/uc-admin-flows.spec.ts` (Playwright, browser
+  Chromium sungguhan lewat `npx playwright test`, target `http://127.0.0.1:3931` dengan database
+  terpisah `survey_fsm_e2e` — lihat `playwright.config.ts` dan `scripts/reset-e2e-db.sh`) —
+  SATU jalan berurutan nyata: admin login → buat unit+pengguna+tetapkan pimpinan (UC-01) → buat
+  periode+kategori+parameter+skala+aturan kelompok (UC-02) → buat objek penilaian+peserta+pratinjau
+  &terapkan penugasan (UC-03) → buka periode → penilai melapor tugas keliru, admin menangani
+  laporan (UC-06) → penilai kirim jawaban, admin koreksi langsung (UC-07) → admin salin periode ke
+  draf baru (UC-10). Lulus (`1 passed`).
 
-UC-01 (menyiapkan organisasi), UC-02 (menyusun survei), UC-03 (menerbitkan penugasan), UC-06
-(menangani kesalahan tugas), UC-07 (koreksi jawaban), UC-10 (menggunakan kembali periode): masing-
-masing TAHAPnya diuji terpisah (lihat tabel AC/EDGE di atas untuk tahap yang relevan), tapi belum
-ada satu jalannya end-to-end lewat UI browser yang direkam sebagai bukti. ⚠️ **Belum diverifikasi**
-sebagai alur UI utuh — cukup diverifikasi sebagai potongan-potongan logika lewat service test.
+  Menulis test ini menemukan (dan sudah diperbaiki) **dua celah UI nyata**, bukan cuma celah test:
+  - `copyPeriodAction`/`copyPeriod` (UC-10) sudah lengkap & teruji di `test-tahap2.ts` sejak lama,
+    tapi **tidak pernah dipanggil dari UI mana pun** — tidak ada tombol/form untuk memakainya.
+    Diperbaiki: `copy-period-form.tsx` baru + dipasang di halaman detail periode.
+  - `IssueReportForm` (UC-06, "melaporkan tugas keliru") sudah lengkap sebagai komponen tapi
+    **tidak pernah diimpor ke halaman tugas** (`tugas/[assignmentId]/page.tsx`) — pengguna secara
+    praktis tidak bisa melaporkan tugas keliru sama sekali lewat UI. Diperbaiki: dipasang untuk
+    `isOwner`.
+  - Bonus: komentar kode di `copyPeriod` (`services/periods.ts`) mengklaim peserta "sengaja tidak
+    disalin" padahal baris tepat di atasnya benar-benar menyalinnya (dan `test-tahap2.ts` sudah
+    lama menguji perilaku salin-nya) — komentar yang salah, bukan kode yang salah; diperbaiki
+    dengan meluruskan komentarnya + teks UI terkait (`copy-period-form.tsx`, halaman periode).
 
 ## Ringkasan celah yang masih terbuka setelah sesi ini
 
-1. **UC-01/02/03/06/07/10 sebagai alur UI utuh** — belum direkam sebagai satu bukti end-to-end
-   lewat browser, hanya potongan logika per tahap.
-2. Baris 🔍 di atas (AC-03/05/07/21/22/27/34/38, EDGE-07/08/09/10/13/18/20/23/24/26/28/29) — kode
+1. Baris 🔍 di atas (AC-03/05/07/21/22/27/34/38, EDGE-07/08/09/10/13/18/20/23/24/26/28/29) — kode
    sudah dibaca dan tampak benar, tapi tidak ada assertion yang akan gagal bila regresi terjadi.
    Ini bukan "kemungkinan salah", tapi juga bukan "terbukti benar" — hanya belum diuji otomatis.
