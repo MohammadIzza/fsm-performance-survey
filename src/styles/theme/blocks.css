@@ -1983,13 +1983,58 @@
   transition: transform 0.1s linear 0s;
   will-change: transform;
 }
+.b-hero-home .b__letters .b__letter--f {
+  left: 2%;
+  width: 28%;
+  height: 98%;
+}
+.b-hero-home .b__letters .b__letter--f .b__letter__flower {
+  transform-origin: 45% 90%;
+}
+.b-hero-home .b__letters .b__letter--f .b__letter__stem {
+  left: 5%;
+  width: 80%;
+  height: 52%;
+}
+.b-hero-home .b__letters .b__letter--s {
+  left: 35%;
+  width: 28%;
+  height: 95%;
+}
+.b-hero-home .b__letters .b__letter--s .b__letter__flower {
+  transform-origin: 50% 90%;
+}
+.b-hero-home .b__letters .b__letter--s .b__letter__stem {
+  left: 5%;
+  width: 80%;
+  height: 52%;
+}
+.b-hero-home .b__letters .b__letter--m {
+  left: 68%;
+  width: 30%;
+  height: 98%;
+}
+.b-hero-home .b__letters .b__letter--m .b__letter__flower {
+  transform-origin: 50% 90%;
+}
+.b-hero-home .b__letters .b__letter--m .b__letter__stem {
+  left: 5%;
+  width: 80%;
+  height: 52%;
+}
+.fsm-letter-svg {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.05));
+  transition: transform 0.15s ease-out;
+}
 .b-hero-home .b__bootcamp {
   position: absolute;
   top: 30%;
-  left: 54.1%;
+  left: 41%;
   z-index: 2;
   margin: 19% 0 0;
-  width: 16.25%;
+  width: 18%;
   height: auto;
 }
 @media only screen and (max-width: 987px) {
@@ -2046,7 +2091,7 @@
   left: 8.33%;
   width: 83.34%;
   height: 100%;
-  background: url('/assets/images/hero-home-bootcamp.svg') 0 50% / contain
+  background: url('/assets/images/hero-home-undip.svg') 0 50% / contain
     no-repeat;
   animation: b-hero-home-bootcamp 10s cubic-bezier(0.455, 0.03, 0.515, 0.955)
     infinite;
