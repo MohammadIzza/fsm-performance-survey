@@ -1,0 +1,14 @@
+{
+  "name": "survey-fsm",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static mirror of nodcoding.com prepared for local customization and iteration.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-custom.mjs",
+    "dev": "node scripts/serve.mjs",
+    "start": "node scripts/serve.mjs",
+    "verify": "node scripts/verify-static.mjs",
+    "normalize": "node scripts/normalize-static-html.mjs"
+  }
+}

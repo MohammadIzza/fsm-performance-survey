@@ -1,0 +1,8 @@
+.local-server/
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+dist/
+/build/
+coverage/

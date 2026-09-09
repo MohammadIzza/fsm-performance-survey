@@ -1,0 +1,157 @@
+/*
+  Put project-specific visual changes here.
+  Keep this file small; create a component CSS file when a section grows.
+*/
+
+body {
+  overflow-x: hidden;
+}
+
+html.app-local-fallback [data-lg-reveal],
+html.app-local-fallback .lg-reveal {
+  opacity: 1;
+  transform: none !important;
+}
+
+html.app-local-fallback .b-hero-home .b__letters {
+  clip-path: none !important;
+  opacity: 1 !important;
+}
+
+html.app-local-fallback .b-hero-home .b__render {
+  opacity: 1;
+}
+
+html.app-local-fallback .b-hero-home .b__bootcamp {
+  opacity: 1 !important;
+}
+
+.b-hero-home .b__bootcamp {
+  display: none;
+}
+
+.b-hero-home .b__letter__stem {
+  display: none;
+}
+
+.s-hero .s__content {
+  transform: translateY(-12rem);
+}
+
+.s-hero .s__title {
+  display: block;
+  max-width: 30rem;
+  font: 600 0/1 var(--font-family-heading, sans-serif);
+  letter-spacing: 0;
+}
+
+.s-hero .s__title__main,
+.s-hero .s__title__secondary {
+  display: none !important;
+}
+
+.s-hero .s__title::before {
+  display: block;
+  white-space: pre-line;
+  content: "Survei Penilaian\A FSM UNDIP";
+  font: 600 4.5rem/0.95 var(--font-family-heading, sans-serif);
+  letter-spacing: 0;
+}
+
+.s-hero .s__text {
+  margin-top: 1.25rem;
+  max-width: 34rem;
+}
+
+.s-hero .s__text p {
+  color: var(--color-black, #383030);
+  font-size: 1.1rem;
+  line-height: 1.35;
+}
+
+.s-reviews .s__review__link {
+  pointer-events: none;
+}
+
+.s-reviews .s__review__logo {
+  visibility: hidden;
+}
+
+.s-success-stories .sb__quote__text {
+  overflow-wrap: anywhere;
+}
+
+@media only screen and (max-width: 987px) {
+  .s-hero .s__content .u-container {
+    width: calc(100% - 2rem);
+    max-width: none;
+  }
+
+  .s-hero .s__content {
+    transform: translateY(-3rem);
+  }
+
+  .s-hero .s__text,
+  .s-hero .s__text--sm {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box;
+    white-space: normal !important;
+    text-wrap: wrap !important;
+    overflow-wrap: anywhere;
+  }
+
+  .s-hero .s__text p {
+    display: block;
+    min-width: 0;
+    width: calc(100vw - 2rem) !important;
+    max-width: calc(100vw - 2rem) !important;
+    overflow-wrap: anywhere;
+  }
+
+  .icr-cc {
+    right: 1rem !important;
+    bottom: 1rem !important;
+    left: 1rem !important;
+    width: auto !important;
+  }
+
+  .icr-cc__banner__ctas {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .icr-cc__btn,
+  .icr-cc__link {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .s-hero .s__text p {
+    overflow-wrap: anywhere;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .s-hero .s__content {
+    transform: translateY(-6rem);
+  }
+
+  .s-hero .s__title {
+    max-width: 18rem;
+  }
+
+  .s-hero .s__title::before {
+    font-size: 3rem;
+  }
+
+  .s-hero .s__text p {
+    font-size: 1rem;
+  }
+}
+
+.s-bootcamps .sb__topic {
+  max-width: 30rem;
+}
