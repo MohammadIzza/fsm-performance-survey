@@ -16,7 +16,7 @@ export const pages = {
   'panduan-penilai': {
     title: 'Panduan Penilai - Survei FSM UNDIP',
     description:
-      'Cara menerima tugas penilaian, menyimpan draf, melengkapi seluruh parameter, mengirim jawaban, dan melaporkan masalah penugasan.',
+      'Cara menerima tugas penilaian, menyimpan draf, melengkapi seluruh parameter, dan mengirim jawaban.',
     layout: 'l-bootcamp',
     path: '/panduan-penilai/',
   },

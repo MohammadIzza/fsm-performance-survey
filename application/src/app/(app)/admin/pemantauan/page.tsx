@@ -40,13 +40,8 @@ async function PemantauanPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard label="Tingkat pengiriman" value={`${summary.submissionRate.toFixed(1)}%`} />
-        <StatCard
-          label="Laporan masalah terbuka"
-          value={summary.openIssueCount}
-          tone={summary.openIssueCount > 0 ? "warning" : "success"}
-        />
         <StatCard
           label="Perhitungan tertunda"
           value={summary.pendingCalcCount}

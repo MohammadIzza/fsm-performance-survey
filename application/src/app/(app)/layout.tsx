@@ -39,7 +39,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         { href: "/admin/periode", label: "Periode" },
         { href: "/admin/pemantauan", label: "Pemantauan" },
         { href: "/admin/audit", label: "Audit" },
-        { href: "/admin/masalah", label: "Masalah penugasan" },
         { href: "/admin/impor", label: "Impor" },
       ]
     : [];
