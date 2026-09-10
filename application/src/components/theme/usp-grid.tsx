@@ -18,17 +18,22 @@ export function UspGrid({
   title,
   intro,
   layout = 2,
+  // Judul seksi tema dipas untuk halaman pemasaran selebar layar; di dalam aplikasi lebar kartunya
+  // lebih kecil, dan .s-usps .s__title dibatasi 8em sehingga judul panjang terpotong. Skalanya
+  // diturunkan — kelasnya tetap kelas skala huruf tema.
+  titleSize = "t-h-3xs",
   children,
 }: {
   title?: ReactNode;
   intro?: ReactNode;
+  titleSize?: "t-h-md" | "t-h-sm" | "t-h-xs" | "t-h-2xs" | "t-h-3xs";
   /** Varian tata letak tema: 1 = kartu berselang-seling, 2 = sejajar rata atas. */
   layout?: 1 | 2;
   children: ReactNode;
 }) {
   return (
     <div className={`s-usps s-usps--layout-${layout}`}>
-      {title && <SectionHeader title={title} intro={intro} />}
+      {title && <SectionHeader title={title} intro={intro} size={titleSize} />}
       <div className="s__usps">{children}</div>
     </div>
   );

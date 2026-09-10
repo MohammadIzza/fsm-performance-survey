@@ -13,6 +13,11 @@ interface NavLink {
 // admin), lebih mudah dipindai daripada navbar horizontal karena semua tautan langsung terlihat
 // tanpa dropdown. Di mobile, sidebar jadi drawer yang digeser masuk dari kiri lewat tombol
 // hamburger di top bar ringkas.
+//
+// Tautannya memakai markah menu tema (.site-head__menu > .menu-item > .menu-link >
+// .menu-item__text), jadi huruf, jarak, warna keadaan aktif, dan transisinya sama persis dengan
+// menu situs publik. Yang disetel ulang hanya arahnya — menu tema disusun mendatar, sidebar ini
+// menurun — lewat .site-head__menu--stack di globals.css.
 export function SidebarNav({
   mainLinks,
   adminLinks,
@@ -52,54 +57,59 @@ export function SidebarNav({
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
-  const linkClass = (href: string) =>
-    `rounded-lg px-3 py-2.5 text-[14px] font-medium transition lg:py-2 ${
-      isActive(href)
-        ? "bg-[var(--accent-tint)] text-[var(--accent)]"
-        : "text-[var(--muted)] hover:bg-black/[0.03] hover:text-[var(--foreground)]"
-    }`;
+  const menu = (links: NavLink[]) => (
+    <ul className="site-head__menu site-head__menu--stack">
+      {links.map((l) => (
+        <li key={l.href} className={`menu-item${isActive(l.href) ? " current-menu-item" : ""}`}>
+          <Link
+            href={l.href}
+            className="menu-link"
+            aria-current={isActive(l.href) ? "page" : undefined}
+          >
+            <span className="menu-item__text" data-text={l.label}>
+              {l.label}
+            </span>
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
 
   const navContent = (
     <>
-      <Link href="/dashboard" className="flex shrink-0 items-center gap-2 px-4 py-4">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] text-[12px] font-semibold text-white">
-          FSM
-        </div>
-        <span className="text-[15px] font-medium text-[var(--foreground)]">Survei Penilaian</span>
-      </Link>
-      <nav className="flex-1 overflow-y-auto px-3 pb-4">
-        <div className="flex flex-col gap-0.5">
-          {mainLinks.map((l) => (
-            <Link key={l.href} href={l.href} className={linkClass(l.href)}>
-              {l.label}
-            </Link>
-          ))}
-        </div>
+      {/* Lambang yang sama dengan kepala situs publik. Nama fakultasnya tidak diulang di sini —
+          kepala situs di atas sudah memuatnya, dan di lebar sidebar teks itu membungkus empat
+          baris. */}
+      <div className="s__logo survey-side__logo">
+        <Link href="/dashboard">
+          <img
+            src="/assets/images/hero-home-undip.svg"
+            alt="Survei Penilaian FSM UNDIP"
+            width="120"
+            height="26"
+          />
+        </Link>
+      </div>
+
+      <nav className="survey-side__nav">
+        {menu(mainLinks)}
         {adminLinks.length > 0 && (
-          <div className="mt-5">
-            <p className="eyebrow mb-1.5 px-3">Admin</p>
-            <div className="flex flex-col gap-0.5">
-              {adminLinks.map((l) => (
-                <Link key={l.href} href={l.href} className={linkClass(l.href)}>
-                  {l.label}
-                </Link>
-              ))}
-            </div>
-          </div>
+          <>
+            <p className="eyebrow survey-side__section">Admin</p>
+            {menu(adminLinks)}
+          </>
         )}
       </nav>
-      <div className="shrink-0 border-t border-[var(--border)] p-3">
-        <div className="flex items-center gap-2.5 px-2 py-2">
-          <div
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--accent-tint)] text-[13px] font-semibold text-[var(--accent)]"
-            aria-hidden="true"
-          >
+
+      <div className="survey-side__foot">
+        <div className="survey-side__user">
+          <span className="survey-side__avatar" aria-hidden="true">
             {initial}
-          </div>
-          <div className="min-w-0 flex-1 leading-tight">
-            <p className="truncate text-[13px] font-medium text-[var(--foreground)]">{userName}</p>
-            <p className="text-[11px] text-[var(--muted)]">{roleLabel}</p>
-          </div>
+          </span>
+          <span className="survey-side__who">
+            <span className="survey-side__name">{userName}</span>
+            <span className="survey-side__role">{roleLabel}</span>
+          </span>
         </div>
         {logoutSlot}
       </div>
@@ -109,17 +119,20 @@ export function SidebarNav({
   return (
     <>
       {/* Desktop (≥lg): sidebar permanen, tinggi penuh layar, sticky di kiri. */}
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-[var(--border)] bg-[var(--surface)] lg:flex">
+      <aside className="survey-side sticky top-0 hidden h-screen w-56 shrink-0 flex-col lg:flex">
         {navContent}
       </aside>
 
-      {/* Mobile (<lg): top bar ringkas + hamburger yang membuka drawer. */}
-      <div className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-[var(--border)] bg-[var(--surface)]/85 px-4 py-3 backdrop-blur-xl lg:hidden">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--accent)] text-[11px] font-semibold text-white">
-            FSM
-          </div>
-          <span className="text-[15px] font-medium text-[var(--foreground)]">Survei Penilaian</span>
+      {/* Mobile (<lg): top bar ringkas + hamburger yang membuka drawer. Tombolnya memakai bentuk
+          dan warna tombol menu tema (.s__toggle): bulat, brand-5, dua garis. */}
+      <div className="survey-side__bar lg:hidden">
+        <Link href="/dashboard" className="survey-side__bar-brand">
+          <img
+            src="/assets/images/hero-home-undip.svg"
+            alt="Survei Penilaian FSM UNDIP"
+            width="96"
+            height="21"
+          />
         </Link>
         <button
           type="button"
@@ -127,11 +140,12 @@ export function SidebarNav({
           aria-expanded={mobileOpen}
           aria-controls="mobile-sidebar-panel"
           aria-label="Buka menu"
-          className="tap-target flex h-8 w-8 items-center justify-center rounded-lg text-[var(--foreground)] transition hover:bg-black/[0.04]"
+          className="s__toggle survey-side__toggle"
         >
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-            <path d="M2.5 5H15.5M2.5 9H15.5M2.5 13H15.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          </svg>
+          <span className="s__toggle__lines">
+            <span className="s__toggle__line" />
+            <span className="s__toggle__line" />
+          </span>
         </button>
       </div>
 
@@ -147,20 +161,19 @@ export function SidebarNav({
             id="mobile-sidebar-panel"
             role="dialog"
             aria-modal="true"
-            className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-[var(--surface)] shadow-xl"
+            className="survey-side survey-side--drawer absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col"
           >
-            <div className="flex shrink-0 items-center justify-end px-3 pt-3">
-              <button
-                type="button"
-                onClick={() => setMobileOpen(false)}
-                aria-label="Tutup menu"
-                className="tap-target flex h-8 w-8 items-center justify-center rounded-lg text-[var(--foreground)] transition hover:bg-black/[0.04]"
-              >
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                  <path d="M4 4L14 14M14 4L4 14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                </svg>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setMobileOpen(false)}
+              aria-label="Tutup menu"
+              className="s__toggle survey-side__toggle survey-side__close is-opened"
+            >
+              <span className="s__toggle__lines">
+                <span className="s__toggle__line" />
+                <span className="s__toggle__line" />
+              </span>
+            </button>
             {navContent}
           </div>
         </div>
