@@ -4,6 +4,7 @@ import { PeriodCreateForm } from "./period-create-form";
 import { PageHero } from "@/components/page-hero";
 import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 import { StatusPill } from "@/components/theme/status-pill";
+import { DateRange } from "@/components/theme/date-range";
 
 const statusLabel: Record<string, string> = {
   DRAF: "Draf",
@@ -24,7 +25,6 @@ const statusTone = {
   REVISI: "gagal",
 } as const;
 
-const dateFmt = new Intl.DateTimeFormat("id-ID", { day: "2-digit", month: "short", year: "numeric" });
 
 async function PeriodePage() {
   const periods = await listPeriods();
@@ -68,7 +68,7 @@ async function PeriodePage() {
                 <span className="sb__subtitle">{p.code}</span>
               </RowTitle>
               <RowField kind="dates">
-                {dateFmt.format(new Date(p.startsAt))} – {dateFmt.format(new Date(p.endsAt))}
+                <DateRange from={p.startsAt} to={p.endsAt} />
               </RowField>
               <RowField kind="duration" icon={false}>
                 {p._count.categories} kategori

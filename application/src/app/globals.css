@@ -331,6 +331,22 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell .s-courses-list .sb-course .sb__price {width:16%;text-align:right}
 }
 
+/* Rentang tanggal: tiap tanggal dijaga utuh, putusnya hanya boleh di antara keduanya — lihat
+   catatan pada DateRange di components/theme/date-range.tsx. */
+.date-range__part {white-space:nowrap}
+
+/* Kolom aksi di baris daftar: aksinya berjajar mendatar, rata kanan seperti kolom terakhir
+   lainnya, dan tidak membungkus jadi dua baris. */
+.survey-shell .sb__actions {display:flex;flex-wrap:wrap;justify-content:flex-end;gap:.35rem .9rem}
+.survey-shell .sb__actions a,
+.survey-shell .sb__actions button {color:var(--color-brand-3);font-weight:600;white-space:nowrap}
+.survey-shell .sb__actions a:hover,
+.survey-shell .sb__actions button:hover {text-decoration:underline}
+
+/* Baris tanpa tautan (daftar admin yang punya aksi sendiri per baris): tidak ada isian latar saat
+   disorot, karena tidak ada satu tujuan yang bisa diklik dari seluruh barisnya. */
+.survey-shell .sb-course--static .sb__link {cursor:default}
+
 /* Baris kedua di dalam judul baris — kode periode, NIP, dan sejenisnya. Tema tidak punya slot
    untuk ini; barisnya hanya mengenal satu judul. Dibuat di sini sebagai baris kecil di bawah judul,
    memakai huruf monospace supaya kode terbaca sebagai kode. */
@@ -449,20 +465,35 @@ input[type="range"]:disabled::-moz-range-thumb {
   border-collapse:collapse;
   font:400 .75rem/1.45 var(--font-family-text);
 }
+/* Tabel dibuat sepola dengan daftar baris (.sb-course): label kolom kecil berhuruf kapital di
+   atas garis tebal, lalu tiap baris dipisahkan garis hitam, bukan garis rambut abu.
+
+   Garisnya 2px, bukan 3px seperti pada .sb-course. Daftar baris biasanya memuat beberapa entri
+   sehingga garis 3px masih terbaca sebagai pemisah; tabel di sini bisa memuat dua puluhan baris,
+   dan pada jumlah itu 3px berubah jadi belang tebal yang menutupi isinya. */
 .survey-shell main thead th {
-  padding:.9em 1em;
+  padding:.7em 1em;
   border-bottom:2px solid var(--color-black);
-  color:var(--color-black);
+  color:var(--color-text);
+  font-size:.6875rem;
   font-weight:600;
+  letter-spacing:.06em;
+  text-transform:uppercase;
   text-align:left;
   white-space:nowrap;
 }
-.survey-shell main tbody td {padding:.9em 1em;border-bottom:1px solid var(--color-grey-2)}
+.survey-shell main tbody td {padding:1em;border-bottom:2px solid var(--color-black)}
 /* Aksi di dalam sel (Edit, Peran, Nonaktifkan) memang aksi tersier, jadi dibiarkan berupa tautan
-   teks seperti aslinya — hanya warnanya disamakan dengan warna tautan tema. */
+   teks seperti aslinya — hanya warnanya disamakan dengan warna tautan tema.
+
+   Wadahnya dipaksa tidak membungkus: dengan `flex-wrap` bawaannya, tiga aksi pendek pecah jadi dua
+   baris ("Edit Peran" lalu "Nonaktifkan") dan menggandakan tinggi setiap baris tabel. */
 .survey-shell main td button:not(.btn-plain),
-.survey-shell main td a {color:var(--color-brand-3);font-size:.75rem}
-.survey-shell main tbody tr:last-child td {border-bottom:0}
+.survey-shell main td a {color:var(--color-brand-3);font-size:.75rem;white-space:nowrap}
+.survey-shell main td > div[class*="flex"] {flex-wrap:nowrap;justify-content:flex-end;gap:.9rem}
+.survey-shell main thead th:last-child,
+.survey-shell main tbody td:last-child {text-align:right}
+
 .survey-shell main tbody tr:hover {background:var(--color-beige-dark)}
 
 /* ── Bilah samping ──────────────────────────────────────────────────────────

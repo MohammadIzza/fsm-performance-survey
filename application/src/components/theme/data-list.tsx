@@ -71,13 +71,32 @@ export function DataList({
   );
 }
 
+/**
+ * Satu baris data.
+ *
+ * Dengan `href`, seluruh barisnya adalah satu tautan — bentuk aslinya di tema, dan yang paling
+ * enak dipakai kalau tiap baris cuma punya satu tujuan.
+ *
+ * Tanpa `href`, barisnya bukan tautan: kerangka dan lebar kolomnya sama persis, tapi isinya boleh
+ * memuat beberapa tautan sendiri. Ini yang dipakai daftar admin, karena tiap barisnya punya
+ * beberapa aksi (Edit, Peran, Nonaktifkan) dan tautan tidak boleh disarangkan di dalam tautan —
+ * markah seperti itu tidak sah dan aksinya tidak akan bisa dicapai lewat papan ketik.
+ */
 export function DataRow({
   href,
   children,
 }: {
-  href: string;
+  href?: string;
   children: ReactNode;
 }) {
+  if (!href) {
+    return (
+      <li className="s__course sb-course sb-course--static">
+        <div className="sb__link">{children}</div>
+      </li>
+    );
+  }
+
   return (
     <li className="s__course sb-course">
       <Link className="sb__link" href={href}>
@@ -94,6 +113,14 @@ export function DataRow({
       </Link>
     </li>
   );
+}
+
+/**
+ * Kolom aksi, selalu di ujung kanan baris. Memakai slot bidang terakhir tema (`sb__price`) supaya
+ * lebarnya sejajar dengan kepala kolomnya, dan menyusun aksinya mendatar tanpa membungkus.
+ */
+export function RowActions({ children }: { children: ReactNode }) {
+  return <span className="sb__price sb__actions">{children}</span>;
 }
 
 /**

@@ -52,7 +52,9 @@ async function ImporPage() {
               const rowErrors = b.rowErrors as { row: number; message: string }[] | null;
               return (
                 <tr key={b.id} className="border-b border-[var(--border)] last:border-b-0 align-top">
-                  <td className="px-4 py-3 text-[var(--muted)]">{dateFmt.format(b.createdAt)}</td>
+                  <td className="px-4 py-3 text-[var(--muted)]">
+                  <span className="date-range__part">{dateFmt.format(b.createdAt)}</span>
+                </td>
                   <td className="px-4 py-3 text-[var(--foreground)]">{entityLabel[b.entity]}</td>
                   <td className="px-4 py-3 font-mono text-[12px] text-[var(--muted)]">{b.fileName}</td>
                   <td className="px-4 py-3 text-[var(--muted)]">{b.appliedBy.name}</td>

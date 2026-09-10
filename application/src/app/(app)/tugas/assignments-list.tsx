@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 import { StatusPill } from "@/components/theme/status-pill";
 import { Select } from "@/components/theme/form-field";
+import { DateValue } from "@/components/theme/date-range";
 
 export interface AssignmentRow {
   id: string;
@@ -37,7 +38,6 @@ const statusTone = {
   LEWAT_TENGGAT: "gagal",
 } as const;
 
-const dateFmt = new Intl.DateTimeFormat("id-ID", { day: "2-digit", month: "short", year: "numeric" });
 
 // Bab 16.1: "Tugas saya" perlu filter periode/status, bukan hanya daftar datar — jumlah tugas
 // bertambah seiring periode berjalan bersamaan (mis. periode lama masih dalam jendela koreksi).
@@ -106,7 +106,7 @@ export function AssignmentsList({ assignments }: { assignments: AssignmentRow[] 
           {visible.map((a, i) => (
             <DataRow key={a.id} href={`/tugas/${a.id}`}>
               <RowTitle>{a.objectName}</RowTitle>
-              <RowField kind="dates">{dateFmt.format(new Date(a.deadline))}</RowField>
+              <RowField kind="dates"><DateValue value={a.deadline} /></RowField>
               <RowField kind="duration" icon={false}>{groupLabel[a.group]}</RowField>
               <RowField kind="location" icon={false}>{a.periodName}</RowField>
               <RowField kind="price">

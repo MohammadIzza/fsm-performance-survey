@@ -103,7 +103,9 @@ async function AuditPage({
             )}
             {result.events.map((e) => (
               <tr key={e.id} className="border-b border-[var(--border)] last:border-b-0">
-                <td className="px-4 py-3 text-[var(--muted)]">{dateFmt.format(e.createdAt)}</td>
+                <td className="px-4 py-3 text-[var(--muted)]">
+                  <span className="date-range__part">{dateFmt.format(e.createdAt)}</span>
+                </td>
                 <td className="px-4 py-3 text-[var(--foreground)]">{e.actorName}</td>
                 <td className="px-4 py-3 font-mono text-[12px] text-[var(--foreground)]">{e.action}</td>
                 <td className="px-4 py-3 text-[var(--muted)]">
