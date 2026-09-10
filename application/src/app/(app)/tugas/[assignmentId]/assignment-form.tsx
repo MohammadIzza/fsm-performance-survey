@@ -24,6 +24,15 @@ interface Scale {
 const draftInitial: FormState = {};
 const submitInitial: FormState = {};
 
+// Warna aksen bergilir per kartu parameter, dari palet brand yang sama dipakai home page
+// (kuning/biru/oranye) — supaya formulir tidak terasa seragam abu-abu dibanding home page.
+const accentByIndex = [
+  { badge: "bg-[var(--warm-tint)] text-[var(--warm)]", stripe: "bg-[var(--warm-tint)]" },
+  { badge: "bg-[var(--accent-tint)] text-[var(--accent)]", stripe: "bg-[var(--accent-tint)]" },
+  { badge: "bg-[var(--success-tint)] text-[var(--success)]", stripe: "bg-[var(--success-tint)]" },
+  { badge: "bg-[var(--danger-tint)] text-[var(--danger)]", stripe: "bg-[var(--danger-tint)]" },
+];
+
 // Gaya "Google Forms": satu pertanyaan = satu kartu berdiri sendiri, judul besar, deskripsi
 // (indikator) di bawahnya, dan kontrol jawaban yang besar/mudah disentuh — bukan tabel input
 // angka polos yang rapat.
@@ -214,22 +223,31 @@ export function AssignmentForm({
       )}
 
       <div className="space-y-4">
-        {sortedParameters.map((p, idx) => (
+        {sortedParameters.map((p, idx) => {
+          const accent = accentByIndex[idx % accentByIndex.length];
+          return (
           <div
             key={p.id}
-            className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm sm:p-6"
+            className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-sm sm:p-6"
           >
+            <span className={`absolute inset-y-0 left-0 w-1.5 ${accent.stripe}`} aria-hidden="true" />
             <input type="hidden" name="parameterId" value={p.id} />
             <input type="hidden" name="scoreValue" value={scores[p.id] ?? ""} />
             <div className="mb-4 flex items-start justify-between gap-3">
-              <div>
-                <p className="text-[16px] font-medium text-[var(--foreground)] sm:text-[17px]">
-                  <span className="mr-1.5 text-[var(--muted-2)]">{idx + 1}.</span>
-                  {p.name}
-                </p>
-                {p.indicator && (
-                  <p className="mt-1 text-[13px] text-[var(--muted)]">{p.indicator}</p>
-                )}
+              <div className="flex items-start gap-3">
+                <span
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold ${accent.badge}`}
+                >
+                  {idx + 1}
+                </span>
+                <div>
+                  <p className="text-[16px] font-medium text-[var(--foreground)] sm:text-[17px]">
+                    {p.name}
+                  </p>
+                  {p.indicator && (
+                    <p className="mt-1 text-[13px] text-[var(--muted)]">{p.indicator}</p>
+                  )}
+                </div>
               </div>
               <span className="shrink-0 rounded-full bg-black/[0.04] px-2.5 py-1 text-[11px] font-medium text-[var(--muted)]">
                 Bobot {p.weight}%
@@ -242,7 +260,8 @@ export function AssignmentForm({
               disabled={!canEdit}
             />
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {canEdit && (
