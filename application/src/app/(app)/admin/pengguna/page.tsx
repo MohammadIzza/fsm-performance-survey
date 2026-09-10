@@ -2,6 +2,7 @@ import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { listUsersWithMeta } from "@/lib/services/users";
 import { UserManager } from "./user-manager";
+import { PageHero } from "@/components/page-hero";
 
 async function PenggunaPage() {
   const [users, userTypes, units] = await Promise.all([
@@ -12,14 +13,12 @@ async function PenggunaPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="page-title text-[24px] sm:text-[28px] text-[var(--foreground)]">
-          Pengguna
-        </h1>
-        <p className="mt-1 text-[15px] text-[var(--muted)]">
-          Kelola identitas, jenis pengguna, unit utama, dan peran sistem (Bab 5.2, 4.1).
-        </p>
-      </div>
+      <PageHero
+        compact
+        eyebrow="ADMIN · PENGGUNA"
+        title="Pengguna"
+        description="Kelola identitas, jenis pengguna, unit utama, dan peran sistem."
+      />
 
       <UserManager users={users} userTypes={userTypes} units={units} />
     </div>

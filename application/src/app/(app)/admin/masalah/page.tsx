@@ -2,6 +2,7 @@ import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import Link from "next/link";
 import { listAllIssues } from "@/lib/services/assignmentIssues";
 import { IssueRow } from "./issue-row";
+import { PageHero } from "@/components/page-hero";
 
 const typeLabel: Record<string, string> = {
   OBJEK_KELIRU: "Objek keliru",
@@ -16,14 +17,12 @@ async function MasalahPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="page-title text-[24px] sm:text-[28px] text-[var(--foreground)]">
-          Laporan Masalah Penugasan
-        </h1>
-        <p className="mt-1 text-[15px] text-[var(--muted)]">
-          Laporan dari penilai tentang tugas yang keliru (Bab 11.6).
-        </p>
-      </div>
+      <PageHero
+        compact
+        eyebrow="ADMIN · LAPORAN"
+        title="Laporan Masalah Penugasan"
+        description="Laporan dari penilai tentang tugas yang keliru."
+      />
 
       {issues.length === 0 ? (
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">

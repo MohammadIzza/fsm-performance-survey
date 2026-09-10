@@ -8,8 +8,16 @@ await rm('application/public-site', { recursive: true, force: true });
 await rm('application/public/assets', { recursive: true, force: true });
 await rm('application/public/_astro', { recursive: true, force: true });
 
+await rm('application/src/styles/theme', { recursive: true, force: true });
+
 await mkdir('application/public', { recursive: true });
 await cp('dist', 'application/public-site', { recursive: true });
 await cp('dist/assets', 'application/public/assets', { recursive: true });
 await cp('dist/_astro', 'application/public/_astro', { recursive: true });
-console.log('Halaman publik, aset, font, dan animasi disiapkan untuk aplikasi.');
+
+// Lembar gaya tema disalin apa adanya, bukan ditulis ulang dengan nilai yang mirip: aplikasi dan
+// halaman publik jadi membaca satu sumber yang sama, sehingga ganti warna/ukuran huruf di tema
+// otomatis ikut di ruang survei dan tidak bisa lagi menyimpang diam-diam.
+await cp('src/styles/theme', 'application/src/styles/theme', { recursive: true });
+
+console.log('Halaman publik, aset, font, animasi, dan gaya tema disiapkan untuk aplikasi.');

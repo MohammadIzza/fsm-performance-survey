@@ -247,7 +247,7 @@ async function CategoryDetailPage({
               <>
                 <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
                   <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
-                    Pengacakan penugasan (Bab 10)
+                    Pengacakan penugasan
                   </h2>
                   <AssignmentPlanner periodId={periodId} categoryId={categoryId} editable={editable} />
                 </div>
@@ -261,7 +261,7 @@ async function CategoryDetailPage({
                     {editable && category.categoryObjects.length > 0 && (
                       <div className="border-t border-[var(--border)] pt-4">
                         <h3 className="mb-2 text-[12px] font-medium uppercase tracking-wide text-[var(--muted)]">
-                          Tugaskan manual (Bab 10.5)
+                          Tugaskan manual
                         </h3>
                         <ManualAssignForm
                           periodId={periodId}

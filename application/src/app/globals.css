@@ -1,5 +1,22 @@
 @import "tailwindcss";
 
+/* Lembar gaya tema yang sama persis dipakai halaman publik (fsm.heyizza.my.id) — disalin otomatis
+ * dari src/styles/theme/ oleh scripts/prepare-application.mjs, jadi warna, skala huruf, bentuk
+ * tombol, dan kelas tipografi (.t-h-*, .u-container) di ruang survei benar-benar berasal dari
+ * sumber yang sama, bukan tiruan bernilai mirip.
+ *
+ * Tiga berkas yang dipakai, bukan seluruhnya:
+ *   base.css     — token warna/huruf/jarak dan normalize
+ *   elements.css — tipografi dasar dan kelas .t-*, .u-container
+ *   blocks.css   — komponen mandiri seperti .btn-plain dan .form
+ * sections.css/shell.css/layouts.css sengaja dilewati: isinya tata letak satu halaman penuh dan
+ * kerangka situs publik yang menyetel posisi lewat runtime GSAP/Luge; tanpa runtime itu sebagian
+ * elemennya berawal transparan, dan runtime-nya sendiri mengambil alih pengguliran serta transisi
+ * halaman sehingga bentrok dengan perutean Next.js. */
+@import "../styles/theme/base.css";
+@import "../styles/theme/elements.css";
+@import "../styles/theme/blocks.css";
+
 /* Shared visual language from the repository's original Nod theme. */
 @font-face {font-family:HeyWow;src:url('/assets/fonts/HeyWow-Book.woff2') format('woff2');font-weight:400;font-display:swap}
 @font-face {font-family:HeyWow;src:url('/assets/fonts/HeyWow-SemiBold.woff2') format('woff2');font-weight:600;font-display:swap}
@@ -228,6 +245,14 @@ input[type="range"]:disabled::-moz-range-thumb {
   box-shadow: 0 0 0 1px var(--muted-2);
   cursor: default;
 }
+/* Tombol tema dipakai melebar penuh (mis. tombol Masuk): bawaannya inline-block rata kiri, jadi
+   isinya perlu dipusatkan sendiri. */
+.btn-plain.w-full .btn-plain__inner {text-align:center}
+/* Panah tombol tema diparkir tepat di luar tepi saat diam, lalu meluncur masuk saat disorot.
+   Batang panahnya miring 40°, jadi ujungnya menyembul beberapa piksel dan terbaca sebagai coretan
+   di pinggir tombol; digeser sedikit lagi supaya benar-benar bersih sebelum disorot. */
+.btn-plain__arrow {transform:translate3d(2.1em,0,0)}
+.btn-plain:hover .btn-plain__arrow {transform:translate3d(0,0,0)}
 .survey-header {background:#f7f7ef;border-bottom:1px solid #dedcd4;padding:20px 4vw;display:flex;align-items:center;justify-content:space-between;gap:24px}
 .survey-header img {width:140px;height:auto}
 .survey-header nav {display:flex;gap:24px;align-items:center;font-size:15px}
@@ -235,8 +260,14 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-brand {display:flex;align-items:center;gap:16px}
 .survey-brand small {border-left:1px solid var(--border-strong);padding-left:16px;font-size:12px;line-height:1.3}
 .survey-hero {position:relative;background:#ffd37d;overflow:hidden;border-radius:26px;padding:30px 34px;margin-bottom:28px;min-height:190px;display:flex;align-items:center;justify-content:space-between;gap:24px}
-.survey-hero h2 {font-size:clamp(26px,3vw,40px);line-height:1.1;max-width:470px;font-weight:600;letter-spacing:-.04em}
+.survey-hero h1,.survey-hero h2 {font-size:clamp(26px,3vw,40px);line-height:1.1;max-width:470px;font-weight:600;letter-spacing:-.04em}
 .survey-hero p {font-size:14px;max-width:400px;margin-top:12px}
+.survey-hero .eyebrow {color:var(--warm)}
+/* Layar admin: isinya tabel padat dan dibuka berkali-kali dalam satu sesi, jadi pita setinggi
+   190px cuma mendorong data ke bawah lipatan. Bentuk dan warnanya tetap sama, hanya lebih tipis. */
+.survey-hero--compact {min-height:0;padding:20px 26px;margin-bottom:24px}
+.survey-hero--compact h1 {font-size:clamp(22px,2.4vw,30px);max-width:640px}
+.survey-hero--compact p {margin-top:8px;max-width:620px}
 .survey-motion {display:flex;align-items:center;justify-content:center;gap:8px;width:260px;min-width:160px;height:160px}
 .survey-motion>div {width:32%;height:100%;transform-origin:50% 90%}
 .survey-shell aside {background:#f7f7ef;border-right:0}
@@ -250,10 +281,16 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-login-form {padding:60px 12%;display:flex;flex-direction:column;justify-content:center}
 .survey-login-form h2 {font-size:42px;letter-spacing:-.04em;line-height:1.1;margin:12px 0 20px}
 .survey-login-form input {border-radius:14px;background:white}
-.survey-login-form button[type=submit] {padding:17px;background:#3658d3;transition:transform .25s cubic-bezier(.215,.61,.355,1)}
-.survey-login-form button[type=submit]:hover {transform:translateY(-3px) rotate(-1deg)}
 .survey-demo-accounts {margin-top:24px;border-top:1px solid var(--border);padding-top:20px;font-size:13px}
 .survey-demo-accounts dl {display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
 .survey-footer {padding:24px 4vw;font-size:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:16px}
 @media(max-width:768px){.survey-header nav{gap:12px;font-size:12px}.survey-brand small{display:none}.survey-login{grid-template-columns:1fr}.survey-login-art{padding:40px 24px}.survey-login-art h1{font-size:54px}.survey-login-art .survey-motion{height:130px;margin:0}.survey-login-form{padding:40px 24px}.survey-hero{padding:24px;min-height:150px}.survey-hero .survey-motion{width:100px;min-width:80px;height:100px}.survey-header{padding:18px 24px}}
+/* Layar sempit: tiga tautan di kepala situs masih membungkus jadi dua baris dan membuat kepala
+   setinggi dua kali. Dirapatkan, dan label terpanjang dipendekkan lewat jarak antar-kata. */
+@media(max-width:480px){
+ .survey-header {padding:14px 16px;gap:12px}
+ .survey-header img {width:104px}
+ .survey-header nav {gap:10px;font-size:11px;flex-wrap:nowrap}
+ .survey-header nav a {white-space:nowrap}
+}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

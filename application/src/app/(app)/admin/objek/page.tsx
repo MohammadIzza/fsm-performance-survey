@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { listObjects } from "@/lib/services/objects";
 import { listObjectTypes } from "@/lib/services/objectTypes";
 import { ObjectManager } from "./object-manager";
+import { PageHero } from "@/components/page-hero";
 
 async function ObjekPage() {
   const [objects, objectTypes, units, users] = await Promise.all([
@@ -18,15 +19,12 @@ async function ObjekPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="page-title text-[24px] sm:text-[28px] text-[var(--foreground)]">
-          Objek Penilaian
-        </h1>
-        <p className="mt-1 text-[15px] text-[var(--muted)]">
-          Master objek yang dapat dinilai — Orang, Unit, Karya, atau jenis lain (Bab 8.3).
-          Objek ini kemudian dipilih sebagai peserta di masing-masing kategori.
-        </p>
-      </div>
+      <PageHero
+        compact
+        eyebrow="ADMIN · OBJEK"
+        title="Objek Penilaian"
+        description="Master objek yang dapat dinilai — Orang, Unit, Karya, atau jenis lain. Objek ini kemudian dipilih sebagai peserta di masing-masing kategori."
+      />
 
       <ObjectManager objects={objects} objectTypes={objectTypes} units={units} users={users} />
     </div>

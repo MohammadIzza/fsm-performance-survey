@@ -20,3 +20,4 @@ artifacts/
 application/public-site/
 application/public/assets/
 application/public/_astro/
+application/src/styles/theme/

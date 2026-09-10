@@ -81,7 +81,7 @@ async function PeriodDetailPage({
 
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
           <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
-            Waktu akses hasil (Bab 4.3)
+            Waktu akses hasil
           </h2>
           {canManageAccess ? (
             <AccessPolicyForm periodId={period.id} accessPolicy={period.accessPolicy} />

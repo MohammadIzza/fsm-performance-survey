@@ -112,7 +112,7 @@ export function StatusActions({
       {status === "DRAF" && problems.length > 0 && (
         <div className="mt-4 rounded-xl bg-amber-50 p-4">
           <p className="mb-2 text-[13px] font-medium text-amber-900">
-            Belum memenuhi syarat &ldquo;Siap&rdquo; (Bab 7.3):
+            Belum memenuhi syarat &ldquo;Siap&rdquo;:
           </p>
           <ul className="list-disc space-y-1 pl-5 text-[13px] text-amber-900">
             {problems.map((p, i) => (

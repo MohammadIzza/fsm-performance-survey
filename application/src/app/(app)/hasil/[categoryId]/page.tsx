@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/page-hero";
 import { getPeriodScope } from "@/lib/authz";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -117,16 +118,18 @@ export default async function HasilDetailPage({
   return (
     <div className="space-y-8">
       <div>
-        <Link href="/hasil" className="text-[13px] text-[var(--muted)] hover:underline">
+        <Link
+          href="/hasil"
+          className="mb-3 inline-block text-[13px] text-[var(--muted)] hover:underline"
+        >
           ← Hasil &amp; Leaderboard
         </Link>
-        <h1 className="mt-1 page-title text-[24px] sm:text-[28px] text-[var(--foreground)]">
-          {category.name}
-        </h1>
-        <p className="mt-1 text-[13px] text-[var(--muted)]">
-          {category.period.name} · Lingkup: {scopeLabel}
-          {category.period.status !== "FINAL" && " · Nilai sementara"}
-        </p>
+        <PageHero
+          compact
+          eyebrow={`${category.period.name}${category.period.status !== "FINAL" ? " · NILAI SEMENTARA" : ""}`}
+          title={category.name}
+          description={`Lingkup: ${scopeLabel}`}
+        />
         {latestRun && (
           <a
             href={`/hasil/${categoryId}/export`}

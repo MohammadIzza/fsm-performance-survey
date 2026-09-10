@@ -4,7 +4,7 @@ import { getSession } from "@/lib/session";
 import { getAuthContext } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { listMyAssignments, computeDisplayStatus } from "@/lib/services/responses";
-import { ThemeMotion } from "@/components/theme-motion";
+import { PageHero } from "@/components/page-hero";
 
 export default async function HomePage() {
   const session = await getSession();
@@ -58,27 +58,21 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-8">
-      <section className="survey-hero">
-        <div>
-          <p className="eyebrow">RUANG PENILAIAN &middot; {roleLabel}</p>
-          <h2>
-            Setiap penilaian,
+      <PageHero
+        eyebrow={`RUANG PENILAIAN · ${roleLabel}`}
+        title={
+          <>
+            Selamat datang,
             <br />
-            langkah untuk bertumbuh.
-          </h2>
-          <p>Kelola tugas, berikan penilaian, dan ikuti perkembangan sesuai peran Anda.</p>
-        </div>
-        <ThemeMotion />
-      </section>
+            {ctx.name.split(" ")[0]}.
+          </>
+        }
+        description="Kelola tugas, berikan penilaian, dan ikuti perkembangan sesuai peran Anda."
+      />
 
-      <div>
-        <h1 className="page-title text-[24px] sm:text-[28px] text-[var(--foreground)]">
-          Selamat datang, {ctx.name.split(" ")[0]}
-        </h1>
-        <p className="mt-1 text-[15px] text-[var(--muted)]">
-          ID: {ctx.loginIdentifier} &middot; Peran: {roleLabel}
-        </p>
-      </div>
+      <p className="text-[15px] text-[var(--muted)]">
+        ID: {ctx.loginIdentifier} &middot; Peran: {roleLabel}
+      </p>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">

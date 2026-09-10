@@ -1,6 +1,7 @@
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import { listImportBatches } from "@/lib/services/imports";
 import { ImportForm } from "./import-form";
+import { PageHero } from "@/components/page-hero";
 
 const entityLabel: Record<string, string> = { UNIT: "Unit", PENGGUNA: "Pengguna", PIMPINAN: "Pimpinan" };
 const statusLabel: Record<string, string> = { PREVIEW: "Pratinjau", DITERAPKAN: "Diterapkan", GAGAL: "Gagal" };
@@ -17,14 +18,12 @@ async function ImporPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="page-title text-[24px] sm:text-[28px] text-[var(--foreground)]">
-          Impor Data Master
-        </h1>
-        <p className="mt-1 text-[15px] text-[var(--muted)]">
-          Unggah Unit, Pengguna, atau Pimpinan dari berkas Excel (Bab 15.1).
-        </p>
-      </div>
+      <PageHero
+        compact
+        eyebrow="ADMIN · IMPOR"
+        title="Impor Data Master"
+        description="Unggah Unit, Pengguna, atau Pimpinan dari berkas Excel."
+      />
 
       <ImportForm />
 

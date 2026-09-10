@@ -2,6 +2,7 @@ import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import Link from "next/link";
 import { listAuditEvents, listDistinctAuditEntities } from "@/lib/services/audit";
 import { prisma } from "@/lib/prisma";
+import { PageHero } from "@/components/page-hero";
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", {
   day: "2-digit",
@@ -45,14 +46,12 @@ async function AuditPage({
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="page-title text-[24px] sm:text-[28px] text-[var(--foreground)]">
-          Audit
-        </h1>
-        <p className="mt-1 text-[15px] text-[var(--muted)]">
-          Jejak seluruh tindakan administratif dan pengisian (Bab 21.1). {result.total} peristiwa.
-        </p>
-      </div>
+      <PageHero
+        compact
+        eyebrow="ADMIN · AUDIT"
+        title="Audit"
+        description={`Jejak seluruh tindakan administratif dan pengisian. ${result.total} peristiwa.`}
+      />
 
       <form action="/admin/audit" method="GET" className="grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm sm:grid-cols-4">
         <select name="entity" defaultValue={sp.entity ?? ""} className={fieldClass}>

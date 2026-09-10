@@ -23,7 +23,7 @@ export function FinalizationPanel({
     return (
       <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
         <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
-          Finalisasi (Bab 14)
+          Finalisasi
         </h2>
 
         {preview.blockers.length > 0 && (
@@ -141,7 +141,7 @@ export function FinalizationPanel({
         {status === "FINAL" && (
           <p className="mt-3 text-[12px] text-[var(--muted)]">
             Hasil final tetap dapat ditelusuri sebagai versi terdahulu setelah revisi baru dibuat
-            (Bab 14.3).
+           .
           </p>
         )}
       </div>

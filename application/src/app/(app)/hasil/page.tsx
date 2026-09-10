@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCurrentAuthContext } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
+import { PageHero } from "@/components/page-hero";
 
 export default async function HasilListPage() {
   const ctx = await getCurrentAuthContext();
@@ -34,16 +35,21 @@ export default async function HasilListPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="page-title text-[24px] sm:text-[28px] text-[var(--foreground)]">
-          Hasil &amp; Leaderboard
-        </h1>
-        <p className="mt-1 text-[15px] text-[var(--muted)]">
-          {ctx.isAdmin || ctx.isDekan
+      <PageHero
+        eyebrow={`HASIL · ${categories.length} kategori`}
+        title={
+          <>
+            Hasil &amp;
+            <br />
+            Leaderboard.
+          </>
+        }
+        description={
+          ctx.isAdmin || ctx.isDekan
             ? "Rekap hasil penilaian seluruh fakultas."
-            : "Rekap hasil penilaian pada unit yang Anda pimpin dan subunitnya."}
-        </p>
-      </div>
+            : "Rekap hasil penilaian pada unit yang Anda pimpin dan subunitnya."
+        }
+      />
 
       {categories.length === 0 ? (
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">

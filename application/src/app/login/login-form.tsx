@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { loginAction, type LoginState } from "@/lib/actions/auth";
+import { ThemeButton } from "@/components/theme-button";
 
 const initialState: LoginState = {};
 
@@ -36,13 +37,9 @@ export function LoginForm() {
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="w-full rounded-xl bg-[var(--accent)] px-4 py-3 text-[15px] font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-60"
-      >
+      <ThemeButton type="submit" disabled={isPending} size="lg" className="w-full">
         {isPending ? "Memeriksa…" : "Masuk"}
-      </button>
+      </ThemeButton>
     </form>
   );
 }

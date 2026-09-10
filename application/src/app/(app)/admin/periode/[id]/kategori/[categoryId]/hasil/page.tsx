@@ -115,7 +115,7 @@ async function HasilPage({
         {runs.some((r) => r.status === "GAGAL") && (
           <p className="mt-2 text-[12px] text-[var(--danger)]">
             Ada perhitungan yang pernah gagal. Hasil terakhir yang berhasil tetap dipakai di
-            bawah ini (Bab 21.4).
+            bawah ini.
           </p>
         )}
       </div>

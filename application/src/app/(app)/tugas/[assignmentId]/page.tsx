@@ -4,6 +4,7 @@ import { getAssignmentFormData, computeDisplayStatus } from "@/lib/services/resp
 import { ServiceError } from "@/lib/services/units";
 import { AssignmentForm } from "./assignment-form";
 import { AdminTools } from "./admin-tools";
+import { PageHero } from "@/components/page-hero";
 
 const groupLabel: Record<string, string> = {
   PIMPINAN: "Pimpinan",
@@ -75,16 +76,13 @@ export default async function AssignmentFormPage({
   return (
     <div className="space-y-8">
       <div>
-        <p className="eyebrow">
-          {period.name} &middot; {category.name}
-        </p>
-        <h1 className="mt-1 page-title text-[24px] sm:text-[28px] text-[var(--foreground)]">
-          {assignment.categoryObject.nameSnapshot}
-        </h1>
-        <p className="mt-1 text-[13px] text-[var(--muted)]">
-          {assignment.categoryObject.unitSnapshot}
-        </p>
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px] text-[var(--muted)]">
+        <PageHero
+          compact
+          eyebrow={`${period.name} · ${category.name}`}
+          title={assignment.categoryObject.nameSnapshot}
+          description={assignment.categoryObject.unitSnapshot}
+        />
+        <div className="flex flex-wrap items-center gap-2 text-[13px] text-[var(--muted)]">
           <span className="inline-flex rounded-full bg-[var(--accent-tint)] px-2.5 py-1 font-medium text-[var(--accent)]">
             {groupLabel[assignment.group]}
           </span>

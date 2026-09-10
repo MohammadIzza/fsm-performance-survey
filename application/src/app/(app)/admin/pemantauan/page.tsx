@@ -1,5 +1,6 @@
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import { getMonitoringSummary } from "@/lib/services/monitoring";
+import { PageHero } from "@/components/page-hero";
 
 const statusLabel: Record<string, string> = {
   BELUM_MULAI: "Belum mulai",
@@ -31,14 +32,12 @@ async function PemantauanPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="page-title text-[24px] sm:text-[28px] text-[var(--foreground)]">
-          Pemantauan
-        </h1>
-        <p className="mt-1 text-[15px] text-[var(--muted)]">
-          Ringkasan operasional seluruh fakultas (Bab 21.2).
-        </p>
-      </div>
+      <PageHero
+        compact
+        eyebrow="ADMIN · PEMANTAUAN"
+        title="Pemantauan"
+        description="Ringkasan operasional seluruh fakultas."
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard label="Tingkat pengiriman" value={`${summary.submissionRate.toFixed(1)}%`} />

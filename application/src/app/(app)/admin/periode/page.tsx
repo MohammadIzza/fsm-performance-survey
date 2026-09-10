@@ -2,6 +2,7 @@ import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import Link from "next/link";
 import { listPeriods } from "@/lib/services/periods";
 import { PeriodCreateForm } from "./period-create-form";
+import { PageHero } from "@/components/page-hero";
 
 const statusLabel: Record<string, string> = {
   DRAF: "Draf",
@@ -28,14 +29,12 @@ async function PeriodePage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="page-title text-[24px] sm:text-[28px] text-[var(--foreground)]">
-          Periode
-        </h1>
-        <p className="mt-1 text-[15px] text-[var(--muted)]">
-          Kelola pelaksanaan survei dan siklus hidupnya (Bab 7).
-        </p>
-      </div>
+      <PageHero
+        compact
+        eyebrow="ADMIN · PERIODE"
+        title="Periode"
+        description="Kelola pelaksanaan survei dan siklus hidupnya."
+      />
 
       <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
         <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">

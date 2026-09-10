@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/page-hero";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentAuthContext, getPeriodScope } from "@/lib/authz";
@@ -77,13 +78,13 @@ export default async function Archive({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="page-title text-[24px] sm:text-[28px] text-[var(--foreground)]">
-          Arsip final &middot; revisi {f.revision}
-        </h1>
-        <p className="mt-1 text-[15px] text-[var(--muted)]">
-          {f.period.name} &middot; difinalkan {dateFmt.format(f.finalizedAt)} WIB
-        </p>
-        {f.note && <p className="mt-1 text-[13px] text-[var(--muted)]">Catatan: {f.note}</p>}
+        <PageHero
+          compact
+          eyebrow={`ARSIP FINAL · REVISI ${f.revision}`}
+          title={f.period.name}
+          description={`Difinalkan ${dateFmt.format(f.finalizedAt)} WIB`}
+        />
+        {f.note && <p className="text-[13px] text-[var(--muted)]">Catatan: {f.note}</p>}
       </div>
 
       {f.calculationRuns.map((run) => (

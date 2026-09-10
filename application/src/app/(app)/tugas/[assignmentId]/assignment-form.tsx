@@ -6,6 +6,7 @@ import {
   submitResponseAction,
   type FormState,
 } from "@/lib/actions/responses";
+import { ThemeButton } from "@/components/theme-button";
 
 interface ParameterView {
   id: string;
@@ -103,7 +104,7 @@ function ScoreField({
         disabled={disabled}
         placeholder={`${scale.min}–${scale.max}`}
         onChange={(e) => onChange(e.target.value)}
-        className="tap-target w-20 shrink-0 rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-center text-[15px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 disabled:opacity-60"
+        className="tap-target w-24 shrink-0 rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-center text-[15px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20 disabled:opacity-60"
       />
     </div>
   );
@@ -276,11 +277,11 @@ export function AssignmentForm({
           >
             {draftPending ? "Menyimpan…" : "Simpan draf"}
           </button>
-          <button
+          <ThemeButton
             type="submit"
             formAction={submitAction}
             disabled={draftPending || submitPending}
-            className="tap-target order-2 w-full rounded-xl bg-[var(--accent)] px-4 py-3 text-[15px] font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-60 sm:w-auto sm:py-2 sm:text-[14px]"
+            className="order-2 w-full sm:w-auto"
             onClick={(e) => {
               if (!confirm("Kirim jawaban? Lengkapi seluruh parameter sebelum mengirim.")) {
                 e.preventDefault();
@@ -288,7 +289,7 @@ export function AssignmentForm({
             }}
           >
             {submitPending ? "Mengirim…" : "Kirim jawaban"}
-          </button>
+          </ThemeButton>
           {draftState.savedAt && (
             <span className="order-3 text-center text-[12px] text-[var(--success)] sm:text-left">
               Tersimpan {new Date(draftState.savedAt).toLocaleTimeString("id-ID")}

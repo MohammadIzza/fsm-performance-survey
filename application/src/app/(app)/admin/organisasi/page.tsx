@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { listUnitsWithMeta } from "@/lib/services/units";
 import { OrgTree } from "./org-tree";
 import { UnitManager } from "./unit-manager";
+import { PageHero } from "@/components/page-hero";
 
 async function OrganisasiPage() {
   const [units, activeUsers] = await Promise.all([
@@ -16,14 +17,12 @@ async function OrganisasiPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="page-title text-[24px] sm:text-[28px] text-[var(--foreground)]">
-          Organisasi
-        </h1>
-        <p className="mt-1 text-[15px] text-[var(--muted)]">
-          Kelola pohon unit dan penetapan pimpinan (Bab 5, ORG-01–ORG-07).
-        </p>
-      </div>
+      <PageHero
+        compact
+        eyebrow="ADMIN · ORGANISASI"
+        title="Organisasi"
+        description="Kelola pohon unit dan penetapan pimpinan."
+      />
 
       <div>
         <h2 className="mb-3 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">

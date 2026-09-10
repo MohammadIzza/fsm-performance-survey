@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentAuthContext } from "@/lib/authz";
 import { listMyAssignments, computeDisplayStatus } from "@/lib/services/responses";
 import { AssignmentsList, type AssignmentRow } from "./assignments-list";
-import { ThemeMotion } from "@/components/theme-motion";
+import { PageHero } from "@/components/page-hero";
 
 export default async function TugasSayaPage() {
   const ctx = await getCurrentAuthContext();
@@ -40,37 +40,25 @@ export default async function TugasSayaPage() {
 
   return (
     <div className="space-y-8">
-      <section className="survey-hero">
-        <div>
-          <p className="eyebrow">TUGAS SAYA &middot; {assignments.length} penilaian</p>
-          <h2>
-            {pending.length > 0 ? (
-              <>
-                {pending.length} tugas menanti
-                <br />
-                penilaian Anda.
-              </>
-            ) : (
-              <>
-                Semua tugas
-                <br />
-                sudah terkirim.
-              </>
-            )}
-          </h2>
-          <p>Daftar penilaian yang perlu Anda isi, disaring per periode dan status.</p>
-        </div>
-        <ThemeMotion />
-      </section>
-
-      <div>
-        <h1 className="page-title text-[24px] sm:text-[28px] text-[var(--foreground)]">
-          Tugas Saya
-        </h1>
-        <p className="mt-1 text-[15px] text-[var(--muted)]">
-          Daftar penilaian yang perlu Anda isi.
-        </p>
-      </div>
+      <PageHero
+        eyebrow={`TUGAS SAYA · ${assignments.length} penilaian`}
+        title={
+          pending.length > 0 ? (
+            <>
+              {pending.length} tugas menanti
+              <br />
+              penilaian Anda.
+            </>
+          ) : (
+            <>
+              Semua tugas
+              <br />
+              sudah terkirim.
+            </>
+          )
+        }
+        description="Daftar penilaian yang perlu Anda isi, disaring per periode dan status."
+      />
 
       {pending.length > 0 && isPlainUser && (
         <div className="rounded-2xl border border-[var(--accent)]/30 bg-[var(--accent-tint)] p-4 text-[13px] text-[var(--foreground)]">
