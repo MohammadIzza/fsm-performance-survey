@@ -1,7 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
+import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
+import { StatusPill } from "@/components/theme/status-pill";
+import { Select } from "@/components/theme/form-field";
 
 export interface AssignmentRow {
   id: string;
@@ -27,13 +29,13 @@ const statusLabel: Record<AssignmentRow["displayStatus"], string> = {
   LEWAT_TENGGAT: "Lewat tenggat",
 };
 
-const statusClass: Record<AssignmentRow["displayStatus"], string> = {
-  BELUM_MULAI: "bg-black/5 text-[var(--muted)]",
-  DRAF: "bg-blue-500/10 text-blue-600",
-  TERKIRIM: "bg-[var(--success)]/10 text-[var(--success)]",
-  DIBUKA_KEMBALI: "bg-amber-500/10 text-amber-600",
-  LEWAT_TENGGAT: "bg-[var(--danger)]/10 text-[var(--danger)]",
-};
+const statusTone = {
+  BELUM_MULAI: "netral",
+  DRAF: "proses",
+  TERKIRIM: "selesai",
+  DIBUKA_KEMBALI: "perhatian",
+  LEWAT_TENGGAT: "gagal",
+} as const;
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", { day: "2-digit", month: "short", year: "numeric" });
 
@@ -55,12 +57,12 @@ export function AssignmentsList({ assignments }: { assignments: AssignmentRow[] 
 
   return (
     <>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <select
+      <div className="form" style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
+        <Select
           value={periodId}
           onChange={(e) => setPeriodId(e.target.value)}
           aria-label="Filter periode"
-          className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[14px] text-[var(--foreground)]"
+          style={{ width: "auto", minWidth: "14rem" }}
         >
           <option value="">Semua periode</option>
           {periods.map(([id, name]) => (
@@ -68,12 +70,12 @@ export function AssignmentsList({ assignments }: { assignments: AssignmentRow[] 
               {name}
             </option>
           ))}
-        </select>
-        <select
+        </Select>
+        <Select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
           aria-label="Filter status"
-          className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[14px] text-[var(--foreground)]"
+          style={{ width: "auto", minWidth: "12rem" }}
         >
           <option value="">Semua status</option>
           {Object.entries(statusLabel).map(([value, label]) => (
@@ -81,79 +83,32 @@ export function AssignmentsList({ assignments }: { assignments: AssignmentRow[] 
               {label}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
       {visible.length === 0 ? (
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">
-          <p className="text-[15px] text-[var(--muted)]">Tidak ada tugas yang cocok dengan filter ini.</p>
-        </div>
+        <p className="t-t-md" style={{ color: "var(--color-text)", padding: "2rem 0" }}>
+          Tidak ada tugas yang cocok dengan filter ini.
+        </p>
       ) : (
-        <>
-          {/* Mobile (<md): kartu bertumpuk, seluruh kartu adalah target ketuk agar nyaman
-              dipakai satu tangan — tidak ada tabel sempit yang perlu digulir menyamping. */}
-          <ul className="flex flex-col gap-3 md:hidden">
-            {visible.map((a) => (
-              <li key={a.id}>
-                <Link
-                  href={`/tugas/${a.id}`}
-                  className="block rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm transition active:bg-black/[0.02]"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="text-[15px] font-medium text-[var(--foreground)]">{a.objectName}</p>
-                    <span
-                      className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${statusClass[a.displayStatus]}`}
-                    >
-                      {statusLabel[a.displayStatus]}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-[13px] text-[var(--muted)]">
-                    {a.periodName} &middot; {groupLabel[a.group]}
-                  </p>
-                  <p className="mt-2 text-[12px] text-[var(--muted-2)]">
-                    Tenggat {dateFmt.format(new Date(a.deadline))}
-                  </p>
-                </Link>
-              </li>
-            ))}
-          </ul>
-
-          {/* Desktop (≥md): tabel padat, cocok untuk layar lebar. */}
-          <div className="hidden overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm md:block">
-            <table className="w-full min-w-[720px] text-left text-[14px]">
-              <thead>
-                <tr className="border-b border-[var(--border)] text-[12px] uppercase tracking-wide text-[var(--muted)]">
-                  <th className="px-4 py-3 font-medium">Objek</th>
-                  <th className="px-4 py-3 font-medium">Kategori</th>
-                  <th className="px-4 py-3 font-medium">Kelompok</th>
-                  <th className="px-4 py-3 font-medium">Tenggat</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visible.map((a) => (
-                  <tr key={a.id} className="border-b border-[var(--border)] last:border-b-0">
-                    <td className="px-4 py-3">
-                      <Link href={`/tugas/${a.id}`} className="font-medium text-[var(--accent)] hover:underline">
-                        {a.objectName}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-3 text-[var(--muted)]">{a.periodName}</td>
-                    <td className="px-4 py-3 text-[var(--muted)]">{groupLabel[a.group]}</td>
-                    <td className="px-4 py-3 text-[var(--muted)]">{dateFmt.format(new Date(a.deadline))}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-[12px] font-medium ${statusClass[a.displayStatus]}`}
-                      >
-                        {statusLabel[a.displayStatus]}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
+        // Satu daftar untuk semua lebar layar: baris tema sendiri yang menyusun ulang bidangnya
+        // saat layar menyempit, jadi tidak perlu lagi dua salinan (kartu untuk ponsel, tabel untuk
+        // desktop) yang harus dijaga tetap sama isinya.
+        <DataList>
+          {visible.map((a, i) => (
+            <DataRow key={a.id} href={`/tugas/${a.id}`} accent={i % 2 === 0 ? "green" : "pink"}>
+              <RowTitle accent={i % 2 === 0 ? "green" : "pink"}>{a.objectName}</RowTitle>
+              <RowField kind="dates">{dateFmt.format(new Date(a.deadline))}</RowField>
+              <RowField kind="duration" icon={false}>{groupLabel[a.group]}</RowField>
+              <RowField kind="location" icon={false}>{a.periodName}</RowField>
+              <RowField kind="price">
+                <StatusPill tone={statusTone[a.displayStatus]}>
+                  {statusLabel[a.displayStatus]}
+                </StatusPill>
+              </RowField>
+            </DataRow>
+          ))}
+        </DataList>
       )}
     </>
   );

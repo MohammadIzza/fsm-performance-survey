@@ -1,10 +1,11 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { getAuthContext } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { listMyAssignments, computeDisplayStatus } from "@/lib/services/responses";
 import { PageHero } from "@/components/page-hero";
+import { UspGrid, UspCard } from "@/components/theme/usp-grid";
+import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 
 export default async function HomePage() {
   const session = await getSession();
@@ -70,58 +71,31 @@ export default async function HomePage() {
         description="Kelola tugas, berikan penilaian, dan ikuti perkembangan sesuai peran Anda."
       />
 
-      <p className="text-[15px] text-[var(--muted)]">
-        ID: {ctx.loginIdentifier} &middot; Peran: {roleLabel}
-      </p>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-          <h2 className="text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
-            Lingkup akses
-          </h2>
-          <p className="mt-2 text-[15px] text-[var(--foreground)]">{scopeDescription}</p>
-        </div>
-        <Link
-          href="/tugas"
-          className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm transition hover:border-[var(--border-strong)] active:bg-black/[0.01]"
-        >
-          <h2 className="text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
-            Tugas penilaian
-          </h2>
-          {myAssignments.length === 0 ? (
-            <p className="mt-2 text-[15px] text-[var(--foreground)]">
-              Belum ada tugas penilaian untuk Anda.
-            </p>
-          ) : pendingCount > 0 ? (
-            <p className="mt-2 text-[15px] text-[var(--foreground)]">
-              <span className="font-semibold text-[var(--accent)]">{pendingCount}</span> dari{" "}
-              {myAssignments.length} tugas belum selesai diisi.
-            </p>
-          ) : (
-            <p className="mt-2 text-[15px] text-[var(--success)]">
-              Semua {myAssignments.length} tugas sudah terkirim.
-            </p>
-          )}
-        </Link>
-      </div>
+      <UspGrid
+        title="Ringkasan Anda"
+        intro={`Masuk sebagai ${ctx.loginIdentifier}, dengan peran ${roleLabel}.`}
+      >
+        <UspCard title="Tugas penilaian" tone={pendingCount > 0 ? "kuning" : "tosca"}>
+          {myAssignments.length === 0
+            ? "Belum ada tugas penilaian untuk Anda."
+            : pendingCount > 0
+              ? `${pendingCount} dari ${myAssignments.length} tugas belum selesai diisi.`
+              : `Semua ${myAssignments.length} tugas sudah terkirim.`}
+        </UspCard>
+        <UspCard title="Lingkup akses" tone="biru">
+          {scopeDescription}
+        </UspCard>
+      </UspGrid>
 
       {scopeUnits.length > 0 && (
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-          <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
-            Unit dalam lingkup ({scopeUnits.length})
-          </h2>
-          <ul className="grid gap-2 sm:grid-cols-2">
-            {scopeUnits.map((u) => (
-              <li
-                key={u.code}
-                className="flex items-center justify-between rounded-lg bg-black/[0.02] px-3 py-2 text-[14px]"
-              >
-                <span className="text-[var(--foreground)]">{u.name}</span>
-                <span className="font-mono text-[12px] text-[var(--muted)]">{u.code}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <DataList title="Unit dalam lingkup" intro="Unit yang hasilnya dapat Anda baca.">
+          {scopeUnits.map((u, i) => (
+            <DataRow key={u.code} href="/hasil" accent={i % 2 === 0 ? "green" : "pink"}>
+              <RowTitle accent={i % 2 === 0 ? "green" : "pink"}>{u.name}</RowTitle>
+              <RowField kind="price" icon={false}>{u.code}</RowField>
+            </DataRow>
+          ))}
+        </DataList>
       )}
     </div>
   );

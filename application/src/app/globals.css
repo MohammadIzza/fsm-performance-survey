@@ -289,12 +289,42 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-motion>div {width:32%;height:100%;transform-origin:50% 90%}
 /* Garis pemisah baris daftar digambar tema selebar 100vw dan dipusatkan, supaya di situs publik
    menembus tepi layar. Di ruang survei ada bilah samping, jadi garisnya menyelinap di bawahnya.
-   Dikembalikan selebar barisnya sendiri; tebal, warna, dan posisinya tetap dari tema. */
+   Dikembalikan selebar barisnya sendiri; tebal, warna, dan posisinya tetap dari tema.
+
    Hanya `left`/`width` yang disetel ulang. `transform` pada .sb__background sengaja tidak
    disentuh: di sana ia bukan alat posisi melainkan animasinya sendiri — scaleY(0) saat diam,
-   scaleY(1) saat disorot. Menimpanya akan membuat isian latar terlihat permanen. */
-.survey-shell .sb__link:before {left:0;width:100%;transform:none}
-.survey-shell .sb__background {left:0;width:100%}
+   scaleY(1) saat disorot. Menimpanya akan membuat isian latar terlihat permanen.
+
+   Selektornya sengaja mengulang rantai tema (.s-courses-list .sb-course …) dan bukan sekadar
+   .survey-shell .sb__link — versi pendek itu kalah spesifik dari aturan tema dan tidak pernah
+   berlaku. */
+.survey-shell .s-courses-list .sb-course .sb__link:before,
+.survey-shell .s-bootcamps .sb-bootcamp .sb__link:before {left:0;width:100%;transform:none}
+.survey-shell .s-courses-list .sb-course .sb__background,
+.survey-shell .s-bootcamps .sb-bootcamp .sb__background {left:0;width:100%}
+
+/* Bidang periode/unit di ruang survei berisi nama panjang ("Penilaian Kinerja Semester Ganjil
+   2026"), sedangkan lebar bawaan tema dipas untuk nama kota. Dilebarkan, dan bidang tanggal yang
+   isinya selalu pendek dipersempit sebagai gantinya supaya jumlah totalnya tetap. */
+@media only screen and (min-width: 988px) {
+  .survey-shell .s-courses-list .sb-course .sb__location {width:26%}
+  .survey-shell .s-courses-list .sb-course .sb__dates {width:14%}
+}
+/* Bidang baris tanpa ikon — lihat catatan pada RowField di components/theme/data-list.tsx.
+   Padding kirinya ikut dikembalikan, karena di tema ruang itu memang disediakan untuk ikonnya. */
+.survey-shell .sb__field--no-icon:before {display:none}
+.survey-shell .sb__field--no-icon {padding-left:0}
+
+/* Lencana status: bentuk pil sama seperti tombol tema, huruf dari skala teks terkecil tema.
+   Warna latarnya disetel per-lencana lewat atribut style, dari token brand. */
+.status-pill {
+  display:inline-block;
+  padding:.35em .85em;
+  border-radius:999em;
+  color:var(--color-black);
+  font:600 var(--font-size-t-sm)/1.2 var(--font-family-text);
+  white-space:nowrap;
+}
 .survey-shell aside {background:#f7f7ef;border-right:0}
 .survey-shell aside nav a {border-radius:999px}
 .survey-shell main>div>div.rounded-2xl,.survey-shell section.rounded-2xl {border-radius:24px}

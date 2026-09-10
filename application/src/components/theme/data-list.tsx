@@ -21,18 +21,23 @@ export function DataList({
   title,
   intro,
   headerAction,
+  // Halaman referensi memakai t-h-md karena judulnya memang judul seksi halaman pemasaran setinggi
+  // layar. Di dalam aplikasi judul daftar berdiri di bawah judul halaman, jadi skalanya diturunkan
+  // supaya hierarkinya tetap terbaca — kelasnya tetap kelas skala huruf tema.
+  titleSize = "t-h-3xs",
   children,
 }: {
   title?: ReactNode;
   intro?: ReactNode;
   headerAction?: ReactNode;
+  titleSize?: "t-h-md" | "t-h-sm" | "t-h-xs" | "t-h-2xs" | "t-h-3xs";
   children: ReactNode;
 }) {
   return (
     <div className="s-courses-list s-courses-list--light">
       {title && (
         <div className="s__top js-top">
-          <SectionHeader title={title} intro={intro} size="t-h-sm">
+          <SectionHeader title={title} intro={intro} size={titleSize}>
             {headerAction}
           </SectionHeader>
         </div>
@@ -95,10 +100,20 @@ export function RowTitle({
  */
 export function RowField({
   kind,
+  icon = true,
   children,
 }: {
   kind: "dates" | "duration" | "location" | "price" | "topic";
+  /**
+   * Tiap bidang tema membawa ikonnya sendiri: kalender untuk dates, jam untuk duration, peta untuk
+   * location. Di situs publik ikon itu selalu cocok karena isinya memang tanggal/durasi/kota. Isi
+   * di ruang survei tidak selalu begitu — nama kelompok penilai bukan durasi, nama periode bukan
+   * tempat — dan ikon yang salah lebih mengganggu daripada tidak ada ikon. Matikan di kasus itu.
+   */
+  icon?: boolean;
   children: ReactNode;
 }) {
-  return <span className={`sb__${kind}`}>{children}</span>;
+  return (
+    <span className={`sb__${kind}${icon ? "" : " sb__field--no-icon"}`}>{children}</span>
+  );
 }

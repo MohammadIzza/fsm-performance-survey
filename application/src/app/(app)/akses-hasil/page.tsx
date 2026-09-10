@@ -1,6 +1,7 @@
 import { getCurrentAuthContext } from "@/lib/authz";
 import { listPeriods } from "@/lib/services/periods";
 import { PageHero } from "@/components/page-hero";
+import { Disclosure, DisclosureGroup } from "@/components/theme/disclosure";
 import { AccessPolicyForm } from "../admin/periode/[id]/access-policy-form";
 
 export default async function AccessPage() {
@@ -33,26 +34,27 @@ export default async function AccessPage() {
       />
 
       {periods.length === 0 ? (
-        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">
-          <p className="text-[15px] text-[var(--muted)]">Belum ada periode survei.</p>
-        </div>
+        <p className="t-t-md" style={{ color: "var(--color-text)" }}>
+          Belum ada periode survei.
+        </p>
       ) : (
-        periods.map((p) => (
-          <section
-            key={p.id}
-            className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm"
-          >
-            <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">
-              {p.name}
-            </h2>
-            {p.accessPolicy && (
-              <AccessPolicyForm
-                periodId={p.id}
-                accessPolicy={{ ...p.accessPolicy, changedBy: { name: p.createdBy.name } }}
-              />
-            )}
-          </section>
-        ))
+        <DisclosureGroup>
+          {periods.map((p, i) => (
+            <Disclosure
+              key={p.id}
+              question={p.name}
+              accent={i % 2 === 0 ? "green" : "pink"}
+              defaultOpen={i === 0}
+            >
+              {p.accessPolicy && (
+                <AccessPolicyForm
+                  periodId={p.id}
+                  accessPolicy={{ ...p.accessPolicy, changedBy: { name: p.createdBy.name } }}
+                />
+              )}
+            </Disclosure>
+          ))}
+        </DisclosureGroup>
       )}
     </div>
   );
