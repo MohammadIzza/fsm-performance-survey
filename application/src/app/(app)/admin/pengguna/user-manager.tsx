@@ -1,6 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { DataList, DataRow, RowTitle, RowField, RowActions } from "@/components/theme/data-list";
+import { StatusPill } from "@/components/theme/status-pill";
 import {
   createUserAction,
   updateUserAction,
@@ -167,25 +169,20 @@ export function UserManager({
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
-          <table className="w-full min-w-[860px] text-left text-[14px]">
-            <thead>
-              <tr className="border-b border-[var(--border)] text-[12px] uppercase tracking-wide text-[var(--muted)]">
-                <th className="px-4 py-3 font-medium">Pengguna</th>
-                <th className="px-4 py-3 font-medium">Jenis</th>
-                <th className="px-4 py-3 font-medium">Unit utama</th>
-                <th className="px-4 py-3 font-medium">Peran</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visibleUsers.map((user) => (
+        <DataList
+          columns={[
+            ["title", "Pengguna"],
+            ["duration", "Jenis"],
+            ["location", "Unit utama"],
+            ["topic", "Peran"],
+            ["dates", "Status"],
+            ["price", "Aksi"],
+          ]}
+        >
+          {visibleUsers.map((user) => (
                 <UserRow key={user.id} user={user} userTypes={userTypes} units={units} />
               ))}
-            </tbody>
-          </table>
-        </div>
+        </DataList>
       )}
     </div>
   );
@@ -205,10 +202,64 @@ function UserRow({
   const [updateState, updateFormAction, updatePending] = useActionState(updateUserAction, {});
   const [grantState, grantFormAction, grantPending] = useActionState(grantRoleAction, {});
 
-  if (editing) {
-    return (
-      <tr className="border-b border-[var(--border)] bg-black/[0.015]">
-        <td colSpan={6} className="px-4 py-4">
+  const rowFields = (
+    <>
+      <RowTitle>
+        {user.name}
+        <span className="sb__subtitle">{user.loginIdentifier}</span>
+      </RowTitle>
+      <RowField kind="duration" icon={false}>
+        {user.userType.name}
+      </RowField>
+      <RowField kind="location" icon={false}>
+        {user.primaryUnit ? user.primaryUnit.name : "\u2014"}
+      </RowField>
+      <RowField kind="topic" icon={false}>
+        {user.roleGrants.length === 0 && user.leaderships.length === 0 ? (
+          "Pengguna"
+        ) : (
+          <>
+            {user.roleGrants.map((g) => (
+              <span key={g.id} className="sb__stack">
+                {g.role === "ADMIN" ? "Admin" : "Dekan"}
+              </span>
+            ))}
+            {user.leaderships.map((l) => (
+              <span key={l.id} className="sb__stack">
+                {l.title}
+                <span className="sb__subtitle">{l.unit.code}</span>
+              </span>
+            ))}
+          </>
+        )}
+      </RowField>
+      <RowField kind="dates" icon={false}>
+        <StatusPill tone={user.active ? "selesai" : "netral"}>
+          {user.active ? "Aktif" : "Nonaktif"}
+        </StatusPill>
+      </RowField>
+      <RowActions>
+        <button type="button" onClick={() => setEditing(true)}>
+          Edit
+        </button>
+        <button type="button" onClick={() => setRolesOpen((v) => !v)}>
+          Peran
+        </button>
+        <form action={setUserActiveAction}>
+          <input type="hidden" name="userId" value={user.id} />
+          <input type="hidden" name="active" value={(!user.active).toString()} />
+          <button type="submit">{user.active ? "Nonaktifkan" : "Aktifkan"}</button>
+        </form>
+      </RowActions>
+    </>
+  );
+
+  // Form sunting dan panel peran dulu menempati satu <tr> tambahan ber-colSpan; sekarang jadi
+  // panel di dalam <li> yang sama, dengan barisnya tetap terlihat selama disunting.
+  return (
+    <DataRow
+      panel={
+        editing ? (
           <form action={updateFormAction} className="grid gap-3 sm:grid-cols-4">
             <input type="hidden" name="userId" value={user.id} />
             <input
@@ -269,89 +320,8 @@ function UserRow({
               )}
             </div>
           </form>
-        </td>
-      </tr>
-    );
-  }
-
-  return (
-    <>
-      <tr className="border-b border-[var(--border)] last:border-b-0">
-        <td className="px-4 py-3">
-          <div className="font-medium text-[var(--foreground)]">{user.name}</div>
-          <div className="font-mono text-[12px] text-[var(--muted)]">{user.loginIdentifier}</div>
-        </td>
-        <td className="px-4 py-3 text-[var(--muted)]">{user.userType.name}</td>
-        <td className="px-4 py-3 text-[var(--muted)]">
-          {user.primaryUnit ? `${user.primaryUnit.name}` : "—"}
-        </td>
-        <td className="px-4 py-3">
-          <div className="flex flex-wrap gap-1">
-            {user.roleGrants.map((g) => (
-              <span
-                key={g.id}
-                className="rounded-full bg-[var(--accent)]/10 px-2 py-0.5 text-[11px] font-medium text-[var(--accent)]"
-              >
-                {g.role === "ADMIN" ? "Admin" : "Dekan"}
-              </span>
-            ))}
-            {user.leaderships.map((l) => (
-              <span
-                key={l.id}
-                className="rounded-full bg-black/5 px-2 py-0.5 text-[11px] font-medium text-[var(--muted)]"
-              >
-                {l.title} · {l.unit.code}
-              </span>
-            ))}
-            {user.roleGrants.length === 0 && user.leaderships.length === 0 && (
-              <span className="text-[var(--muted)]">Pengguna</span>
-            )}
-          </div>
-        </td>
-        <td className="px-4 py-3">
-          <span
-            className={`inline-flex rounded-full px-2 py-0.5 text-[12px] font-medium ${
-              user.active
-                ? "bg-[var(--success)]/10 text-[var(--success)]"
-                : "bg-black/5 text-[var(--muted)]"
-            }`}
-          >
-            {user.active ? "Aktif" : "Nonaktif"}
-          </span>
-        </td>
-        <td className="px-4 py-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setEditing(true)}
-              className="text-[13px] font-medium text-[var(--accent)] hover:underline"
-            >
-              Edit
-            </button>
-            <button
-              type="button"
-              onClick={() => setRolesOpen((v) => !v)}
-              className="text-[13px] font-medium text-[var(--accent)] hover:underline"
-            >
-              Peran
-            </button>
-            <form action={setUserActiveAction}>
-              <input type="hidden" name="userId" value={user.id} />
-              <input type="hidden" name="active" value={(!user.active).toString()} />
-              <button
-                type="submit"
-                className="text-[13px] font-medium text-[var(--muted)] hover:text-[var(--danger)] hover:underline"
-              >
-                {user.active ? "Nonaktifkan" : "Aktifkan"}
-              </button>
-            </form>
-          </div>
-        </td>
-      </tr>
-      {rolesOpen && (
-        <tr className="border-b border-[var(--border)] bg-black/[0.015]">
-          <td colSpan={6} className="px-4 py-4">
-            <div className="space-y-3">
+        ) : rolesOpen ? (
+          <div className="space-y-3">
               {user.roleGrants.length > 0 && (
                 <ul className="flex flex-wrap gap-2">
                   {user.roleGrants.map((g) => (
@@ -403,9 +373,10 @@ function UserRow({
                 )}
               </form>
             </div>
-          </td>
-        </tr>
-      )}
-    </>
+        ) : null
+      }
+    >
+      {rowFields}
+    </DataRow>
   );
 }

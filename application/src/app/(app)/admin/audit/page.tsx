@@ -3,6 +3,7 @@ import Link from "next/link";
 import { listAuditEvents, listDistinctAuditEntities } from "@/lib/services/audit";
 import { prisma } from "@/lib/prisma";
 import { PageHero } from "@/components/page-hero";
+import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", {
   day: "2-digit",
@@ -82,42 +83,41 @@ async function AuditPage({
         </div>
       </form>
 
-      <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
-        <table className="w-full min-w-[860px] text-left text-[13px]">
-          <thead>
-            <tr className="border-b border-[var(--border)] text-[11px] uppercase tracking-wide text-[var(--muted)]">
-              <th className="px-4 py-3 font-medium">Waktu</th>
-              <th className="px-4 py-3 font-medium">Pelaku</th>
-              <th className="px-4 py-3 font-medium">Tindakan</th>
-              <th className="px-4 py-3 font-medium">Objek</th>
-              <th className="px-4 py-3 font-medium">Alasan</th>
-            </tr>
-          </thead>
-          <tbody>
-            {result.events.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-4 py-6 text-center text-[var(--muted)]">
-                  Tidak ada peristiwa yang cocok dengan filter.
-                </td>
-              </tr>
-            )}
-            {result.events.map((e) => (
-              <tr key={e.id} className="border-b border-[var(--border)] last:border-b-0">
-                <td className="px-4 py-3 text-[var(--muted)]">
-                  <span className="date-range__part">{dateFmt.format(e.createdAt)}</span>
-                </td>
-                <td className="px-4 py-3 text-[var(--foreground)]">{e.actorName}</td>
-                <td className="px-4 py-3 font-mono text-[12px] text-[var(--foreground)]">{e.action}</td>
-                <td className="px-4 py-3 text-[var(--muted)]">
+      {result.events.length === 0 ? (
+        <p className="t-t-md" style={{ color: "var(--color-text)" }}>
+          Tidak ada peristiwa yang cocok dengan filter.
+        </p>
+      ) : (
+        <DataList
+          columns={[
+            ["title", "Tindakan"],
+            ["dates", "Waktu"],
+            ["duration", "Pelaku"],
+            ["location", "Alasan"],
+          ]}
+        >
+          {result.events.map((e) => (
+            <DataRow key={e.id}>
+              <RowTitle>
+                {e.action}
+                <span className="sb__subtitle">
                   {e.entity}
-                  {e.entityId && <span className="font-mono text-[11px]"> #{e.entityId.slice(0, 8)}</span>}
-                </td>
-                <td className="px-4 py-3 text-[var(--muted)]">{e.reason ?? "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  {e.entityId && ` #${e.entityId.slice(0, 8)}`}
+                </span>
+              </RowTitle>
+              <RowField kind="dates" icon={false}>
+                <span className="date-range__part">{dateFmt.format(e.createdAt)}</span>
+              </RowField>
+              <RowField kind="duration" icon={false}>
+                {e.actorName}
+              </RowField>
+              <RowField kind="location" icon={false}>
+                {e.reason ?? "—"}
+              </RowField>
+            </DataRow>
+          ))}
+        </DataList>
+      )}
 
       {result.totalPages > 1 && (
         <div className="flex items-center justify-center gap-3 text-[13px]">

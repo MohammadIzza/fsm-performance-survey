@@ -1,6 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { DataList, DataRow, RowTitle, RowField, RowActions } from "@/components/theme/data-list";
+import { StatusPill } from "@/components/theme/status-pill";
 import { createUnitAction, updateUnitAction, setUnitActiveAction } from "@/lib/actions/admin-units";
 import { assignLeadershipAction, endLeadershipAction } from "@/lib/actions/admin-leadership";
 import type { listUnitsWithMeta } from "@/lib/services/units";
@@ -72,29 +74,19 @@ export function UnitManager({
         </form>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
-        <table className="w-full min-w-[720px] text-left text-[14px]">
-          <thead>
-            <tr className="border-b border-[var(--border)] text-[12px] uppercase tracking-wide text-[var(--muted)]">
-              <th className="px-4 py-3 font-medium">Unit</th>
-              <th className="px-4 py-3 font-medium">Induk</th>
-              <th className="px-4 py-3 font-medium">Pimpinan aktif</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {units.map((unit) => (
-              <UnitRow
-                key={unit.id}
-                unit={unit}
-                allUnits={units}
-                activeUsers={activeUsers}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataList
+        columns={[
+          ["title", "Unit"],
+          ["duration", "Induk"],
+          ["location", "Pimpinan aktif"],
+          ["topic", "Status"],
+          ["price", "Aksi"],
+        ]}
+      >
+        {units.map((unit) => (
+          <UnitRow key={unit.id} unit={unit} allUnits={units} activeUsers={activeUsers} />
+        ))}
+      </DataList>
     </div>
   );
 }
@@ -116,10 +108,57 @@ function UnitRow({
   const parent = allUnits.find((u) => u.id === unit.parentId);
   const parentOptions = allUnits.filter((u) => u.id !== unit.id && u.active);
 
-  if (editing) {
-    return (
-      <tr className="border-b border-[var(--border)] bg-black/[0.015] align-top">
-        <td colSpan={5} className="px-4 py-4">
+  const rowFields = (
+    <>
+      <RowTitle>
+        {unit.name}
+        <span className="sb__subtitle">{unit.code}</span>
+      </RowTitle>
+      <RowField kind="duration" icon={false}>
+        {parent ? parent.name : "\u2014"}
+      </RowField>
+      <RowField kind="location" icon={false}>
+        {unit.currentLeaders.length === 0 ? (
+          "Belum ada pimpinan"
+        ) : (
+          <>
+            {unit.currentLeaders.map((l) => (
+              <span key={l.id} className="sb__stack">
+                {l.user.name}
+                <span className="sb__subtitle">{l.title}</span>
+              </span>
+            ))}
+          </>
+        )}
+      </RowField>
+      <RowField kind="topic" icon={false}>
+        <StatusPill tone={unit.active ? "selesai" : "netral"}>
+          {unit.active ? "Aktif" : "Nonaktif"}
+        </StatusPill>
+      </RowField>
+      <RowActions>
+        <button type="button" onClick={() => setEditing(true)}>
+          Edit
+        </button>
+        <button type="button" onClick={() => setLeadershipOpen((v) => !v)}>
+          Pimpinan
+        </button>
+        <form action={setUnitActiveAction}>
+          <input type="hidden" name="unitId" value={unit.id} />
+          <input type="hidden" name="active" value={(!unit.active).toString()} />
+          <button type="submit">{unit.active ? "Nonaktifkan" : "Aktifkan"}</button>
+        </form>
+      </RowActions>
+    </>
+  );
+
+  // Form sunting dan panel pimpinan dulu menempati satu <tr> tambahan ber-colSpan di bawah
+  // barisnya. Sekarang keduanya jadi panel di dalam <li> yang sama; barisnya tetap terlihat
+  // selama disunting, jadi jelas unit mana yang sedang diubah.
+  return (
+    <DataRow
+      panel={
+        editing ? (
           <form action={updateFormAction} className="grid gap-3 sm:grid-cols-4">
             <input type="hidden" name="unitId" value={unit.id} />
             <input
@@ -168,77 +207,8 @@ function UnitRow({
               )}
             </div>
           </form>
-        </td>
-      </tr>
-    );
-  }
-
-  return (
-    <>
-      <tr className="border-b border-[var(--border)] last:border-b-0">
-        <td className="px-4 py-3">
-          <div className="font-medium text-[var(--foreground)]">{unit.name}</div>
-          <div className="font-mono text-[12px] text-[var(--muted)]">{unit.code}</div>
-        </td>
-        <td className="px-4 py-3 text-[var(--muted)]">{parent ? parent.name : "—"}</td>
-        <td className="px-4 py-3">
-          {unit.currentLeaders.length === 0 ? (
-            <span className="text-[var(--muted)]">Belum ada pimpinan</span>
-          ) : (
-            <ul className="space-y-0.5">
-              {unit.currentLeaders.map((l) => (
-                <li key={l.id} className="text-[var(--foreground)]">
-                  {l.user.name}{" "}
-                  <span className="text-[12px] text-[var(--muted)]">— {l.title}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </td>
-        <td className="px-4 py-3">
-          <span
-            className={`inline-flex rounded-full px-2 py-0.5 text-[12px] font-medium ${
-              unit.active
-                ? "bg-[var(--success)]/10 text-[var(--success)]"
-                : "bg-black/5 text-[var(--muted)]"
-            }`}
-          >
-            {unit.active ? "Aktif" : "Nonaktif"}
-          </span>
-        </td>
-        <td className="px-4 py-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setEditing(true)}
-              className="text-[13px] font-medium text-[var(--accent)] hover:underline"
-            >
-              Edit
-            </button>
-            <button
-              type="button"
-              onClick={() => setLeadershipOpen((v) => !v)}
-              className="text-[13px] font-medium text-[var(--accent)] hover:underline"
-            >
-              Pimpinan
-            </button>
-            <form action={setUnitActiveAction}>
-              <input type="hidden" name="unitId" value={unit.id} />
-              <input type="hidden" name="active" value={(!unit.active).toString()} />
-              <button
-                type="submit"
-                className="text-[13px] font-medium text-[var(--muted)] hover:text-[var(--danger)] hover:underline"
-              >
-                {unit.active ? "Nonaktifkan" : "Aktifkan"}
-              </button>
-            </form>
-          </div>
-        </td>
-      </tr>
-      {leadershipOpen && (
-        <tr className="border-b border-[var(--border)] bg-black/[0.015]">
-          <td colSpan={5} className="px-4 py-4">
-            <div className="space-y-4">
+        ) : leadershipOpen ? (
+          <div className="space-y-4">
               {unit.leaderships.length > 0 && (
                 <ul className="space-y-1.5">
                   {unit.leaderships.map((l) => {
@@ -320,9 +290,10 @@ function UnitRow({
                 )}
               </form>
             </div>
-          </td>
-        </tr>
-      )}
-    </>
+        ) : null
+      }
+    >
+      {rowFields}
+    </DataRow>
   );
 }

@@ -84,15 +84,23 @@ export function DataList({
  */
 export function DataRow({
   href,
+  panel,
   children,
 }: {
   href?: string;
+  /**
+   * Isi yang terbuka di bawah barisnya, selebar baris — dipakai daftar admin untuk form sunting
+   * dan panel pimpinan yang dulu menempati satu <tr> tambahan ber-colSpan. Tetap di dalam <li>
+   * yang sama supaya urutan bacanya benar: baris, lalu panel miliknya, baru baris berikutnya.
+   */
+  panel?: ReactNode;
   children: ReactNode;
 }) {
   if (!href) {
     return (
       <li className="s__course sb-course sb-course--static">
         <div className="sb__link">{children}</div>
+        {panel && <div className="sb__panel">{panel}</div>}
       </li>
     );
   }

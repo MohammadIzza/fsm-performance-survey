@@ -1,6 +1,8 @@
 "use client";
 
 import { useActionState, useMemo, useState } from "react";
+import { DataList, DataRow, RowTitle, RowField, RowActions } from "@/components/theme/data-list";
+import { StatusPill } from "@/components/theme/status-pill";
 import {
   createObjectAction,
   updateObjectAction,
@@ -124,20 +126,17 @@ export function ObjectManager({
           </p>
         </div>
       ) : (
-      <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
-        <table className="w-full min-w-[860px] text-left text-[14px]">
-          <thead>
-            <tr className="border-b border-[var(--border)] text-[12px] uppercase tracking-wide text-[var(--muted)]">
-              <th className="px-4 py-3 font-medium">Objek</th>
-              <th className="px-4 py-3 font-medium">Jenis</th>
-              <th className="px-4 py-3 font-medium">Unit pemilik</th>
-              <th className="px-4 py-3 font-medium">Penanggung jawab</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visibleObjects.map((obj) => (
+      <DataList
+        columns={[
+          ["title", "Objek"],
+          ["duration", "Jenis"],
+          ["location", "Unit pemilik"],
+          ["topic", "Penanggung jawab"],
+          ["dates", "Status"],
+          ["price", "Aksi"],
+        ]}
+      >
+        {visibleObjects.map((obj) => (
               <ObjectRow
                 key={obj.id}
                 object={obj}
@@ -146,9 +145,7 @@ export function ObjectManager({
                 users={users}
               />
             ))}
-          </tbody>
-        </table>
-      </div>
+      </DataList>
       )}
     </div>
   );
@@ -167,10 +164,12 @@ function ObjectRow({
 }) {
   const [editing, setEditing] = useState(false);
 
-  if (editing) {
-    return (
-      <tr className="border-b border-[var(--border)] bg-black/[0.015]">
-        <td colSpan={6} className="px-4 py-4">
+  // Form sunting dulu menempati satu <tr> tambahan ber-colSpan di bawah barisnya; sekarang jadi
+  // panel di dalam <li> yang sama, dengan barisnya tetap terlihat selama disunting.
+  return (
+    <DataRow
+      panel={
+        editing ? (
           <ObjectForm
             action={updateObjectAction}
             objectTypes={objectTypes}
@@ -180,64 +179,48 @@ function ObjectRow({
             defaultValues={object}
             onCancel={() => setEditing(false)}
           />
-        </td>
-      </tr>
-    );
-  }
-
-  return (
-    <tr className="border-b border-[var(--border)] last:border-b-0">
-      <td className="px-4 py-3">
-        <div className="font-medium text-[var(--foreground)]">{object.name}</div>
+        ) : null
+      }
+    >
+      <RowTitle>
+        {object.name}
         {object.url && (
           <a
             href={object.url}
             target="_blank"
             rel="noreferrer"
-            className="text-[12px] text-[var(--accent)] hover:underline"
+            className="sb__subtitle"
+            style={{ color: "var(--color-brand-3)" }}
           >
             Tautan
           </a>
         )}
-      </td>
-      <td className="px-4 py-3 text-[var(--muted)]">{object.type.name}</td>
-      <td className="px-4 py-3 text-[var(--muted)]">{object.ownerUnit.name}</td>
-      <td className="px-4 py-3 text-[var(--muted)]">
-        {object.responsibleUser ? object.responsibleUser.name : "—"}
-      </td>
-      <td className="px-4 py-3">
-        <span
-          className={`inline-flex rounded-full px-2 py-0.5 text-[12px] font-medium ${
-            object.active
-              ? "bg-[var(--success)]/10 text-[var(--success)]"
-              : "bg-black/5 text-[var(--muted)]"
-          }`}
-        >
+      </RowTitle>
+      <RowField kind="duration" icon={false}>
+        {object.type.name}
+      </RowField>
+      <RowField kind="location" icon={false}>
+        {object.ownerUnit.name}
+      </RowField>
+      <RowField kind="topic" icon={false}>
+        {object.responsibleUser ? object.responsibleUser.name : "\u2014"}
+      </RowField>
+      <RowField kind="dates" icon={false}>
+        <StatusPill tone={object.active ? "selesai" : "netral"}>
           {object.active ? "Aktif" : "Nonaktif"}
-        </span>
-      </td>
-      <td className="px-4 py-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            className="text-[13px] font-medium text-[var(--accent)] hover:underline"
-          >
-            Edit
-          </button>
-          <form action={setObjectActiveAction}>
-            <input type="hidden" name="objectId" value={object.id} />
-            <input type="hidden" name="active" value={(!object.active).toString()} />
-            <button
-              type="submit"
-              className="text-[13px] font-medium text-[var(--muted)] hover:text-[var(--danger)] hover:underline"
-            >
-              {object.active ? "Nonaktifkan" : "Aktifkan"}
-            </button>
-          </form>
-        </div>
-      </td>
-    </tr>
+        </StatusPill>
+      </RowField>
+      <RowActions>
+        <button type="button" onClick={() => setEditing(true)}>
+          Edit
+        </button>
+        <form action={setObjectActiveAction}>
+          <input type="hidden" name="objectId" value={object.id} />
+          <input type="hidden" name="active" value={(!object.active).toString()} />
+          <button type="submit">{object.active ? "Nonaktifkan" : "Aktifkan"}</button>
+        </form>
+      </RowActions>
+    </DataRow>
   );
 }
 

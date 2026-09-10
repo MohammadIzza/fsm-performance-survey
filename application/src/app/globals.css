@@ -324,20 +324,29 @@ input[type="range"]:disabled::-moz-range-thumb {
 @media only screen and (min-width: 988px) {
   .survey-shell .s-courses-list .sb-course {font-size:.75rem}
   .survey-shell .s-courses-list .sb-course .sb__link {gap:1.5rem}
-  .survey-shell .s-courses-list .sb-course .sb__title {width:26%}
+  .survey-shell .s-courses-list .sb-course .sb__title {width:24%}
   .survey-shell .s-courses-list .sb-course .sb__dates {width:16%}
   .survey-shell .s-courses-list .sb-course .sb__duration {width:12%}
-  .survey-shell .s-courses-list .sb-course .sb__location {width:21%}
-  .survey-shell .s-courses-list .sb-course .sb__price {width:16%;text-align:right}
+  .survey-shell .s-courses-list .sb-course .sb__location {width:17%}
+  .survey-shell .s-courses-list .sb-course .sb__price {width:20%;text-align:right}
 }
 
 /* Rentang tanggal: tiap tanggal dijaga utuh, putusnya hanya boleh di antara keduanya — lihat
    catatan pada DateRange di components/theme/date-range.tsx. */
 .date-range__part {white-space:nowrap}
 
+/* Beberapa nilai bertumpuk dalam satu bidang (mis. dua pimpinan aktif pada satu unit). */
+.survey-shell .sb__stack {display:block}
+.survey-shell .sb__stack + .sb__stack {margin-top:.4em}
+
+/* Panel yang terbuka di bawah sebuah baris (form sunting, daftar pimpinan). Diberi latar sedikit
+   berbeda supaya terbaca sebagai milik baris di atasnya, bukan baris baru. */
+.survey-shell .sb__panel {padding:0 0 1.25rem;background:var(--color-beige-dark)}
+.survey-shell .sb__panel > * {padding:1.25rem}
+
 /* Kolom aksi di baris daftar: aksinya berjajar mendatar, rata kanan seperti kolom terakhir
    lainnya, dan tidak membungkus jadi dua baris. */
-.survey-shell .sb__actions {display:flex;flex-wrap:wrap;justify-content:flex-end;gap:.35rem .9rem}
+.survey-shell .sb__actions {display:flex;flex-wrap:nowrap;justify-content:flex-end;gap:.9rem}
 .survey-shell .sb__actions a,
 .survey-shell .sb__actions button {color:var(--color-brand-3);font-weight:600;white-space:nowrap}
 .survey-shell .sb__actions a:hover,

@@ -2,14 +2,16 @@ import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import { listImportBatches } from "@/lib/services/imports";
 import { ImportForm } from "./import-form";
 import { PageHero } from "@/components/page-hero";
+import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
+import { StatusPill } from "@/components/theme/status-pill";
 
 const entityLabel: Record<string, string> = { UNIT: "Unit", PENGGUNA: "Pengguna", PIMPINAN: "Pimpinan" };
 const statusLabel: Record<string, string> = { PREVIEW: "Pratinjau", DITERAPKAN: "Diterapkan", GAGAL: "Gagal" };
-const statusClass: Record<string, string> = {
-  DITERAPKAN: "bg-[var(--success)]/10 text-[var(--success)]",
-  GAGAL: "bg-[var(--danger)]/10 text-[var(--danger)]",
-  PREVIEW: "bg-black/5 text-[var(--muted)]",
-};
+const statusTone = {
+  DITERAPKAN: "selesai",
+  GAGAL: "gagal",
+  PREVIEW: "netral",
+} as const;
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
@@ -27,56 +29,55 @@ async function ImporPage() {
 
       <ImportForm />
 
-      <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-sm">
-        <table className="w-full min-w-[720px] text-left text-[13px]">
-          <thead>
-            <tr className="border-b border-[var(--border)] text-[11px] uppercase tracking-wide text-[var(--muted)]">
-              <th className="px-4 py-3 font-medium">Waktu</th>
-              <th className="px-4 py-3 font-medium">Jenis</th>
-              <th className="px-4 py-3 font-medium">Berkas</th>
-              <th className="px-4 py-3 font-medium">Pelaku</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Ringkasan</th>
-            </tr>
-          </thead>
-          <tbody>
-            {batches.length === 0 && (
-              <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-[var(--muted)]">
-                  Belum ada riwayat impor.
-                </td>
-              </tr>
-            )}
-            {batches.map((b) => {
-              const summary = b.summary as { totalRows: number; toCreate: number; toUpdate: number } | null;
-              const rowErrors = b.rowErrors as { row: number; message: string }[] | null;
-              return (
-                <tr key={b.id} className="border-b border-[var(--border)] last:border-b-0 align-top">
-                  <td className="px-4 py-3 text-[var(--muted)]">
+      {batches.length === 0 ? (
+        <p className="t-t-md" style={{ color: "var(--color-text)" }}>
+          Belum ada riwayat impor.
+        </p>
+      ) : (
+        <DataList
+          columns={[
+            ["title", "Berkas"],
+            ["dates", "Waktu"],
+            ["duration", "Pelaku"],
+            ["location", "Ringkasan"],
+            ["price", "Status"],
+          ]}
+        >
+          {batches.map((b) => {
+            const summary = b.summary as { totalRows: number; toCreate: number; toUpdate: number } | null;
+            const rowErrors = b.rowErrors as { row: number; message: string }[] | null;
+            return (
+              <DataRow key={b.id}>
+                <RowTitle>
+                  {entityLabel[b.entity]}
+                  <span className="sb__subtitle">{b.fileName}</span>
+                </RowTitle>
+                <RowField kind="dates" icon={false}>
                   <span className="date-range__part">{dateFmt.format(b.createdAt)}</span>
-                </td>
-                  <td className="px-4 py-3 text-[var(--foreground)]">{entityLabel[b.entity]}</td>
-                  <td className="px-4 py-3 font-mono text-[12px] text-[var(--muted)]">{b.fileName}</td>
-                  <td className="px-4 py-3 text-[var(--muted)]">{b.appliedBy.name}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium ${statusClass[b.status]}`}>
-                      {statusLabel[b.status]}
+                </RowField>
+                <RowField kind="duration" icon={false}>
+                  {b.appliedBy.name}
+                </RowField>
+                <RowField kind="location" icon={false}>
+                  {summary
+                    ? `${summary.totalRows} baris (${summary.toCreate} baru, ${summary.toUpdate} diperbarui)`
+                    : "—"}
+                  {rowErrors && rowErrors.length > 0 && (
+                    <span className="sb__subtitle" style={{ color: "var(--color-brand-1)" }}>
+                      {rowErrors.length} baris bermasalah
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-[var(--muted)]">
-                    {summary && `${summary.totalRows} baris (${summary.toCreate} baru, ${summary.toUpdate} diperbarui)`}
-                    {rowErrors && rowErrors.length > 0 && (
-                      <div className="mt-1 text-[11px] text-[var(--danger)]">
-                        {rowErrors.length} baris bermasalah
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                  )}
+                </RowField>
+                <RowField kind="price" icon={false}>
+                  <StatusPill tone={statusTone[b.status as keyof typeof statusTone]}>
+                    {statusLabel[b.status]}
+                  </StatusPill>
+                </RowField>
+              </DataRow>
+            );
+          })}
+        </DataList>
+      )}
     </div>
   );
 }
