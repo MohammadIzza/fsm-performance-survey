@@ -16,6 +16,17 @@ APP_ROOT=/home/restart/survey-fsm
 APP_DIR="$APP_ROOT/application"
 DEPLOY_DIR="$APP_DIR/deploy"
 NODE_BIN=/home/restart/.local/lib/survey-runtime/node_modules/.bin
+# Node khusus build. Node sistem di mesin ini adalah 20.x dari repositori NodeSource, sedangkan
+# Astro 7 menolak jalan di bawah 22.12 — `astro check` berhenti sebelum apa pun dibangun. Node 22
+# TIDAK dipasang sebagai Node sistem karena mesin ini juga menjalankan layanan Node milik proyek
+# lain (kkn-wujil, survei-fsm lama, dan beberapa proses PM2); menaikkan /usr/bin/node akan ikut
+# mengubah runtime mereka semua sekaligus. Runtime terpisah ini hanya aktif ketika dipanggil lewat
+# PATH di bawah, jadi tidak ada layanan lain yang tersentuh.
+#
+# Kalau direktori ini hilang (mesin baru / dibersihkan), pasang ulang dengan:
+#   curl -fsSL https://nodejs.org/dist/v22.21.1/node-v22.21.1-linux-x64.tar.xz \
+#     | tar -xJ -C /opt/node22 --strip-components=1   # buat direktorinya dulu
+NODE22_BIN=/opt/node22/bin
 DOMAIN=fsm.heyizza.my.id
 # Port aplikasi (3930) sudah tertanam di deploy/fsm-survei.service (bukan di-template dari sini) —
 # ubah di SANA juga kalau nilainya diganti. NGINX_PORT di bawah dipakai skrip ini untuk verifikasi
@@ -24,6 +35,11 @@ NGINX_PORT=8094
 
 if [ "$(id -u)" -ne 0 ]; then
   echo "Jalankan sebagai root (sudo bash $0)." >&2
+  exit 1
+fi
+
+if [ ! -x "$NODE22_BIN/node" ]; then
+  echo "GAGAL: Node 22 untuk build tidak ada di $NODE22_BIN — lihat catatan di kepala skrip ini." >&2
   exit 1
 fi
 
@@ -46,10 +62,10 @@ echo "== 2/8: Build aplikasi (Astro + Next) =="
 # Dijalankan sebagai user restart (BUKAN root) — build harus dijalankan oleh pemilik berkas
 # ($APP_ROOT dimiliki restart:restart), kalau tidak .next/dist hasil build akan dimiliki root dan
 # tidak bisa ditulis ulang/dibaca oleh proses fsm-survei.service yang jalan sebagai restart.
-su - restart -c "export PATH=$NODE_BIN:\$PATH && cd $APP_ROOT && npm run build:all"
+su - restart -c "export PATH=$NODE22_BIN:$NODE_BIN:\$PATH && cd $APP_ROOT && npm run build:all"
 
 echo "== 3/8: Uji layanan sebelum deploy (jangan lanjut kalau ada yang gagal) =="
-su - restart -c "export PATH=$NODE_BIN:\$PATH && cd $APP_DIR && npx tsc --noEmit && npm run test:all" | tail -20
+su - restart -c "export PATH=$NODE22_BIN:$NODE_BIN:\$PATH && cd $APP_DIR && npx tsc --noEmit && npm run test:all" | tail -20
 
 echo "== 4/8: Systemd — aplikasi Next.js =="
 cp "$DEPLOY_DIR/fsm-survei.service" /etc/systemd/system/fsm-survei.service
