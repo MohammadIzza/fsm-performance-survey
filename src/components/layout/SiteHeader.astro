@@ -233,4 +233,21 @@ const dropdown = [genai, data];
       display: none;
     }
   }
+  /* Bar navigasi mobile bawaan tema: pil putih melebar hampir sepanjang layar
+     berisi cuma logo kecil + tombol menu bulat 3rem — sisa ruang kosong di
+     tengah membuatnya terlihat kebesaran. Kecilkan tombolnya dan beri jarak
+     tepi sedikit lebih longgar supaya pilnya tidak menempel ujung layar. */
+  @media only screen and (max-width: 576px) {
+    :global(.site-head) {
+      right: 0.75rem !important;
+      left: 0.75rem !important;
+    }
+    :global(.site-head__inner) {
+      padding-left: 1rem !important;
+    }
+    :global(.site-head .s__toggle) {
+      width: 2.5rem !important;
+      height: 2.5rem !important;
+    }
+  }
 </style>

@@ -52,3 +52,25 @@ const isBootcamp = session.kind === 'bootcamp';
     <span class="sb__background" aria-hidden="true"></span>
   </a>
 </li>
+
+<style>
+  /* Di layar sempit, tema aslinya memasang tiap field (judul/tanggal/lokasi/dst.)
+     berdampingan 50/50 atau 60/40 — cukup untuk teks pendek bawaan tema, tapi nama
+     kategori/unit di sini lebih panjang ("Dies FSM UNDIP 2026", "Fakultas Sains dan
+     Matematika") sehingga terpotong-potong di tengah kata. Susun satu kolom penuh
+     saja di lebar ini supaya tidak ada lagi pemotongan kata yang janggal. */
+  @media only screen and (max-width: 576px) {
+    :global(.sb-bootcamp) :global(.sb__title),
+    :global(.sb-bootcamp) :global(.sb__city),
+    :global(.sb-bootcamp) :global(.sb__dates),
+    :global(.sb-bootcamp) :global(.sb__topic),
+    :global(.sb-course) :global(.sb__title),
+    :global(.sb-course) :global(.sb__dates),
+    :global(.sb-course) :global(.sb__duration),
+    :global(.sb-course) :global(.sb__location),
+    :global(.sb-course) :global(.sb__price) {
+      width: 100% !important;
+      margin-left: 0 !important;
+    }
+  }
+</style>
