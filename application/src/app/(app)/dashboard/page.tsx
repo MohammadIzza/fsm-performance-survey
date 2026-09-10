@@ -97,8 +97,8 @@ export default async function HomePage() {
             ]}
           >
           {scopeUnits.map((u, i) => (
-            <DataRow key={u.code} href="/hasil" accent={i % 2 === 0 ? "green" : "pink"}>
-              <RowTitle accent={i % 2 === 0 ? "green" : "pink"}>{u.name}</RowTitle>
+            <DataRow key={u.code} href="/hasil">
+              <RowTitle>{u.name}</RowTitle>
               <RowField kind="price" icon={false}>{u.code}</RowField>
             </DataRow>
           ))}

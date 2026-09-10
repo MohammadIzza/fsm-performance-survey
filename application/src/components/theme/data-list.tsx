@@ -14,9 +14,6 @@ import { SectionHeader } from "./section-header";
  * teks — persis masalah yang sudah pernah muncul di layar sempit.
  */
 
-/** Warna titik penanda di depan judul baris; ketiganya varian bawaan tema. */
-type Accent = "green" | "pink" | "blue";
-
 /** Bidang baris tema, berurutan seperti dipakai halaman referensi. */
 export type RowKind = "title" | "topic" | "dates" | "duration" | "location" | "price";
 
@@ -76,11 +73,9 @@ export function DataList({
 
 export function DataRow({
   href,
-  accent = "green",
   children,
 }: {
   href: string;
-  accent?: Accent;
   children: ReactNode;
 }) {
   return (
@@ -101,23 +96,16 @@ export function DataRow({
   );
 }
 
-/** Bidang pertama sebuah baris: bertitik penanda dan paling lebar (25% di layar lebar). */
-export function RowTitle({
-  children,
-  accent = "green",
-}: {
-  children: ReactNode;
-  accent?: Accent;
-}) {
-  return (
-    <span className="sb__title">
-      <span
-        className={`a-bullet-point a-bullet-point--outline a-bullet-point--${accent}`}
-        aria-hidden="true"
-      />
-      {children}
-    </span>
-  );
+/**
+ * Bidang pertama sebuah baris, dan yang paling lebar.
+ *
+ * Tanpa titik penanda, berbeda dari baris di beranda. Di sana titik itu menandai satu kategori
+ * dalam daftar pilihan yang pendek; di sini barisnya adalah baris data dalam tabel yang bisa
+ * berisi puluhan entri, dan titik berwarna di tiap baris hanya jadi bising tanpa menyampaikan
+ * apa pun. Beranda tetap memakainya — komponen ini hanya dipakai di ruang survei.
+ */
+export function RowTitle({ children }: { children: ReactNode }) {
+  return <span className="sb__title">{children}</span>;
 }
 
 /**

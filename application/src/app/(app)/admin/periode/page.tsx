@@ -62,9 +62,8 @@ async function PeriodePage() {
             <DataRow
               key={p.id}
               href={`/admin/periode/${p.id}`}
-              accent={i % 2 === 0 ? "green" : "pink"}
             >
-              <RowTitle accent={i % 2 === 0 ? "green" : "pink"}>
+              <RowTitle>
                 {p.name}
                 <span className="sb__subtitle">{p.code}</span>
               </RowTitle>

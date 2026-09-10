@@ -104,8 +104,8 @@ export function AssignmentsList({ assignments }: { assignments: AssignmentRow[] 
           ]}
         >
           {visible.map((a, i) => (
-            <DataRow key={a.id} href={`/tugas/${a.id}`} accent={i % 2 === 0 ? "green" : "pink"}>
-              <RowTitle accent={i % 2 === 0 ? "green" : "pink"}>{a.objectName}</RowTitle>
+            <DataRow key={a.id} href={`/tugas/${a.id}`}>
+              <RowTitle>{a.objectName}</RowTitle>
               <RowField kind="dates">{dateFmt.format(new Date(a.deadline))}</RowField>
               <RowField kind="duration" icon={false}>{groupLabel[a.group]}</RowField>
               <RowField kind="location" icon={false}>{a.periodName}</RowField>

@@ -322,7 +322,7 @@ input[type="range"]:disabled::-moz-range-thumb {
    pemasaran, terlalu besar untuk daftar kerja yang isinya puluhan baris. Padding dan ikonnya ikut
    mengecil karena semuanya dinyatakan dalam em. */
 @media only screen and (min-width: 988px) {
-  .survey-shell .s-courses-list .sb-course {font-size:.8125rem}
+  .survey-shell .s-courses-list .sb-course {font-size:.75rem}
   .survey-shell .s-courses-list .sb-course .sb__link {gap:1.5rem}
   .survey-shell .s-courses-list .sb-course .sb__title {width:26%}
   .survey-shell .s-courses-list .sb-course .sb__dates {width:16%}
@@ -447,7 +447,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell main table {
   width:100%;
   border-collapse:collapse;
-  font:400 var(--font-size-t-sm)/1.4 var(--font-family-text);
+  font:400 .75rem/1.45 var(--font-family-text);
 }
 .survey-shell main thead th {
   padding:.9em 1em;
@@ -461,7 +461,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 /* Aksi di dalam sel (Edit, Peran, Nonaktifkan) memang aksi tersier, jadi dibiarkan berupa tautan
    teks seperti aslinya — hanya warnanya disamakan dengan warna tautan tema. */
 .survey-shell main td button:not(.btn-plain),
-.survey-shell main td a {color:var(--color-brand-3)}
+.survey-shell main td a {color:var(--color-brand-3);font-size:.75rem}
 .survey-shell main tbody tr:last-child td {border-bottom:0}
 .survey-shell main tbody tr:hover {background:var(--color-beige-dark)}
 

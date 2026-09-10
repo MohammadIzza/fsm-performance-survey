@@ -45,14 +45,14 @@ export default async function KomponenPage() {
           intro="Daftar penilaian yang perlu Anda isi."
           headerAction={<ThemeButton size="sm">Unduh Excel</ThemeButton>}
         >
-          <DataRow href="/komponen" accent="green">
-            <RowTitle accent="green">Dr. Dosen Matematika B</RowTitle>
+          <DataRow href="/komponen">
+            <RowTitle>Dr. Dosen Matematika B</RowTitle>
             <RowField kind="dates">31 Agu 2026</RowField>
             <RowField kind="duration">Selain Pimpinan</RowField>
             <RowField kind="location">Departemen Matematika</RowField>
           </DataRow>
-          <DataRow href="/komponen" accent="pink">
-            <RowTitle accent="pink">Dr. Dosen Fisika A</RowTitle>
+          <DataRow href="/komponen">
+            <RowTitle>Dr. Dosen Fisika A</RowTitle>
             <RowField kind="dates">31 Agu 2026</RowField>
             <RowField kind="duration">Pimpinan</RowField>
             <RowField kind="location">Departemen Fisika</RowField>
@@ -87,7 +87,7 @@ export default async function KomponenPage() {
             Draf tidak pernah ikut dihitung. Selama periode masih aktif, draf boleh disimpan berapa
             kali pun dan baru berlaku setelah dikirim.
           </Disclosure>
-          <Disclosure question="Bisakah jawaban diubah setelah dikirim?" accent="pink">
+          <Disclosure question="Bisakah jawaban diubah setelah dikirim?">
             Bisa, bila admin membuka kembali tugas tersebut. Jawaban lama tetap tersimpan sampai
             revisi baru dikirim.
           </Disclosure>
