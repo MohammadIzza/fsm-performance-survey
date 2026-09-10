@@ -5,17 +5,24 @@
  * tombol, dan kelas tipografi (.t-h-*, .u-container) di ruang survei benar-benar berasal dari
  * sumber yang sama, bukan tiruan bernilai mirip.
  *
- * Tiga berkas yang dipakai, bukan seluruhnya:
- *   base.css     — token warna/huruf/jarak dan normalize
+ * Empat berkas yang dipakai, bukan seluruhnya:
+ *   base.css     — token warna/huruf/jarak, sistem grid kolom, dan normalize
  *   elements.css — tipografi dasar dan kelas .t-*, .u-container
  *   blocks.css   — komponen mandiri seperti .btn-plain dan .form
- * sections.css/shell.css/layouts.css sengaja dilewati: isinya tata letak satu halaman penuh dan
- * kerangka situs publik yang menyetel posisi lewat runtime GSAP/Luge; tanpa runtime itu sebagian
- * elemennya berawal transparan, dan runtime-nya sendiri mengambil alih pengguliran serta transisi
- * halaman sehingga bentrok dengan perutean Next.js. */
+ *   sections.css — susunan seksi: .s-courses-list/.sb-course (daftar data), .s-usps (kartu),
+ *                  .s-faq/.sb-question (panel buka-tutup), .s__header (judul seksi)
+ *
+ * shell.css dan layouts.css sengaja dilewati: keduanya kerangka situs publik (kepala, kaki,
+ * pemuat halaman, tata letak per-halaman pemasaran) yang tidak dipakai ruang survei.
+ *
+ * Runtime GSAP/Luge-nya sendiri TIDAK dijalankan — ia mengambil alih pengguliran dan transisi
+ * halaman, sehingga bentrok dengan perutean sisi klien Next.js. Satu-satunya bagian runtime yang
+ * benar-benar dibutuhkan agar isi halaman terlihat adalah pemasang kelas `.is-in`; itu digantikan
+ * oleh RevealOnScroll (components/reveal-on-scroll.tsx), lihat catatan di sana. */
 @import "../styles/theme/base.css";
 @import "../styles/theme/elements.css";
 @import "../styles/theme/blocks.css";
+@import "../styles/theme/sections.css";
 
 /* Shared visual language from the repository's original Nod theme. */
 @font-face {font-family:HeyWow;src:url('/assets/fonts/HeyWow-Book.woff2') format('woff2');font-weight:400;font-display:swap}
@@ -53,6 +60,16 @@
   --font-mono: var(--font-app-mono);
 }
 
+
+/* Beberapa aturan di sections.css memposisikan judul lewat
+   `translate3d(0, calc((1 - min(var(--smooth-progress) * 1, 1)) * 100%), 0)`. Di situs publik
+   --smooth-progress ditulis terus-menerus oleh Luge mengikuti posisi gulir. Tanpa runtime itu
+   var()-nya tak terdefinisi, seluruh nilai transform jadi tidak sah, dan properti itu jatuh ke
+   `none` — kebetulan benar, tapi lewat jalur "nilai rusak". Disetel 1 supaya perhitungannya
+   selesai secara sah di posisi akhir (0%), bukan bergantung pada penanganan galat. */
+:root {
+  --smooth-progress: 1;
+}
 
 body {
   background: var(--background);
@@ -270,10 +287,39 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-hero--compact p {margin-top:8px;max-width:620px}
 .survey-motion {display:flex;align-items:center;justify-content:center;gap:8px;width:260px;min-width:160px;height:160px}
 .survey-motion>div {width:32%;height:100%;transform-origin:50% 90%}
+/* Garis pemisah baris daftar digambar tema selebar 100vw dan dipusatkan, supaya di situs publik
+   menembus tepi layar. Di ruang survei ada bilah samping, jadi garisnya menyelinap di bawahnya.
+   Dikembalikan selebar barisnya sendiri; tebal, warna, dan posisinya tetap dari tema. */
+   Hanya `left`/`width` yang disetel ulang. `transform` pada .sb__background sengaja tidak
+   disentuh: di sana ia bukan alat posisi melainkan animasinya sendiri — scaleY(0) saat diam,
+   scaleY(1) saat disorot. Menimpanya akan membuat isian latar terlihat permanen. */
+.survey-shell .sb__link:before {left:0;width:100%;transform:none}
+.survey-shell .sb__background {left:0;width:100%}
 .survey-shell aside {background:#f7f7ef;border-right:0}
 .survey-shell aside nav a {border-radius:999px}
 .survey-shell main>div>div.rounded-2xl,.survey-shell section.rounded-2xl {border-radius:24px}
 .survey-shell main {max-width:1240px}
+/* Sistem kolom tema menghitung lebarnya dari 100vw, karena di situs publik isi halaman memang
+   selebar layar. Ruang survei punya bilah samping ~300px, jadi rumus itu menghasilkan kolom yang
+   lebih lebar daripada area isinya — kartu meluber. Rumusnya tidak diganti, hanya disuapi lebar
+   yang benar: 100% di sini berarti lebar area isi, karena persen pada `width` diselesaikan
+   terhadap blok penampung elemen yang memakainya. Dipakai satuan `cqw` — 1% lebar area isi —
+   bukan persen biasa: tema memakai --card-width untuk menghitung --card-height juga, dan persen
+   pada `height` diselesaikan terhadap TINGGI penampung yang di sini tak tentu, sehingga kartunya
+   jadi setinggi nol. `cqw` adalah panjang sungguhan, jadi rumus tinggi tetap sah.
+
+   Turunannya ikut dinyatakan ulang: --grid-column-width dan --grid-gutter-width sudah selesai
+   dihitung di :root memakai --grid-width milik :root, dan nilai yang sudah jadi itulah yang
+   diwariskan ke bawah — mengganti --grid-width saja di sini tidak membuat keduanya dihitung ulang. */
+.survey-shell main {
+  container-type: inline-size;
+  --grid-width: min(
+    calc(100cqw - var(--container-offset)),
+    calc(var(--container-max-width) - var(--container-offset))
+  );
+  --grid-column-width: calc(var(--grid-width) * var(--grid-column-abs-width));
+  --grid-gutter-width: calc(var(--grid-width) * var(--grid-gutter-abs-width));
+}
 .survey-login {display:grid;grid-template-columns:1.12fr 1fr;min-height:calc(100svh - 86px)}
 .survey-login-art {background:#ffd37d;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:60px 8%;position:relative;overflow:hidden}
 .survey-login-art h1 {font-size:clamp(48px,6.3vw,94px);line-height:.98;letter-spacing:-.06em;font-weight:600;z-index:1}
