@@ -277,6 +277,13 @@ input[type="range"]:disabled::-moz-range-thumb {
 .btn-plain:hover .btn-plain__arrow {transform:translate3d(0,0,0)}
 .survey-header {background:var(--color-beige);border-bottom:1px solid var(--color-grey-2);
   padding:1.1rem 4vw;display:flex;align-items:center;justify-content:space-between;gap:1.5rem}
+/* Di bawah 987px tema membesarkan menunya jadi 2,1rem karena di situs publik menu itu pindah ke
+   overlay selebar layar. Kepala situs di ruang survei tetap mendatar di tempatnya, jadi ukurannya
+   dikunci — tanpa ini tautannya raksasa dan menimpa lambang. Sama seperti .site-head__menu--stack
+   pada sidebar. */
+.survey-header .site-head__menu {
+  flex-direction:row;align-items:center;font-size:var(--font-size-t-sm);
+}
 .survey-header__logo a {display:flex;align-items:center;gap:1rem}
 .survey-header__logo img {width:140px;height:auto}
 .survey-header__logo .s__logo__label {border-left:1px solid var(--color-grey-2);padding-left:1rem;
@@ -335,12 +342,45 @@ input[type="range"]:disabled::-moz-range-thumb {
 
 /* Kartu ringkasan versi pendek untuk layar admin — lihat catatan `compact` pada UspGrid.
    Hanya rasio tingginya yang diganti; lebar, warna, dan jaraknya tetap dari tema. */
-.survey-shell .s-usps--compact {--card-ratio:.4}
+/* Jarak atas dihapus: `main` sudah memberi padding, dan --section-spacing-sm milik tema diukur
+   untuk jarak antar-seksi halaman panjang, bukan untuk blok pertama di bawah kepala halaman. */
+.survey-shell .s-usps--compact {--card-ratio:.4;margin-top:0}
+/* Isi kartu dirapatkan ke atas seperti judul, bukan direntangkan atas-bawah. Tema memakai
+   `space-between` dengan padding 17% karena kartunya tinggi dan isinya sedikit; pada kartu pendek
+   pola itu menyisakan lubang di tengah sekaligus mendorong barisnya terakhir keluar kotak — itu
+   yang membuat teksnya terpotong. Tingginya juga dilepas jadi `auto` dengan batas bawah, supaya
+   kartu memanjang mengikuti teks alih-alih memotongnya. */
+.survey-shell .s-usps--compact .sb-usp {height:auto;min-height:var(--card-height)}
+.survey-shell .s-usps--compact .sb__content {
+  position:relative;justify-content:flex-start;gap:.4rem;padding:1.4rem 1.5rem;
+}
+.survey-shell .s-usps--compact .s__header {height:auto;min-height:var(--card-height)}
+.survey-shell .s-usps--compact .s__header-content {
+  justify-content:flex-start;gap:.5rem;padding:1.4rem 1.5rem;
+}
+/* Pengantar di blok judul membawa margin atas 1,67em dari tema — jarak yang pas di kartu tinggi,
+   tapi pada kartu pendek justru mendorong barisnya keluar kotak sehingga terpotong. Jaraknya
+   diambil alih `gap` di atas. */
+.survey-shell .s-usps--compact .s__intro {margin:0;font-size:.8125rem;max-width:none}
+/* Judul di blok putih dikecilkan sedikit dari skala tema: pada kartu pendek, judul dua baris
+   ditambah pengantar dua-tiga baris tidak muat, dan yang terpotong justru pengantarnya. */
+.survey-shell .s-usps--compact .s__title {max-width:none;font-size:1.55rem;line-height:1.08}
 @media only screen and (max-width: 987px) {
-  .survey-shell .s-usps--compact {--card-ratio:.55}
+  .survey-shell .s-usps--compact {--card-ratio:.3}
 }
 @media only screen and (max-width: 576px) {
-  .survey-shell .s-usps--compact {--card-ratio:.6}
+  /* Kartu selebar layar: tingginya dibiarkan mengikuti isi saja, karena rasio apa pun pada lebar
+     penuh menghasilkan kotak yang jauh lebih tinggi daripada teks di dalamnya. */
+  .survey-shell .s-usps--compact {--card-ratio:0}
+}
+/* Di layar sempit blok judul berhenti jadi kotak putih yang mengisi slot pertama petak dan kembali
+   jadi judul biasa di atas kartu. Sebagai kotak, tinggi dan padding persennya diukur terhadap lebar
+   layar penuh, sehingga judul pendek mengambang di tengah ruang kosong setinggi ratusan piksel. */
+@media only screen and (max-width: 767px) {
+  .survey-shell .s-usps--compact .s__header {
+    position:static;width:auto;height:auto;min-height:0;background:none;margin:0 0 1.25rem;
+  }
+  .survey-shell .s-usps--compact .s__header-content {padding:0}
 }
 
 /* Baris penyaring — lihat catatan pada FilterBar di components/theme/filter-bar.tsx. Rata kiri
@@ -558,10 +598,6 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-side {background:var(--color-beige);border-right:1px solid var(--color-grey-2);
   padding:1.5rem 1.25rem;gap:1.5rem}
 .survey-side--drawer {border-right:0;padding-top:4.5rem}
-.survey-side__logo {padding-bottom:.25rem}
-.survey-side__logo a {display:flex;align-items:center;gap:.7rem}
-.survey-side__logo .s__logo__label {border-left:1px solid var(--color-grey-2);padding-left:.7rem;
-  font:400 .625rem/1.35 var(--font-family-text);color:var(--color-text)}
 .survey-side__nav {flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:.35rem}
 .survey-side__section {margin:1.25rem 0 .35rem;padding-left:1.4rem}
 
@@ -588,7 +624,8 @@ input[type="range"]:disabled::-moz-range-thumb {
     justify-content:space-between;gap:.75rem;padding:.6rem 1rem;background:var(--color-beige);
     border-bottom:1px solid var(--color-grey-2)}
 }
-.survey-side__bar-brand {display:flex;align-items:center}
+.survey-side__bar-brand {display:flex;align-items:center;
+  font:600 var(--font-size-t-sm)/1 var(--font-family-text);color:var(--color-black)}
 .survey-side__toggle {position:relative;width:2.75rem;height:2.75rem;flex:0 0 2.75rem;
   background-color:var(--color-brand-5);border:0;border-radius:50%;cursor:pointer}
 .survey-side__toggle .s__toggle__lines {position:absolute;inset:0}
@@ -637,10 +674,13 @@ input[type="range"]:disabled::-moz-range-thumb {
 @media(max-width:768px){.survey-header nav{gap:12px;font-size:12px}.survey-brand small{display:none}.survey-login{grid-template-columns:1fr}.survey-login-art{padding:40px 24px}.survey-login-art h1{font-size:54px}.survey-login-art .survey-motion{height:130px;margin:0}.survey-login-form{padding:40px 24px}.survey-hero{padding:24px;min-height:150px}.survey-hero .survey-motion{width:100px;min-width:80px;height:100px}.survey-header{padding:18px 24px}}
 /* Layar sempit: tiga tautan di kepala situs masih membungkus jadi dua baris dan membuat kepala
    setinggi dua kali. Dirapatkan, dan label terpanjang dipendekkan lewat jarak antar-kata. */
-@media(max-width:480px){
- .survey-header {padding:14px 16px;gap:12px}
- .survey-header img {width:104px}
- .survey-header nav {gap:10px;font-size:11px;flex-wrap:nowrap}
- .survey-header nav a {white-space:nowrap}
+@media(max-width:640px){
+ .survey-header {padding:12px 16px;gap:10px;flex-wrap:wrap}
+ .survey-header__logo img {width:96px}
+ .survey-header__logo .s__logo__label {display:none}
+ .survey-header .site-head__menu {gap:0;font-size:.6875rem}
+ .survey-header .site-head__menu .menu-item {margin:0 1rem 0 0}
+ .survey-header .site-head__menu .menu-item:last-child {margin-right:0}
+ .survey-header .site-head__menu .menu-link {padding:.25em 0;white-space:nowrap}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

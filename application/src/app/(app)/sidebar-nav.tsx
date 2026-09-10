@@ -77,19 +77,6 @@ export function SidebarNav({
 
   const navContent = (
     <>
-      {/* Lambang yang sama dengan kepala situs publik. Nama fakultasnya tidak diulang di sini —
-          kepala situs di atas sudah memuatnya, dan di lebar sidebar teks itu membungkus empat
-          baris. */}
-      <div className="s__logo survey-side__logo">
-        <Link href="/dashboard">
-          <img
-            src="/assets/images/hero-home-undip.svg"
-            alt="Survei Penilaian FSM UNDIP"
-            width="120"
-            height="26"
-          />
-        </Link>
-      </div>
 
       <nav className="survey-side__nav">
         {menu(mainLinks)}
@@ -126,13 +113,10 @@ export function SidebarNav({
       {/* Mobile (<lg): top bar ringkas + hamburger yang membuka drawer. Tombolnya memakai bentuk
           dan warna tombol menu tema (.s__toggle): bulat, brand-5, dua garis. */}
       <div className="survey-side__bar lg:hidden">
+        {/* Bukan lambang lagi: kepala situs tepat di atas bilah ini sudah memuatnya, dan dua
+            lambang beruntun hanya jadi pengulangan. */}
         <Link href="/dashboard" className="survey-side__bar-brand">
-          <img
-            src="/assets/images/hero-home-undip.svg"
-            alt="Survei Penilaian FSM UNDIP"
-            width="96"
-            height="21"
-          />
+          Ruang Survei
         </Link>
         <button
           type="button"

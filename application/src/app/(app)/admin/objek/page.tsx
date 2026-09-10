@@ -19,7 +19,7 @@ async function ObjekPage() {
 
   return (
     <div className="space-y-8">
-      <UspGrid as="h1" compact title="Objek Penilaian" intro="Master objek yang dapat dinilai — Orang, Unit, Karya, atau jenis lain. Objek ini kemudian dipilih sebagai peserta di masing-masing kategori.">
+      <UspGrid as="h1" compact title="Objek Penilaian" intro="Master objek yang dapat dinilai, lalu dipilih sebagai peserta kategori.">
         <UspCard title="Objek terdaftar" tone="kuning">
           {objects.length} objek siap dipilih jadi peserta kategori.
         </UspCard>
