@@ -1,0 +1,159 @@
+<section class="s-leaderboard-preview" data-lg-reveal>
+  <div class="u-container">
+    <h2 class="s__title t-h-4xl">Seperti Apa Hasilnya?</h2>
+    <p class="s__intro t-t-sm">
+      Dua kelompok penilai selalu dihitung dan diranking terpisah, tidak
+      pernah dicampur jadi satu angka. Contoh tampilan di bawah ini, bukan
+      data sungguhan.
+    </p>
+    <div class="lb-groups">
+      <div class="lb-card">
+        <div class="lb-card__head">
+          <span class="lb-card__badge lb-card__badge--pink">Pimpinan</span>
+        </div>
+        <ol class="lb-list">
+          <li class="lb-row">
+            <span class="lb-rank lb-rank--1">1</span>
+            <span class="lb-name">Dosen A</span>
+            <span class="lb-score">92.5</span>
+          </li>
+          <li class="lb-row">
+            <span class="lb-rank lb-rank--2">2</span>
+            <span class="lb-name">Dosen B</span>
+            <span class="lb-score">88.0</span>
+          </li>
+          <li class="lb-row">
+            <span class="lb-rank lb-rank--3">3</span>
+            <span class="lb-name">Dosen C</span>
+            <span class="lb-score">85.3</span>
+          </li>
+        </ol>
+      </div>
+      <div class="lb-card">
+        <div class="lb-card__head">
+          <span class="lb-card__badge lb-card__badge--blue">Selain Pimpinan</span>
+        </div>
+        <ol class="lb-list">
+          <li class="lb-row">
+            <span class="lb-rank lb-rank--1">1</span>
+            <span class="lb-name">Dosen D</span>
+            <span class="lb-score">94.1</span>
+          </li>
+          <li class="lb-row">
+            <span class="lb-rank lb-rank--2">2</span>
+            <span class="lb-name">Dosen E</span>
+            <span class="lb-score">90.7</span>
+          </li>
+          <li class="lb-row">
+            <span class="lb-rank lb-rank--3">3</span>
+            <span class="lb-name">Dosen F</span>
+            <span class="lb-score">87.2</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+    <a class="lb-cta" href="/alur-penilaian/">Lihat cara hasil dihitung →</a>
+  </div>
+</section>
+
+<style>
+  .s-leaderboard-preview {
+    padding-block: clamp(2.5rem, 5vw, 4.5rem);
+  }
+  .s-leaderboard-preview .s__intro {
+    max-width: 40rem;
+    margin-top: 0.75rem;
+    color: var(--color-text);
+  }
+  .lb-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  .lb-card {
+    background: var(--color-white);
+    border: 1px solid var(--color-grey-2);
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+  }
+  .lb-card__head {
+    margin-bottom: 1rem;
+  }
+  .lb-card__badge {
+    display: inline-flex;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    padding: 0.3rem 0.85rem;
+    border-radius: 999px;
+  }
+  .lb-card__badge--pink {
+    background: color-mix(in srgb, var(--color-brand-7) 55%, white);
+    color: var(--color-black);
+  }
+  .lb-card__badge--blue {
+    background: color-mix(in srgb, var(--color-brand-3) 16%, white);
+    color: var(--color-brand-3);
+  }
+  .lb-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .lb-row {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.85rem;
+    background: var(--color-beige);
+  }
+  .lb-rank {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.85rem;
+    height: 1.85rem;
+    flex-shrink: 0;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--color-white);
+    background: var(--color-grey-1);
+  }
+  .lb-rank--1 {
+    background: var(--color-brand-2);
+    color: var(--color-black);
+  }
+  .lb-rank--2 {
+    background: var(--color-grey-2);
+    color: var(--color-black);
+  }
+  .lb-rank--3 {
+    background: var(--color-brand-6);
+    color: var(--color-black);
+  }
+  .lb-name {
+    flex: 1;
+    font-weight: 500;
+    color: var(--color-heading);
+  }
+  .lb-score {
+    font-weight: 700;
+    color: var(--color-heading);
+    font-variant-numeric: tabular-nums;
+  }
+  .lb-cta {
+    display: inline-flex;
+    margin-top: 1.75rem;
+    font-weight: 600;
+    color: var(--color-brand-3);
+    text-decoration: none;
+  }
+  .lb-cta:hover {
+    text-decoration: underline;
+  }
+</style>
