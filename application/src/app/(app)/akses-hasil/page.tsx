@@ -1,8 +1,8 @@
 import { getCurrentAuthContext } from "@/lib/authz";
 import { listPeriods } from "@/lib/services/periods";
 import { PageHero } from "@/components/page-hero";
-import { Disclosure, DisclosureGroup } from "@/components/theme/disclosure";
-import { AccessPolicyForm } from "../admin/periode/[id]/access-policy-form";
+import { DataList } from "@/components/theme/data-list";
+import { AccessPolicyRow } from "./access-policy-row";
 
 export default async function AccessPage() {
   const ctx = await getCurrentAuthContext();
@@ -38,23 +38,31 @@ export default async function AccessPage() {
           Belum ada periode survei.
         </p>
       ) : (
-        <DisclosureGroup>
-          {periods.map((p, i) => (
-            <Disclosure
+        <DataList
+          columns={[
+            ["title", "Periode"],
+            ["duration", "Kebijakan"],
+            ["location", "Waktu tertentu"],
+            ["dates", "Status"],
+            ["price", "Aksi"],
+          ]}
+        >
+          {periods.map((p) => (
+            <AccessPolicyRow
               key={p.id}
-              question={p.name}
-              accent={i % 2 === 0 ? "green" : "pink"}
-              defaultOpen={i === 0}
-            >
-              {p.accessPolicy && (
-                <AccessPolicyForm
-                  periodId={p.id}
-                  accessPolicy={{ ...p.accessPolicy, changedBy: { name: p.createdBy.name } }}
-                />
-              )}
-            </Disclosure>
+              period={{
+                id: p.id,
+                name: p.name,
+                code: p.code,
+                status: p.status,
+                createdByName: p.createdBy.name,
+                accessPolicy: p.accessPolicy
+                  ? { ...p.accessPolicy, changedBy: { name: p.createdBy.name } }
+                  : null,
+              }}
+            />
           ))}
-        </DisclosureGroup>
+        </DataList>
       )}
     </div>
   );
