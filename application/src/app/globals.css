@@ -162,6 +162,23 @@ button[type=submit] {border-radius:999px;min-height:44px}
 button:disabled {cursor:wait}
 .page-title {font-size:clamp(30px,3.5vw,48px);font-weight:600;letter-spacing:-.045em;line-height:1.12}
 main h2 {letter-spacing:-.025em}
+
+/* Poles global supaya halaman aplikasi (tabel, filter, kartu) terasa satu keluarga dengan
+   home page — bentuk lebih bulat, ada umpan balik hover, bukan cuma elemen form bawaan browser. */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23625b58' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9em center;
+  padding-right: 2.25em !important;
+  border-radius: 999px !important;
+}
+table tbody tr {
+  transition: background-color 150ms;
+}
+table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.018);
+}
 .survey-header {background:#f7f7ef;border-bottom:1px solid #dedcd4;padding:20px 4vw;display:flex;align-items:center;justify-content:space-between;gap:24px}
 .survey-header img {width:140px;height:auto}
 .survey-header nav {display:flex;gap:24px;align-items:center;font-size:15px}
