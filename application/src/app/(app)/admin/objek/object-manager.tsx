@@ -4,6 +4,7 @@ import { useActionState, useMemo, useState } from "react";
 import { DataList, DataRow, RowTitle, RowField, RowActions } from "@/components/theme/data-list";
 import { StatusPill } from "@/components/theme/status-pill";
 import { FilterBar, FilterField } from "@/components/theme/filter-bar";
+import { TextInput } from "@/components/theme/form-field";
 import {
   createObjectAction,
   updateObjectAction,
@@ -113,7 +114,7 @@ export function ObjectManager({
 
       <FilterBar>
         <FilterField label="Cari objek" htmlFor="cari-objek" wide>
-          <input
+          <TextInput
             id="cari-objek"
             type="search"
             value={search}

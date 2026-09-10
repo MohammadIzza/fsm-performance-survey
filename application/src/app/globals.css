@@ -208,11 +208,9 @@ main h2 {letter-spacing:-.025em}
    home page — bentuk lebih bulat, ada umpan balik hover, bukan cuma elemen form bawaan browser. */
 select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23625b58' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.9em center;
-  padding-right: 2.25em !important;
-  border-radius: 999px !important;
+  background: url('/assets/images/arrow-select.png') calc(100% - 0.9rem) 50%/0.3333rem 0.302rem
+    no-repeat;
+  padding-right: 2.25em;
 }
 table tbody tr {
   transition: background-color 150ms;
@@ -342,7 +340,7 @@ input[type="range"]:disabled::-moz-range-thumb {
    kali lebar "Objek tindakan" dan barisnya terlihat acak. */
 .survey-shell .filter-bar__field {display:flex;flex-direction:column;gap:.35rem;
   flex:1 1 12rem;max-width:16rem}
-.survey-shell .filter-bar__field--wide {flex:1 1 22rem}
+.survey-shell .filter-bar__field--wide {flex:1 1 22rem;max-width:34rem}
 .survey-shell .filter-bar__label {
   font-size:.6875rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
   color:var(--color-text);
@@ -350,6 +348,13 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell .filter-bar input,
 .survey-shell .filter-bar select {width:100%}
 .survey-shell .filter-bar__action {display:flex;align-items:flex-end}
+/* Kolom tanggal pada penyaring memakai ikon kalender yang sama dengan kolom tanggal di daftar
+   (/assets/images/icon-date.svg), mengikuti cara tema menaruh ikon di dalam kontrol — lihat
+   `.form select.form__control[name='bootcamp']` di blocks.css. */
+.survey-shell .filter-bar input[type="date"] {
+  padding-left: 2.4em;
+  background: url('/assets/images/icon-date.svg') 0.9em 50%/0.8em 0.8em no-repeat;
+}
 
 /* Beberapa nilai bertumpuk dalam satu bidang (mis. dua pimpinan aktif pada satu unit). */
 .survey-shell .sb__stack {display:block}
@@ -436,15 +441,19 @@ input[type="range"]:disabled::-moz-range-thumb {
   box-shadow: none;
 }
 
-.survey-shell main input[type="text"],
-.survey-shell main input[type="number"],
-.survey-shell main input[type="search"],
-.survey-shell main input[type="email"],
-.survey-shell main input[type="date"],
-.survey-shell main input[type="datetime-local"],
-.survey-shell main input[type="password"],
-.survey-shell main select,
-.survey-shell main textarea {
+/* `:not(.form__control)` di tiap selektor: kolom isian yang memakai kelas tema dibiarkan sepenuhnya
+   diatur blocks.css — tinggi, tebal garis, radius, warna teks bantu, keadaan fokus, sampai gambar
+   panahnya (/assets/images/arrow-select.png). Tanpa pengecualian ini aturan di sini lebih spesifik
+   dan menimpanya, sehingga yang berlaku justru nilai yang ditulis ulang di berkas ini. */
+.survey-shell main input[type="text"]:not(.form__control),
+.survey-shell main input[type="number"]:not(.form__control),
+.survey-shell main input[type="search"]:not(.form__control),
+.survey-shell main input[type="email"]:not(.form__control),
+.survey-shell main input[type="date"]:not(.form__control),
+.survey-shell main input[type="datetime-local"]:not(.form__control),
+.survey-shell main input[type="password"]:not(.form__control),
+.survey-shell main select:not(.form__control),
+.survey-shell main textarea:not(.form__control) {
   font:600 var(--font-size-t-sm)/1 var(--font-family-t-sm);
   padding:.8em 1em;
   background:var(--color-white);
@@ -454,12 +463,12 @@ input[type="range"]:disabled::-moz-range-thumb {
   transition:border-color .07s linear;
 }
 .survey-shell main textarea {line-height:1.46}
-.survey-shell main input:focus,
-.survey-shell main select:focus,
-.survey-shell main textarea:focus {border-color:var(--color-brand-5);outline:none}
+.survey-shell main input:not(.form__control):focus,
+.survey-shell main select:not(.form__control):focus,
+.survey-shell main textarea:not(.form__control):focus {border-color:var(--color-brand-5);outline:none}
 /* Select tetap memakai anak panah kustom yang sudah ada di berkas ini, jadi ruang kanannya
    dipertahankan; radius pilnya diganti radius kotak tema supaya sebentuk dengan kolom isian. */
-.survey-shell main select {border-radius:.5em !important}
+.survey-shell main select:not(.form__control) {border-radius:.5em}
 
 /* Tombol sekunder di layar admin (Batal, Unduh, dan sejenisnya). Bentuk pil dan huruf sama dengan
    tombol tema; latarnya dibiarkan kosong supaya tetap terbaca sebagai aksi kedua di samping tombol

@@ -35,9 +35,12 @@ export function FilterBar({
     </>
   );
 
-  if (!submitLabel) return <div className="filter-bar">{content}</div>;
+  // Kelas `form` bukan hiasan: aturan tema untuk kontrol isian ditulis sebagai
+  // `.form select.form__control` dan `.form textarea.form__control`, jadi tanpa pembungkus
+  // ber-kelas `form` gambar panah select bawaan tema tidak pernah terpasang.
+  if (!submitLabel) return <div className="form filter-bar">{content}</div>;
   return (
-    <form {...props} className="filter-bar">
+    <form {...props} className="form filter-bar">
       {content}
     </form>
   );

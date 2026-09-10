@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { DataList, DataRow, RowTitle, RowField, RowActions } from "@/components/theme/data-list";
 import { StatusPill } from "@/components/theme/status-pill";
 import { FilterBar, FilterField } from "@/components/theme/filter-bar";
+import { TextInput } from "@/components/theme/form-field";
 import {
   createUserAction,
   updateUserAction,
@@ -156,7 +157,7 @@ export function UserManager({
 
       <FilterBar>
         <FilterField label="Cari pengguna" htmlFor="cari-pengguna" wide>
-          <input
+          <TextInput
             id="cari-pengguna"
             type="search"
             value={search}

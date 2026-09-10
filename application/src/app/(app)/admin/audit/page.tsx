@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { PageHero } from "@/components/page-hero";
 import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 import { FilterBar, FilterField } from "@/components/theme/filter-bar";
+import { Select, TextInput } from "@/components/theme/form-field";
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", {
   day: "2-digit",
@@ -54,30 +55,30 @@ async function AuditPage({
 
       <FilterBar action="/admin/audit" method="GET" submitLabel="Terapkan filter">
         <FilterField label="Objek tindakan" htmlFor="f-entity">
-          <select id="f-entity" name="entity" defaultValue={sp.entity ?? ""}>
+          <Select id="f-entity" name="entity" defaultValue={sp.entity ?? ""}>
             <option value="">Semua objek tindakan</option>
             {entities.map((e) => (
               <option key={e} value={e}>
                 {e}
               </option>
             ))}
-          </select>
+          </Select>
         </FilterField>
         <FilterField label="Pelaku" htmlFor="f-actor">
-          <select id="f-actor" name="actorId" defaultValue={sp.actorId ?? ""}>
+          <Select id="f-actor" name="actorId" defaultValue={sp.actorId ?? ""}>
             <option value="">Semua pelaku</option>
             {actors.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.name}
               </option>
             ))}
-          </select>
+          </Select>
         </FilterField>
         <FilterField label="Dari tanggal" htmlFor="f-from">
-          <input id="f-from" name="from" type="date" defaultValue={sp.from ?? ""} />
+          <TextInput id="f-from" name="from" type="date" defaultValue={sp.from ?? ""} />
         </FilterField>
         <FilterField label="Sampai tanggal" htmlFor="f-to">
-          <input id="f-to" name="to" type="date" defaultValue={sp.to ?? ""} />
+          <TextInput id="f-to" name="to" type="date" defaultValue={sp.to ?? ""} />
         </FilterField>
       </FilterBar>
 
