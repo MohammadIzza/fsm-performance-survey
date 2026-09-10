@@ -323,12 +323,23 @@ input[type="range"]:disabled::-moz-range-thumb {
    mengecil karena semuanya dinyatakan dalam em. */
 @media only screen and (min-width: 988px) {
   .survey-shell .s-courses-list .sb-course {font-size:.8125rem}
-  .survey-shell .s-courses-list .sb-course .sb__link {gap:2rem}
-  .survey-shell .s-courses-list .sb-course .sb__title {width:24%}
-  .survey-shell .s-courses-list .sb-course .sb__dates {width:11%}
-  .survey-shell .s-courses-list .sb-course .sb__duration {width:14%}
-  .survey-shell .s-courses-list .sb-course .sb__location {width:19%}
+  .survey-shell .s-courses-list .sb-course .sb__link {gap:1.5rem}
+  .survey-shell .s-courses-list .sb-course .sb__title {width:26%}
+  .survey-shell .s-courses-list .sb-course .sb__dates {width:16%}
+  .survey-shell .s-courses-list .sb-course .sb__duration {width:12%}
+  .survey-shell .s-courses-list .sb-course .sb__location {width:21%}
   .survey-shell .s-courses-list .sb-course .sb__price {width:16%;text-align:right}
+}
+
+/* Baris kedua di dalam judul baris — kode periode, NIP, dan sejenisnya. Tema tidak punya slot
+   untuk ini; barisnya hanya mengenal satu judul. Dibuat di sini sebagai baris kecil di bawah judul,
+   memakai huruf monospace supaya kode terbaca sebagai kode. */
+.survey-shell .sb-course .sb__subtitle {
+  display:block;
+  margin-top:.2em;
+  font:400 .9em/1.3 var(--font-app-mono);
+  letter-spacing:0;
+  color:var(--color-text);
 }
 
 /* Baris kepala: memakai kerangka baris yang sama supaya kolomnya pasti sejajar, tapi dilucuti

@@ -15,6 +15,9 @@ const toneVar = {
   perhatian: "var(--color-brand-2)",
   selesai: "var(--color-brand-4)",
   gagal: "var(--color-brand-9)",
+  // Keadaan yang sudah dikunci dan tidak lagi berjalan (mis. periode Final). Dibedakan dari
+  // "selesai" karena artinya bukan "beres tepat waktu" melainkan "ditutup permanen".
+  arsip: "var(--color-brand-6)",
 } as const;
 
 export function StatusPill({
