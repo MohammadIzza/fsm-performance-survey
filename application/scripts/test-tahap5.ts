@@ -1,14 +1,16 @@
 import "dotenv/config";
 import { prisma } from "../src/lib/prisma";
 import { ServiceError } from "../src/lib/services/units";
-import { createPeriod } from "../src/lib/services/periods";
+import { createPeriod, setAccessPolicy } from "../src/lib/services/periods";
 import { createCategory, addCategoryObjects } from "../src/lib/services/categories";
 import { addParameter } from "../src/lib/services/instruments";
 import { updateGroupRule } from "../src/lib/services/groupRules";
 import { createObject } from "../src/lib/services/objects";
 import { calculateResults, getLatestRun, getGroupDetailBulk } from "../src/lib/services/calculations";
 import { getRanking, filterRankingByScope } from "../src/lib/services/rankings";
-import { getPeriodScope } from "../src/lib/authz";
+import { isResultAccessOpenForNonAdmin } from "../src/lib/services/resultAccess";
+import { getPeriodScope, getAuthContext } from "../src/lib/authz";
+import { listAuditEvents } from "../src/lib/services/audit";
 import type { AuthContext } from "../src/lib/authz";
 
 let pass = 0;
@@ -243,6 +245,123 @@ async function main() {
 
   const scopeAdmin = await getPeriodScope(adminActor, category.periodId);
   ok("Admin tidak dibatasi unitIds (getPeriodScope mengembalikan undefined)", scopeAdmin === undefined);
+
+  console.log("== AC-21/EDGE-18: isResultAccessOpenForNonAdmin — matriks mode x status periode ==");
+  const now = new Date();
+  const past = new Date(now.getTime() - 60_000);
+  const future = new Date(now.getTime() + 60_000);
+  ok(
+    "SELAMA_AKTIF terbuka saat AKTIF/DITUTUP/FINAL/REVISI, tertutup saat DRAF/SIAP",
+    isResultAccessOpenForNonAdmin({ mode: "SELAMA_AKTIF", availableAt: null, periodStatus: "AKTIF" }) === true &&
+      isResultAccessOpenForNonAdmin({ mode: "SELAMA_AKTIF", availableAt: null, periodStatus: "DITUTUP" }) === true &&
+      isResultAccessOpenForNonAdmin({ mode: "SELAMA_AKTIF", availableAt: null, periodStatus: "FINAL" }) === true &&
+      isResultAccessOpenForNonAdmin({ mode: "SELAMA_AKTIF", availableAt: null, periodStatus: "REVISI" }) === true &&
+      isResultAccessOpenForNonAdmin({ mode: "SELAMA_AKTIF", availableAt: null, periodStatus: "DRAF" }) === false &&
+      isResultAccessOpenForNonAdmin({ mode: "SELAMA_AKTIF", availableAt: null, periodStatus: "SIAP" }) === false
+  );
+  ok(
+    "SETELAH_DITUTUP terbuka saat DITUTUP/FINAL/REVISI, tertutup saat DRAF/SIAP/AKTIF",
+    isResultAccessOpenForNonAdmin({ mode: "SETELAH_DITUTUP", availableAt: null, periodStatus: "DITUTUP" }) === true &&
+      isResultAccessOpenForNonAdmin({ mode: "SETELAH_DITUTUP", availableAt: null, periodStatus: "FINAL" }) === true &&
+      isResultAccessOpenForNonAdmin({ mode: "SETELAH_DITUTUP", availableAt: null, periodStatus: "REVISI" }) === true &&
+      isResultAccessOpenForNonAdmin({ mode: "SETELAH_DITUTUP", availableAt: null, periodStatus: "AKTIF" }) === false &&
+      isResultAccessOpenForNonAdmin({ mode: "SETELAH_DITUTUP", availableAt: null, periodStatus: "DRAF" }) === false
+  );
+  ok(
+    "SETELAH_FINAL HANYA terbuka saat FINAL — REVISI (final dibuka ulang) sengaja tertutup lagi",
+    isResultAccessOpenForNonAdmin({ mode: "SETELAH_FINAL", availableAt: null, periodStatus: "FINAL" }) === true &&
+      isResultAccessOpenForNonAdmin({ mode: "SETELAH_FINAL", availableAt: null, periodStatus: "REVISI" }) === false &&
+      isResultAccessOpenForNonAdmin({ mode: "SETELAH_FINAL", availableAt: null, periodStatus: "DITUTUP" }) === false
+  );
+  ok(
+    "WAKTU_TERTENTU: tertutup sebelum availableAt, terbuka begitu waktu server melewatinya, tertutup bila availableAt kosong",
+    isResultAccessOpenForNonAdmin({ mode: "WAKTU_TERTENTU", availableAt: future, periodStatus: "FINAL" }) === false &&
+      isResultAccessOpenForNonAdmin({ mode: "WAKTU_TERTENTU", availableAt: past, periodStatus: "FINAL" }) === true &&
+      isResultAccessOpenForNonAdmin({ mode: "WAKTU_TERTENTU", availableAt: null, periodStatus: "FINAL" }) === false
+  );
+
+  console.log("== AC-22: perubahan kebijakan akses (AccessPolicy) tercatat di audit trail ==");
+  const accessPolicyBefore = await prisma.accessPolicy.findUniqueOrThrow({ where: { periodId: period.id } });
+  const updatedPolicy = await setAccessPolicy(
+    period.id,
+    { mode: "SETELAH_FINAL", availableAt: null, expectedVersion: accessPolicyBefore.version },
+    adminActor
+  );
+  ok("Versi kebijakan bertambah setelah diubah (optimistic lock, AC-33-adjacent)", updatedPolicy.version === accessPolicyBefore.version + 1);
+  const accessAudit = await listAuditEvents({ entity: "AccessPolicy" });
+  ok(
+    "Perubahan kebijakan akses tercatat di audit trail (entitas AccessPolicy, aksi ACCESS_POLICY_UPDATE) dengan pelaku yang benar",
+    accessAudit.events.some((e) => e.entityId === updatedPolicy.id && e.actorId === admin.id && e.action === "ACCESS_POLICY_UPDATE")
+  );
+
+  console.log("== EDGE-28: satu pimpinan menjabat DUA unit -> lingkup gabungan tanpa duplikasi ==");
+  // p1 (dosen1001) sudah menjabat Ketua Dep. Matematika (seed Tahap 1) — tambahkan jabatan KEDUA
+  // di PS-FIS (unit tak berkerabat, subtree terpisah total) sementara, murni untuk uji ini.
+  const secondLeadership = await prisma.leadership.create({
+    data: { userId: p1.id, unitId: psFis.id, title: "Uji EDGE-28: jabatan kedua", effectiveFrom: new Date("2020-01-01") },
+  });
+  const ctxDualLeader = await getAuthContext(p1.id);
+  ok(
+    "leadershipUnitIds berisi KEDUA unit (Dep. Matematika + PS-FIS), tanpa duplikasi",
+    ctxDualLeader !== null &&
+      ctxDualLeader.leadershipUnitIds.length === 2 &&
+      new Set(ctxDualLeader.leadershipUnitIds).size === 2 &&
+      ctxDualLeader.leadershipUnitIds.includes(depMat.id) &&
+      ctxDualLeader.leadershipUnitIds.includes(psFis.id)
+  );
+  ok(
+    "scopeUnitIds adalah GABUNGAN subtree kedua unit (Dep.Mat+PS-MAT+PS-STAT dan PS-FIS), tanpa duplikasi ID",
+    ctxDualLeader !== null &&
+      new Set(ctxDualLeader.scopeUnitIds).size === ctxDualLeader.scopeUnitIds.length &&
+      [depMat.id, psMat.id, psStat.id, psFis.id].every((id) => ctxDualLeader!.scopeUnitIds.includes(id))
+  );
+  await prisma.leadership.delete({ where: { id: secondLeadership.id } }); // kembalikan seperti semula
+
+  console.log("== EDGE-29: tidak ada peserta layak sama sekali -> array kosong, bukan error ==");
+  const rankingEmptyScope = await getRanking({ categoryId: category.id, group: "SELAIN_PIMPINAN", unitIds: [] });
+  ok(
+    "unitIds=[] (lingkup benar-benar kosong) menghasilkan array kosong, bukan error atau seluruh data",
+    Array.isArray(rankingEmptyScope) && rankingEmptyScope.length === 0
+  );
+  const emptyCategory = await createCategory(
+    period.id,
+    { code: "KOSONG-T5", name: "Kategori tanpa peserta", description: null, objectTypeId: orangType.id, excludeContributors: true },
+    adminActor
+  );
+  const emptyCatFull = await prisma.category.findUniqueOrThrow({ where: { id: emptyCategory.id }, include: { groupRules: true, instrumentVersions: true } });
+  await addParameter(emptyCatFull.instrumentVersions[0].id, { name: "X", indicator: null, weight: 100, order: 1 }, adminActor);
+  for (const gr of emptyCatFull.groupRules) {
+    await updateGroupRule(gr.id, { aggregation: "RATA_RATA", target: 0, minimum: 1 }, adminActor);
+  }
+  await calculateResults(emptyCategory.id, adminActor);
+  const rankingNoParticipants = await getRanking({ categoryId: emptyCategory.id, group: "SELAIN_PIMPINAN" });
+  ok(
+    "Kategori tanpa peserta sama sekali -> getRanking mengembalikan array kosong (bukan error)",
+    Array.isArray(rankingNoParticipants) && rankingNoParticipants.length === 0
+  );
+
+  console.log("== EDGE-26: metode TOTAL dengan jumlah respons berbeda antarobjek tetap jelas per objek ==");
+  await updateGroupRule(selainRule.id, { aggregation: "TOTAL", target: 0, minimum: 1 }, adminActor);
+  await calculateResults(category.id, adminActor);
+  const bulkTotalMixed = await getGroupDetailBulk(category.id, "SELAIN_PIMPINAN");
+  const totalTie1 = bulkTotalMixed?.byObject.get(coTie1.id)?.result; // 3 respons: (70+80+90)+(90+100+80)+(80+90+85)
+  const totalTie2 = bulkTotalMixed?.byObject.get(coTie2.id)?.result; // sama seperti coTie1 (data identik) = 3 respons
+  const totalLower = bulkTotalMixed?.byObject.get(coLower.id)?.result; // 1 respons: 50+50+50 = 150
+  ok(
+    "responseCount berbeda antarobjek tetap benar per objek (3 vs 3 vs 1), bukan tercampur/dibagi rata",
+    totalTie1?.responseCount === 3 && totalTie2?.responseCount === 3 && totalLower?.responseCount === 1
+  );
+  ok(
+    // TOTAL = jumlah skor terbobot PER RESPONS (0.5*Layanan+0.3*Disiplin+0.2*KerjaSama), dijumlah
+    // sebanyak n respons objek itu sendiri — coTie1 (3 respons, skor sama seperti fixture AC-15)
+    // tepat mendapat 252 lagi (bukti tidak tercampur objek lain); coLower (1 respons saja, 50/50/50)
+    // hanya mendapat 50 — bukan dinormalisasi/dirata-ratakan ke n yang sama dengan objek lain.
+    `Skor TOTAL masing-masing dihitung dari jumlah respons objeknya sendiri, bukan dinormalisasi ke n yang sama (aktual: ${totalTie1?.score}, ${totalLower?.score})`,
+    approxEqual(totalTie1?.score ?? null, 252) && approxEqual(totalLower?.score ?? null, 50)
+  );
+  // Kembalikan ke rata-rata — status sebelum blok ini, supaya tidak memengaruhi apa pun setelahnya.
+  await updateGroupRule(selainRule.id, { aggregation: "RATA_RATA", target: 0, minimum: 1 }, adminActor);
+  await calculateResults(category.id, adminActor);
 
   console.log("== Bab 21.4: kegagalan kalkulasi tidak merusak hasil sebelumnya ==");
   await prisma.instrumentVersion.update({ where: { id: instrumentId }, data: { scaleMin: 0, scaleMax: 100 } });

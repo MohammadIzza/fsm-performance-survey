@@ -13,6 +13,7 @@ import { createObject } from "../src/lib/services/objects";
 import { createCategory, addCategoryObjects } from "../src/lib/services/categories";
 import { addParameter, updateInstrumentScale } from "../src/lib/services/instruments";
 import { updateGroupRule } from "../src/lib/services/groupRules";
+import { getAuthContext } from "../src/lib/authz";
 import type { AuthContext } from "../src/lib/authz";
 
 let pass = 0;
@@ -370,6 +371,23 @@ async function main() {
     where: { entity: "Period", entityId: periodDue.id, action: "PERIOD_STATUS_AKTIF", actorId: "system-scheduler" },
   });
   ok("Pembukaan otomatis tercatat di Audit dengan pelaku penjadwal (bukan admin manual)", !!schedulerAudit);
+
+  console.log("== AC-34: ID nonaktif tidak mendapat sesi/konteks otorisasi yang sah ==");
+  // loginAction (actions/auth.ts) memeriksa `!user.active` langsung dari FormData request — tidak
+  // dapat dipanggil dari skrip biasa (butuh konteks request Next.js untuk cookies()/redirect()).
+  // Diuji di sini lewat primitif yang SAMA persis dipakai getCurrentAuthContext() untuk menolak
+  // SESI YANG SUDAH ADA begitu akun dinonaktifkan setelah login (Bab 4.2) — jalur yang lebih kuat
+  // dari sekadar menolak login baru, karena mencakup sesi yang sedang berjalan juga.
+  const acUser = await prisma.user.findUniqueOrThrow({ where: { loginIdentifier: "dosen1006" } });
+  const ctxBeforeDeactivate = await getAuthContext(acUser.id);
+  ok("Konteks otorisasi normal untuk akun aktif (active=true)", ctxBeforeDeactivate?.active === true);
+  await prisma.user.update({ where: { id: acUser.id }, data: { active: false } });
+  const ctxAfterDeactivate = await getAuthContext(acUser.id);
+  ok(
+    "Konteks otorisasi mencerminkan active=false segera setelah dinonaktifkan (getCurrentAuthContext akan memperlakukan ini sebagai TANPA sesi sah)",
+    ctxAfterDeactivate !== null && ctxAfterDeactivate.active === false
+  );
+  await prisma.user.update({ where: { id: acUser.id }, data: { active: true } }); // kembalikan
 
   console.log("\n=== Ringkasan ===");
   console.log(`Lulus: ${pass}  Gagal: ${fail}`);

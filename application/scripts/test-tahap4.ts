@@ -95,7 +95,9 @@ async function main() {
   const pimpinanRule = catFull.groupRules.find((r) => r.group === "PIMPINAN")!;
   const selainRule = catFull.groupRules.find((r) => r.group === "SELAIN_PIMPINAN")!;
   await updateGroupRule(pimpinanRule.id, { aggregation: "RATA_RATA", target: 0, minimum: 1 }, adminActor);
-  await updateGroupRule(selainRule.id, { aggregation: "RATA_RATA", target: 2, minimum: 1 }, adminActor);
+  // Target 4 (bukan 2): 2 slot ekstra dipakai EDGE-08 (pindah unit) dan EDGE-09/10 (nonaktifkan
+  // penilai) di bawah, tanpa mengganggu `assignment`/`otherAssignment` yang sudah dipakai luas.
+  await updateGroupRule(selainRule.id, { aggregation: "RATA_RATA", target: 4, minimum: 1 }, adminActor);
   const assignSelainRule = catFull.assignmentRules.find((r) => r.group === "SELAIN_PIMPINAN")!;
   await updateAssignmentRule(assignSelainRule.id, { scope: "UNIT_DAN_SUBUNIT", userTypeIds: [] }, adminActor);
 
@@ -111,11 +113,13 @@ async function main() {
     where: { categoryObjectId, group: "SELAIN_PIMPINAN" },
     orderBy: { createdAt: "asc" },
   });
-  if (selainAssignments.length < 2) {
-    throw new Error(`Prasyarat uji tidak terpenuhi: butuh 2 tugas Selain Pimpinan, hanya ada ${selainAssignments.length}.`);
+  if (selainAssignments.length < 4) {
+    throw new Error(`Prasyarat uji tidak terpenuhi: butuh 4 tugas Selain Pimpinan, hanya ada ${selainAssignments.length}.`);
   }
   const assignment = selainAssignments[0];
   const otherAssignment = selainAssignments[1];
+  const moverAssignment = selainAssignments[2]; // EDGE-08
+  const deactivatedAssignment = selainAssignments[3]; // EDGE-09/10
 
   const evaluatorUser = await prisma.user.findUniqueOrThrow({ where: { id: assignment.evaluatorId } });
   const evaluatorActor = actorFor(evaluatorUser);
@@ -265,12 +269,151 @@ async function main() {
     saveDraft(cancelTarget.id, [{ parameterId: paramLayanan.id, score: 50 }], null, cancelTargetActor)
   );
 
+  console.log("== EDGE-08: penilai pindah unit SAAT periode aktif -> tugas lama tidak berubah ==");
+  const moverUser = await prisma.user.findUniqueOrThrow({ where: { id: moverAssignment.evaluatorId } });
+  const moverOriginalUnitId = moverUser.primaryUnitId;
+  const tuFsm = await prisma.unit.findUniqueOrThrow({ where: { code: "TU-FSM" } });
+  const moverActor = actorFor(moverUser);
+  const submittedByMoverBeforeMove = await submitResponse(
+    moverAssignment.id,
+    [{ parameterId: paramLayanan.id, score: 70 }, { parameterId: paramDisiplin.id, score: 60 }],
+    "test-t4-mover-key",
+    null,
+    moverActor
+  );
+  ok("Penilai mengirim jawaban normal sebelum pindah unit", submittedByMoverBeforeMove.state === "SUBMITTED");
+  await prisma.user.update({ where: { id: moverUser.id }, data: { primaryUnitId: tuFsm.id } });
+  const assignmentAfterMove = await prisma.assignment.findUniqueOrThrow({ where: { id: moverAssignment.id } });
+  ok(
+    "Snapshot penilai (nama/ID login) di tugas TIDAK berubah walau primaryUnitId pengguna berubah",
+    assignmentAfterMove.evaluatorNameSnapshot === moverUser.name &&
+      assignmentAfterMove.evaluatorLoginSnapshot === moverUser.loginIdentifier &&
+      assignmentAfterMove.evaluatorId === moverUser.id
+  );
+  const formDataAfterMove = await getAssignmentFormData(moverAssignment.id, moverActor);
+  ok(
+    "Jawaban lama tetap terbaca utuh (skor 70/60) meski penilai sudah pindah unit",
+    formDataAfterMove.effectiveRevision?.scores.find((s) => s.parameterId === paramLayanan.id)?.score === 70
+  );
+  // Kembalikan agar tidak mengotori data pengguna seed untuk skrip/demo lain.
+  await prisma.user.update({ where: { id: moverUser.id }, data: { primaryUnitId: moverOriginalUnitId } });
+
+  console.log("== EDGE-09/10: nonaktifkan penilai -> tidak bisa mengoreksi, jawaban lama tetap terbaca ==");
+  const deactivatedUser = await prisma.user.findUniqueOrThrow({ where: { id: deactivatedAssignment.evaluatorId } });
+  const deactivatedActor = actorFor(deactivatedUser);
+  const submittedBeforeDeactivate = await submitResponse(
+    deactivatedAssignment.id,
+    [{ parameterId: paramLayanan.id, score: 55 }, { parameterId: paramDisiplin.id, score: 65 }],
+    "test-t4-deactivated-key",
+    null,
+    deactivatedActor
+  );
+  ok("Penilai mengirim jawaban normal sebelum dinonaktifkan", submittedBeforeDeactivate.state === "SUBMITTED");
+  // Admin membuka kembali untuk koreksi (Bab 11.5) SEBELUM dinonaktifkan — supaya penolakan di
+  // bawah benar-benar teruji karena akun nonaktif, bukan karena status tugas TERKIRIM terkunci.
+  await reopenAssignment(deactivatedAssignment.id, "Uji EDGE-09/10", adminActor, new Date(Date.now() + 3600_000).toISOString());
+  await prisma.user.update({ where: { id: deactivatedUser.id }, data: { active: false } });
+  await expectServiceError(
+    "Simpan draf oleh penilai nonaktif ditolak walau tugas sedang dibuka kembali (EDGE-09)",
+    () => saveDraft(deactivatedAssignment.id, [{ parameterId: paramLayanan.id, score: 90 }], null, { ...deactivatedActor, active: false })
+  );
+  await expectServiceError(
+    "Kirim jawaban oleh penilai nonaktif ditolak (EDGE-09)",
+    () =>
+      submitResponse(
+        deactivatedAssignment.id,
+        [{ parameterId: paramLayanan.id, score: 90 }, { parameterId: paramDisiplin.id, score: 90 }],
+        "test-t4-deactivated-key-2",
+        null,
+        { ...deactivatedActor, active: false }
+      )
+  );
+  const formDataForDeactivated = await getAssignmentFormData(deactivatedAssignment.id, { ...deactivatedActor, active: false });
+  ok(
+    "Jawaban lama (skor 55/65) tetap dapat DILIHAT oleh pemiliknya sendiri walau akunnya nonaktif (EDGE-10)",
+    formDataForDeactivated.effectiveRevision?.scores.find((s) => s.parameterId === paramLayanan.id)?.score === 55
+  );
+  const formDataForAdminViewingDeactivated = await getAssignmentFormData(deactivatedAssignment.id, adminActor);
+  ok(
+    "Admin juga tetap dapat melihat jawaban lama milik penilai yang sudah nonaktif",
+    formDataForAdminViewingDeactivated.effectiveRevision?.scores.length === 2
+  );
+  // Kembalikan aktif agar tidak mengotori data pengguna seed untuk skrip/demo lain.
+  await prisma.user.update({ where: { id: deactivatedUser.id }, data: { active: true } });
+
+  console.log("== AC-27/EDGE-13: tenggat pengisian ditegakkan presisi ke waktu server, bukan status tersimpan ==");
+  const shortPeriod = await createPeriod(
+    {
+      code: "TEST-T4-DEADLINE",
+      name: "Uji Tenggat Presisi",
+      description: null,
+      timezone: "Asia/Jakarta",
+      startsAt: new Date(Date.now() - 60_000).toISOString(),
+      endsAt: new Date(Date.now() + 2000).toISOString(), // 2 detik dari sekarang
+    },
+    adminActor
+  );
+  const shortCategory = await createCategory(
+    shortPeriod.id,
+    { code: "TENGGAT-T4", name: "Tenggat (Uji T4)", description: null, objectTypeId: orangType.id, excludeContributors: true },
+    adminActor
+  );
+  const shortCatFull = await prisma.category.findUniqueOrThrow({
+    where: { id: shortCategory.id },
+    include: { instrumentVersions: true, groupRules: true, assignmentRules: true },
+  });
+  const shortParam = await addParameter(shortCatFull.instrumentVersions[0].id, { name: "Nilai", indicator: null, weight: 100, order: 1 }, adminActor);
+  const shortPimpinanRule = shortCatFull.groupRules.find((r) => r.group === "PIMPINAN")!;
+  const shortSelainRule = shortCatFull.groupRules.find((r) => r.group === "SELAIN_PIMPINAN")!;
+  await updateGroupRule(shortPimpinanRule.id, { aggregation: "RATA_RATA", target: 0, minimum: 1 }, adminActor);
+  await updateGroupRule(shortSelainRule.id, { aggregation: "RATA_RATA", target: 1, minimum: 1 }, adminActor);
+  const shortAssignRule = shortCatFull.assignmentRules.find((r) => r.group === "SELAIN_PIMPINAN")!;
+  await updateAssignmentRule(shortAssignRule.id, { scope: "UNIT_DAN_SUBUNIT", userTypeIds: [] }, adminActor);
+  const shortObj = await createObject(
+    { typeId: orangType.id, name: dosen1004.name, ownerUnitId: depMat.id, referenceUserId: dosen1004.id, referenceUnitId: null, responsibleUserId: null, url: null, description: null, contributorUserIds: [] },
+    adminActor
+  );
+  await addCategoryObjects(shortCategory.id, [shortObj.id], adminActor);
+  await commitPlan(shortCategory.id, "test-t4-deadline-seed", adminActor);
+  const shortAssignment = await prisma.assignment.findFirstOrThrow({ where: { categoryObject: { categoryId: shortCategory.id } } });
+  const shortEvaluator = await prisma.user.findUniqueOrThrow({ where: { id: shortAssignment.evaluatorId } });
+  const shortActor = actorFor(shortEvaluator);
+  await transitionPeriodStatus(shortPeriod.id, "SIAP", adminActor);
+  await transitionPeriodStatus(shortPeriod.id, "AKTIF", adminActor);
+
+  const beforeDeadline = await submitResponse(
+    shortAssignment.id,
+    [{ parameterId: shortParam.id, score: 80 }],
+    "test-t4-deadline-before",
+    null,
+    shortActor
+  );
+  ok("Kirim jawaban SEBELUM tenggat lewat berhasil (status Period masih AKTIF di DB)", beforeDeadline.state === "SUBMITTED");
+
+  // Reset ke DRAF secara langsung di DB (bukan lewat admin-tools) semata untuk menguji ulang
+  // assertFillable dengan assignment BELUM_MULAI setelah tenggat lewat, tanpa terganjal status
+  // TERKIRIM yang sudah benar diuji terpisah di "Kunci setelah terkirim (AC-12)" di atas.
+  await prisma.responseScore.deleteMany({ where: { responseRevision: { assignmentId: shortAssignment.id } } });
+  await prisma.responseRevision.deleteMany({ where: { assignmentId: shortAssignment.id } });
+  await prisma.assignment.update({ where: { id: shortAssignment.id }, data: { status: "BELUM_MULAI" } });
+
+  await new Promise((r) => setTimeout(r, 2500)); // lewati endsAt (Period.status TETAP "AKTIF" di DB — tidak ada penutup otomatis, Bab 7.2)
+  const periodStillMarkedActive = await prisma.period.findUniqueOrThrow({ where: { id: shortPeriod.id } });
+  ok(
+    "Period.status TETAP tersimpan AKTIF di DB walau waktu tenggat sudah lewat (tidak ada penutup otomatis)",
+    periodStillMarkedActive.status === "AKTIF"
+  );
+  await expectServiceError(
+    "Kirim jawaban SETELAH tenggat lewat ditolak (dibandingkan ke waktu server saat ini, bukan status Period yang tersimpan)",
+    () => submitResponse(shortAssignment.id, [{ parameterId: shortParam.id, score: 80 }], "test-t4-deadline-after", null, shortActor)
+  );
+
   console.log("\n=== Ringkasan ===");
   console.log(`Lulus: ${pass}  Gagal: ${fail}`);
   if (fail > 0) process.exitCode = 1;
 
   console.log("\n== Membersihkan data uji ==");
-  const periodIds = [period.id];
+  const periodIds = [period.id, shortPeriod.id];
   await prisma.assignmentIssue.deleteMany({ where: { assignment: { categoryObject: { category: { periodId: { in: periodIds } } } } } });
   await prisma.responseScore.deleteMany({ where: { responseRevision: { assignment: { categoryObject: { category: { periodId: { in: periodIds } } } } } } });
   await prisma.responseRevision.deleteMany({ where: { assignment: { categoryObject: { category: { periodId: { in: periodIds } } } } } });
@@ -284,7 +427,7 @@ async function main() {
   await prisma.category.deleteMany({ where: { periodId: { in: periodIds } } });
   await prisma.accessPolicy.deleteMany({ where: { periodId: { in: periodIds } } });
   await prisma.period.deleteMany({ where: { id: { in: periodIds } } });
-  await prisma.assessmentObject.deleteMany({ where: { id: objDosen1004.id } });
+  await prisma.assessmentObject.deleteMany({ where: { id: { in: [objDosen1004.id, shortObj.id] } } });
   console.log("Selesai.");
 }
 

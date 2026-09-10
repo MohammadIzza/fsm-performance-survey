@@ -15,7 +15,7 @@ import {
   listFinalizationHistory,
 } from "../src/lib/services/finalization";
 import { previewUnitImport, previewUserImport, previewLeadershipImport, applyImport } from "../src/lib/services/imports";
-import { safeCell } from "../src/lib/services/exports";
+import { safeCell, buildResultsExport } from "../src/lib/services/exports";
 import { listAuditEvents } from "../src/lib/services/audit";
 import { getMonitoringSummary } from "../src/lib/services/monitoring";
 import type { AuthContext } from "../src/lib/authz";
@@ -221,6 +221,39 @@ async function main() {
   const createdUnit = await prisma.unit.findUnique({ where: { code: "PS-IMPOR-T6" } });
   ok("Unit baru benar-benar tersimpan di database", createdUnit?.name === "Prodi Uji Impor");
 
+  console.log("== EDGE-24: dua baris kode SAMA dalam SATU berkas impor ditolak ==");
+  const duplicateInFileBuf = await buildXlsxBuffer(
+    ["kode_unit", "nama_unit", "kode_induk", "status"],
+    [
+      ["PS-DUP-T6", "Prodi Duplikat A", "DEP-MAT", "aktif"],
+      ["PS-DUP-T6", "Prodi Duplikat B", "DEP-MAT", "aktif"], // kode sama persis, baris lain
+    ]
+  );
+  const duplicateInFilePreview = await previewUnitImport(duplicateInFileBuf);
+  ok(
+    'Pratinjau menandai baris kedua sebagai duplikat "dalam berkas ini" (bukan hanya duplikat vs data lama)',
+    duplicateInFilePreview.errors.some((e) => e.message.includes(`"PS-DUP-T6" duplikat dalam berkas ini`))
+  );
+  await expectServiceError("Impor dengan kode duplikat dalam satu berkas ditolak seluruhnya (all-or-nothing)", () =>
+    applyImport("UNIT", duplicateInFileBuf, "duplicate-in-file.xlsx", adminActor)
+  );
+  ok("TIDAK ADA unit PS-DUP-T6 tersimpan (baik baris A maupun B)", (await prisma.unit.findUnique({ where: { code: "PS-DUP-T6" } })) === null);
+
+  // Sisi lain EDGE-24: id_login duplikat dalam satu berkas impor Pengguna juga ditolak (pesan
+  // berbeda dari kode_unit di atas, jalur validasi terpisah di imports.ts).
+  const duplicateUserBuf = await buildXlsxBuffer(
+    ["id_login", "nama", "kode_jenis", "kode_unit", "status"],
+    [
+      ["09993", "Dosen Duplikat A", "DOSEN", "PS-IMPOR-T6", "aktif"],
+      ["09993", "Dosen Duplikat B", "DOSEN", "PS-IMPOR-T6", "aktif"],
+    ]
+  );
+  const duplicateUserPreview = await previewUserImport(duplicateUserBuf);
+  ok(
+    'Pratinjau impor pengguna juga menandai id_login duplikat "dalam berkas ini"',
+    duplicateUserPreview.errors.some((e) => e.message.includes(`"09993" duplikat dalam berkas ini`))
+  );
+
   console.log("== EDGE-21: teks berawalan =/+/-/@ pada impor diperlakukan sebagai teks aman ==");
   const formulaBuf = await buildXlsxBuffer(
     ["kode_unit", "nama_unit", "kode_induk", "status"],
@@ -301,6 +334,40 @@ async function main() {
   console.log("== Monitoring (Bab 21.2) ==");
   const summary = await getMonitoringSummary();
   ok("Ringkasan monitoring memiliki bentuk yang valid", typeof summary.submissionRate === "number" && summary.validAssignments >= 0);
+
+  console.log("== AC-38: ekspor hasil aman diulang (regenerasi murni, tanpa efek samping) ==");
+  // buildResultsExport tidak menulis apa pun ke database (baca-saja, membangun workbook baru dari
+  // hasil TERSIMPAN setiap dipanggil) — beda dari retry KALKULASI (Bab 21.4, diuji test-tahap5.ts)
+  // yang memang berefek samping (menulis CalculationRun). Uji ini membuktikan memanggil dua kali
+  // berturut-turut (skenario "klik ekspor lagi karena ragu file pertama gagal unduh") tidak error
+  // dan tidak saling memengaruhi.
+  const export1 = await buildResultsExport(category.id, { pimpinan: [], selain: [] }, adminActor);
+  const export2 = await buildResultsExport(category.id, { pimpinan: [], selain: [] }, adminActor);
+  ok(
+    "Dua panggilan ekspor berturut-turut sama-sama berhasil menghasilkan workbook valid",
+    export1.worksheets.length > 0 && export2.worksheets.length > 0
+  );
+  ok(
+    "Struktur (jumlah & nama sheet) identik antar panggilan — regenerasi murni, bukan akumulasi state",
+    export1.worksheets.length === export2.worksheets.length &&
+      export1.worksheets.every((s, i) => s.name === export2.worksheets[i].name)
+  );
+
+  console.log("== EDGE-20: tidak ada penghapusan permanen (hard delete) untuk Unit — dicegah sampai level DB ==");
+  // Tidak ada deleteUnit/prisma.unit.delete di mana pun dalam kode aplikasi (hanya
+  // setUnitActiveAction, nonaktifkan) — dibuktikan di sini bahwa mencoba hard-delete LANGSUNG
+  // lewat Prisma pun ditolak oleh constraint foreign key (unit anak & pengguna masih merujuknya),
+  // bukan sekadar "tidak ada tombolnya di UI". Inilah kenapa satu-satunya jalan yang aman adalah
+  // nonaktifkan (Bab 5, ORG-05), bukan gerbang aplikasi yang bisa dilewati lewat akses DB langsung.
+  let hardDeleteBlocked = false;
+  try {
+    await prisma.unit.delete({ where: { id: depMat.id } });
+  } catch (e) {
+    hardDeleteBlocked = e instanceof Error && /foreign key|constraint/i.test(e.message);
+  }
+  ok("prisma.unit.delete() pada unit yang masih punya subunit/pengguna ditolak DB (foreign key)", hardDeleteBlocked);
+  const depMatStillExists = await prisma.unit.findUnique({ where: { id: depMat.id } });
+  ok("Unit tetap ada setelah percobaan hard-delete gagal (tidak ada kerusakan data)", depMatStillExists !== null);
 
   console.log("\n=== Ringkasan ===");
   console.log(`Lulus: ${pass}  Gagal: ${fail}`);
