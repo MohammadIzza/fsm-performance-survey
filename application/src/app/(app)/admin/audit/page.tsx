@@ -2,7 +2,7 @@ import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import Link from "next/link";
 import { listAuditEvents, listDistinctAuditEntities } from "@/lib/services/audit";
 import { prisma } from "@/lib/prisma";
-import { UspGrid, UspCard } from "@/components/theme/usp-grid";
+import { PageIntro, SummaryCard } from "@/components/theme/summary";
 import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 import { FilterBar, FilterField } from "@/components/theme/filter-bar";
 import { Select, TextInput } from "@/components/theme/form-field";
@@ -46,17 +46,11 @@ async function AuditPage({
 
   return (
     <div className="space-y-8">
-      <UspGrid as="h1" compact title="Audit" intro="Jejak seluruh tindakan administratif dan pengisian.">
-        <UspCard title="Peristiwa tercatat" tone="kuning">
-          {result.total} tindakan tersimpan dan tidak dapat diubah.
-        </UspCard>
-        <UspCard title="Objek tindakan" tone="biru">
-          {entities.length} jenis objek pernah dikenai tindakan.
-        </UspCard>
-        <UspCard title="Pelaku" tone="merah">
-          {actors.length} orang tercatat pernah melakukan tindakan.
-        </UspCard>
-      </UspGrid>
+      <PageIntro title="Audit" intro="Jejak seluruh tindakan administratif dan pengisian.">
+        <SummaryCard tone="kuning" label="Peristiwa" value={result.total} note="tersimpan, tidak dapat diubah" />
+        <SummaryCard tone="biru" label="Objek tindakan" value={entities.length} note="jenis objek terdampak" />
+        <SummaryCard tone="merah" label="Pelaku" value={actors.length} note="orang pernah bertindak" />
+      </PageIntro>
 
       <FilterBar action="/admin/audit" method="GET" submitLabel="Terapkan filter">
         <FilterField label="Objek tindakan" htmlFor="f-entity">

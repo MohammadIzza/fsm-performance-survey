@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentAuthContext } from "@/lib/authz";
 import { listMyAssignments, computeDisplayStatus } from "@/lib/services/responses";
 import { AssignmentsList, type AssignmentRow } from "./assignments-list";
-import { PageHero } from "@/components/page-hero";
+import { PageIntro, SummaryCard } from "@/components/theme/summary";
 
 export default async function TugasSayaPage() {
   const ctx = await getCurrentAuthContext();
@@ -40,25 +40,24 @@ export default async function TugasSayaPage() {
 
   return (
     <div className="space-y-8">
-      <PageHero
-        eyebrow={`TUGAS SAYA · ${assignments.length} penilaian`}
-        title={
-          pending.length > 0 ? (
-            <>
-              {pending.length} tugas menanti
-              <br />
-              penilaian Anda.
-            </>
-          ) : (
-            <>
-              Semua tugas
-              <br />
-              sudah terkirim.
-            </>
-          )
-        }
-        description="Daftar penilaian yang perlu Anda isi, disaring per periode dan status."
-      />
+      <PageIntro
+        title="Tugas Saya"
+        intro="Daftar penilaian yang perlu Anda isi, disaring per periode dan status."
+      >
+        <SummaryCard tone="biru" label="Penilaian" value={assignments.length} note="tanggung jawab Anda" />
+        <SummaryCard
+          tone={pending.length > 0 ? "kuning" : "tosca"}
+          label="Menanti diisi"
+          value={pending.length}
+          note={pending.length > 0 ? "belum selesai" : "tidak ada yang tertunda"}
+        />
+        <SummaryCard
+          tone="tosca"
+          label="Sudah terkirim"
+          value={assignments.length - pending.length}
+          note="terkunci dan dihitung"
+        />
+      </PageIntro>
 
       {pending.length > 0 && isPlainUser && (
         <div className="rounded-2xl border border-[var(--accent)]/30 bg-[var(--accent-tint)] p-4 text-[13px] text-[var(--foreground)]">

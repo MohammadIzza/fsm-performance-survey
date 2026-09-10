@@ -1,7 +1,7 @@
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import { listImportBatches } from "@/lib/services/imports";
 import { ImportForm } from "./import-form";
-import { UspGrid, UspCard } from "@/components/theme/usp-grid";
+import { PageIntro, SummaryCard } from "@/components/theme/summary";
 import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 import { StatusPill } from "@/components/theme/status-pill";
 
@@ -20,18 +20,24 @@ async function ImporPage() {
 
   return (
     <div className="space-y-8">
-      <UspGrid as="h1" compact title="Impor Data Master" intro="Unggah Unit, Pengguna, atau Pimpinan dari berkas Excel.">
-        <UspCard title="Riwayat impor" tone="kuning">
-          {batches.length} berkas pernah diunggah.
-        </UspCard>
-        <UspCard title="Diterapkan" tone="tosca">
-          {batches.filter((b) => b.status === "DITERAPKAN").length} impor masuk ke data master.
-        </UspCard>
-        <UspCard title="Gagal" tone="merah">
-          {batches.filter((b) => b.status === "GAGAL").length} impor berhenti karena berkasnya
-          bermasalah.
-        </UspCard>
-      </UspGrid>
+      <PageIntro
+        title="Impor Data Master"
+        intro="Unggah Unit, Pengguna, atau Pimpinan dari berkas Excel."
+      >
+        <SummaryCard tone="kuning" label="Riwayat" value={batches.length} note="berkas pernah diunggah" />
+        <SummaryCard
+          tone="tosca"
+          label="Diterapkan"
+          value={batches.filter((b) => b.status === "DITERAPKAN").length}
+          note="masuk ke data master"
+        />
+        <SummaryCard
+          tone="merah"
+          label="Gagal"
+          value={batches.filter((b) => b.status === "GAGAL").length}
+          note="berkasnya bermasalah"
+        />
+      </PageIntro>
 
       <ImportForm />
 

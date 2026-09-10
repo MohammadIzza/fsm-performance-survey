@@ -1,6 +1,6 @@
 import { getCurrentAuthContext } from "@/lib/authz";
 import { listPeriods } from "@/lib/services/periods";
-import { PageHero } from "@/components/page-hero";
+import { PageIntro, SummaryCard } from "@/components/theme/summary";
 import { DataList } from "@/components/theme/data-list";
 import { AccessPolicyRow } from "./access-policy-row";
 
@@ -21,17 +21,24 @@ export default async function AccessPage() {
 
   return (
     <div className="space-y-8">
-      <PageHero
-        eyebrow={`WAKTU AKSES · ${periods.length} periode`}
-        title={
-          <>
-            Kapan hasil
-            <br />
-            boleh dibaca.
-          </>
-        }
-        description="Atur waktu pimpinan, termasuk Dekan, dapat membaca hasil. Setiap perubahan tercatat."
-      />
+      <PageIntro
+        title="Waktu akses hasil"
+        intro="Atur kapan pimpinan, termasuk Dekan, dapat membaca hasil. Setiap perubahan tercatat."
+      >
+        <SummaryCard tone="kuning" label="Periode" value={periods.length} note="punya kebijakan sendiri" />
+        <SummaryCard
+          tone="biru"
+          label="Selama aktif"
+          value={periods.filter((p) => p.accessPolicy?.mode === "SELAMA_AKTIF").length}
+          note="terbaca sejak penilaian berjalan"
+        />
+        <SummaryCard
+          tone="tosca"
+          label="Setelah final"
+          value={periods.filter((p) => p.accessPolicy?.mode === "SETELAH_FINAL").length}
+          note="menunggu hasil difinalkan"
+        />
+      </PageIntro>
 
       {periods.length === 0 ? (
         <p className="t-t-md" style={{ color: "var(--color-text)" }}>

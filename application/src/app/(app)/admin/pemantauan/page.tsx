@@ -1,6 +1,6 @@
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import { getMonitoringSummary } from "@/lib/services/monitoring";
-import { UspGrid, UspCard } from "@/components/theme/usp-grid";
+import { PageIntro, SummaryCard } from "@/components/theme/summary";
 
 const statusLabel: Record<string, string> = {
   BELUM_MULAI: "Belum mulai",
@@ -16,20 +16,26 @@ async function PemantauanPage() {
 
   return (
     <div className="space-y-8">
-      <UspGrid as="h1" compact title="Pemantauan" intro="Ringkasan operasional seluruh fakultas.">
-        <UspCard title="Tingkat pengiriman" tone="kuning">
-          {summary.submissionRate.toFixed(1)}% tugas berlaku sudah dikirim.
-        </UspCard>
-        <UspCard
-          title="Perhitungan tertunda"
+      <PageIntro title="Pemantauan" intro="Ringkasan operasional seluruh fakultas.">
+        <SummaryCard
+          tone="kuning"
+          label="Tingkat pengiriman"
+          value={`${summary.submissionRate.toFixed(1)}%`}
+          note="tugas berlaku sudah dikirim"
+        />
+        <SummaryCard
           tone={summary.pendingCalcCount > 0 ? "merah" : "tosca"}
-        >
-          {summary.pendingCalcCount} kategori menunggu dihitung ulang.
-        </UspCard>
-        <UspCard title="Perhitungan gagal" tone={summary.failedCalcCount > 0 ? "merah" : "tosca"}>
-          {summary.failedCalcCount} percobaan berhenti dengan galat.
-        </UspCard>
-      </UspGrid>
+          label="Perhitungan tertunda"
+          value={summary.pendingCalcCount}
+          note="kategori menunggu dihitung"
+        />
+        <SummaryCard
+          tone={summary.failedCalcCount > 0 ? "merah" : "tosca"}
+          label="Perhitungan gagal"
+          value={summary.failedCalcCount}
+          note="berhenti dengan galat"
+        />
+      </PageIntro>
 
 
 

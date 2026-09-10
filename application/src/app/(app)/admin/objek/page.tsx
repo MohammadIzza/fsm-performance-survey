@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { listObjects } from "@/lib/services/objects";
 import { listObjectTypes } from "@/lib/services/objectTypes";
 import { ObjectManager } from "./object-manager";
-import { UspGrid, UspCard } from "@/components/theme/usp-grid";
+import { PageIntro, SummaryCard } from "@/components/theme/summary";
 
 async function ObjekPage() {
   const [objects, objectTypes, units, users] = await Promise.all([
@@ -19,17 +19,24 @@ async function ObjekPage() {
 
   return (
     <div className="space-y-8">
-      <UspGrid as="h1" compact title="Objek Penilaian" intro="Master objek yang dapat dinilai, lalu dipilih sebagai peserta kategori.">
-        <UspCard title="Objek terdaftar" tone="kuning">
-          {objects.length} objek siap dipilih jadi peserta kategori.
-        </UspCard>
-        <UspCard title="Aktif" tone="tosca">
-          {objects.filter((o) => o.active).length} dari {objects.length} objek sedang aktif.
-        </UspCard>
-        <UspCard title="Jenis objek" tone="merah">
-          {objectTypes.length} jenis, mis. Orang, Unit, atau Karya.
-        </UspCard>
-      </UspGrid>
+      <PageIntro
+        title="Objek Penilaian"
+        intro="Master objek yang dapat dinilai, lalu dipilih sebagai peserta kategori."
+      >
+        <SummaryCard tone="kuning" label="Terdaftar" value={objects.length} note="objek tersedia" />
+        <SummaryCard
+          tone="tosca"
+          label="Aktif"
+          value={objects.filter((o) => o.active).length}
+          note={`dari ${objects.length} objek`}
+        />
+        <SummaryCard
+          tone="merah"
+          label="Jenis objek"
+          value={objectTypes.length}
+          note="mis. Orang, Unit, atau Karya"
+        />
+      </PageIntro>
 
       <ObjectManager objects={objects} objectTypes={objectTypes} units={units} users={users} />
     </div>

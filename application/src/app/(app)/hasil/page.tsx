@@ -1,6 +1,6 @@
 import { getCurrentAuthContext } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
-import { PageHero } from "@/components/page-hero";
+import { PageIntro, SummaryCard } from "@/components/theme/summary";
 import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 import { StatusPill } from "@/components/theme/status-pill";
 
@@ -36,21 +36,28 @@ export default async function HasilListPage() {
 
   return (
     <div className="space-y-8">
-      <PageHero
-        eyebrow={`HASIL · ${categories.length} kategori`}
-        title={
-          <>
-            Hasil &amp;
-            <br />
-            Leaderboard.
-          </>
-        }
-        description={
+      <PageIntro
+        title="Hasil & Leaderboard"
+        intro={
           ctx.isAdmin || ctx.isDekan
             ? "Rekap hasil penilaian seluruh fakultas."
             : "Rekap hasil penilaian pada unit yang Anda pimpin dan subunitnya."
         }
-      />
+      >
+        <SummaryCard tone="kuning" label="Kategori" value={categories.length} note="dalam lingkup Anda" />
+        <SummaryCard
+          tone="biru"
+          label="Masih berjalan"
+          value={categories.filter((c) => c.period.status === "AKTIF").length}
+          note="nilainya belum final"
+        />
+        <SummaryCard
+          tone="tosca"
+          label="Sudah final"
+          value={categories.filter((c) => c.period.status === "FINAL").length}
+          note="hasil terkunci"
+        />
+      </PageIntro>
 
       {categories.length === 0 ? (
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">

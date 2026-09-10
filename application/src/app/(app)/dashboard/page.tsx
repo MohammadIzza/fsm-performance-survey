@@ -3,7 +3,7 @@ import { getSession } from "@/lib/session";
 import { getAuthContext } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { listMyAssignments, computeDisplayStatus } from "@/lib/services/responses";
-import { UspGrid, UspCard } from "@/components/theme/usp-grid";
+import { PageIntro, SummaryCard } from "@/components/theme/summary";
 import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 
 export default async function HomePage() {
@@ -58,22 +58,29 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-8">
-      <UspGrid
-        as="h1"
+      <PageIntro
         title={`Selamat datang, ${ctx.name.split(" ")[0]}`}
-        intro={`Masuk sebagai ${ctx.loginIdentifier}, dengan peran ${roleLabel}.`}
+        intro={`Masuk sebagai ${ctx.loginIdentifier}, dengan peran ${roleLabel}. ${scopeDescription}`}
       >
-        <UspCard title="Tugas penilaian" tone={pendingCount > 0 ? "kuning" : "tosca"}>
-          {myAssignments.length === 0
-            ? "Belum ada tugas penilaian untuk Anda."
-            : pendingCount > 0
-              ? `${pendingCount} dari ${myAssignments.length} tugas belum selesai diisi.`
-              : `Semua ${myAssignments.length} tugas sudah terkirim.`}
-        </UspCard>
-        <UspCard title="Lingkup akses" tone="biru">
-          {scopeDescription}
-        </UspCard>
-      </UspGrid>
+        <SummaryCard
+          tone="biru"
+          label="Tugas penilaian"
+          value={myAssignments.length}
+          note="ditugaskan kepada Anda"
+        />
+        <SummaryCard
+          tone={pendingCount > 0 ? "kuning" : "tosca"}
+          label="Belum selesai"
+          value={pendingCount}
+          note={pendingCount > 0 ? "menunggu diisi" : "semuanya sudah terkirim"}
+        />
+        <SummaryCard
+          tone="tosca"
+          label="Unit dalam lingkup"
+          value={scopeUnits.length}
+          note="unit yang hasilnya dapat Anda baca"
+        />
+      </PageIntro>
 
       {scopeUnits.length > 0 && (
         <DataList

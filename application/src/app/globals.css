@@ -340,47 +340,68 @@ input[type="range"]:disabled::-moz-range-thumb {
    catatan pada DateRange di components/theme/date-range.tsx. */
 .date-range__part {white-space:nowrap}
 
-/* Kartu ringkasan versi pendek untuk layar admin — lihat catatan `compact` pada UspGrid.
-   Hanya rasio tingginya yang diganti; lebar, warna, dan jaraknya tetap dari tema. */
-/* Jarak atas dihapus: `main` sudah memberi padding, dan --section-spacing-sm milik tema diukur
-   untuk jarak antar-seksi halaman panjang, bukan untuk blok pertama di bawah kepala halaman. */
-.survey-shell .s-usps--compact {--card-ratio:.4;margin-top:0}
-/* Isi kartu dirapatkan ke atas seperti judul, bukan direntangkan atas-bawah. Tema memakai
-   `space-between` dengan padding 17% karena kartunya tinggi dan isinya sedikit; pada kartu pendek
-   pola itu menyisakan lubang di tengah sekaligus mendorong barisnya terakhir keluar kotak — itu
-   yang membuat teksnya terpotong. Tingginya juga dilepas jadi `auto` dengan batas bawah, supaya
-   kartu memanjang mengikuti teks alih-alih memotongnya. */
-.survey-shell .s-usps--compact .sb-usp {height:auto;min-height:var(--card-height)}
-.survey-shell .s-usps--compact .sb__content {
-  position:relative;justify-content:flex-start;gap:.4rem;padding:1.4rem 1.5rem;
+/* Kepala halaman dan angka ringkasan — lihat catatan pada PageIntro di
+   components/theme/summary.tsx. Warna dan keluarga hurufnya dari token tema; ukurannya ukuran
+   aplikasi, bukan ukuran halaman pemasaran. */
+.survey-shell .page-intro {display:flex;flex-direction:column;gap:.5rem}
+.survey-shell .page-intro__title {
+  font:600 1.6rem/1.1 var(--font-family-heading);letter-spacing:-.03em;margin:0;
 }
-.survey-shell .s-usps--compact .s__header {height:auto;min-height:var(--card-height)}
-.survey-shell .s-usps--compact .s__header-content {
-  justify-content:flex-start;gap:.5rem;padding:1.4rem 1.5rem;
+.survey-shell .page-intro__text {
+  font-size:.8125rem;color:var(--color-text);max-width:52em;margin:0;
 }
-/* Pengantar di blok judul membawa margin atas 1,67em dari tema — jarak yang pas di kartu tinggi,
-   tapi pada kartu pendek justru mendorong barisnya keluar kotak sehingga terpotong. Jaraknya
-   diambil alih `gap` di atas. */
-.survey-shell .s-usps--compact .s__intro {margin:0;font-size:.8125rem;max-width:none}
-/* Judul di blok putih dikecilkan sedikit dari skala tema: pada kartu pendek, judul dua baris
-   ditambah pengantar dua-tiga baris tidak muat, dan yang terpotong justru pengantarnya. */
-.survey-shell .s-usps--compact .s__title {max-width:none;font-size:1.55rem;line-height:1.08}
+/* Petak menyesuaikan sendiri: tiga kotak di layar lebar, dua di tablet, satu di ponsel — tanpa
+   titik pindah yang ditulis satu per satu. */
+.survey-shell .summary {
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(11.5rem,1fr));gap:0;
+  margin-top:.75rem;margin-bottom:1.1rem;
+}
+/* Kotaknya menempel tanpa jarak lalu digeser berselang-seling, meniru susunan kartu di halaman
+   panduan: rapi karena kisinya tetap, tapi tidak berbaris kaku. Digeser lewat `transform` supaya
+   tinggi barisnya tidak ikut berubah. */
+.survey-shell .summary__card:nth-child(2n) {transform:translateY(1.1rem)}
+@media only screen and (max-width: 480px) {
+  .survey-shell .summary {grid-template-columns:1fr 1fr}
+  .survey-shell .summary__card {padding:.75rem .9rem}
+  .survey-shell .summary__value {font-size:1.3rem}
+}
+.survey-shell .summary__card {
+  display:flex;flex-direction:column;gap:.15rem;padding:.9rem 1.1rem;color:var(--color-black);
+}
+.survey-shell .summary__label {
+  font-size:.625rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+}
+.survey-shell .summary__value {font:600 1.5rem/1.15 var(--font-family-heading);letter-spacing:-.02em}
+.survey-shell .summary__note {font-size:.75rem;line-height:1.35}
+
+/* Daftar baris di layar sempit.
+   Tema menyusun bidangnya berdampingan dengan lebar persen sampai lebar ponsel — cukup untuk
+   "Jakarta" atau "3 bulan", tapi isi di sini berupa nama orang, nama unit, dan nama periode,
+   sehingga kolom 40% berubah jadi tumpukan potongan kata. Di bawah 987px tiap baris disusun
+   menurun: judul di atas, sisanya sebagai baris keterangan, dan kepala kolom disembunyikan karena
+   tidak ada lagi kolom yang dikepalai. */
 @media only screen and (max-width: 987px) {
-  .survey-shell .s-usps--compact {--card-ratio:.3}
-}
-@media only screen and (max-width: 576px) {
-  /* Kartu selebar layar: tingginya dibiarkan mengikuti isi saja, karena rasio apa pun pada lebar
-     penuh menghasilkan kotak yang jauh lebih tinggi daripada teks di dalamnya. */
-  .survey-shell .s-usps--compact {--card-ratio:0}
-}
-/* Di layar sempit blok judul berhenti jadi kotak putih yang mengisi slot pertama petak dan kembali
-   jadi judul biasa di atas kartu. Sebagai kotak, tinggi dan padding persennya diukur terhadap lebar
-   layar penuh, sehingga judul pendek mengambang di tengah ruang kosong setinggi ratusan piksel. */
-@media only screen and (max-width: 767px) {
-  .survey-shell .s-usps--compact .s__header {
-    position:static;width:auto;height:auto;min-height:0;background:none;margin:0 0 1.25rem;
+  .survey-shell .s-courses-list .sb-course--head {display:none}
+  .survey-shell .s-courses-list .sb-course .sb__link {
+    flex-direction:column;align-items:flex-start;justify-content:flex-start;
+    gap:.3rem;padding:.95rem 0;
   }
-  .survey-shell .s-usps--compact .s__header-content {padding:0}
+  .survey-shell .s-courses-list .sb-course .sb__title,
+  .survey-shell .s-courses-list .sb-course .sb__topic,
+  .survey-shell .s-courses-list .sb-course .sb__dates,
+  .survey-shell .s-courses-list .sb-course .sb__duration,
+  .survey-shell .s-courses-list .sb-course .sb__location,
+  .survey-shell .s-courses-list .sb-course .sb__price {
+    width:auto;max-width:100%;margin:0;order:0;text-align:left;
+  }
+  .survey-shell .s-courses-list .sb-course .sb__title {
+    font-size:.9375rem;font-weight:600;
+  }
+  .survey-shell .s-courses-list .sb-course .sb__actions {
+    width:auto;justify-content:flex-start;margin-top:.2rem;
+  }
+  /* Baris tidak lagi punya kolom, jadi latar penuhnya saat disorot tidak lagi membantu. */
+  .survey-shell .s-courses-list .sb-course .sb__arrow {display:none}
 }
 
 /* Baris penyaring — lihat catatan pada FilterBar di components/theme/filter-bar.tsx. Rata kiri
@@ -398,6 +419,16 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell .filter-bar input,
 .survey-shell .filter-bar select {width:100%}
 .survey-shell .filter-bar__action {display:flex;align-items:flex-end}
+/* Di ponsel tiap kontrol selebar layar dan bertumpuk. Sebagai kolom sempit berdampingan, isian
+   tanggal dan pilihan panjang terpotong. */
+@media only screen and (max-width: 640px) {
+  .survey-shell .filter-bar {gap:.75rem}
+  .survey-shell .filter-bar__field,
+  .survey-shell .filter-bar__field--wide {flex:1 1 100%;max-width:none}
+  .survey-shell .filter-bar__action {width:100%}
+  .survey-shell .filter-bar__action .btn-plain {width:100%}
+  .survey-shell .filter-bar__action .btn-plain__inner {text-align:center}
+}
 /* Kolom tanggal pada penyaring memakai ikon kalender yang sama dengan kolom tanggal di daftar
    (/assets/images/icon-date.svg), mengikuti cara tema menaruh ikon di dalam kontrol — lihat
    `.form select.form__control[name='bootcamp']` di blocks.css. */
@@ -504,6 +535,8 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell main input[type="password"]:not(.form__control),
 .survey-shell main select:not(.form__control),
 .survey-shell main textarea:not(.form__control) {
+  width:100%;
+  min-width:0;
   font:600 var(--font-size-t-sm)/1 var(--font-family-t-sm);
   padding:.8em 1em;
   background:var(--color-white);
@@ -513,6 +546,10 @@ input[type="range"]:disabled::-moz-range-thumb {
   transition:border-color .07s linear;
 }
 .survey-shell main textarea {line-height:1.46}
+/* `<select>` melebar mengikuti pilihan terpanjangnya kalau lebarnya tidak dipatok — di ponsel
+   itu membuat formulir tambah data meluber keluar layar. `min-width:0` diperlukan juga karena
+   elemen isian di dalam grid/flex punya lebar minimum bawaan yang menolak menyusut. */
+.survey-shell main .form__control {width:100%;min-width:0}
 .survey-shell main input:not(.form__control):focus,
 .survey-shell main select:not(.form__control):focus,
 .survey-shell main textarea:not(.form__control):focus {border-color:var(--color-brand-5);outline:none}
