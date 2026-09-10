@@ -335,6 +335,22 @@ input[type="range"]:disabled::-moz-range-thumb {
    catatan pada DateRange di components/theme/date-range.tsx. */
 .date-range__part {white-space:nowrap}
 
+/* Baris penyaring — lihat catatan pada FilterBar di components/theme/filter-bar.tsx. Rata kiri
+   dengan daftar di bawahnya, tanpa kartu pembungkus. */
+.survey-shell .filter-bar {display:flex;flex-wrap:wrap;align-items:flex-end;gap:.9rem 1.25rem}
+/* Lebar seragam: tanpa ini tiap kolom melar mengikuti isi pilihannya, sehingga "Pelaku" jadi dua
+   kali lebar "Objek tindakan" dan barisnya terlihat acak. */
+.survey-shell .filter-bar__field {display:flex;flex-direction:column;gap:.35rem;
+  flex:1 1 12rem;max-width:16rem}
+.survey-shell .filter-bar__field--wide {flex:1 1 22rem}
+.survey-shell .filter-bar__label {
+  font-size:.6875rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--color-text);
+}
+.survey-shell .filter-bar input,
+.survey-shell .filter-bar select {width:100%}
+.survey-shell .filter-bar__action {display:flex;align-items:flex-end}
+
 /* Beberapa nilai bertumpuk dalam satu bidang (mis. dua pimpinan aktif pada satu unit). */
 .survey-shell .sb__stack {display:block}
 .survey-shell .sb__stack + .sb__stack {margin-top:.4em}

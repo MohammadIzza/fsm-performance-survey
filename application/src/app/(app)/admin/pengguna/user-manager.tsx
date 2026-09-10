@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { DataList, DataRow, RowTitle, RowField, RowActions } from "@/components/theme/data-list";
 import { StatusPill } from "@/components/theme/status-pill";
+import { FilterBar, FilterField } from "@/components/theme/filter-bar";
 import {
   createUserAction,
   updateUserAction,
@@ -153,14 +154,17 @@ export function UserManager({
         </form>
       </div>
 
-      <input
-        type="search"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Cari nama, ID, unit, atau jenis pengguna…"
-        aria-label="Cari pengguna"
-        className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-[14px] text-[var(--foreground)] shadow-sm placeholder:text-[var(--muted)]"
-      />
+      <FilterBar>
+        <FilterField label="Cari pengguna" htmlFor="cari-pengguna" wide>
+          <input
+            id="cari-pengguna"
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Nama, ID, unit, atau jenis pengguna…"
+          />
+        </FilterField>
+      </FilterBar>
 
       {visibleUsers.length === 0 ? (
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">

@@ -4,6 +4,7 @@ import { listAuditEvents, listDistinctAuditEntities } from "@/lib/services/audit
 import { prisma } from "@/lib/prisma";
 import { PageHero } from "@/components/page-hero";
 import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
+import { FilterBar, FilterField } from "@/components/theme/filter-bar";
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", {
   day: "2-digit",
@@ -33,9 +34,6 @@ async function AuditPage({
     prisma.user.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
   ]);
 
-  const fieldClass =
-    "rounded-xl border border-[var(--border)] bg-transparent px-3 py-2 text-[14px] outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20";
-
   function buildHref(newParams: Record<string, string | undefined>) {
     const merged = { ...sp, ...newParams };
     const qs = new URLSearchParams();
@@ -54,34 +52,34 @@ async function AuditPage({
         description={`Jejak seluruh tindakan administratif dan pengisian. ${result.total} peristiwa.`}
       />
 
-      <form action="/admin/audit" method="GET" className="grid gap-3 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm sm:grid-cols-4">
-        <select name="entity" defaultValue={sp.entity ?? ""} className={fieldClass}>
-          <option value="">Semua objek tindakan</option>
-          {entities.map((e) => (
-            <option key={e} value={e}>
-              {e}
-            </option>
-          ))}
-        </select>
-        <select name="actorId" defaultValue={sp.actorId ?? ""} className={fieldClass}>
-          <option value="">Semua pelaku</option>
-          {actors.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.name}
-            </option>
-          ))}
-        </select>
-        <input name="from" type="date" defaultValue={sp.from ?? ""} className={fieldClass} />
-        <input name="to" type="date" defaultValue={sp.to ?? ""} className={fieldClass} />
-        <div className="sm:col-span-4">
-          <button
-            type="submit"
-            className="rounded-xl bg-[var(--accent)] px-4 py-2 text-[14px] font-medium text-white transition hover:bg-[var(--accent-hover)]"
-          >
-            Terapkan filter
-          </button>
-        </div>
-      </form>
+      <FilterBar action="/admin/audit" method="GET" submitLabel="Terapkan filter">
+        <FilterField label="Objek tindakan" htmlFor="f-entity">
+          <select id="f-entity" name="entity" defaultValue={sp.entity ?? ""}>
+            <option value="">Semua objek tindakan</option>
+            {entities.map((e) => (
+              <option key={e} value={e}>
+                {e}
+              </option>
+            ))}
+          </select>
+        </FilterField>
+        <FilterField label="Pelaku" htmlFor="f-actor">
+          <select id="f-actor" name="actorId" defaultValue={sp.actorId ?? ""}>
+            <option value="">Semua pelaku</option>
+            {actors.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.name}
+              </option>
+            ))}
+          </select>
+        </FilterField>
+        <FilterField label="Dari tanggal" htmlFor="f-from">
+          <input id="f-from" name="from" type="date" defaultValue={sp.from ?? ""} />
+        </FilterField>
+        <FilterField label="Sampai tanggal" htmlFor="f-to">
+          <input id="f-to" name="to" type="date" defaultValue={sp.to ?? ""} />
+        </FilterField>
+      </FilterBar>
 
       {result.events.length === 0 ? (
         <p className="t-t-md" style={{ color: "var(--color-text)" }}>

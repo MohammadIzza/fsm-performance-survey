@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 import { StatusPill } from "@/components/theme/status-pill";
 import { Select } from "@/components/theme/form-field";
+import { FilterBar, FilterField } from "@/components/theme/filter-bar";
 import { DateValue } from "@/components/theme/date-range";
 
 export interface AssignmentRow {
@@ -57,34 +58,32 @@ export function AssignmentsList({ assignments }: { assignments: AssignmentRow[] 
 
   return (
     <>
-      <div className="form" style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem" }}>
-        <Select
-          value={periodId}
-          onChange={(e) => setPeriodId(e.target.value)}
-          aria-label="Filter periode"
-          style={{ width: "auto", minWidth: "14rem" }}
-        >
-          <option value="">Semua periode</option>
-          {periods.map(([id, name]) => (
-            <option key={id} value={id}>
-              {name}
-            </option>
-          ))}
-        </Select>
-        <Select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          aria-label="Filter status"
-          style={{ width: "auto", minWidth: "12rem" }}
-        >
-          <option value="">Semua status</option>
-          {Object.entries(statusLabel).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </Select>
-      </div>
+      <FilterBar>
+        <FilterField label="Periode" htmlFor="filter-periode">
+          <Select
+            id="filter-periode"
+            value={periodId}
+            onChange={(e) => setPeriodId(e.target.value)}
+          >
+            <option value="">Semua periode</option>
+            {periods.map(([id, name]) => (
+              <option key={id} value={id}>
+                {name}
+              </option>
+            ))}
+          </Select>
+        </FilterField>
+        <FilterField label="Status" htmlFor="filter-status">
+          <Select id="filter-status" value={status} onChange={(e) => setStatus(e.target.value)}>
+            <option value="">Semua status</option>
+            {Object.entries(statusLabel).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </Select>
+        </FilterField>
+      </FilterBar>
 
       {visible.length === 0 ? (
         <p className="t-t-md" style={{ color: "var(--color-text)", padding: "2rem 0" }}>

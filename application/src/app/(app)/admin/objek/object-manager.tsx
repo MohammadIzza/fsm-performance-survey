@@ -3,6 +3,7 @@
 import { useActionState, useMemo, useState } from "react";
 import { DataList, DataRow, RowTitle, RowField, RowActions } from "@/components/theme/data-list";
 import { StatusPill } from "@/components/theme/status-pill";
+import { FilterBar, FilterField } from "@/components/theme/filter-bar";
 import {
   createObjectAction,
   updateObjectAction,
@@ -110,14 +111,17 @@ export function ObjectManager({
         />
       </div>
 
-      <input
-        type="search"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Cari nama objek, jenis, unit, atau penanggung jawab…"
-        aria-label="Cari objek"
-        className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-[14px] text-[var(--foreground)] shadow-sm placeholder:text-[var(--muted)]"
-      />
+      <FilterBar>
+        <FilterField label="Cari objek" htmlFor="cari-objek" wide>
+          <input
+            id="cari-objek"
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Nama objek, jenis, unit, atau penanggung jawab…"
+          />
+        </FilterField>
+      </FilterBar>
 
       {visibleObjects.length === 0 ? (
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-center shadow-sm">
