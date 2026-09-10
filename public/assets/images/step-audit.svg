@@ -1,0 +1,8 @@
+<svg width="480" height="518" viewBox="0 0 480 518" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="">
+<rect width="480" height="518" fill="#FFD37D"/>
+<rect x="140" y="120" width="200" height="280" rx="16" fill="#FFFFFF"/>
+<rect x="190" y="95" width="100" height="45" rx="10" fill="#3658D3"/>
+<line x1="175" y1="200" x2="305" y2="200" stroke="#EC5212" stroke-width="12" stroke-linecap="round"/>
+<line x1="175" y1="255" x2="305" y2="255" stroke="#EC5212" stroke-width="12" stroke-linecap="round"/>
+<line x1="175" y1="310" x2="260" y2="310" stroke="#EC5212" stroke-width="12" stroke-linecap="round"/>
+</svg>
