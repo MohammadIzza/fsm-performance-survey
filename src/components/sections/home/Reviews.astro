@@ -1,6 +1,6 @@
 <div class="s-reviews" data-plr-component="s-reviews">
   <div class="u-container">
-    <h2 class="s__title t-h-4xl">Peringkat Teratas</h2>
+    <h2 class="s__title t-h-sm">Peringkat Teratas</h2>
     <p class="s__reviews__intro t-t-sm">Contoh tampilan, bukan data sungguhan.</p>
     <ul class="s__reviews js-reviews">
       <li class="s__review">
@@ -9,7 +9,6 @@
           class="s__review__link"
           href="/hasil/"
         >
-          <span class="s__review__name">Dosen A</span>
           <img
             alt=""
             class="s__review__logo js-logo"
@@ -20,12 +19,11 @@
           <div class="s__review__rating js-rating">
             <div class="s__review__rating__note js-note">
               <div
-                class="s__review__rating__counter js-counter"
+                class="s__review__rating__counter s__review__rating__counter--name js-counter"
                 data-note="1"
               >
-                1
+                Dosen A
               </div>
-              <div class="u-sr-only">peringkat</div>
             </div>
             <div class="s__review__rating__line js-line"></div>
           </div>
@@ -37,7 +35,6 @@
           class="s__review__link"
           href="/hasil/"
         >
-          <span class="s__review__name">Dosen B</span>
           <img
             alt=""
             class="s__review__logo js-logo"
@@ -47,10 +44,12 @@
           />
           <div class="s__review__rating js-rating">
             <div class="s__review__rating__note js-note">
-              <div class="s__review__rating__counter js-counter" data-note="2">
-                2
+              <div
+                class="s__review__rating__counter s__review__rating__counter--name js-counter"
+                data-note="2"
+              >
+                Dosen B
               </div>
-              <div class="u-sr-only">peringkat</div>
             </div>
             <div class="s__review__rating__line js-line"></div>
           </div>
@@ -62,7 +61,6 @@
           class="s__review__link"
           href="/hasil/"
         >
-          <span class="s__review__name">Dosen C</span>
           <img
             alt=""
             class="s__review__logo js-logo"
@@ -72,10 +70,12 @@
           />
           <div class="s__review__rating js-rating">
             <div class="s__review__rating__note js-note">
-              <div class="s__review__rating__counter js-counter" data-note="3">
-                3
+              <div
+                class="s__review__rating__counter s__review__rating__counter--name js-counter"
+                data-note="3"
+              >
+                Dosen C
               </div>
-              <div class="u-sr-only">peringkat</div>
             </div>
             <div class="s__review__rating__line js-line"></div>
           </div>
@@ -90,25 +90,30 @@
     margin-top: 0.5rem;
     color: var(--color-text);
   }
-  /* Nama diposisikan absolut di pojok kiri-atas baris, DI LUAR jalur baris
-     hias (garis + lingkaran) supaya tidak tertindih olehnya — baris hias itu
-     sengaja melebar jauh ke kiri (lihat sections.css .s__review__rating__line:after,
-     width: calc(100% + 50vw)) untuk efek bleed penuh lebar layar milik tema asli. */
-  .s-reviews .s__review__link {
-    position: relative;
-  }
-  .s-reviews .s__review__name {
-    position: absolute;
-    top: 0.9rem;
-    left: 2.5rem;
-    z-index: 3;
-    font: 600 1.3rem/1 var(--font-family-text);
+  /* Angka bawaan tema ("4.8/5") digambar lewat pseudo-element ::after berisi
+     string tersembunyi "0.0 0.1 ... 5.0" yang digulung pakai --y (dihitung JS
+     dari data-note) — teks asli elemen ini SENGAJA transparan (lihat aturan
+     dasar .s__review__rating__counter di sections.css). Supaya nama dosen bisa
+     tampil persis di posisi itu, ::after (si angka) dan "/5" di sebelahnya
+     dimatikan lewat content:none, lalu teks asli elemen (nama) dibuat terlihat
+     lagi. Garis, lingkaran, ikon, dan warna latar tiap baris tetap tema asli.*/
+  .s-reviews .s__review__rating__counter--name {
     color: var(--color-black);
+    font: 600 1.5rem/1.2 var(--font-family-text);
+    max-width: 12rem;
+    white-space: normal;
+  }
+  .s-reviews .s__review__rating__counter--name:after {
+    content: none;
+  }
+  .s-reviews .s__review__rating__note:before,
+  .s-reviews .s__review__rating__note:after {
+    content: none;
   }
   @media only screen and (max-width: 767px) {
-    .s-reviews .s__review__name {
-      left: 1.5rem;
-      font-size: 1.1rem;
+    .s-reviews .s__review__rating__counter--name {
+      font-size: 1.15rem;
+      max-width: 8rem;
     }
   }
 </style>
