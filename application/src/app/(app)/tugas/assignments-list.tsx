@@ -94,7 +94,15 @@ export function AssignmentsList({ assignments }: { assignments: AssignmentRow[] 
         // Satu daftar untuk semua lebar layar: baris tema sendiri yang menyusun ulang bidangnya
         // saat layar menyempit, jadi tidak perlu lagi dua salinan (kartu untuk ponsel, tabel untuk
         // desktop) yang harus dijaga tetap sama isinya.
-        <DataList>
+        <DataList
+          columns={[
+            ["title", "Objek"],
+            ["dates", "Tenggat"],
+            ["duration", "Kelompok"],
+            ["location", "Periode"],
+            ["price", "Status"],
+          ]}
+        >
           {visible.map((a, i) => (
             <DataRow key={a.id} href={`/tugas/${a.id}`} accent={i % 2 === 0 ? "green" : "pink"}>
               <RowTitle accent={i % 2 === 0 ? "green" : "pink"}>{a.objectName}</RowTitle>

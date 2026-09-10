@@ -311,16 +311,48 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell .s-bootcamps .sb-bootcamp .sb__background {left:0;width:100%}
 
 /* Bidang periode/unit di ruang survei berisi nama panjang ("Penilaian Kinerja Semester Ganjil
-   2026"), sedangkan lebar bawaan tema dipas untuk nama kota. Dilebarkan, dan bidang tanggal yang
-   isinya selalu pendek dipersempit sebagai gantinya supaya jumlah totalnya tetap. */
+   2026"), sedangkan lebar bawaan tema dipas untuk nama kota.
+
+   Lebar tiap bidang diturunkan dan sisanya dijadikan jarak antar-kolom lewat `gap`. Di tema tidak
+   ada jarak sama sekali: bidang-bidangnya menempel dan hanya dipisahkan lebar persen, sehingga
+   dengan isi sepanjang ini kolomnya terbaca berdempetan. Jumlah lebar sengaja ditinggalkan di
+   bawah 100% supaya `gap` punya ruang.
+
+   Ukuran hurufnya juga diturunkan dari 1em bawaan tema: baris tema memakai ukuran teks halaman
+   pemasaran, terlalu besar untuk daftar kerja yang isinya puluhan baris. Padding dan ikonnya ikut
+   mengecil karena semuanya dinyatakan dalam em. */
 @media only screen and (min-width: 988px) {
-  .survey-shell .s-courses-list .sb-course .sb__location {width:26%}
-  .survey-shell .s-courses-list .sb-course .sb__dates {width:14%}
+  .survey-shell .s-courses-list .sb-course {font-size:.8125rem}
+  .survey-shell .s-courses-list .sb-course .sb__link {gap:2rem}
+  .survey-shell .s-courses-list .sb-course .sb__title {width:24%}
+  .survey-shell .s-courses-list .sb-course .sb__dates {width:11%}
+  .survey-shell .s-courses-list .sb-course .sb__duration {width:14%}
+  .survey-shell .s-courses-list .sb-course .sb__location {width:19%}
+  .survey-shell .s-courses-list .sb-course .sb__price {width:16%;text-align:right}
+}
+
+/* Baris kepala: memakai kerangka baris yang sama supaya kolomnya pasti sejajar, tapi dilucuti
+   perilaku barisnya — tidak bisa diklik, tidak ada isian latar saat disorot, tidak ada garis tebal
+   di atas. Yang tersisa cuma label kecil berhuruf kapital di atas garis pembatas tabel. */
+.survey-shell .s-courses-list .sb-course--head {font-size:.6875rem;font-weight:600;cursor:default}
+.survey-shell .s-courses-list .sb-course--head .sb__link {padding-top:0;padding-bottom:.6rem}
+.survey-shell .s-courses-list .sb-course--head .sb__link:before {border-top-width:0}
+.survey-shell .s-courses-list .sb-course--head span {
+  color:var(--color-text);
+  letter-spacing:.06em;
+  text-transform:uppercase;
 }
 /* Bidang baris tanpa ikon — lihat catatan pada RowField di components/theme/data-list.tsx.
-   Padding kirinya ikut dikembalikan, karena di tema ruang itu memang disediakan untuk ikonnya. */
-.survey-shell .sb__field--no-icon:before {display:none}
-.survey-shell .sb__field--no-icon {padding-left:0}
+   Padding kirinya ikut dikembalikan, karena di tema ruang itu memang disediakan untuk ikonnya.
+
+   Selektornya mengulang rantai tema secara lengkap. Versi pertama hanya `.survey-shell
+   .sb__field--no-icon:before`, dan itu kalah spesifik dari `.s-courses-list .sb-course
+   .sb__dates:before` milik tema — akibatnya ikonnya tidak pernah benar-benar hilang meski
+   `icon={false}` dipasang. */
+.survey-shell .s-courses-list .sb-course .sb__field--no-icon:before,
+.survey-shell .s-bootcamps .sb-bootcamp .sb__field--no-icon:before {display:none}
+.survey-shell .s-courses-list .sb-course .sb__field--no-icon,
+.survey-shell .s-bootcamps .sb-bootcamp .sb__field--no-icon {padding-left:0}
 
 /* Lencana status: bentuk pil sama seperti tombol tema, huruf dari skala teks terkecil tema.
    Warna latarnya disetel per-lencana lewat atribut style, dari token brand. */

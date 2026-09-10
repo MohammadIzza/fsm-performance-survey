@@ -88,7 +88,14 @@ export default async function HomePage() {
       </UspGrid>
 
       {scopeUnits.length > 0 && (
-        <DataList title="Unit dalam lingkup" intro="Unit yang hasilnya dapat Anda baca.">
+        <DataList
+            title="Unit dalam lingkup"
+            intro="Unit yang hasilnya dapat Anda baca."
+            columns={[
+              ["title", "Unit"],
+              ["price", "Kode"],
+            ]}
+          >
           {scopeUnits.map((u, i) => (
             <DataRow key={u.code} href="/hasil" accent={i % 2 === 0 ? "green" : "pink"}>
               <RowTitle accent={i % 2 === 0 ? "green" : "pink"}>{u.name}</RowTitle>

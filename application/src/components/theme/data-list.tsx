@@ -17,10 +17,14 @@ import { SectionHeader } from "./section-header";
 /** Warna titik penanda di depan judul baris; ketiganya varian bawaan tema. */
 type Accent = "green" | "pink" | "blue";
 
+/** Bidang baris tema, berurutan seperti dipakai halaman referensi. */
+export type RowKind = "title" | "topic" | "dates" | "duration" | "location" | "price";
+
 export function DataList({
   title,
   intro,
   headerAction,
+  columns,
   // Halaman referensi memakai t-h-md karena judulnya memang judul seksi halaman pemasaran setinggi
   // layar. Di dalam aplikasi judul daftar berdiri di bawah judul halaman, jadi skalanya diturunkan
   // supaya hierarkinya tetap terbaca — kelasnya tetap kelas skala huruf tema.
@@ -30,6 +34,16 @@ export function DataList({
   title?: ReactNode;
   intro?: ReactNode;
   headerAction?: ReactNode;
+  /**
+   * Nama kolom, berpasangan dengan bidang yang dipakai barisnya dan dalam urutan yang sama.
+   * Dirender memakai kelas bidang yang sama persis, jadi lebarnya dijamin sejajar dengan isi di
+   * bawahnya tanpa perlu menyetel lebar dua kali.
+   *
+   * Ditandai aria-hidden: ini daftar tautan, bukan <table>, sehingga pembaca layar tidak bisa
+   * mengaitkan sel dengan kepalanya. Nama tiap baris sudah lengkap pada tautannya sendiri, jadi
+   * membacakan deretan label ini hanya menambah bising.
+   */
+  columns?: [RowKind, string][];
   titleSize?: "t-h-md" | "t-h-sm" | "t-h-xs" | "t-h-2xs" | "t-h-3xs";
   children: ReactNode;
 }) {
@@ -42,7 +56,20 @@ export function DataList({
           </SectionHeader>
         </div>
       )}
-      <ul className="s__courses js-courses">{children}</ul>
+      <ul className="s__courses js-courses">
+        {columns && (
+          <li className="sb-course sb-course--head" aria-hidden="true">
+            <span className="sb__link">
+              {columns.map(([kind, label]) => (
+                <span key={kind} className={`sb__${kind} sb__field--no-icon`}>
+                  {label}
+                </span>
+              ))}
+            </span>
+          </li>
+        )}
+        {children}
+      </ul>
     </div>
   );
 }
