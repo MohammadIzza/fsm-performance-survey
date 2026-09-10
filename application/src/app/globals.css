@@ -332,6 +332,96 @@ input[type="range"]:disabled::-moz-range-thumb {
   font:600 var(--font-size-t-sm)/1.2 var(--font-family-text);
   white-space:nowrap;
 }
+/* ── Layar admin ────────────────────────────────────────────────────────────
+   Halaman admin memakai empat bentuk berulang — kartu, tabel, kolom isian, tombol sekunder —
+   yang di sana ditulis sebagai rangkaian utilitas Tailwind dengan nilai tersendiri: sudut, tebal
+   garis, dan warna yang mirip token tema tapi bukan token tema. Jumlahnya lebih dari 130 tempat.
+   Disamakan dari sini, bukan disunting satu per satu.
+
+   Bisa disetel dari sini karena utilitas Tailwind berada di dalam @layer sedangkan berkas ini
+   tidak, dan gaya tanpa layer selalu menang atas gaya berlayer — jadi selektor sesederhana
+   `div.rounded-2xl` sudah cukup, tanpa !important dan tanpa mengejar spesifisitas.
+
+   Bayangan dihapus di semua tempat: tema tidak memakai box-shadow satu kali pun. */
+.survey-shell main div.rounded-2xl,
+.survey-shell main section.rounded-2xl,
+.survey-shell main div.rounded-xl.border {
+  background: var(--color-white);
+  border: 1px solid var(--color-grey-2);
+  border-radius: 0.8334rem;
+  box-shadow: none;
+}
+
+.survey-shell main input[type="text"],
+.survey-shell main input[type="number"],
+.survey-shell main input[type="search"],
+.survey-shell main input[type="email"],
+.survey-shell main input[type="date"],
+.survey-shell main input[type="datetime-local"],
+.survey-shell main input[type="password"],
+.survey-shell main select,
+.survey-shell main textarea {
+  font:600 var(--font-size-t-sm)/1 var(--font-family-t-sm);
+  padding:.8em 1em;
+  background:var(--color-white);
+  border:2px solid var(--color-grey-2);
+  border-radius:.5em;
+  color:var(--color-black);
+  transition:border-color .07s linear;
+}
+.survey-shell main textarea {line-height:1.46}
+.survey-shell main input:focus,
+.survey-shell main select:focus,
+.survey-shell main textarea:focus {border-color:var(--color-brand-5);outline:none}
+/* Select tetap memakai anak panah kustom yang sudah ada di berkas ini, jadi ruang kanannya
+   dipertahankan; radius pilnya diganti radius kotak tema supaya sebentuk dengan kolom isian. */
+.survey-shell main select {border-radius:.5em !important}
+
+/* Tombol sekunder di layar admin (Batal, Unduh, dan sejenisnya). Bentuk pil dan huruf sama dengan
+   tombol tema; latarnya dibiarkan kosong supaya tetap terbaca sebagai aksi kedua di samping tombol
+   utama .btn-plain.
+
+   Syaratnya elemen itu SUDAH membawa utilitas garis tepi. Versi pertama aturan ini menyasar semua
+   <button>, dan itu justru merusak aksi di dalam tabel (Edit, Peran, Nonaktifkan) yang memang sudah
+   benar berupa tautan teks tanpa garis — ketiganya berubah jadi pil besar sehingga tiap baris
+   tabel membungkus jadi dua baris. Menyaring lewat garis tepi membuat aturan ini hanya mengenai
+   elemen yang sejak awal memang berbentuk kotak bergaris. */
+.survey-shell main button[class*="border-"]:not(.btn-plain):not([class*="bg-"]),
+.survey-shell main a[class*="rounded-xl"][class*="border-"] {
+  border-radius:999em;
+  font:600 var(--font-size-t-sm)/1 var(--font-family-text);
+  border:2px solid var(--color-grey-2);
+  padding:.85em 1.4em;
+  transition:border-color .07s linear,color .07s linear;
+}
+.survey-shell main button[class*="border-"]:not(.btn-plain):not([class*="bg-"]):hover,
+.survey-shell main a[class*="rounded-xl"][class*="border-"]:hover {border-color:var(--color-black)}
+
+/* Tabel: huruf, garis, dan warna kepala kolom dari token tema. Tetap <table> — baris daftar tema
+   (.sb-course) dirancang untuk sekitar lima bidang pendek dalam satu baris, sedangkan tabel admin
+   membawa lima sampai tujuh kolom beserta tautan aksi per baris; memaksakannya ke sana memotong
+   teks, bukan merapikannya. */
+.survey-shell main table {
+  width:100%;
+  border-collapse:collapse;
+  font:400 var(--font-size-t-sm)/1.4 var(--font-family-text);
+}
+.survey-shell main thead th {
+  padding:.9em 1em;
+  border-bottom:2px solid var(--color-black);
+  color:var(--color-black);
+  font-weight:600;
+  text-align:left;
+  white-space:nowrap;
+}
+.survey-shell main tbody td {padding:.9em 1em;border-bottom:1px solid var(--color-grey-2)}
+/* Aksi di dalam sel (Edit, Peran, Nonaktifkan) memang aksi tersier, jadi dibiarkan berupa tautan
+   teks seperti aslinya — hanya warnanya disamakan dengan warna tautan tema. */
+.survey-shell main td button:not(.btn-plain),
+.survey-shell main td a {color:var(--color-brand-3)}
+.survey-shell main tbody tr:last-child td {border-bottom:0}
+.survey-shell main tbody tr:hover {background:var(--color-beige-dark)}
+
 /* ── Bilah samping ──────────────────────────────────────────────────────────
    Tautannya memakai .site-head__menu dari tema, jadi huruf, warna keadaan aktif, dan transisinya
    ikut dari sana. Yang perlu disetel di sini cuma arah susunannya: menu tema mendatar untuk kepala
