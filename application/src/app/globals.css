@@ -333,6 +333,16 @@ input[type="range"]:disabled::-moz-range-thumb {
    catatan pada DateRange di components/theme/date-range.tsx. */
 .date-range__part {white-space:nowrap}
 
+/* Kartu ringkasan versi pendek untuk layar admin — lihat catatan `compact` pada UspGrid.
+   Hanya rasio tingginya yang diganti; lebar, warna, dan jaraknya tetap dari tema. */
+.survey-shell .s-usps--compact {--card-ratio:.4}
+@media only screen and (max-width: 987px) {
+  .survey-shell .s-usps--compact {--card-ratio:.55}
+}
+@media only screen and (max-width: 576px) {
+  .survey-shell .s-usps--compact {--card-ratio:.6}
+}
+
 /* Baris penyaring — lihat catatan pada FilterBar di components/theme/filter-bar.tsx. Rata kiri
    dengan daftar di bawahnya, tanpa kartu pembungkus. */
 .survey-shell .filter-bar {display:flex;flex-wrap:wrap;align-items:flex-end;gap:.9rem 1.25rem}

@@ -1,6 +1,6 @@
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import { getMonitoringSummary } from "@/lib/services/monitoring";
-import { PageHero } from "@/components/page-hero";
+import { UspGrid, UspCard } from "@/components/theme/usp-grid";
 
 const statusLabel: Record<string, string> = {
   BELUM_MULAI: "Belum mulai",
@@ -10,48 +10,28 @@ const statusLabel: Record<string, string> = {
   DIBATALKAN: "Dibatalkan",
 };
 
-function StatCard({ label, value, tone }: { label: string; value: string | number; tone?: "danger" | "warning" | "success" }) {
-  const toneClass =
-    tone === "danger"
-      ? "text-[var(--danger)]"
-      : tone === "warning"
-        ? "text-amber-600"
-        : tone === "success"
-          ? "text-[var(--success)]"
-          : "text-[var(--foreground)]";
-  return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
-      <p className="text-[12px] font-medium uppercase tracking-wide text-[var(--muted)]">{label}</p>
-      <p className={`mt-2 text-[28px] font-semibold ${toneClass}`}>{value}</p>
-    </div>
-  );
-}
 
 async function PemantauanPage() {
   const summary = await getMonitoringSummary();
 
   return (
     <div className="space-y-8">
-      <PageHero
-        compact
-        eyebrow="ADMIN · PEMANTAUAN"
-        title="Pemantauan"
-        description="Ringkasan operasional seluruh fakultas."
-      />
+      <UspGrid as="h1" compact title="Pemantauan" intro="Ringkasan operasional seluruh fakultas.">
+        <UspCard title="Tingkat pengiriman" tone="kuning">
+          {summary.submissionRate.toFixed(1)}% tugas berlaku sudah dikirim.
+        </UspCard>
+        <UspCard
+          title="Perhitungan tertunda"
+          tone={summary.pendingCalcCount > 0 ? "merah" : "tosca"}
+        >
+          {summary.pendingCalcCount} kategori menunggu dihitung ulang.
+        </UspCard>
+        <UspCard title="Perhitungan gagal" tone={summary.failedCalcCount > 0 ? "merah" : "tosca"}>
+          {summary.failedCalcCount} percobaan berhenti dengan galat.
+        </UspCard>
+      </UspGrid>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <StatCard label="Tingkat pengiriman" value={`${summary.submissionRate.toFixed(1)}%`} />
-        <StatCard
-          label="Perhitungan tertunda"
-          value={summary.pendingCalcCount}
-          tone={summary.pendingCalcCount > 0 ? "warning" : "success"}
-        />
-        <StatCard
-          label="Perhitungan gagal"
-          value={summary.failedCalcCount}
-          tone={summary.failedCalcCount > 0 ? "danger" : "success"}
-        />
-      </div>
+
 
       <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
         <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">

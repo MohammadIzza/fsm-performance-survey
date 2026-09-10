@@ -2,7 +2,7 @@ import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import Link from "next/link";
 import { listAuditEvents, listDistinctAuditEntities } from "@/lib/services/audit";
 import { prisma } from "@/lib/prisma";
-import { PageHero } from "@/components/page-hero";
+import { UspGrid, UspCard } from "@/components/theme/usp-grid";
 import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 import { FilterBar, FilterField } from "@/components/theme/filter-bar";
 import { Select, TextInput } from "@/components/theme/form-field";
@@ -46,12 +46,17 @@ async function AuditPage({
 
   return (
     <div className="space-y-8">
-      <PageHero
-        compact
-        eyebrow="ADMIN · AUDIT"
-        title="Audit"
-        description={`Jejak seluruh tindakan administratif dan pengisian. ${result.total} peristiwa.`}
-      />
+      <UspGrid as="h1" compact title="Audit" intro="Jejak seluruh tindakan administratif dan pengisian.">
+        <UspCard title="Peristiwa tercatat" tone="kuning">
+          {result.total} tindakan tersimpan dan tidak dapat diubah.
+        </UspCard>
+        <UspCard title="Objek tindakan" tone="biru">
+          {entities.length} jenis objek pernah dikenai tindakan.
+        </UspCard>
+        <UspCard title="Pelaku" tone="merah">
+          {actors.length} orang tercatat pernah melakukan tindakan.
+        </UspCard>
+      </UspGrid>
 
       <FilterBar action="/admin/audit" method="GET" submitLabel="Terapkan filter">
         <FilterField label="Objek tindakan" htmlFor="f-entity">

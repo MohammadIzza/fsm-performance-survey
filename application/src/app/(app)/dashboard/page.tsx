@@ -3,7 +3,6 @@ import { getSession } from "@/lib/session";
 import { getAuthContext } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { listMyAssignments, computeDisplayStatus } from "@/lib/services/responses";
-import { PageHero } from "@/components/page-hero";
 import { UspGrid, UspCard } from "@/components/theme/usp-grid";
 import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 
@@ -59,20 +58,9 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-8">
-      <PageHero
-        eyebrow={`RUANG PENILAIAN · ${roleLabel}`}
-        title={
-          <>
-            Selamat datang,
-            <br />
-            {ctx.name.split(" ")[0]}.
-          </>
-        }
-        description="Kelola tugas, berikan penilaian, dan ikuti perkembangan sesuai peran Anda."
-      />
-
       <UspGrid
-        title="Ringkasan Anda"
+        as="h1"
+        title={`Selamat datang, ${ctx.name.split(" ")[0]}`}
         intro={`Masuk sebagai ${ctx.loginIdentifier}, dengan peran ${roleLabel}.`}
       >
         <UspCard title="Tugas penilaian" tone={pendingCount > 0 ? "kuning" : "tosca"}>

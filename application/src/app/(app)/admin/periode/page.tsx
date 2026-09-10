@@ -1,7 +1,7 @@
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import { listPeriods } from "@/lib/services/periods";
 import { PeriodCreateForm } from "./period-create-form";
-import { PageHero } from "@/components/page-hero";
+import { UspGrid, UspCard } from "@/components/theme/usp-grid";
 import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 import { StatusPill } from "@/components/theme/status-pill";
 import { DateRange } from "@/components/theme/date-range";
@@ -31,12 +31,17 @@ async function PeriodePage() {
 
   return (
     <div className="space-y-8">
-      <PageHero
-        compact
-        eyebrow="ADMIN · PERIODE"
-        title="Periode"
-        description="Kelola pelaksanaan survei dan siklus hidupnya."
-      />
+      <UspGrid as="h1" compact title="Periode" intro="Kelola pelaksanaan survei dan siklus hidupnya.">
+        <UspCard title="Periode" tone="kuning">
+          {periods.length} periode tercatat, terbaru di urutan pertama.
+        </UspCard>
+        <UspCard title="Sedang berjalan" tone="tosca">
+          {periods.filter((p) => p.status === "AKTIF").length} periode berstatus Aktif.
+        </UspCard>
+        <UspCard title="Kategori" tone="biru">
+          {periods.reduce((n, p) => n + p._count.categories, 0)} kategori di seluruh periode.
+        </UspCard>
+      </UspGrid>
 
       <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
         <h2 className="mb-4 text-[13px] font-medium uppercase tracking-wide text-[var(--muted)]">

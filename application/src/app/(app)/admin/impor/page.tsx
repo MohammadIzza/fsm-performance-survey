@@ -1,7 +1,7 @@
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import { listImportBatches } from "@/lib/services/imports";
 import { ImportForm } from "./import-form";
-import { PageHero } from "@/components/page-hero";
+import { UspGrid, UspCard } from "@/components/theme/usp-grid";
 import { DataList, DataRow, RowTitle, RowField } from "@/components/theme/data-list";
 import { StatusPill } from "@/components/theme/status-pill";
 
@@ -20,12 +20,18 @@ async function ImporPage() {
 
   return (
     <div className="space-y-8">
-      <PageHero
-        compact
-        eyebrow="ADMIN · IMPOR"
-        title="Impor Data Master"
-        description="Unggah Unit, Pengguna, atau Pimpinan dari berkas Excel."
-      />
+      <UspGrid as="h1" compact title="Impor Data Master" intro="Unggah Unit, Pengguna, atau Pimpinan dari berkas Excel.">
+        <UspCard title="Riwayat impor" tone="kuning">
+          {batches.length} berkas pernah diunggah.
+        </UspCard>
+        <UspCard title="Diterapkan" tone="tosca">
+          {batches.filter((b) => b.status === "DITERAPKAN").length} impor masuk ke data master.
+        </UspCard>
+        <UspCard title="Gagal" tone="merah">
+          {batches.filter((b) => b.status === "GAGAL").length} impor berhenti karena berkasnya
+          bermasalah.
+        </UspCard>
+      </UspGrid>
 
       <ImportForm />
 

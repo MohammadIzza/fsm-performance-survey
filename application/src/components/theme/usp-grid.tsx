@@ -22,8 +22,16 @@ export function UspGrid({
   // lebih kecil, dan .s-usps .s__title dibatasi 8em sehingga judul panjang terpotong. Skalanya
   // diturunkan — kelasnya tetap kelas skala huruf tema.
   titleSize = "t-h-3xs",
+  as = "h2",
+  // Kartu tema setinggi 0,88 × lebarnya — ukuran halaman pemasaran, di mana kartu memang isi
+  // utamanya. Di layar admin kartunya cuma ringkasan di atas daftar, dan setinggi itu daftarnya
+  // terdorong ke bawah lipatan. `compact` memendekkan kartunya lewat --card-ratio milik tema,
+  // jadi lebarnya tetap dari sistem kolom yang sama.
+  compact = false,
   children,
 }: {
+  as?: "h1" | "h2";
+  compact?: boolean;
   title?: ReactNode;
   intro?: ReactNode;
   titleSize?: "t-h-md" | "t-h-sm" | "t-h-xs" | "t-h-2xs" | "t-h-3xs";
@@ -32,8 +40,8 @@ export function UspGrid({
   children: ReactNode;
 }) {
   return (
-    <div className={`s-usps s-usps--layout-${layout}`}>
-      {title && <SectionHeader title={title} intro={intro} size={titleSize} />}
+    <div className={`s-usps s-usps--layout-${layout}${compact ? " s-usps--compact" : ""}`}>
+      {title && <SectionHeader title={title} intro={intro} size={titleSize} as={as} />}
       <div className="s__usps">{children}</div>
     </div>
   );

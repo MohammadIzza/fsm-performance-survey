@@ -10,8 +10,12 @@ export function SectionHeader({
   title,
   intro,
   size = "t-h-xs",
+  // Saat blok ini menjadi judul halaman — bukan judul seksi di tengah halaman — judulnya harus
+  // <h1>, karena tidak ada judul lain di atasnya.
+  as: Heading = "h2",
   children,
 }: {
+  as?: "h1" | "h2";
   title: ReactNode;
   intro?: ReactNode;
   /** Kelas skala huruf tema. Halaman referensi memakai t-h-md untuk judul besar
@@ -23,7 +27,7 @@ export function SectionHeader({
   return (
     <div className="s__header js-header" data-lg-reveal>
       <div className="s__header-content">
-        <h2 className={`s__title ${size}`}>{title}</h2>
+        <Heading className={`s__title ${size}`}>{title}</Heading>
         {intro && <p className="s__intro">{intro}</p>}
       </div>
       {children}
