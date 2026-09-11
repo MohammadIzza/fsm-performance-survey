@@ -546,7 +546,13 @@ input[type="range"]:disabled::-moz-range-thumb {
    `.form select.form__control[name='bootcamp']` di blocks.css. */
 .survey-shell .filter-bar input[type="date"] {
   padding-left: 2.4em;
-  background: url('/assets/images/icon-date.svg') 0.9em 50%/0.8em 0.8em no-repeat;
+  /* Jangan memakai shorthand `background`: shorthand itu mengembalikan warna latar menjadi
+     transparan dan menimpa bidang putih milik .form__control. */
+  background-color: var(--color-white);
+  background-image: url('/assets/images/icon-date.svg');
+  background-position: 0.9em 50%;
+  background-size: 0.8em 0.8em;
+  background-repeat: no-repeat;
 }
 
 /* ——— Alat admin di halaman penugasan ———————————————————————————————————————————————
