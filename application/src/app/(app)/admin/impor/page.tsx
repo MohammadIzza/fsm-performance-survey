@@ -42,7 +42,7 @@ async function ImporPage() {
       <ImportForm />
 
       {batches.length === 0 ? (
-        <p className="t-t-md" style={{ color: "var(--color-text)" }}>
+        <p className="admin-actions__note">
           Belum ada riwayat impor.
         </p>
       ) : (
