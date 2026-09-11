@@ -70,9 +70,8 @@ export function LoginHeroFsm() {
   }, []);
 
   return (
-    <div className="login-fsm" ref={ref}>
-      <span className="u-sr-only">FSM — Fakultas Sains dan Matematika</span>
-      <div className="login-fsm__letters" aria-hidden="true">
+    <div className="login-fsm" ref={ref} aria-hidden="true">
+      <div className="login-fsm__letters">
         {HURUF.map((h) => (
           <div key={h.kunci} className={`login-fsm__letter login-fsm__letter--${h.kunci}`}>
             <div className="login-fsm__flower" data-huruf={h.kunci} />

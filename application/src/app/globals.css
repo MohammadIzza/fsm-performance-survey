@@ -2348,17 +2348,6 @@ input[type="range"]:disabled::-moz-range-thumb {
   min-height:calc(100svh - 86px + 8rem);overflow:hidden;background:var(--color-beige)}
 .survey-login-art {background:transparent;display:flex;flex-direction:column;justify-content:center;
   align-items:flex-start;padding:60px 8% 15rem;position:relative;overflow:hidden}
-/* Judulnya dulu setinggi 94px — hampir tiga kali judul halaman di dalam aplikasi (32px), sehingga
-   halaman masuk terbaca seperti produk lain. Sekarang paling besar 62px: masih jelas sebuah sampul,
-   tetapi sekeluarga dengan halaman yang dibuka sesudahnya. */
-.survey-login-art h1 {
-  position:relative;z-index:2;max-width:11em;
-  font-size:clamp(2.1rem,4.1vw,3.1rem);line-height:1.02;letter-spacing:-.045em;font-weight:600;
-}
-.survey-login-art__text {
-  position:relative;z-index:2;margin:1.1rem 0 0;max-width:26rem;
-  font-size:.85rem;line-height:1.5;color:var(--color-text);
-}
 .survey-login-form {position:relative;z-index:4}
 /* Huruf F-S-M di panel kiri — aset yang sama dengan hero beranda publik. Sebelumnya di sini ada
    balok warna yang disusun satu per satu lewat CSS: bentuk yang tidak menyebut apa pun dan tidak
@@ -2374,7 +2363,7 @@ input[type="range"]:disabled::-moz-range-thumb {
    dan huruf-hurufnya berjauhan meski jarak antarkotaknya nol. Jadi kotaknya dibuat sebesar
    gambarnya saja (240x281, M 300x281 satuan kanvas) dan kanvasnya dibesarkan melampaui kotak itu:
    ukuran huruf dan jarak antarhuruf jadi apa adanya, bukan hasil ruang kosong bawaan berkas. */
-.login-fsm {position:relative;z-index:2;margin-top:2.2rem;width:100%}
+.login-fsm {position:relative;z-index:2;width:100%}
 .login-fsm__letters {display:flex;align-items:flex-end;gap:.4rem;width:100%}
 .login-fsm__letter {display:flex;flex-direction:column;align-items:flex-start;min-width:0}
 .login-fsm__letter--f,
@@ -2427,7 +2416,6 @@ input[type="range"]:disabled::-moz-range-thumb {
   /* Layar sempit: hurufnya tetap ada — ini wajah fakultasnya — tetapi tangkai dan lambangnya
      tidak. Panel kiri di ponsel cuma setinggi beberapa baris dan ditutup pita bukit di kakinya;
      menambah tangkai sepanjang tiga baris lagi hanya mendorong isian masuk ke bawah layar. */
-  .login-fsm {margin-top:.9rem}
   .login-fsm__letters {gap:.3rem}
   .login-fsm__stem,
   .login-fsm__logo {display:none}
@@ -2504,7 +2492,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-demo-accounts dd {margin:0}
 .survey-demo-accounts code {font-size:.65rem;color:var(--color-black)}
 .survey-footer {padding:24px 4vw;font-size:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:16px}
-@media(max-width:768px){.survey-header nav{gap:12px;font-size:12px}.survey-brand small{display:none}.survey-login{grid-template-columns:1fr}.survey-login-art{padding:40px 24px}.survey-login-art h1{font-size:54px}.survey-login-art .survey-motion{height:130px;margin:0}.survey-login-form{padding:40px 24px}.survey-hero{padding:24px;min-height:150px}.survey-hero .survey-motion{width:100px;min-width:80px;height:100px}.survey-header{padding:18px 24px}}
+@media(max-width:768px){.survey-header nav{gap:12px;font-size:12px}.survey-brand small{display:none}.survey-login{grid-template-columns:1fr}.survey-login-art{padding:40px 24px}.survey-login-form{padding:40px 24px}.survey-hero{padding:24px;min-height:150px}.survey-hero .survey-motion{width:100px;min-width:80px;height:100px}.survey-header{padding:18px 24px}}
 /* Layar sempit: tiga tautan di kepala situs masih membungkus jadi dua baris dan membuat kepala
    setinggi dua kali. Dirapatkan, dan label terpanjang dipendekkan lewat jarak antar-kata. */
 @media(max-width:640px){
@@ -2517,15 +2505,12 @@ input[type="range"]:disabled::-moz-range-thumb {
  .survey-header .site-head__menu .menu-link {padding:.25em 0;white-space:nowrap}
  .survey-login {min-height:auto;margin:.55rem .7rem 1rem;background:var(--color-beige);
    border:1px solid var(--color-grey-2);border-radius:.85rem;overflow:visible}
- .survey-login-art {min-height:21.4rem;align-items:flex-start;padding:1rem 1rem 5.2rem;
+ .survey-login-art {min-height:13.4rem;align-items:flex-start;padding:1rem 1rem 5.2rem;
    background:var(--color-beige);color:var(--color-black)}
- .survey-login-art h1 {font-size:1.38rem;line-height:1.02;letter-spacing:-.045em}
- .survey-login-art p {max-width:18rem;margin-top:.55rem!important;font-size:.62rem!important;
-   line-height:1.4;color:var(--color-black)}
  .survey-login-hills {height:5.4rem}
  /* Pita bukit menutup kaki panel kiri: dasarnya dijaga tepat di batas panel dengan formulir,
     jadi tingginya sendiri (5.4rem) dikurangkan dari tinggi panel. */
- .survey-login-hills {top:calc(21.4rem - 5.4rem);right:auto;bottom:auto;left:50%;width:100vw;
+ .survey-login-hills {top:calc(13.4rem - 5.4rem);right:auto;bottom:auto;left:50%;width:100vw;
    transform:translateX(-50%)}
  .survey-login-hills i {border-top-width:1.5px}
  .survey-login-form {padding:1rem;background:var(--color-white)}

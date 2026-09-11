@@ -9,14 +9,6 @@ export default async function LoginPage() {
   return (
     <main className="survey-login">
       <section className="survey-login-art">
-        <h1>
-          Penilaian baik.
-          <br />
-          Bertumbuh bersama.
-        </h1>
-        <p className="survey-login-art__text">
-          Satu ruang untuk penilaian yang terarah, transparan, dan bermakna bagi FSM UNDIP.
-        </p>
         <LoginHeroFsm />
       </section>
 
