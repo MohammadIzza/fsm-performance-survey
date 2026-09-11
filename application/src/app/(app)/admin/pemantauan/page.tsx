@@ -60,7 +60,7 @@ async function PemantauanPage() {
         <h2 className="app-panel__label">
           Objek di bawah minimum respons
         </h2>
-        <p className="text-[var(--foreground)]">
+        <p className="app-text-xs text-[var(--muted)]">
           {summary.belowMinimumObjectCount} objek (dari perhitungan terakhir per kategori) belum
           memenuhi minimum respons atau belum memiliki penilaian sama sekali.
         </p>
