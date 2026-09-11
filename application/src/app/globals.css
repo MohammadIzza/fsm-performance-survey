@@ -1957,6 +1957,20 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__dates {
   flex:1 1 5.5rem;
 }
+/* Pada daftar accordion, slot terakhir benar-benar hanya memuat satu chevron. Lebarnya mengikuti
+   tombol itu sendiri; Status juga cukup selebar lencananya. Ruang yang dilepas dibagikan ke nama,
+   unit/pimpinan, dan peran — bidang yang memang membawa teks panjang. `:has()` membedakan daftar
+   ini dari daftar Periode/Impor yang memakai slot `price` untuk lencana Status, bukan Aksi. */
+.survey-shell main .admin-area .s-courses-list:has(.sb__disclosure)
+  .sb-course .sb__link > .sb__price {flex:0 0 1.9rem}
+.survey-shell main .admin-area .s-courses-list:has(.sb__disclosure)
+  .sb-course .sb__link > .sb__dates {flex:0 0 6rem}
+.survey-shell main .admin-area .s-courses-list:has(.sb__disclosure)
+  .sb-course .sb__link > .sb__title {flex:2.2 1 0}
+.survey-shell main .admin-area .s-courses-list:has(.sb__disclosure)
+  .sb-course .sb__link > .sb__duration {flex:1.1 1 0}
+.survey-shell main .admin-area .s-courses-list:has(.sb__disclosure)
+  .sb-course .sb__link > :is(.sb__location,.sb__topic) {flex:1.35 1 0}
 /* Isi kolom lain boleh membungkus. Tema menahannya satu baris karena isinya "Jakarta" atau
    "3 bulan"; di sini isinya nama unit dan nama jabatan, dan satu baris berarti terpotong. */
 .survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__title,
