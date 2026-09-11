@@ -40,28 +40,28 @@ export function AssignmentPlanner({
   const plan = previewState.plan;
 
   return (
-    <div className="space-y-4">
-      <form action={previewAction}>
+    <div className="assignment-planner space-y-4">
+      <form action={previewAction} className="assignment-planner__preview">
         <input type="hidden" name="categoryId" value={categoryId} />
         <button
           type="submit"
           disabled={previewPending}
-          className="app-btn"
+          className="app-btn assignment-planner__preview-button"
         >
           {previewPending ? "Menghitung…" : "Pratinjau pengacakan"}
         </button>
       </form>
 
       {previewState.error && (
-        <p role="alert" className="text-sm text-[var(--danger)]">
+        <p role="alert" className="assignment-planner__message text-[var(--danger)]">
           {previewState.error}
         </p>
       )}
 
       {plan && (
-        <div className="space-y-3">
-          <div className="app-table-wrap">
-            <table className="w-full min-w-[640px] text-left app-text-sm">
+        <div className="assignment-planner__result space-y-3">
+          <div className="app-table-wrap assignment-planner__table-wrap">
+            <table className="assignment-planner__table w-full min-w-[640px] text-left">
               <thead>
                 <tr>
                   <th className="px-3 py-2 font-medium">Objek</th>
@@ -95,33 +95,46 @@ export function AssignmentPlanner({
             </table>
           </div>
 
-          <div className="flex items-center gap-3">
-            <p className="app-text-sm text-[var(--muted)]">
-              {plan.totalNewAssignments} tugas baru akan diterbitkan.
-            </p>
-            {plan.totalNewAssignments > 0 && (
-              <form action={commitAction}>
+          <div className="assignment-planner__footer">
+            {plan.totalNewAssignments > 0 ? (
+              <form action={commitAction} className="assignment-planner__apply">
                 <input type="hidden" name="categoryId" value={categoryId} />
                 <input type="hidden" name="periodId" value={periodId} />
                 <input type="hidden" name="seed" value={plan.seed} /><input type="hidden" name="fingerprint" value={plan.fingerprint??""} />
-                {plan.entries.some(e=>e.shortage>0) && <label className="mb-3 block text-sm"><input type="checkbox" required /> Saya menerima kekurangan calon yang ditampilkan. Minimum respons tetap berlaku.</label>}
-                <button
-                  type="submit"
-                  disabled={commitPending}
-                  className="app-btn app-btn--primary"
-                >
-                  {commitPending ? "Menerapkan…" : "Terapkan penugasan"}
-                </button>
+                {plan.entries.some(e=>e.shortage>0) && (
+                  <label className="assignment-planner__acceptance">
+                    <input type="checkbox" required />
+                    <span>
+                      Saya menerima kekurangan calon yang ditampilkan. Minimum respons tetap berlaku.
+                    </span>
+                  </label>
+                )}
+                <div className="assignment-planner__apply-row">
+                  <p className="assignment-planner__summary text-[var(--muted)]">
+                    {plan.totalNewAssignments} tugas baru akan diterbitkan.
+                  </p>
+                  <button
+                    type="submit"
+                    disabled={commitPending}
+                    className="app-btn app-btn--primary"
+                  >
+                    {commitPending ? "Menerapkan…" : "Terapkan penugasan"}
+                  </button>
+                </div>
               </form>
+            ) : (
+              <p className="assignment-planner__summary text-[var(--muted)]">
+                Tidak ada tugas baru yang perlu diterbitkan.
+              </p>
             )}
           </div>
           {commitState.error && (
-            <p role="alert" className="text-sm text-[var(--danger)]">
+            <p role="alert" className="assignment-planner__message text-[var(--danger)]">
               {commitState.error}
             </p>
           )}
           {commitState.committed && (
-            <p className="text-sm text-[var(--success)]">
+            <p className="assignment-planner__message text-[var(--success)]">
               Penugasan diterapkan. Lihat daftar tugas di bawah untuk hasilnya.
             </p>
           )}

@@ -734,6 +734,58 @@ input[type="range"]:disabled::-moz-range-thumb {
   margin:0;color:var(--color-brand-4-dark);font-size:.58rem;font-weight:600;
 }
 .period-stepper__rules-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+
+/* Pratinjau pembagian tugas memakai skala teks yang sama dengan panduan stepper di atasnya.
+   Tabel memberi sebagian besar ruang kepada daftar nama penilai, sementara angka ringkas tidak
+   ikut meregang. Area persetujuan dan tombol dibaca sebagai satu tindakan yang kompak. */
+.assignment-planner {font-size:.6rem;line-height:1.4}
+.assignment-planner__preview {margin:0}
+.survey-shell main .assignment-planner .assignment-planner__preview-button,
+.survey-shell main .assignment-planner .assignment-planner__apply .app-btn {
+  min-height:1.9rem;padding:.38rem .75rem;font-size:.6rem;
+}
+.assignment-planner__table-wrap {border:0;border-radius:0;background:transparent}
+.survey-shell main .assignment-planner__table {
+  table-layout:fixed;font-size:.6rem;line-height:1.4;
+}
+.survey-shell main .assignment-planner__table thead th {
+  padding:.5rem .45rem;font-size:.54rem;line-height:1.25;white-space:normal;
+}
+.survey-shell main .assignment-planner__table tbody td {
+  padding:.55rem .45rem;font-size:.6rem;line-height:1.4;vertical-align:top;
+}
+.survey-shell main .assignment-planner__table :is(th,td):is(:nth-child(3),:nth-child(4),:nth-child(6)) {
+  text-align:center;
+}
+.assignment-planner__footer {display:block}
+.assignment-planner__summary {margin:0;font-size:.6rem;line-height:1.4}
+.assignment-planner__apply {display:grid;gap:.45rem;margin:0}
+.assignment-planner__apply-row {display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}
+.survey-shell main .assignment-planner .assignment-planner__apply .app-btn {align-self:center}
+.assignment-planner__acceptance {
+  display:flex;align-items:flex-start;gap:.35rem;max-width:34rem;
+  color:var(--color-black);font-size:.58rem;line-height:1.4;
+}
+.assignment-planner__acceptance input {
+  width:.72rem;height:.72rem;flex:0 0 .72rem;margin:.08rem 0 0;accent-color:var(--color-brand-3);
+}
+.assignment-planner__message {margin:0;font-size:.6rem;line-height:1.4}
+
+@media only screen and (min-width:641px) {
+  .assignment-planner__table :is(th,td):nth-child(1) {width:15%}
+  .assignment-planner__table :is(th,td):nth-child(2) {width:12%}
+  .assignment-planner__table :is(th,td):nth-child(3) {width:10%}
+  .assignment-planner__table :is(th,td):nth-child(4) {width:10%}
+  .assignment-planner__table :is(th,td):nth-child(5) {width:43%}
+  .assignment-planner__table :is(th,td):nth-child(6) {width:10%}
+}
+
+@media only screen and (max-width:640px) {
+  .assignment-planner__apply-row {display:grid;gap:.45rem}
+  .survey-shell main .assignment-planner .assignment-planner__apply .app-btn {
+    justify-self:stretch;width:100%;
+  }
+}
 .period-stepper__rules-grid .period-stepper__form-section {
   padding:.7rem;border-top:1px solid var(--color-grey-2);background:rgba(255,255,255,.32);
 }
