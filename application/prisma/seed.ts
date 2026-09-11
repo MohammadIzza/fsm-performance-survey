@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client";
+import { FSM_UNITS } from "../src/lib/data/fsm-org";
 
 const db = new PrismaClient();
 
@@ -42,38 +43,27 @@ async function main() {
     create: { code: "LAINNYA", name: "Lainnya" },
   });
 
-  const fsm = await db.unit.upsert({
-    where: { code: "FSM" },
-    update: {},
-    create: { code: "FSM", name: "Fakultas Sains dan Matematika" },
-  });
+  // Struktur akademik fakultas — fakultas, enam departemen, tiga belas program studi — dibaca dari
+  // satu daftar bersama agar seed dan penyelaras (`npm run seed:units`) tidak pernah berbeda.
+  // Nama dan induk ikut diperbarui pada upsert: kalau daftar resminya berubah, seed ulang cukup.
+  const unitByCode = new Map<string, { id: string }>();
+  for (const u of FSM_UNITS) {
+    const parentId = u.parentCode ? unitByCode.get(u.parentCode)!.id : null;
+    const unit = await db.unit.upsert({
+      where: { code: u.code },
+      update: { name: u.name, parentId },
+      create: { code: u.code, name: u.name, parentId },
+    });
+    unitByCode.set(u.code, unit);
+  }
+  const ambil = (code: string) => unitByCode.get(code)!;
 
-  const depMat = await db.unit.upsert({
-    where: { code: "DEP-MAT" },
-    update: {},
-    create: { code: "DEP-MAT", name: "Departemen Matematika", parentId: fsm.id },
-  });
-  const depFis = await db.unit.upsert({
-    where: { code: "DEP-FIS" },
-    update: {},
-    create: { code: "DEP-FIS", name: "Departemen Fisika", parentId: fsm.id },
-  });
-
-  const prodiMat = await db.unit.upsert({
-    where: { code: "PS-MAT" },
-    update: {},
-    create: { code: "PS-MAT", name: "S1 Matematika", parentId: depMat.id },
-  });
-  const prodiStat = await db.unit.upsert({
-    where: { code: "PS-STAT" },
-    update: {},
-    create: { code: "PS-STAT", name: "S1 Statistika", parentId: depMat.id },
-  });
-  const prodiFis = await db.unit.upsert({
-    where: { code: "PS-FIS" },
-    update: {},
-    create: { code: "PS-FIS", name: "S1 Fisika", parentId: depFis.id },
-  });
+  const fsm = ambil("FSM");
+  const depMat = ambil("DEP-MAT");
+  const depFis = ambil("DEP-FIS");
+  const prodiMat = ambil("PS-MAT");
+  const prodiStat = ambil("PS-STAT");
+  const prodiFis = ambil("PS-FIS");
 
   const unitAdmin = await db.unit.upsert({
     where: { code: "TU-FSM" },

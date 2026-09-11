@@ -71,7 +71,7 @@ async function main() {
 
   const depMat = await prisma.unit.findUniqueOrThrow({ where: { code: "DEP-MAT" } });
   const psMat = await prisma.unit.findUniqueOrThrow({ where: { code: "PS-MAT" } });
-  const psStat = await prisma.unit.findUniqueOrThrow({ where: { code: "PS-STAT" } });
+  const psS2Mat = await prisma.unit.findUniqueOrThrow({ where: { code: "PS-S2-MAT" } });
   const psFis = await prisma.unit.findUniqueOrThrow({ where: { code: "PS-FIS" } });
   const orangType = await prisma.objectType.findUniqueOrThrow({ where: { code: "ORANG" } });
 
@@ -216,7 +216,7 @@ async function main() {
   ok(`Objek berikutnya melompat ke peringkat 4, bukan 2 (aktual: ${rankLower})`, rankLower === 4);
 
   console.log("== EDGE-19/Bab 13.5: pemangkasan lingkup unit ==");
-  const pimpinanDepMatActor = actorFor(p1, false, false, [depMat.id], [depMat.id, psMat.id, psStat.id]);
+  const pimpinanDepMatActor = actorFor(p1, false, false, [depMat.id], [depMat.id, psMat.id, psS2Mat.id]);
   const scopedRanking = filterRankingByScope(tieRanking, pimpinanDepMatActor);
   ok("Semua entri terlihat karena objek berada di DEP-MAT (dalam lingkup)", scopedRanking.length === tieRanking.length);
 
@@ -310,10 +310,10 @@ async function main() {
       ctxDualLeader.leadershipUnitIds.includes(psFis.id)
   );
   ok(
-    "scopeUnitIds adalah GABUNGAN subtree kedua unit (Dep.Mat+PS-MAT+PS-STAT dan PS-FIS), tanpa duplikasi ID",
+    "scopeUnitIds adalah GABUNGAN subtree kedua unit (Dep.Mat+PS-MAT+PS-S2-MAT dan PS-FIS), tanpa duplikasi ID",
     ctxDualLeader !== null &&
       new Set(ctxDualLeader.scopeUnitIds).size === ctxDualLeader.scopeUnitIds.length &&
-      [depMat.id, psMat.id, psStat.id, psFis.id].every((id) => ctxDualLeader!.scopeUnitIds.includes(id))
+      [depMat.id, psMat.id, psS2Mat.id, psFis.id].every((id) => ctxDualLeader!.scopeUnitIds.includes(id))
   );
   await prisma.leadership.delete({ where: { id: secondLeadership.id } }); // kembalikan seperti semula
 

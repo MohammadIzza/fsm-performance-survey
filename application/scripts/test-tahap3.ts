@@ -108,12 +108,13 @@ async function main() {
     pimpinanEntry1.eligibleCount === 1 && pimpinanEntry1.picked[0]?.userId === dosen1001.id
   );
   const selainEntry1 = plan.entries.find((e) => e.group === "SELAIN_PIMPINAN")!;
-  // Pool unit+subunit DEP-MAT (tanpa filter jenis pengguna) mencakup dosen1005, dosen1006, dan
-  // 3 mahasiswa di PS-MAT/PS-STAT = 6 anggota; dikurangi diri sendiri (dosen1004) dan dosen1001
-  // yang sudah terpakai kelompok Pimpinan pada objek yang sama (DEF-09) = 5 calon sah.
+  // Pool unit+subunit DEP-MAT (tanpa filter jenis pengguna) mencakup dosen1001, dosen1004,
+  // dosen1005, dan 2 mahasiswa di PS-MAT = 5 anggota; dikurangi diri sendiri (dosen1004) dan
+  // dosen1001 yang sudah terpakai kelompok Pimpinan pada objek yang sama (DEF-09) = 3 calon sah.
+  // Statistika tidak ikut: sejak struktur fakultas dibetulkan, PS-STAT berada di bawah DEP-STAT.
   ok(
-    "Kelompok Selain Pimpinan: 5 calon (unit+subunit dikurangi diri sendiri & pimpinan terpakai)",
-    selainEntry1.eligibleCount === 5 && selainEntry1.picked.length === 2 && selainEntry1.shortage === 0
+    "Kelompok Selain Pimpinan: 3 calon (unit+subunit dikurangi diri sendiri & pimpinan terpakai)",
+    selainEntry1.eligibleCount === 3 && selainEntry1.picked.length === 2 && selainEntry1.shortage === 0
   );
 
   console.log("== commitPlan ==");
@@ -230,11 +231,11 @@ async function main() {
     !karyaSelainEntry.picked.some((p) => p.userId === dosen1005.id) &&
       !(await prisma.user.findFirst({ where: { id: dosen1005.id } })) === false // sanity: user masih ada
   );
-  // Pool dasar 7 (unit+subunit DEP-MAT) dikurangi dosen1005 (kontributor karya, dikecualikan)
-  // dan dosen1001 (sudah terpakai kelompok Pimpinan pada objek yang sama) = 5 calon sah.
+  // Pool dasar 5 (unit+subunit DEP-MAT) dikurangi dosen1005 (kontributor karya, dikecualikan)
+  // dan dosen1001 (sudah terpakai kelompok Pimpinan pada objek yang sama) = 3 calon sah.
   ok(
-    "Pool Selain Pimpinan karya = 5 calon (dosen1005 dikecualikan sbg kontributor, dosen1001 terpakai Pimpinan)",
-    karyaSelainEntry.eligibleCount === 5
+    "Pool Selain Pimpinan karya = 3 calon (dosen1005 dikecualikan sbg kontributor, dosen1001 terpakai Pimpinan)",
+    karyaSelainEntry.eligibleCount === 3
   );
 
   console.log("== Guard status periode ==");
