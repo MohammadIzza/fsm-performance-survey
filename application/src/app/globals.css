@@ -2348,34 +2348,69 @@ input[type="range"]:disabled::-moz-range-thumb {
   min-height:calc(100svh - 86px + 8rem);overflow:hidden;background:var(--color-beige)}
 .survey-login-art {background:transparent;display:flex;flex-direction:column;justify-content:center;
   align-items:flex-start;padding:60px 8% 15rem;position:relative;overflow:hidden}
-.survey-login-art h1 {font-size:clamp(48px,6.3vw,94px);line-height:.98;letter-spacing:-.06em;font-weight:600;z-index:1}
-.survey-login-art > p {position:relative;z-index:2}
+/* Judulnya dulu setinggi 94px — hampir tiga kali judul halaman di dalam aplikasi (32px), sehingga
+   halaman masuk terbaca seperti produk lain. Sekarang paling besar 62px: masih jelas sebuah sampul,
+   tetapi sekeluarga dengan halaman yang dibuka sesudahnya. */
+.survey-login-art h1 {
+  position:relative;z-index:2;max-width:11em;
+  font-size:clamp(2.1rem,4.1vw,3.1rem);line-height:1.02;letter-spacing:-.045em;font-weight:600;
+}
+.survey-login-art__text {
+  position:relative;z-index:2;margin:1.1rem 0 0;max-width:26rem;
+  font-size:.85rem;line-height:1.5;color:var(--color-text);
+}
 .survey-login-form {position:relative;z-index:4}
-/* Kolase di panel kiri halaman masuk: balok biru, bujur sangkar kuning, blok merah muda
-   bersudut, dan bintang tema yang menimpa keduanya — susunan yang sama dipakai seksi sorotan di
-   halaman publik. Ditandai aria-hidden di markahnya karena murni hiasan. */
-.survey-login-collage {
-  position:relative;width:min(20rem,80%);height:9.5rem;margin-top:2.25rem;
+/* Huruf F-S-M di panel kiri — aset yang sama dengan hero beranda publik. Sebelumnya di sini ada
+   balok warna yang disusun satu per satu lewat CSS: bentuk yang tidak menyebut apa pun dan tidak
+   dipakai di halaman mana pun lagi.
+   Tata letaknya ditulis di sini, bukan meminjam .b-hero-home milik tema, karena aturan tema itu
+   memosisikan huruf secara mutlak terhadap seksi hero setinggi layar penuh — di panel selebar
+   setengah halaman hasilnya melimpah keluar. Yang dipinjam hanya gambarnya. */
+.login-fsm {position:relative;z-index:2;margin-top:2.6rem;width:fit-content;max-width:100%}
+.login-fsm__letters {display:flex;align-items:flex-end;gap:1.9rem}
+.login-fsm__letter {display:flex;flex-direction:column;align-items:center;flex:0 0 auto}
+/* Kanvas Lottie ketiga huruf sama tingginya (460) dan hanya berbeda lebar, jadi nisbahnya dipasang
+   per huruf agar ketiganya sejajar di garis bawah yang sama tanpa ada yang gepeng. */
+.login-fsm__flower {height:8.6rem;aspect-ratio:420/460}
+.login-fsm__letter--m .login-fsm__flower {aspect-ratio:480/460}
+.login-fsm__flower svg {display:block;width:100%!important;height:100%!important}
+/* Tangkai: garis tipis dengan bulatan kecil di pangkal huruf, seperti di beranda. Digambar dengan
+   CSS, bukan SVG berskala tak seragam — bulatannya akan ikut memipih kalau ditarik bersama garis. */
+.login-fsm__stem {
+  position:relative;display:block;width:1px;height:3.6rem;background:var(--color-black);
 }
-.survey-login-collage > * {position:absolute}
-.survey-login-collage__bar {
-  left:0;top:2.2rem;width:62%;height:2.1rem;background:var(--color-brand-3);
+.login-fsm__stem::before {
+  content:"";position:absolute;top:-.24rem;left:50%;transform:translateX(-50%);
+  width:.42rem;height:.42rem;border:1px solid var(--color-black);border-radius:50%;
+  background:var(--color-beige);
 }
-.survey-login-collage__square {
-  left:8%;top:3.4rem;width:8.2rem;height:5.6rem;background:var(--color-brand-2);
+/* Lambang universitas di tengah ketiga tangkai, sama seperti di beranda. */
+.login-fsm__logo {display:block;margin:.9rem auto 0;width:6.4rem;height:auto}
+/* Huruf naik dari bawah saat halaman dibuka, satu demi satu — gerak yang sama dengan hero publik,
+   hanya tanpa mesin animasinya. Dijalankan setelah pemutar Lottie siap (data-siap) supaya tidak
+   ada kotak kosong yang naik lebih dulu. */
+.login-fsm__letter {transform:translate3d(0,18%,0);opacity:0}
+.login-fsm[data-siap="true"] .login-fsm__letter {
+  animation:login-fsm-naik .9s cubic-bezier(.19,1,.22,1) forwards;
 }
-.survey-login-collage__bubble {
-  right:0;top:0;width:47%;height:4.6rem;background:var(--color-brand-9);
-  border-radius:1.1rem 1.1rem 1.1rem 0;
+.login-fsm[data-siap="true"] .login-fsm__letter--s {animation-delay:.13s}
+.login-fsm[data-siap="true"] .login-fsm__letter--m {animation-delay:.26s}
+@keyframes login-fsm-naik {
+  to {transform:translate3d(0,0,0);opacity:1}
 }
-.survey-login-collage__star {
-  right:14%;bottom:-.6rem;width:4.5rem;height:auto;
+@media (prefers-reduced-motion: reduce) {
+  .login-fsm__letter {transform:none;opacity:1}
+  .login-fsm[data-siap="true"] .login-fsm__letter {animation:none}
 }
 @media only screen and (max-width: 640px) {
-  /* Disembunyikan di layar sempit: panelnya hanya setinggi beberapa baris teks dan sudah memuat
-     bukit tema di kakinya, sehingga kolase ini bertumpuk dengan bukit itu alih-alih mengisi
-     ruang kosong. */
-  .survey-login-collage {display:none}
+  /* Layar sempit: hurufnya tetap ada — ini wajah fakultasnya — tetapi tangkai dan lambangnya
+     tidak. Panel kiri di ponsel cuma setinggi beberapa baris dan ditutup pita bukit di kakinya;
+     menambah tangkai sepanjang tiga baris lagi hanya mendorong isian masuk ke bawah layar. */
+  .login-fsm {margin-top:1.1rem}
+  .login-fsm__letters {gap:1rem}
+  .login-fsm__flower {height:3.4rem}
+  .login-fsm__stem,
+  .login-fsm__logo {display:none}
 }
 
 .survey-login-hills {position:absolute;inset:auto 0 0;width:100%;height:17rem;overflow:hidden;
@@ -2398,10 +2433,56 @@ input[type="range"]:disabled::-moz-range-thumb {
   to {transform:translate3d(1.5%,-2%,0) scale(1.035)}
 }
 .survey-login-form {padding:60px 12%;display:flex;flex-direction:column;justify-content:center}
-.survey-login-form h2 {font-size:42px;letter-spacing:-.04em;line-height:1.1;margin:12px 0 20px}
-.survey-login-form input {border-radius:14px;background:white}
-.survey-demo-accounts {margin-top:24px;border-top:1px solid var(--border);padding-top:20px;font-size:13px}
-.survey-demo-accounts dl {display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.survey-login-form h2 {
+  margin:.4rem 0 .55rem;font-size:1.6rem;letter-spacing:-.035em;line-height:1.12;font-weight:600;
+}
+.survey-login-form__text {
+  margin:0 0 1.4rem;max-width:24rem;font-size:.7rem;line-height:1.5;color:var(--color-text);
+}
+.survey-login-form__fields {display:flex;flex-direction:column;gap:.85rem;align-items:stretch}
+
+/* Isian dan labelnya memakai angka yang sama dengan isian berlabel di dalam aplikasi
+   (.admin-tools__field), hanya sedikit lebih lapang karena di halaman ini cuma ada satu isian.
+   Tanpa ini isiannya ikut aturan tema setinggi 55px berhuruf 20px — dua kali isian yang sama
+   di halaman mana pun sesudah masuk. */
+.survey-login-field {display:flex;flex-direction:column;gap:.3rem;min-width:0}
+.survey-login-field > span {
+  font-size:.52rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--color-text);
+}
+.survey-login .form__control {
+  min-height:2.35rem;padding:.5rem .7rem;border:1px solid var(--color-grey-2);border-radius:.4rem;
+  background:var(--color-white);color:var(--color-black);
+  font-family:inherit;font-size:.75rem;font-weight:400;line-height:1.35;
+}
+.survey-login .form__control:hover {border-color:var(--color-beige-dark)}
+.survey-login .form__control:focus {border-color:var(--color-brand-5)}
+.survey-login .form__control[aria-invalid="true"] {border-color:var(--color-brand-1)}
+.survey-login-error {margin:0;color:var(--color-brand-1);font-size:.65rem;line-height:1.4}
+
+/* Tombol tema dipakai apa adanya, hanya diturunkan ke ukuran isian di sebelahnya: bawaannya
+   berhuruf 20px dan setinggi 60px, sehingga tombol saja lebih besar daripada seluruh baris isian. */
+.survey-login .btn-plain.survey-login-submit {width:100%;font-size:.72rem}
+.survey-login .btn-plain.survey-login-submit .btn-plain__inner {padding:.85em 1.8em;text-align:center}
+
+.survey-demo-accounts {
+  margin-top:1.6rem;border-top:1px solid var(--color-grey-2);padding-top:1rem;
+  font-size:.65rem;line-height:1.5;color:var(--color-text);
+}
+.survey-demo-accounts strong {
+  display:block;color:var(--color-black);
+  font-size:.52rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+}
+.survey-demo-accounts > p {margin:.35rem 0 0}
+/* Nama peran dan IDnya berdampingan rapat, bukan dua kolom selebar setengah panel masing-masing:
+   pasangan yang berjauhan memaksa mata melompat untuk mencocokkan baris. */
+.survey-demo-accounts dl {
+  display:grid;grid-template-columns:max-content max-content;gap:.28rem 1.1rem;
+  margin:.6rem 0 0;
+}
+.survey-demo-accounts dt {color:var(--color-text)}
+.survey-demo-accounts dd {margin:0}
+.survey-demo-accounts code {font-size:.65rem;color:var(--color-black)}
 .survey-footer {padding:24px 4vw;font-size:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:16px}
 @media(max-width:768px){.survey-header nav{gap:12px;font-size:12px}.survey-brand small{display:none}.survey-login{grid-template-columns:1fr}.survey-login-art{padding:40px 24px}.survey-login-art h1{font-size:54px}.survey-login-art .survey-motion{height:130px;margin:0}.survey-login-form{padding:40px 24px}.survey-hero{padding:24px;min-height:150px}.survey-hero .survey-motion{width:100px;min-width:80px;height:100px}.survey-header{padding:18px 24px}}
 /* Layar sempit: tiga tautan di kepala situs masih membungkus jadi dua baris dan membuat kepala
@@ -2416,13 +2497,15 @@ input[type="range"]:disabled::-moz-range-thumb {
  .survey-header .site-head__menu .menu-link {padding:.25em 0;white-space:nowrap}
  .survey-login {min-height:auto;margin:.55rem .7rem 1rem;background:var(--color-beige);
    border:1px solid var(--color-grey-2);border-radius:.85rem;overflow:visible}
- .survey-login-art {min-height:11.5rem;align-items:flex-start;padding:1rem 1rem 5.2rem;
+ .survey-login-art {min-height:16.1rem;align-items:flex-start;padding:1rem 1rem 5.2rem;
    background:var(--color-beige);color:var(--color-black)}
  .survey-login-art h1 {font-size:1.38rem;line-height:1.02;letter-spacing:-.045em}
  .survey-login-art p {max-width:18rem;margin-top:.55rem!important;font-size:.62rem!important;
    line-height:1.4;color:var(--color-black)}
  .survey-login-hills {height:5.4rem}
- .survey-login-hills {top:8.85rem;right:auto;bottom:auto;left:50%;width:100vw;
+ /* Pita bukit menutup kaki panel kiri: dasarnya dijaga tepat di batas panel dengan formulir,
+    jadi tingginya sendiri (5.4rem) dikurangkan dari tinggi panel. */
+ .survey-login-hills {top:calc(16.1rem - 5.4rem);right:auto;bottom:auto;left:50%;width:100vw;
    transform:translateX(-50%)}
  .survey-login-hills i {border-top-width:1.5px}
  .survey-login-form {padding:1rem;background:var(--color-white)}
