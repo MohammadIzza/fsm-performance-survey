@@ -2366,26 +2366,47 @@ input[type="range"]:disabled::-moz-range-thumb {
    Tata letaknya ditulis di sini, bukan meminjam .b-hero-home milik tema, karena aturan tema itu
    memosisikan huruf secara mutlak terhadap seksi hero setinggi layar penuh — di panel selebar
    setengah halaman hasilnya melimpah keluar. Yang dipinjam hanya gambarnya. */
-.login-fsm {position:relative;z-index:2;margin-top:2.6rem;width:fit-content;max-width:100%}
-.login-fsm__letters {display:flex;align-items:flex-end;gap:1.9rem}
-.login-fsm__letter {display:flex;flex-direction:column;align-items:center;flex:0 0 auto}
-/* Kanvas Lottie ketiga huruf sama tingginya (460) dan hanya berbeda lebar, jadi nisbahnya dipasang
-   per huruf agar ketiganya sejajar di garis bawah yang sama tanpa ada yang gepeng. */
-.login-fsm__flower {height:8.6rem;aspect-ratio:420/460}
-.login-fsm__letter--m .login-fsm__flower {aspect-ratio:480/460}
-.login-fsm__flower svg {display:block;width:100%!important;height:100%!important}
+/* Selebar panelnya, bukan sebesar angka yang dipilih sendiri: ini lambang fakultasnya, dan panel
+   kiri memang tempatnya.
+   Kanvas Lottie ketiga huruf menyisakan ruang kosong tetap di sekeliling gambarnya — 21,43% di
+   kiri dan kanan untuk F dan S, 18,75% untuk M, serta sekitar 19,3% di atas dan bawah. Kalau kotak
+   tata letaknya sebesar kanvas, hampir empat persepuluh ruang panel habis untuk ruang kosong itu,
+   dan huruf-hurufnya berjauhan meski jarak antarkotaknya nol. Jadi kotaknya dibuat sebesar
+   gambarnya saja (240x281, M 300x281 satuan kanvas) dan kanvasnya dibesarkan melampaui kotak itu:
+   ukuran huruf dan jarak antarhuruf jadi apa adanya, bukan hasil ruang kosong bawaan berkas. */
+.login-fsm {position:relative;z-index:2;margin-top:2.2rem;width:100%}
+.login-fsm__letters {display:flex;align-items:flex-end;gap:.4rem;width:100%}
+.login-fsm__letter {display:flex;flex-direction:column;align-items:flex-start;min-width:0}
+.login-fsm__letter--f,
+.login-fsm__letter--s {flex:240 1 0}
+.login-fsm__letter--m {flex:300 1 0}
+.login-fsm__flower {position:relative;width:100%;aspect-ratio:240/281}
+.login-fsm__letter--m .login-fsm__flower {aspect-ratio:300/281}
+/* Digeser dengan top/left, bukan transform: pemutar Lottie menulis transform-nya sendiri sebagai
+   gaya sebaris, dan itu mengalahkan aturan di berkas ini. */
+.login-fsm__flower svg {
+  position:absolute;top:-31.85%;left:-37.5%;
+  display:block;width:175%!important;height:163.7%!important;
+}
+.login-fsm__letter--m .login-fsm__flower svg {width:160%!important;left:-30%}
 /* Tangkai: garis tipis dengan bulatan kecil di pangkal huruf, seperti di beranda. Digambar dengan
    CSS, bukan SVG berskala tak seragam — bulatannya akan ikut memipih kalau ditarik bersama garis. */
+/* Tangkai menempel di tempat yang sama dengan beranda publik: di sapuan kiri F dan kaki kiri M,
+   dan di tengah S. Angkanya titik jangkar tema (30,48% dan 26,667% dari lebar kanvas) dihitung
+   ulang terhadap kotak gambar yang sudah dipangkas. */
 .login-fsm__stem {
-  position:relative;display:block;width:1px;height:3.6rem;background:var(--color-black);
+  position:relative;display:block;width:1px;height:3.2rem;margin-left:50%;
+  background:var(--color-black);
 }
+.login-fsm__letter--f .login-fsm__stem {margin-left:15.8%}
+.login-fsm__letter--m .login-fsm__stem {margin-left:12.7%}
 .login-fsm__stem::before {
   content:"";position:absolute;top:-.24rem;left:50%;transform:translateX(-50%);
   width:.42rem;height:.42rem;border:1px solid var(--color-black);border-radius:50%;
   background:var(--color-beige);
 }
 /* Lambang universitas di tengah ketiga tangkai, sama seperti di beranda. */
-.login-fsm__logo {display:block;margin:.9rem auto 0;width:6.4rem;height:auto}
+.login-fsm__logo {display:block;margin:.8rem auto 0;width:7rem;height:auto}
 /* Huruf naik dari bawah saat halaman dibuka, satu demi satu — gerak yang sama dengan hero publik,
    hanya tanpa mesin animasinya. Dijalankan setelah pemutar Lottie siap (data-siap) supaya tidak
    ada kotak kosong yang naik lebih dulu. */
@@ -2406,9 +2427,8 @@ input[type="range"]:disabled::-moz-range-thumb {
   /* Layar sempit: hurufnya tetap ada — ini wajah fakultasnya — tetapi tangkai dan lambangnya
      tidak. Panel kiri di ponsel cuma setinggi beberapa baris dan ditutup pita bukit di kakinya;
      menambah tangkai sepanjang tiga baris lagi hanya mendorong isian masuk ke bawah layar. */
-  .login-fsm {margin-top:1.1rem}
-  .login-fsm__letters {gap:1rem}
-  .login-fsm__flower {height:3.4rem}
+  .login-fsm {margin-top:.9rem}
+  .login-fsm__letters {gap:.3rem}
   .login-fsm__stem,
   .login-fsm__logo {display:none}
 }
@@ -2497,7 +2517,7 @@ input[type="range"]:disabled::-moz-range-thumb {
  .survey-header .site-head__menu .menu-link {padding:.25em 0;white-space:nowrap}
  .survey-login {min-height:auto;margin:.55rem .7rem 1rem;background:var(--color-beige);
    border:1px solid var(--color-grey-2);border-radius:.85rem;overflow:visible}
- .survey-login-art {min-height:16.1rem;align-items:flex-start;padding:1rem 1rem 5.2rem;
+ .survey-login-art {min-height:21.4rem;align-items:flex-start;padding:1rem 1rem 5.2rem;
    background:var(--color-beige);color:var(--color-black)}
  .survey-login-art h1 {font-size:1.38rem;line-height:1.02;letter-spacing:-.045em}
  .survey-login-art p {max-width:18rem;margin-top:.55rem!important;font-size:.62rem!important;
@@ -2505,7 +2525,7 @@ input[type="range"]:disabled::-moz-range-thumb {
  .survey-login-hills {height:5.4rem}
  /* Pita bukit menutup kaki panel kiri: dasarnya dijaga tepat di batas panel dengan formulir,
     jadi tingginya sendiri (5.4rem) dikurangkan dari tinggi panel. */
- .survey-login-hills {top:calc(16.1rem - 5.4rem);right:auto;bottom:auto;left:50%;width:100vw;
+ .survey-login-hills {top:calc(21.4rem - 5.4rem);right:auto;bottom:auto;left:50%;width:100vw;
    transform:translateX(-50%)}
  .survey-login-hills i {border-top-width:1.5px}
  .survey-login-form {padding:1rem;background:var(--color-white)}
