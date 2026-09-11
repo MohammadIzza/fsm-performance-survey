@@ -41,7 +41,12 @@ export function AssignmentList({
   categoryId: string;
 }) {
   if (assignments.length === 0) {
-    return <p className="app-text-sm text-[var(--muted)]">Belum ada tugas diterbitkan.</p>;
+    return (
+      <p className="assignment-list__empty">
+        Belum ada tugas. Mulai dari <strong>Pratinjau pengacakan</strong> di atas, atau tambahkan
+        satu tugas secara manual di bawah.
+      </p>
+    );
   }
 
   return (

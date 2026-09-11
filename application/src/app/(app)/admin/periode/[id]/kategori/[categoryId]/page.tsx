@@ -107,7 +107,9 @@ async function CategoryDetailPage({
           {
             key: "instrumen",
             label: "Pertanyaan & Bobot",
+            title: "Susun isi formulir penilaian",
             hint: "Aspek apa saja yang dinilai, dan berapa bobot masing-masing. Totalnya harus 100%.",
+            completion: "parameter sudah lengkap dan total bobot tepat 100%.",
             content: (
               <>
                 <div className="grid gap-6 lg:grid-cols-2">
@@ -172,7 +174,9 @@ async function CategoryDetailPage({
           {
             key: "kelompok",
             label: "Aturan Penilai",
+            title: "Tentukan siapa yang boleh menilai",
             hint: "Siapa yang boleh menilai, berapa orang per objek, dan berapa jawaban minimum agar nilainya sah.",
+            completion: "jumlah, minimum respons, dan syarat calon untuk setiap kelompok sudah tersimpan.",
             content: (
               <>
                 <div>
@@ -232,7 +236,9 @@ async function CategoryDetailPage({
             key: "peserta",
             label: "Yang Dinilai",
             count: category.categoryObjects.length,
+            title: "Pilih objek yang akan menerima penilaian",
             hint: "Objek yang masuk kategori ini dan akan mendapat nilai.",
+            completion: "semua dosen, karya, layanan, atau unit yang diperlukan sudah masuk daftar.",
             content: (
               <div className="app-panel app-panel--ruled">
                 <h2 className="app-panel__label">
@@ -252,27 +258,53 @@ async function CategoryDetailPage({
             key: "penugasan",
             label: "Pembagian Tugas",
             count: assignments.length,
-            hint: "Penilai mana menilai objek mana. Dapat diacak otomatis atau ditetapkan satu per satu.",
+            title: "Bagikan formulir kepada penilai",
+            hint: "Tentukan siapa yang menerima tugas untuk menilai setiap objek. Gunakan pembagian otomatis, lalu koreksi secara manual bila diperlukan.",
+            completion: "setiap objek sudah memiliki penilai dan tugasnya muncul pada daftar.",
             content: (
               <>
                 <div className="app-panel app-panel--ruled">
                   <h2 className="app-panel__label">
-                    Buat pembagian tugas
+                    Pembagian otomatis
                   </h2>
+                  <p className="assignment-section__intro">
+                    Klik pratinjau untuk melihat usulan pembagian tanpa menyimpan perubahan. Setelah
+                    hasilnya sesuai, pilih <strong>Terapkan penugasan</strong> untuk menerbitkan tugas.
+                  </p>
+                  <ol className="assignment-process" aria-label="Cara membuat pembagian tugas">
+                    <li>
+                      <span>1</span>
+                      <div><strong>Pratinjau</strong><small>Sistem mencari calon penilai yang memenuhi aturan.</small></div>
+                    </li>
+                    <li>
+                      <span>2</span>
+                      <div><strong>Periksa</strong><small>Pastikan nama penilai dan kekurangannya sudah benar.</small></div>
+                    </li>
+                    <li>
+                      <span>3</span>
+                      <div><strong>Terapkan</strong><small>Tugas baru diterbitkan dan masuk ke daftar di bawah.</small></div>
+                    </li>
+                  </ol>
                   <AssignmentPlanner periodId={periodId} categoryId={categoryId} editable={editable} />
                 </div>
 
                 <div className="app-panel app-panel--ruled">
                   <h2 className="app-panel__label">
-                    Daftar tugas ({assignments.length})
+                    Tugas yang sudah diterbitkan ({assignments.length})
                   </h2>
+                  <p className="assignment-section__intro">
+                    Daftar ini menunjukkan objek, penilai, kelompok, dan status pengisian setiap tugas.
+                  </p>
                   <div className="space-y-4">
                     <AssignmentList assignments={assignments} periodId={periodId} categoryId={categoryId} />
                     {editable && category.categoryObjects.length > 0 && (
-                      <div className="border-t border-[var(--border)] pt-4">
+                      <div className="assignment-manual border-t border-[var(--border)] pt-4">
                         <h3 className="app-panel__label">
-                          Tambah penilai secara manual
+                          Tambah satu tugas secara manual
                         </h3>
+                        <p className="assignment-section__intro">
+                          Gunakan ini untuk menambah atau memperbaiki pasangan objek dan penilai tertentu.
+                        </p>
                         <ManualAssignForm
                           periodId={periodId}
                           categoryId={categoryId}

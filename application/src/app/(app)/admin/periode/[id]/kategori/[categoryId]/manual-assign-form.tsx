@@ -20,37 +20,36 @@ export function ManualAssignForm({
   const [state, formAction, pending] = useActionState(manualAssignEvaluatorAction, {});
 
   return (
-    <form action={formAction} className="grid gap-2 sm:grid-cols-4">
+    <form action={formAction} className="manual-assignment-form">
       <input type="hidden" name="periodId" value={periodId} />
       <input type="hidden" name="categoryId" value={categoryId} />
 
-      <select name="categoryObjectId" required defaultValue="" className={fieldClass}>
-        <option value="" disabled>
-          Objek…
-        </option>
-        {categoryObjects.map((co) => (
-          <option key={co.id} value={co.id}>
-            {co.nameSnapshot}
-          </option>
-        ))}
-      </select>
-      <select name="group" required defaultValue="" className={fieldClass}>
-        <option value="" disabled>
-          Kelompok…
-        </option>
-        <option value="PIMPINAN">Pimpinan</option>
-        <option value="SELAIN_PIMPINAN">Selain Pimpinan</option>
-      </select>
-      <select name="evaluatorId" required defaultValue="" className={fieldClass}>
-        <option value="" disabled>
-          Penilai…
-        </option>
-        {users.map((u) => (
-          <option key={u.id} value={u.id}>
-            {u.name} ({u.loginIdentifier})
-          </option>
-        ))}
-      </select>
+      <label className="admin-tools__field">
+        <span>Objek yang dinilai</span>
+        <select name="categoryObjectId" required defaultValue="" className={fieldClass}>
+          <option value="" disabled>Pilih objek…</option>
+          {categoryObjects.map((co) => (
+            <option key={co.id} value={co.id}>{co.nameSnapshot}</option>
+          ))}
+        </select>
+      </label>
+      <label className="admin-tools__field">
+        <span>Kelompok penilai</span>
+        <select name="group" required defaultValue="" className={fieldClass}>
+          <option value="" disabled>Pilih kelompok…</option>
+          <option value="PIMPINAN">Pimpinan</option>
+          <option value="SELAIN_PIMPINAN">Selain Pimpinan</option>
+        </select>
+      </label>
+      <label className="admin-tools__field">
+        <span>Orang yang menilai</span>
+        <select name="evaluatorId" required defaultValue="" className={fieldClass}>
+          <option value="" disabled>Pilih penilai…</option>
+          {users.map((u) => (
+            <option key={u.id} value={u.id}>{u.name} ({u.loginIdentifier})</option>
+          ))}
+        </select>
+      </label>
       <button
         type="submit"
         disabled={pending}
@@ -59,7 +58,7 @@ export function ManualAssignForm({
         {pending ? "Menugaskan…" : "Tugaskan manual"}
       </button>
       {state.error && (
-        <p role="alert" className="text-sm text-[var(--danger)] sm:col-span-4">
+        <p role="alert" className="manual-assignment-form__error text-[var(--danger)]">
           {state.error}
         </p>
       )}
