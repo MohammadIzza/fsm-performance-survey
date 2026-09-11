@@ -1080,27 +1080,32 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 .org-tree__node--root {background:var(--color-brand-2)}
 
-/* Diagram organisasi melebar berdasarkan jumlah anak akar. Pada desktop setiap cabang diberi
-   jatah yang sama dan teks boleh membungkus, sehingga seluruh pohon muat di satu frame serta akar
-   tetap tepat di tengah. Di layar sempit lebar minimum dipertahankan agar node tidak menjadi
-   terlalu kecil untuk dibaca dan wadahnya tetap dapat digeser. */
-.org-tree {width:100%;min-width:44rem}
-.org-tree > li {width:100%;padding-top:0}
-.org-tree__node {max-width:10rem}
-.org-tree__node > span {white-space:normal!important;overflow-wrap:anywhere}
+/* Keterangan geser di atas bagan: sebaris kecil, sewarna teks bantu di halaman ini. */
+.org-tree__hint {
+  margin:0 0 .5rem;color:var(--color-text);font-size:.6rem;line-height:1.4;
+}
+
+/* Lebar pohon mengikuti isinya, bukan sebaliknya. Versi sebelumnya membagi lebar layar rata ke
+   tiap cabang akar — cukup selama fakultas hanya punya dua departemen, tetapi dengan enam
+   departemen dan tiga belas program studi jatah tiap cabang menyusut sampai kotaknya lebih sempit
+   daripada satu kata, dan namanya jatuh menurun satu huruf per baris. Jadi tiap kotak diberi lebar
+   tetap yang sama, cabangnya selebar isinya, dan bila jumlahnya melebihi layar pohon itu digeser
+   mendatar di dalam pembungkusnya — sama seperti tabel yang terlalu lebar. */
+.org-tree {width:max-content;min-width:100%}
+.org-tree > li {padding-top:0}
+.org-tree li {flex:0 0 auto}
+/* Lebar seragam: kotak yang melar mengikuti panjang namanya membuat tiap baris pohon bergerigi. */
+.org-tree__node {width:8.5rem;max-width:none}
+.org-tree__node > span {white-space:normal!important;overflow-wrap:break-word}
 @media only screen and (min-width:900px) {
-  .app-table-wrap > .org-tree {min-width:0;padding-right:0}
-  .org-tree ul {width:100%}
-  .org-tree li {min-width:0;flex:1 1 0;padding:1.05rem .22rem 0}
+  .org-tree li {padding:1.05rem .3rem 0}
   .org-tree ul {padding-top:1.05rem}
   .org-tree li::before,
   .org-tree li::after,
   .org-tree ul::before {height:1.05rem}
-  .org-tree__node {
-    width:min(100%,6.5rem);max-width:6.5rem;padding:.3rem .38rem;border-width:1px;
-  }
-  .org-tree__node .app-text-sm {font-size:.52rem;line-height:1.22}
-  .org-tree__node .app-text-xs {font-size:.46rem;line-height:1.2}
+  .org-tree__node {width:7.4rem;padding:.36rem .45rem;border-width:1px}
+  .org-tree__node .app-text-sm {font-size:.55rem;line-height:1.25}
+  .org-tree__node .app-text-xs {font-size:.48rem;line-height:1.2}
 }
 
 /* Petak angka pada Pemantauan: sel bernomor, bukan catatan — jadi tanpa garis aksen di kiri. */

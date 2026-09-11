@@ -1,4 +1,5 @@
 import type { listUnitsWithMeta } from "@/lib/services/units";
+import { OrgTreeViewport } from "./org-tree-viewport";
 
 type UnitWithMeta = Awaited<ReturnType<typeof listUnitsWithMeta>>[number];
 
@@ -23,13 +24,13 @@ export function OrgTree({ units }: { units: UnitWithMeta[] }) {
   }
 
   return (
-    <div className="app-table-wrap">
+    <OrgTreeViewport>
       <ul className="org-tree">
         {roots.map((u) => (
           <TreeNode key={u.id} unit={u} byParent={byParent} isRoot />
         ))}
       </ul>
-    </div>
+    </OrgTreeViewport>
   );
 }
 
