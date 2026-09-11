@@ -739,7 +739,7 @@ input[type="range"]:disabled::-moz-range-thumb {
    Tabel memberi sebagian besar ruang kepada daftar nama penilai, sementara angka ringkas tidak
    ikut meregang. Area persetujuan dan tombol dibaca sebagai satu tindakan yang kompak. */
 .assignment-planner {font-size:.6rem;line-height:1.4}
-.assignment-planner__preview {margin:0}
+.assignment-planner__preview {display:flex;justify-content:flex-end;margin:0 0 .2rem}
 .survey-shell main .assignment-planner .assignment-planner__preview-button,
 .survey-shell main .assignment-planner .assignment-planner__apply .app-btn {
   min-height:1.9rem;padding:.38rem .75rem;font-size:.6rem;
@@ -781,6 +781,10 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 
 @media only screen and (max-width:640px) {
+  .assignment-planner__preview {justify-content:stretch}
+  .survey-shell main .assignment-planner .assignment-planner__preview-button {
+    width:100%;
+  }
   .assignment-planner__apply-row {display:grid;gap:.45rem}
   .survey-shell main .assignment-planner .assignment-planner__apply .app-btn {
     justify-self:stretch;width:100%;
