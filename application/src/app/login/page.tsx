@@ -13,13 +13,15 @@ export default async function LoginPage() {
       </section>
 
       <section className="survey-login-form">
+        {/* Kelas skala tema dipakai langsung di markahnya, sama seperti judul dan teks seksi di
+            situs publik — ukurannya jadi satu sumber, bukan angka yang ditulis ulang di sini. */}
         <p className="eyebrow">Survei Penilaian · FSM UNDIP</p>
-        <h2>
+        <h2 className="t-h-4xs">
           Selamat datang
           <br />
           kembali.
         </h2>
-        <p className="survey-login-form__text">
+        <p className="survey-login-form__text t-t-md">
           Masukkan ID terdaftar untuk membuka ruang penilaian Anda.
         </p>
         <LoginForm />

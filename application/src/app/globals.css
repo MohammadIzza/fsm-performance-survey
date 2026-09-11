@@ -275,8 +275,12 @@ input[type="range"]:disabled::-moz-range-thumb {
    di pinggir tombol; digeser sedikit lagi supaya benar-benar bersih sebelum disorot. */
 .btn-plain__arrow {transform:translate3d(2.1em,0,0)}
 .btn-plain:hover .btn-plain__arrow {transform:translate3d(0,0,0)}
+/* Tepi kiri-kanannya memakai rumus kontainer situs publik, bukan 4vw: dengan 4vw lambang di sini
+   berdiri sembilan piksel lebih ke kiri daripada lambang di situs publik, dan tepi kepala tidak
+   sejajar dengan isi halaman di bawahnya. */
 .survey-header {background:var(--color-beige);border-bottom:1px solid var(--color-grey-2);
-  padding:1.1rem 4vw;display:flex;align-items:center;justify-content:space-between;gap:1.5rem}
+  padding:1.1rem max(3.3333rem,calc(50vw - 36.6667rem));
+  display:flex;align-items:center;justify-content:space-between;gap:1.5rem}
 /* Di bawah 987px tema membesarkan menunya jadi 2,1rem karena di situs publik menu itu pindah ke
    overlay selebar layar. Kepala situs di ruang survei tetap mendatar di tempatnya, jadi ukurannya
    dikunci — tanpa ini tautannya raksasa dan menimpa lambang. Sama seperti .site-head__menu--stack
@@ -2346,8 +2350,12 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 .survey-login {position:relative;display:grid;grid-template-columns:1.12fr 1fr;
   min-height:calc(100svh - 86px + 8rem);overflow:hidden;background:var(--color-beige)}
+/* Tepi kiri panel = tepi kontainer situs publik, rumus yang sama dengan .u-container tema:
+   lebar kontainer min(100vw - 6,6667rem, 80rem - 6,6667rem) yang ditengahkan. Hasilnya huruf FSM
+   berdiri tepat di bawah lambang undip di kepala halaman, bukan pada persentase yang dikira-kira. */
 .survey-login-art {background:transparent;display:flex;flex-direction:column;justify-content:center;
-  align-items:flex-start;padding:60px 8% 15rem;position:relative;overflow:hidden}
+  align-items:flex-start;position:relative;overflow:hidden;
+  padding:3.5rem 2rem 15rem max(3.3333rem,calc(50vw - 36.6667rem))}
 .survey-login-form {position:relative;z-index:4}
 /* Huruf F-S-M di panel kiri — aset yang sama dengan hero beranda publik. Sebelumnya di sini ada
    balok warna yang disusun satu per satu lewat CSS: bentuk yang tidak menyebut apa pun dan tidak
@@ -2440,57 +2448,61 @@ input[type="range"]:disabled::-moz-range-thumb {
   from {transform:translate3d(-1.5%,1%,0) scale(1)}
   to {transform:translate3d(1.5%,-2%,0) scale(1.035)}
 }
-.survey-login-form {padding:60px 12%;display:flex;flex-direction:column;justify-content:center}
-.survey-login-form h2 {
-  margin:.4rem 0 .55rem;font-size:1.6rem;letter-spacing:-.035em;line-height:1.12;font-weight:600;
-}
-.survey-login-form__text {
-  margin:0 0 1.4rem;max-width:24rem;font-size:.7rem;line-height:1.5;color:var(--color-text);
-}
-.survey-login-form__fields {display:flex;flex-direction:column;gap:.85rem;align-items:stretch}
+/* Sisi kanan mengunci ke tepi kontainer yang sama, dan lebar isinya dibatasi selebar kolom teks
+   situs publik (26rem ≈ 520px) supaya barisnya tidak lebih panjang daripada yang enak dibaca. */
+.survey-login-form {display:flex;flex-direction:column;justify-content:center;
+  padding:3.5rem max(3.3333rem,calc(50vw - 36.6667rem)) 3.5rem 4rem}
+.survey-login-form > * {width:100%}
+/* Ukuran huruf memakai kelas skala tema (t-h-4xs, t-t-md) langsung di markahnya, seperti seksi
+   di situs publik; di sini tinggal jaraknya. */
+.survey-login-form .eyebrow {font-size:.7rem;letter-spacing:.08em}
+.survey-login-form h2 {margin:.5rem 0 .7rem}
+.survey-login-form__text {margin:0 0 2rem;line-height:1.46;color:var(--color-text)}
+.survey-login-form__fields {display:flex;flex-direction:column;gap:1.1rem;align-items:stretch}
 
-/* Isian dan labelnya memakai angka yang sama dengan isian berlabel di dalam aplikasi
-   (.admin-tools__field), hanya sedikit lebih lapang karena di halaman ini cuma ada satu isian.
-   Tanpa ini isiannya ikut aturan tema setinggi 55px berhuruf 20px — dua kali isian yang sama
-   di halaman mana pun sesudah masuk. */
-.survey-login-field {display:flex;flex-direction:column;gap:.3rem;min-width:0}
+/* Isian memakai bentuk .form__control tema apa adanya — tinggi, tebal garis, sudut, dan keadaan
+   fokusnya; yang ditambahkan hanya bidang putih supaya terbaca di atas kertas krem. Itu bentuk
+   isian yang berlaku di situs publik, dan halaman ini pintu masuknya. */
+.survey-login-field {display:flex;flex-direction:column;gap:.45rem;min-width:0}
 .survey-login-field > span {
-  font-size:.52rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
   color:var(--color-text);
 }
-.survey-login .form__control {
-  min-height:2.35rem;padding:.5rem .7rem;border:1px solid var(--color-grey-2);border-radius:.4rem;
-  background:var(--color-white);color:var(--color-black);
-  font-family:inherit;font-size:.75rem;font-weight:400;line-height:1.35;
-}
-.survey-login .form__control:hover {border-color:var(--color-beige-dark)}
-.survey-login .form__control:focus {border-color:var(--color-brand-5)}
+.survey-login .form__control {background:var(--color-white);color:var(--color-black)}
 .survey-login .form__control[aria-invalid="true"] {border-color:var(--color-brand-1)}
-.survey-login-error {margin:0;color:var(--color-brand-1);font-size:.65rem;line-height:1.4}
+.survey-login-error {margin:0;color:var(--color-brand-1);font-size:.8rem;line-height:1.45}
 
-/* Tombol tema dipakai apa adanya, hanya diturunkan ke ukuran isian di sebelahnya: bawaannya
-   berhuruf 20px dan setinggi 60px, sehingga tombol saja lebih besar daripada seluruh baris isian. */
-.survey-login .btn-plain.survey-login-submit {width:100%;font-size:.72rem}
-.survey-login .btn-plain.survey-login-submit .btn-plain__inner {padding:.85em 1.8em;text-align:center}
+/* Tombol tema apa adanya juga — ukuran bawaannya memang ukuran tombol di situs publik. */
+.survey-login .btn-plain.survey-login-submit {width:100%}
+.survey-login .btn-plain.survey-login-submit .btn-plain__inner {text-align:center}
 
 .survey-demo-accounts {
-  margin-top:1.6rem;border-top:1px solid var(--color-grey-2);padding-top:1rem;
-  font-size:.65rem;line-height:1.5;color:var(--color-text);
+  margin-top:2.4rem;border-top:1px solid var(--color-grey-2);padding-top:1.3rem;
+  font-size:.8rem;line-height:1.5;color:var(--color-text);
 }
 .survey-demo-accounts strong {
   display:block;color:var(--color-black);
-  font-size:.52rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
 }
-.survey-demo-accounts > p {margin:.35rem 0 0}
+.survey-demo-accounts > p {margin:.5rem 0 0}
 /* Nama peran dan IDnya berdampingan rapat, bukan dua kolom selebar setengah panel masing-masing:
    pasangan yang berjauhan memaksa mata melompat untuk mencocokkan baris. */
 .survey-demo-accounts dl {
-  display:grid;grid-template-columns:max-content max-content;gap:.28rem 1.1rem;
-  margin:.6rem 0 0;
+  display:grid;grid-template-columns:max-content max-content;gap:.4rem 1.4rem;
+  margin:.8rem 0 0;
 }
 .survey-demo-accounts dt {color:var(--color-text)}
 .survey-demo-accounts dd {margin:0}
-.survey-demo-accounts code {font-size:.65rem;color:var(--color-black)}
+.survey-demo-accounts code {font-size:.78rem;color:var(--color-black)}
+
+/* Antara 769 dan 1100px kedua kolom masih berdampingan, tetapi kolom kanan menyempit lebih cepat
+   daripada kolom kiri: pada 820px isiannya tinggal 255px — lebih sempit daripada tempat menulis
+   satu ID. Di rentang itu lebarnya dibagi rata dan jarak dalamnya dirapatkan. */
+@media only screen and (min-width:769px) and (max-width:1100px) {
+  .survey-login {grid-template-columns:1fr 1fr}
+  .survey-login-form {padding-left:2.5rem}
+  .survey-login-art {padding-right:1.5rem}
+}
 .survey-footer {padding:24px 4vw;font-size:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:16px}
 @media(max-width:768px){.survey-header nav{gap:12px;font-size:12px}.survey-brand small{display:none}.survey-login{grid-template-columns:1fr}.survey-login-art{padding:40px 24px}.survey-login-form{padding:40px 24px}.survey-hero{padding:24px;min-height:150px}.survey-hero .survey-motion{width:100px;min-width:80px;height:100px}.survey-header{padding:18px 24px}}
 /* Layar sempit: tiga tautan di kepala situs masih membungkus jadi dua baris dan membuat kepala
@@ -2518,12 +2530,16 @@ input[type="range"]:disabled::-moz-range-thumb {
  .survey-login-form h2 {margin:.35rem 0 .5rem;font-size:1.35rem;line-height:1.02}
  .survey-login-form > p:not(.eyebrow) {margin-bottom:.8rem;font-size:.62rem;line-height:1.4}
  .survey-login-form form {gap:.7rem}
- .survey-login-form form label {margin-bottom:.3rem;font-size:.62rem}
+ .survey-login-field > span {font-size:.62rem}
  .survey-login-form input {min-height:2.5rem;padding:.55rem .7rem;font-size:16px!important;
    border-radius:.55rem}
  .survey-login-form .btn-plain {font-size:.68rem}
- .survey-demo-accounts {margin-top:.85rem;padding-top:.7rem;font-size:.58rem;line-height:1.35}
+ .survey-demo-accounts {margin-top:1.1rem;padding-top:.8rem;font-size:.66rem;line-height:1.4}
+ .survey-demo-accounts strong {font-size:.58rem}
  .survey-demo-accounts p {margin-top:.25rem!important}
- .survey-demo-accounts dl {gap:.3rem .6rem;margin-top:.5rem}
+ .survey-demo-accounts dl {gap:.3rem .8rem;margin-top:.55rem}
+ /* Tanpa ini ID-nya tetap .78rem sementara nama perannya turun ke .66rem, dan tiap baris jadi
+    dua ukuran huruf yang berbeda. */
+ .survey-demo-accounts code {font-size:.66rem}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
