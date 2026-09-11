@@ -26,7 +26,9 @@ export function RowDisclosure({ label = "detail" }: { label?: string }) {
           const row = e.currentTarget.closest(".sb-course");
           if (row) row.setAttribute("data-detail-open", open ? "false" : "true");
         }}
-      />
+      >
+        <span className="period-stepper__arrow sb__detail-arrow" aria-hidden="true" />
+      </button>
     </span>
   );
 }

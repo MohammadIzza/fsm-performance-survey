@@ -1537,20 +1537,17 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell main .admin-area .sb__disclosure {display:flex;align-items:center;justify-content:flex-end}
 .survey-shell main .admin-area .sb__detail-toggle {
   position:relative;z-index:3;display:inline-flex;width:1.9rem;height:1.9rem;flex:0 0 1.9rem;
-  align-items:center;justify-content:center;margin:0;padding:0;border:0;border-radius:999em;
-  background:var(--color-white);color:var(--color-black);
-  font-size:1.9rem;
+  align-items:center;justify-content:center;margin:0;padding:0;border:0;border-radius:0;
+  background:transparent;color:var(--color-black);
 }
-.survey-shell main .admin-area .sb__detail-toggle::after {
-  content:"";width:.3em;height:.3em;
-  border-right:.075em solid currentColor;border-bottom:.075em solid currentColor;
-  transform:rotate(45deg) translate(-.05em,-.05em);
-  transition:transform .15s ease;
+/* Hapus segitiga lama dari aturan daftar mobile umum; tombol admin sekarang membawa satu elemen
+   chevron yang sama dengan stepper Periode. */
+.survey-shell main .admin-area .sb__detail-toggle::after {content:none}
+.survey-shell main .admin-area .sb__detail-arrow {flex:0 0 auto}
+.survey-shell main .admin-area .sb-course[data-detail-open="true"] .sb__detail-arrow {
+  transform:rotate(135deg);
 }
-.survey-shell main .admin-area .sb-course[data-detail-open="true"] .sb__detail-toggle::after {
-  transform:rotate(225deg) translate(-.05em,-.05em);
-}
-.survey-shell main .admin-area .sb__detail-toggle:hover {background:var(--color-beige-dark)}
+.survey-shell main .admin-area .sb__detail-toggle:hover {color:var(--color-brand-3)}
 
 /* Kolom aksi di baris daftar: aksinya berjajar mendatar, rata kanan seperti kolom terakhir
    lainnya, dan tidak membungkus jadi dua baris. */
@@ -2004,10 +2001,13 @@ input[type="range"]:disabled::-moz-range-thumb {
     display:flex;grid-column:2;grid-row:1;align-self:center;justify-self:end;width:auto;margin:0;
   }
   .survey-shell main .admin-area .s-courses-list .sb-course .sb__detail-toggle {
-    /* font-size ikut mengecil: panahnya diukur dalam `em`, jadi tanpa ini ia tetap sebesar panah
-       tombol layar lebar dan memenuhi lingkaran yang lebih kecil ini. */
-    width:1.65rem;height:1.65rem;flex-basis:1.65rem;font-size:1.65rem;
+    width:1.65rem;height:1.65rem;flex-basis:1.65rem;
   }
+  /* Form panel mengikuti ukuran teks detail tepat di atasnya. Pengecualian ini sengaja lebih
+     spesifik daripada batas 16px mobile global yang cocok untuk formulir utama, tetapi terlalu
+     besar untuk editor ringkas di dalam satu baris daftar admin. */
+  .survey-shell main .admin-area .sb__panel
+    :is(input,select,textarea).form__control {font-size:.62rem!important}
   /* Baris yang membuka halaman detail memakai panah tema pada petak kanan yang sama. */
   .survey-shell main .admin-area .s-courses-list
     .sb-course:not(.sb-course--static):not(.sb-course--head) .sb__arrow {
