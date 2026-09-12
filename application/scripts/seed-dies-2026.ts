@@ -23,6 +23,21 @@ import { commitPlan, computePlan } from "../src/lib/services/assignmentPlanning"
 import type { AuthContext } from "../src/lib/authz";
 
 const PERIODE_KODE = "DIES-FSM-2026";
+
+/**
+ * Akun penilai yang tercantum di halaman masuk sebagai contoh. Tugasnya sengaja dibiarkan kosong
+ * seluruhnya supaya siapa pun yang mencoba demo bisa mengisi dari awal sampai kirim.
+ */
+const AKUN_DEMO_PENILAI = "dosen1004";
+
+// Jendela pengisian dihitung dari hari seed dijalankan, bukan tanggal tetap. Dengan tanggal tetap
+// periode ini kedaluwarsa begitu tanggalnya lewat — layanan pengisian menolak setiap jawaban
+// sesudah tenggat, dan demo berhenti bisa dipakai tanpa ada yang berubah di kodenya.
+const HARI = 24 * 60 * 60 * 1000;
+const hariIni = new Date();
+const MULAI_PERIODE = new Date(hariIni.getTime() - 14 * HARI);
+const TENGGAT_PERIODE = new Date(hariIni.getTime() + 75 * HARI);
+const tanggal = (d: Date) => d.toISOString().slice(0, 10);
 const rng = createRng("dies-fsm-2026");
 
 /** Bilangan bulat 0..n-1 yang sama di tiap kali jalan. */
@@ -242,6 +257,65 @@ const JENIS_BAKAT = [
   "Musikalisasi puisi", "Tari modern", "Permainan biola", "Beatbox", "Monolog",
 ];
 
+/**
+ * Tugas untuk akun demo penilai. Pembagian otomatis hanya memberinya objek yang sesuai aturan
+ * kategorinya — dua atau tiga tugas, dan kebetulan semuanya ikut terisi acak. Untuk demo itu
+ * terlalu sedikit dan terlalu seragam, jadi di sini ia diberi tugas tambahan dari kategori-kategori
+ * yang berbeda jenisnya: dosen, video, dan bakat. Tugas ditulis langsung karena penugasan manual
+ * lewat layanan hanya dibuka selama periode Draf, sedangkan tahap ini dijalankan sesudah pembagian.
+ */
+async function siapkanTugasDemo(periodeId: string) {
+  const penilai = await prisma.user.findUniqueOrThrow({
+    where: { loginIdentifier: AKUN_DEMO_PENILAI },
+  });
+
+  // Berapa tugas tambahan per kategori. Kategori tendik (05, 06) tidak ikut: penilainya atasan
+  // dan sejawat sesama tendik, dan dosen yang menilai tendik tidak masuk akal sebagai contoh.
+  const tambahan: Record<string, number> = {
+    "04-DOSEN-FAVORIT": 2,
+    "07-VIDEO-HM": 1,
+    "08-VIDEO-PENGELOLA": 1,
+    "09-FSM-GOT-TALENT": 1,
+  };
+
+  let dibuat = 0;
+  for (const [kode, jumlah] of Object.entries(tambahan)) {
+    const kategori = await prisma.category.findFirstOrThrow({
+      where: { periodId: periodeId, code: kode },
+      include: {
+        instrumentVersions: { orderBy: { revision: "desc" }, take: 1 },
+        categoryObjects: {
+          orderBy: { nameSnapshot: "asc" },
+          include: { object: { include: { contributors: true } }, assignments: true },
+        },
+      },
+    });
+    const instrumen = kategori.instrumentVersions[0];
+    const calon = kategori.categoryObjects.filter(
+      (co) =>
+        co.object.referenceUserId !== penilai.id &&
+        !co.object.contributors.some((c) => c.userId === penilai.id) &&
+        !co.assignments.some((a) => a.evaluatorId === penilai.id)
+    );
+    for (const co of calon.slice(0, jumlah)) {
+      await prisma.assignment.create({
+        data: {
+          categoryObjectId: co.id,
+          evaluatorId: penilai.id,
+          group: "SELAIN_PIMPINAN",
+          instrumentVersionId: instrumen.id,
+          status: "BELUM_MULAI",
+          evaluatorNameSnapshot: penilai.name,
+          evaluatorLoginSnapshot: penilai.loginIdentifier,
+        },
+      });
+      dibuat++;
+    }
+  }
+  const total = await prisma.assignment.count({ where: { evaluatorId: penilai.id } });
+  console.log(`\nAkun demo ${AKUN_DEMO_PENILAI}: ${dibuat} tugas tambahan, ${total} tugas seluruhnya.`);
+}
+
 async function main() {
   const admin = await prisma.user.findUniqueOrThrow({ where: { loginIdentifier: "admin01" } });
   const actor: AuthContext = {
@@ -291,8 +365,8 @@ async function main() {
         "Sembilan kategori penilaian Dies Natalis Fakultas Sains dan Matematika UNDIP 2026, " +
         "disusun mengikuti instrumen yang ditetapkan panitia.",
       timezone: "Asia/Jakarta",
-      startsAt: "2026-01-12",
-      endsAt: "2026-03-20",
+      startsAt: tanggal(MULAI_PERIODE),
+      endsAt: tanggal(TENGGAT_PERIODE),
     },
     actor
   );
@@ -536,13 +610,21 @@ async function main() {
     );
   }
 
+  await siapkanTugasDemo(periode.id);
+
   await transitionPeriodStatus(periode.id, "SIAP", actor);
   await transitionPeriodStatus(periode.id, "AKTIF", actor);
 
   // —— Sebagian penilai sudah mengisi ——
   console.log("\nMengisi sebagian jawaban…");
+  const penilaiDemo = await prisma.user.findUniqueOrThrow({
+    where: { loginIdentifier: AKUN_DEMO_PENILAI },
+  });
   const tugas = await prisma.assignment.findMany({
-    where: { categoryObject: { category: { periodId: periode.id } } },
+    where: {
+      categoryObject: { category: { periodId: periode.id } },
+      evaluatorId: { not: penilaiDemo.id },
+    },
     include: { categoryObject: { include: { category: true } } },
     orderBy: { id: "asc" },
   });
@@ -570,7 +652,9 @@ async function main() {
         assignmentId: t.id,
         revision: 1,
         state: kirim ? "SUBMITTED" : "DRAFT",
-        submittedAt: kirim ? new Date(2026, 0, 20 + acak(40), 8 + acak(10), acak(60)) : null,
+        submittedAt: kirim
+          ? new Date(MULAI_PERIODE.getTime() + acak(13) * HARI + (8 + acak(10)) * 3600 * 1000)
+          : null,
         editedById: t.evaluatorId,
       },
     });
