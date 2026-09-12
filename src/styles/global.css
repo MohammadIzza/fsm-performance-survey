@@ -137,7 +137,9 @@ main:focus {
   display: inline-block;
   margin: 0 0 0.9em;
   padding: 0.42em 1.1em;
-  background: var(--color-brand-9);
+  /* Putih, bukan merah muda: di ponsel seluruh bidang seksi ini berwarna merah muda, dan penanda
+     sewarna bidangnya sama saja dengan tidak ada penanda. */
+  background: var(--color-white);
   border-radius: 999px;
   color: var(--color-black);
   font: 600 var(--font-size-t-sm) / 1 var(--font-family-text);

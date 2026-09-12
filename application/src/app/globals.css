@@ -2649,12 +2649,31 @@ input[type="range"]:disabled::-moz-range-thumb {
  /* Yang dicari orang saat membuka halaman ini adalah kotak isiannya, bukan lambang fakultasnya.
     Urutan tampilan dibalik lewat `order` — urutan markah tetap: huruf FSM hiasan, dan pembaca
     layar tidak perlu melewatinya dulu untuk sampai ke formulir. */
+ /* Bidang warna rata selebar layar dengan huruf tebal di atasnya — itu bahasa beranda di ponsel,
+    dan halaman masuk memakainya juga alih-alih berdiri sebagai lembar putih polos. Isiannya tetap
+    putih supaya tempat mengetik tetap jelas, dan tombol birunya justru lebih menonjol di atas
+    kuning daripada di atas putih. */
  .survey-login-form {
-   order:1;padding:1.5rem 1.15rem 1.7rem;background:var(--color-white);
-   /* Sudut besar di kiri bawah: perangkat yang sama dipakai seksi bersalut warna di situs publik.
-      Ia juga yang memutus pertemuan lurus antara lembar putih dan kertas krem di bawahnya. */
+   position:relative;order:1;padding:1.6rem 1.15rem 1.8rem;background:var(--color-brand-2);
+   color:var(--color-black);
+   /* Sudut besar di kiri bawah: perangkat yang sama dipakai seksi bersalut warna di situs publik. */
    border-bottom-left-radius:3.4rem;
  }
+ /* Bintang tema menandai pertemuan bidang kuning dengan kertas krem, sama seperti bintang yang
+    menempel di pojok panel video beranda. */
+ .survey-login-form::after {
+   content:"";position:absolute;right:1.6rem;bottom:-1.35rem;z-index:2;
+   width:2.7rem;height:2.7rem;
+   background:url('/assets/images/asset-star-1.svg') 50%/contain no-repeat;
+ }
+ .survey-login-form .eyebrow,
+ .survey-login-field > span,
+ .survey-demo-accounts {color:var(--color-black)}
+ .survey-login-form > p:not(.eyebrow) {color:var(--color-black);opacity:.78}
+ .survey-demo-accounts {border-top-color:rgba(56,48,48,.22)}
+ .survey-demo-accounts dt {color:rgba(56,48,48,.82)}
+ /* Isian di atas bidang kuning: bidang putih tanpa garis, seperti kotak pencarian di tema. */
+ .survey-login .form__control {border-color:transparent;background:var(--color-white)}
  .survey-login-art {
    order:2;min-height:9.4rem;align-items:center;padding:1.9rem 1.15rem 4.6rem;
    background:var(--color-beige);color:var(--color-black);
