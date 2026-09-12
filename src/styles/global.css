@@ -160,9 +160,20 @@ main:focus {
   .s-video-highlight .s__video-mask {
     display: none;
   }
+  /* Kolom teks tema membawa jarak dalam selebar satu kolom grid — dipakai saat ia berdiri di
+     samping video pada layar lebar. Di ponsel ia menumpuk di bawah judul, dan jarak itu menggeser
+     isinya 23px ke dalam: judul, penanda, kalimat, dan bidang video berdiri pada empat tepi kiri
+     yang berbeda. Jarak sampingnya dilepas supaya semuanya satu garis. */
   .s-video-highlight .s__text {
     display: flex;
-    padding-top: 1.6rem;
+    /* Jarak bawah sama dengan jarak judul ke teks: tanpa itu kalimat terakhir menempel langsung
+       pada tepi atas bidang video. */
+    padding: 1.6rem 0 1.5rem;
+  }
+  /* Titik hias di depan kalimat menggantung di luar paragraf dan membuat baris pertamanya masuk
+     sendiri. Di lebar ini ia dilepas supaya paragrafnya rata kiri seperti teks lain. */
+  .s-video-highlight .s__text .a-bullet-point {
+    display: none;
   }
   /* Teks seksi ini berukuran t-t-xl karena di layar lebar ia kolom samping yang pendek. Di ponsel
      ia membentang selebar layar dan jadi enam baris setinggi 40px — dikecilkan ke ukuran teks
