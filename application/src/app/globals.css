@@ -2589,6 +2589,10 @@ input[type="range"]:disabled::-moz-range-thumb {
      Isinya juga dinaikkan ke atas: begitu bukit naik menemui tangkai huruf, daftar akun demo yang
      tadinya di tengah kolom jatuh persis di atas bukit biru dan hampir tak terbaca. */
   .survey-login-form {justify-content:flex-start;padding-block:2.4rem}
+  /* Pembungkus judul dan panel hanya alat susun untuk ponsel; di sini keduanya dihapus dari tata
+     letak supaya kolom kanan tetap satu aliran seperti sebelum keduanya ada. */
+  .survey-login-intro,
+  .survey-login-panel {display:contents}
   /* Pita bukit dipendekkan dari 17rem ke 13rem. Dengan halaman yang kini hanya setinggi satu
      layar, pita setinggi 17rem naik sampai ke tengah kolom kanan dan daftar akun demo jatuh di
      atas bukit biru — terbaca hitam di atas biru tua. Yang dipendekkan pitanya, bukan jarak
@@ -2654,10 +2658,20 @@ input[type="range"]:disabled::-moz-range-thumb {
     putih supaya tempat mengetik tetap jelas, dan tombol birunya justru lebih menonjol di atas
     kuning daripada di atas putih. */
  .survey-login-form {
-   position:relative;order:1;padding:1.6rem 1.15rem 1.8rem;background:var(--color-brand-2);
+   position:relative;order:1;padding:1.7rem 1.1rem 2.1rem;background:var(--color-brand-2);
    color:var(--color-black);
    /* Sudut besar di kiri bawah: perangkat yang sama dipakai seksi bersalut warna di situs publik. */
    border-bottom-left-radius:3.4rem;
+ }
+ /* Judul berdiri langsung di atas bidang warna, sebesar judul seksi di beranda — bukan huruf kecil
+    yang tenggelam di tengah bidang selebar layar. */
+ .survey-login-intro {margin-bottom:1.15rem}
+ /* Isian dan akun demo turun ke kartu putih: satu tempat yang jelas untuk hal yang harus
+    dikerjakan, dan bidang kuningnya tidak lagi berisi campuran judul, isian, dan catatan.
+    Kartu putih di atas bidang warna adalah susunan yang sama dipakai beranda — kartu merah muda
+    yang menumpang di atas lengkung biru. */
+ .survey-login-panel {
+   padding:1.15rem 1rem 1.25rem;background:var(--color-white);border-radius:1.4rem;
  }
  /* Bintang tema menandai pertemuan bidang kuning dengan kertas krem, sama seperti bintang yang
     menempel di pojok panel video beranda. */
@@ -2666,14 +2680,10 @@ input[type="range"]:disabled::-moz-range-thumb {
    width:2.7rem;height:2.7rem;
    background:url('/assets/images/asset-star-1.svg') 50%/contain no-repeat;
  }
- .survey-login-form .eyebrow,
- .survey-login-field > span,
- .survey-demo-accounts {color:var(--color-black)}
- .survey-login-form > p:not(.eyebrow) {color:var(--color-black);opacity:.78}
- .survey-demo-accounts {border-top-color:rgba(56,48,48,.22)}
- .survey-demo-accounts dt {color:rgba(56,48,48,.82)}
- /* Isian di atas bidang kuning: bidang putih tanpa garis, seperti kotak pencarian di tema. */
- .survey-login .form__control {border-color:transparent;background:var(--color-white)}
+ .survey-login-form .eyebrow {color:var(--color-black)}
+ .survey-login-intro > p:not(.eyebrow) {color:var(--color-black);opacity:.78}
+ /* Isian di dalam kartu putih: bidang krem muda supaya tepinya terbaca tanpa garis kotak. */
+ .survey-login .form__control {border-color:transparent;background:var(--color-beige)}
  .survey-login-art {
    order:2;min-height:9.4rem;align-items:center;padding:1.9rem 1.15rem 4.6rem;
    background:var(--color-beige);color:var(--color-black);
@@ -2682,8 +2692,8 @@ input[type="range"]:disabled::-moz-range-thumb {
  .survey-login-hills {height:4.6rem;right:auto;left:0;width:100%;transform:none}
  .survey-login-hills i {border-top-width:1.5px}
  .survey-login-form .eyebrow {font-size:.52rem;line-height:1.3;letter-spacing:.08em}
- .survey-login-form h2 {margin:.45rem 0 .5rem;font-size:1.35rem;line-height:1.08}
- .survey-login-form > p:not(.eyebrow) {margin-bottom:1.1rem;font-size:.64rem;line-height:1.45}
+ .survey-login-form h2 {margin:.5rem 0 .55rem;font-size:1.78rem;line-height:1.06;letter-spacing:-.03em}
+ .survey-login-intro > p:not(.eyebrow) {margin:0;font-size:.66rem;line-height:1.45}
  .survey-login-form form {gap:.75rem}
  .survey-login-field {gap:.34rem}
  .survey-login-field > span {font-size:.55rem;letter-spacing:.08em}
