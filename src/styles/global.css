@@ -153,9 +153,28 @@ main:focus {
    video. Kolom itu dimunculkan lagi supaya keterangan "segera hadir" ikut terbaca di ponsel,
    bukan hanya di layar lebar. */
 @media only screen and (max-width: 767px) {
+  /* Lapisan .s__video-mask adalah sapuan biru untuk animasi pengungkap di layar lebar. Di ponsel
+     ia berhenti sebagai persegi biru 345x658 yang menutupi kolom teks di bawahnya — itulah blok
+     biru polos tanpa isi yang terlihat di seksi ini. Di lebar ini sapuan itu tidak dipakai, jadi
+     lapisannya ditiadakan dan kolom teksnya bisa muncul. */
+  .s-video-highlight .s__video-mask {
+    display: none;
+  }
   .s-video-highlight .s__text {
     display: flex;
     padding-top: 1.6rem;
+  }
+  /* Teks seksi ini berukuran t-t-xl karena di layar lebar ia kolom samping yang pendek. Di ponsel
+     ia membentang selebar layar dan jadi enam baris setinggi 40px — dikecilkan ke ukuran teks
+     tubuh biasa. */
+  .s-video-highlight .s__text p {
+    font-size: var(--font-size-t-md);
+    line-height: 1.45;
+  }
+  /* Bidang videonya dibuat 16:9, bukan bujur sangkar: yang ditampilkan gambar pengganti, dan pada
+     bujur sangkar selebar layar gambar itu tenggelam di tengah bidang kuning yang luas. */
+  .s-video-highlight .s__video-wrapper:before {
+    padding-top: 56.25%;
   }
 }
 
