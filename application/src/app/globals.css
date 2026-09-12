@@ -2595,8 +2595,28 @@ input[type="range"]:disabled::-moz-range-thumb {
   /* Empat akun demo dirapatkan jadi dua baris berpasangan. Dengan halaman setinggi satu layar,
      daftar setinggi empat baris menjulur sampai ke bukit biru dan dua baris terakhirnya terbaca
      samar di atasnya. */
-  .survey-demo-accounts {margin-top:1.6rem;padding-top:1rem}
-  .survey-demo-accounts dl {grid-template-columns:repeat(2,max-content max-content);gap:.4rem 1.2rem}
+  .survey-demo-accounts {margin-top:1.2rem;padding-top:.85rem;font-size:.65rem}
+  .survey-demo-accounts strong {font-size:.55rem}
+  .survey-demo-accounts > p {margin-top:.35rem}
+  .survey-demo-accounts dl {grid-template-columns:repeat(2,max-content max-content);gap:.32rem 1rem;margin-top:.6rem}
+  .survey-demo-accounts code {font-size:.65rem}
+
+  /* Kolom kanan dikecilkan dan dirapatkan. Ukuran sebelumnya diambil dari skala seksi situs
+     publik — 41,7px untuk judul, 20px untuk teks, 18px untuk isian — dan pada kolom selebar
+     setengah layar yang isinya cuma satu baris isian, skala itu terbaca seperti sampul, bukan
+     seperti formulir. Turun kira-kira sepertiga, jaraknya ikut dirapatkan, dan seluruh kolom
+     berhenti jauh di atas bukit. */
+  .survey-login-form .eyebrow {font-size:.55rem;letter-spacing:.07em}
+  .survey-login-form h2 {margin:.35rem 0 .45rem;font-size:1.45rem;line-height:1.1}
+  .survey-login-form__text {margin:0 0 1.2rem;font-size:.75rem;line-height:1.5}
+  .survey-login-form__fields {gap:.7rem}
+  .survey-login-field {gap:.32rem}
+  .survey-login-field > span {font-size:.55rem;letter-spacing:.07em}
+  .survey-login .form__control {
+    min-height:2.1rem;padding:.5rem .7rem;border-width:1px;border-radius:.4rem;font-size:.72rem;
+  }
+  .survey-login .btn-plain.survey-login-submit {font-size:.66rem}
+  .survey-login .btn-plain.survey-login-submit .btn-plain__inner {padding:.8em 1.6em}
 }
 
 /* Antara 769 dan 1100px kedua kolom masih berdampingan, tetapi kolom kanan menyempit lebih cepat

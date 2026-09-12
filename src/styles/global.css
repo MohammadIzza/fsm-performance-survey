@@ -156,3 +156,12 @@ main:focus {
     padding-top: 1.6rem;
   }
 }
+
+/* Judul beranda dua kata tidak muat satu baris pada ukuran bawaan tema — ukuran itu dipilih untuk
+   judul sependek "9 tahap". Dengan dua kata, judul jatuh ke baris kedua, tinggi hero bertambah
+   283px, dan tepi bawah huruf keluar dari layar: yang terlihat cuma potongan "penilaian".
+   Ukurannya diturunkan sampai muat satu baris di lebar kolom judulnya. */
+.s-hero .s__title .s__title__main {
+  font-size: 4.4rem;
+  line-height: 1.04;
+}
