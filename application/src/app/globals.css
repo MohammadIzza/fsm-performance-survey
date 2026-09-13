@@ -31,7 +31,7 @@
 @import "../styles/theme/sections.css";
 @import "../styles/theme/shell.css";
 
-/* Shared visual language from the repository's original Nod theme. */
+/* Bahasa visual bersama dari tema situs publik (warna, huruf, bentuk tombol). */
 /* url() di berkas ini ditulis dengan awalan aplikasi /survey (base-path.mjs): CSS tidak bisa membaca
    variabel lingkungan, dan Next membiarkan url() absolut apa adanya. Ganti ikut bila awalannya berubah. */
 @font-face {font-family:HeyWow;src:url('/survey/assets/fonts/HeyWow-Book.woff2') format('woff2');font-weight:400;font-display:swap}

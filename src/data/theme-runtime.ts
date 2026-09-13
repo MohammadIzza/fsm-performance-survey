@@ -1,4 +1,4 @@
-// Bootstrap configuration for the original Nod theme runtime (GSAP + Luge + main.js).
+// Bootstrap configuration for the theme runtime (GSAP + Luge + main.js).
 // Mirrors the `window.plr` object the WordPress theme printed inline.
 //
 // `css` is omitted for every bundle on purpose: the theme's per-component

@@ -1,5 +1,4 @@
 * text=auto eol=lf
 
-# Preserve the original downloaded files and binary/static assets byte for byte.
-archive/** -text
+# Keep binary/static assets byte for byte.
 public/assets/** -text

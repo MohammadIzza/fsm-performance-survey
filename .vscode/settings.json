@@ -3,7 +3,6 @@
   "editor.formatOnSave": true,
   "files.exclude": { "**/.astro": true, "**/node_modules": true },
   "search.exclude": {
-    "archive/**": true,
     "dist/**": true,
     "package-lock.json": true
   }

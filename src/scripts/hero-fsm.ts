@@ -1,4 +1,4 @@
-/** Adapt the preserved Nod controller without modifying its vendor chunks.
+/** Adapt the theme's hero controller without modifying its vendor chunks.
  * Loaded by SiteLayout before DOMContentLoaded; beforePageInit runs after
  * controller creation on both first load and Luge page transitions.
  */
@@ -45,7 +45,7 @@ interface ThemeModules {
   124: { c: { create(name: string, curve: string): unknown } };
 }
 const theme = window as unknown as ThemeWindow;
-// The module IDs belong to the pinned Nod runtime in public/assets/js.
+// The module IDs belong to the pinned theme runtime in public/assets/js.
 // Reuse its GSAP ticker and CustomEase; do not ship a second animation engine.
 theme.webpackChunknod.push([
   ['fsm-hero-adapter-v1'],
