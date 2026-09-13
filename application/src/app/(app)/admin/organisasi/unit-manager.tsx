@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAksi, useAksiLangsung } from "@/components/theme/notifikasi";
 import {
   DataList,
   DataRow,
@@ -33,7 +33,7 @@ export function UnitManager({
   units: UnitWithMeta[];
   activeUsers: ActiveUser[];
 }) {
-  const [createState, createFormAction, createPending] = useActionState(createUnitAction, {});
+  const [createState, createFormAction, createPending] = useAksi(createUnitAction, {}, "Unit ditambahkan.");
   const parentOptions = units.filter((u) => u.active);
 
   return (
@@ -101,8 +101,10 @@ function UnitRow({
   allUnits: UnitWithMeta[];
   activeUsers: ActiveUser[];
 }) {
-  const [updateState, updateFormAction, updatePending] = useActionState(updateUnitAction, {});
-  const [assignState, assignFormAction, assignPending] = useActionState(assignLeadershipAction, {});
+  const akhiriJabatan = useAksiLangsung(endLeadershipAction, "Masa jabatan diakhiri.");
+  const ubahAktifUnit = useAksiLangsung(setUnitActiveAction, (fd) => (fd.get("active") === "true" ? "Unit diaktifkan." : "Unit dinonaktifkan."));
+  const [updateState, updateFormAction, updatePending] = useAksi(updateUnitAction, {}, "Perubahan unit disimpan.");
+  const [assignState, assignFormAction, assignPending] = useAksi(assignLeadershipAction, {}, "Pimpinan unit ditetapkan.");
 
   const parent = allUnits.find((u) => u.id === unit.parentId);
   const parentOptions = allUnits.filter((u) => u.id !== unit.id && u.active);
@@ -222,7 +224,7 @@ function UnitRow({
                           </span>
                         </span>
                         {isCurrent && (
-                          <form action={endLeadershipAction}>
+                          <form action={akhiriJabatan}>
                             <input type="hidden" name="leadershipId" value={l.id} />
                             <button
                               type="submit"
@@ -285,7 +287,7 @@ function UnitRow({
           </section>
 
           <RowPanelActions>
-            <form action={setUnitActiveAction}>
+            <form action={ubahAktifUnit}>
               <input type="hidden" name="unitId" value={unit.id} />
               <input type="hidden" name="active" value={(!unit.active).toString()} />
               <button type="submit" className="app-btn">

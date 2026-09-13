@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
 import { updateGroupRuleAction } from "@/lib/actions/admin-instruments";
 import type { getCategoryDetail } from "@/lib/services/categories";
 import { PilihanCariBanyak } from "@/components/theme/pilihan-cari";
@@ -23,7 +23,7 @@ export function GroupRuleForm({
   editable: boolean;
   parameters: {id:string;name:string}[];
 }) {
-  const [state, formAction, pending] = useActionState(updateGroupRuleAction, {});
+  const [state, formAction, pending] = useAksi(updateGroupRuleAction, {}, "Aturan penilai disimpan.");
 
   return (
     <form action={formAction} className="grid gap-3">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
 import { updateInstrumentScaleAction } from "@/lib/actions/admin-instruments";
 import type { getCategoryDetail } from "@/lib/services/categories";
 
@@ -20,7 +20,7 @@ export function ScaleForm({
   categoryId: string;
   editable: boolean;
 }) {
-  const [state, formAction, pending] = useActionState(updateInstrumentScaleAction, {});
+  const [state, formAction, pending] = useAksi(updateInstrumentScaleAction, {}, "Skala penilaian disimpan.");
 
   return (
     <form action={formAction} className="grid gap-3">

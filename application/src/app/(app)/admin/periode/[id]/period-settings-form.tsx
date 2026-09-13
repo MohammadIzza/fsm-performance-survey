@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
 import { updatePeriodSettingsAction } from "@/lib/actions/admin-periods";
 import type { getPeriodDetail } from "@/lib/services/periods";
 
@@ -14,7 +14,7 @@ function toDateInput(d: Date | string) {
 }
 
 export function PeriodSettingsForm({ period }: { period: Period }) {
-  const [state, formAction, pending] = useActionState(updatePeriodSettingsAction, {});
+  const [state, formAction, pending] = useAksi(updatePeriodSettingsAction, {}, "Pengaturan periode disimpan.");
   const editable = period.status === "DRAF";
 
   return (

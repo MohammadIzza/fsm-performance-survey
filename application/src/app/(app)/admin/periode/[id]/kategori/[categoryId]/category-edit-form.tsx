@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
 import { updateCategoryAction } from "@/lib/actions/admin-categories";
 import type { getCategoryDetail } from "@/lib/services/categories";
 
@@ -18,7 +18,7 @@ export function CategoryEditForm({
   periodId: string;
   editable: boolean;
 }) {
-  const [state, formAction, pending] = useActionState(updateCategoryAction, {});
+  const [state, formAction, pending] = useAksi(updateCategoryAction, {}, "Perubahan kategori disimpan.");
 
   return (
     <form action={formAction} className="grid gap-3">

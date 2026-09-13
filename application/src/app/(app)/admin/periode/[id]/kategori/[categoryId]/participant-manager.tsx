@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useAksi, useAksiLangsung } from "@/components/theme/notifikasi";
+import { useMemo, useState } from "react";
 import { addCategoryObjectsAction, removeCategoryObjectAction } from "@/lib/actions/admin-categories";
 import type { getCategoryDetail } from "@/lib/services/categories";
 import { PilihanCari, PilihanCariBanyak } from "@/components/theme/pilihan-cari";
@@ -48,7 +49,8 @@ export function ParticipantManager({
   objectTypeName: string;
   editable: boolean;
 }) {
-  const [addState, addFormAction, addPending] = useActionState(addCategoryObjectsAction, {});
+  const keluarkanObjek = useAksiLangsung(removeCategoryObjectAction, "Objek dikeluarkan dari kategori.");
+  const [addState, addFormAction, addPending] = useAksi(addCategoryObjectsAction, {}, (_h, fd) => `${fd.getAll("objectIds").length} objek ditambahkan ke kategori.`);
   const [terpilih, setTerpilih] = useState<string[]>([]);
   const perUnit = useMemo(() => kelompokkanPerUnit(candidateObjects, units), [candidateObjects, units]);
   const opsiUnit = units
@@ -77,7 +79,7 @@ export function ParticipantManager({
                 {p.unitSnapshot}
               </span>
               {editable && (
-                <form action={removeCategoryObjectAction} className="participant-list__action">
+                <form action={keluarkanObjek} className="participant-list__action">
                   <input type="hidden" name="categoryObjectId" value={p.id} />
                   <input type="hidden" name="periodId" value={periodId} />
                   <input type="hidden" name="categoryId" value={categoryId} />

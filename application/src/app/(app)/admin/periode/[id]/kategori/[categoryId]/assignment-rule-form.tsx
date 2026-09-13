@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
 import { updateAssignmentRuleAction } from "@/lib/actions/admin-assignments";
 import type { getCategoryDetail } from "@/lib/services/categories";
 
@@ -23,7 +23,7 @@ export function AssignmentRuleForm({
   categoryId: string;
   editable: boolean;
 }) {
-  const [state, formAction, pending] = useActionState(updateAssignmentRuleAction, {});
+  const [state, formAction, pending] = useAksi(updateAssignmentRuleAction, {}, "Aturan pembagian tugas disimpan.");
   const currentTypeIds = new Set((rule.userTypeIds as string[] | null) ?? []);
 
   return (

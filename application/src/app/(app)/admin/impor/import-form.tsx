@@ -1,7 +1,8 @@
 "use client";
 
+import { useAksi } from "@/components/theme/notifikasi";
 import { AdminActionList, AdminAction } from "@/components/theme/admin-actions";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { previewImportAction, applyImportAction } from "@/lib/actions/imports";
 import { withBase } from "@/lib/base-path";
 
@@ -16,8 +17,8 @@ const fieldClass =
 
 export function ImportForm() {
   const [entity, setEntity] = useState("UNIT");
-  const [previewState, previewAction, previewPending] = useActionState(previewImportAction, {});
-  const [applyState, applyAction, applyPending] = useActionState(applyImportAction, {});
+  const [previewState, previewAction, previewPending] = useAksi(previewImportAction, {}, null);
+  const [applyState, applyAction, applyPending] = useAksi(applyImportAction, {}, (h) => (h.summary ? `Impor selesai: ${h.summary.toCreate} baru, ${h.summary.toUpdate} diperbarui.` : "Impor selesai."));
 
   const preview = previewState.preview;
   const canApply = preview && preview.errors.length === 0 && preview.totalRows > 0 && !applyState.success;

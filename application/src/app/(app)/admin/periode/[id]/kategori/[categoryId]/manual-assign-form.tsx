@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
 import { manualAssignEvaluatorAction } from "@/lib/actions/admin-assignments";
 import { PilihanCari } from "@/components/theme/pilihan-cari";
 
@@ -18,7 +18,7 @@ export function ManualAssignForm({
   categoryObjects: { id: string; nameSnapshot: string }[];
   users: { id: string; name: string; loginIdentifier: string }[];
 }) {
-  const [state, formAction, pending] = useActionState(manualAssignEvaluatorAction, {});
+  const [state, formAction, pending] = useAksi(manualAssignEvaluatorAction, {}, "Penilai ditugaskan.");
 
   return (
     <form action={formAction} className="manual-assignment-form">

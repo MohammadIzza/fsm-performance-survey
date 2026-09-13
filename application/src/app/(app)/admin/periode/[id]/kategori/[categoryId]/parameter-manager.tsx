@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useId, useState } from "react";
+import { useAksi, useAksiLangsung } from "@/components/theme/notifikasi";
+import { useId, useState } from "react";
 import {
   addParameterAction,
   updateParameterAction,
@@ -26,7 +27,7 @@ export function ParameterManager({
   categoryId: string;
   editable: boolean;
 }) {
-  const [addState, addFormAction, addPending] = useActionState(addParameterAction, {});
+  const [addState, addFormAction, addPending] = useAksi(addParameterAction, {}, "Parameter ditambahkan.");
   const addFormId = useId();
   const totalWeight = parameters.reduce((total, parameter) => total + parameter.weight, 0);
   const remainingWeight = Math.max(0, Math.round((100 - totalWeight) * 100) / 100);
@@ -129,8 +130,9 @@ function ParameterRow({
   editable: boolean;
   totalWeight: number;
 }) {
+  const hapusParameter = useAksiLangsung(deleteParameterAction, "Parameter dihapus.");
   const [editing, setEditing] = useState(false);
-  const [state, formAction, pending] = useActionState(updateParameterAction, {});
+  const [state, formAction, pending] = useAksi(updateParameterAction, {}, "Perubahan parameter disimpan.");
   const editFormId = `edit-parameter-${parameter.id}`;
 
   if (editing) {
@@ -203,7 +205,7 @@ function ParameterRow({
                 <path d="M4 20h4l11-11-4-4L4 16v4Zm10-14 4 4m-9 9H5v-4L15 5l4 4L9 19Z" />
               </svg>
             </button>
-            <form action={deleteParameterAction}>
+            <form action={hapusParameter}>
               <input type="hidden" name="parameterId" value={parameter.id} />
               <input type="hidden" name="periodId" value={periodId} />
               <input type="hidden" name="categoryId" value={categoryId} />

@@ -2973,3 +2973,56 @@ input[type="range"]:disabled::-moz-range-thumb {
   .pilihan-cari__lencana {font-size:.72rem}
   .pilihan-cari__lepas {width:1.4rem;height:1.4rem}
 }
+
+/* Dialog "Penilaian terkirim" (tugas/[assignmentId]/dialog-terkirim.tsx): kartu konfirmasi yang
+   sama, dengan lingkaran centang yang tergambar saat dialog terbuka. */
+.konfirmasi__centang {
+  display:grid;place-items:center;width:3rem;height:3rem;margin-bottom:.85rem;border-radius:50%;
+  background:var(--color-brand-4, #75c7b4);color:var(--color-black);
+  animation:centang-muncul .42s cubic-bezier(.34,1.56,.64,1) both;
+}
+.konfirmasi__centang svg {width:1.55rem;height:1.55rem}
+.konfirmasi__centang path {
+  stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:22;stroke-dashoffset:22;animation:centang-garis .38s .2s ease-out forwards;
+}
+@keyframes centang-muncul {from {opacity:0;transform:scale(.4)}}
+@keyframes centang-garis {to {stroke-dashoffset:0}}
+
+/* Notifikasi berhasil (components/theme/notifikasi.tsx): pil gelap di pojok kanan bawah; di ponsel
+   selebar layar di atas tepi bawah. Galat tetap tampil di formulirnya sendiri. */
+.notifikasi {
+  position:fixed;right:1.25rem;bottom:calc(1.25rem + env(safe-area-inset-bottom, 0px));z-index:200;
+  display:flex;flex-direction:column;align-items:flex-end;gap:.5rem;pointer-events:none;
+}
+.notifikasi__item {
+  display:flex;align-items:center;gap:.6rem;max-width:min(24rem,calc(100vw - 2rem));
+  padding:.6rem .55rem .6rem .7rem;border-radius:.9rem;
+  background:var(--color-black);color:var(--color-white);
+  box-shadow:0 .75rem 2rem rgb(33 30 31 / .25);pointer-events:auto;
+  font-size:.7rem;font-weight:600;line-height:1.35;
+  animation:notifikasi-masuk .34s cubic-bezier(.22,1,.36,1);
+  transition:opacity .25s ease,transform .25s ease;
+}
+.notifikasi__item[data-keluar="true"] {opacity:0;transform:translate3d(0,.5rem,0)}
+.notifikasi__ikon {
+  display:grid;place-items:center;flex:0 0 1.35rem;width:1.35rem;height:1.35rem;border-radius:50%;
+  background:var(--color-brand-4, #75c7b4);color:var(--color-black);font-size:.72rem;font-weight:700;
+}
+.notifikasi__item--info .notifikasi__ikon {background:var(--color-brand-5, #6f9fe0)}
+.notifikasi__pesan {flex:1 1 auto}
+.survey-shell ~ .notifikasi .notifikasi__tutup,
+.notifikasi__tutup {
+  display:grid;place-items:center;flex:0 0 1.6rem;width:1.6rem;height:1.6rem;min-height:0;padding:0;
+  border:0;border-radius:50%;background:transparent;color:inherit;opacity:.7;font-size:1rem;line-height:1;cursor:pointer;
+}
+.notifikasi__tutup:hover {opacity:1;background:rgb(255 255 255 / .12)}
+@keyframes notifikasi-masuk {from {opacity:0;transform:translate3d(0,.8rem,0) scale(.97)}}
+@media only screen and (max-width: 640px) {
+  .notifikasi {left:.75rem;right:.75rem;bottom:calc(.75rem + env(safe-area-inset-bottom, 0px));align-items:stretch}
+  .notifikasi__item {max-width:none;font-size:.8rem}
+}
+@media (prefers-reduced-motion: reduce) {
+  .notifikasi__item,.konfirmasi__centang,.konfirmasi__centang path {animation:none}
+  .konfirmasi__centang path {stroke-dashoffset:0}
+}

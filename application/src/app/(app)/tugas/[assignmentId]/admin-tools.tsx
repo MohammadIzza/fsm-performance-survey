@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
 import { reopenAssignmentAction, voidResponseAction } from "@/lib/actions/responses";
 import type { AssignmentStatus } from "@/generated/prisma/enums";
 import { useAdminEdit } from "./admin-edit-context";
@@ -14,8 +14,8 @@ export function AdminTools({
   status: AssignmentStatus;
   effectiveRevisionId: string | null;
 }) {
-  const [reopenState, reopenAction, reopenPending] = useActionState(reopenAssignmentAction, {});
-  const [voidState, voidAction, voidPending] = useActionState(voidResponseAction, {});
+  const [reopenState, reopenAction, reopenPending] = useAksi(reopenAssignmentAction, {}, "Tugas dibuka kembali untuk koreksi.");
+  const [voidState, voidAction, voidPending] = useAksi(voidResponseAction, {}, "Respons dibatalkan.");
   const { editing, mulai } = useAdminEdit();
 
   return (

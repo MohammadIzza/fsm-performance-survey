@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useRef } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
+import { useRef } from "react";
 import { duplicateInstrumentAction } from "@/lib/actions/admin-instruments";
 import { useKonfirmasi } from "@/components/theme/confirm-dialog";
 import { PilihanCari } from "@/components/theme/pilihan-cari";
@@ -16,7 +17,7 @@ export function DuplicateInstrumentForm({
   categoryId: string;
   sources: { id: string; label: string }[];
 }) {
-  const [state, formAction, pending] = useActionState(duplicateInstrumentAction, {});
+  const [state, formAction, pending] = useAksi(duplicateInstrumentAction, {}, "Instrumen disalin.");
   const [konfirmasi, dialogKonfirmasi] = useKonfirmasi();
   // Tanda sekali pakai: kiriman ulang setelah dialog disetujui tidak ditanyakan lagi.
   const sudahDisetujui = useRef(false);

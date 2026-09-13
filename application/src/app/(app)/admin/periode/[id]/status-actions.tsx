@@ -1,8 +1,15 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
 import { transitionPeriodStatusAction } from "@/lib/actions/admin-periods";
 import type { PeriodStatus } from "@/generated/prisma/enums";
+
+const STATUS_BERHASIL: Record<string, string> = {
+  SIAP: "Periode lolos pemeriksaan dan siap dibuka.",
+  AKTIF: "Pengisian dibuka.",
+  DRAF: "Periode dikembalikan ke draf.",
+  DITUTUP: "Pengisian ditutup.",
+};
 
 function TransitionButton({
   formAction,
@@ -41,7 +48,7 @@ export function StatusActions({
   status: PeriodStatus;
   problems: string[];
 }) {
-  const [state, formAction, pending] = useActionState(transitionPeriodStatusAction, {});
+  const [state, formAction, pending] = useAksi(transitionPeriodStatusAction, {}, (_h, fd) => STATUS_BERHASIL[String(fd.get("targetStatus"))] ?? "Status periode diperbarui.");
 
   return (
     <div className="app-panel app-panel--ruled">

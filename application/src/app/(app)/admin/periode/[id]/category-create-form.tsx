@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
+import { useState } from "react";
 import { createCategoryAction } from "@/lib/actions/admin-categories";
 
 const fieldClass =
@@ -13,7 +14,7 @@ export function CategoryCreateForm({
   periodId: string;
   objectTypes: { id: string; code: string; name: string }[];
 }) {
-  const [state, formAction, pending] = useActionState(createCategoryAction, {});
+  const [state, formAction, pending] = useAksi(createCategoryAction, {}, "Kategori ditambahkan.");
   const [typeId, setTypeId] = useState("");
   // Pembuat karya hanya ada pada objek jenis Karya, jadi pilihannya hanya ditampilkan di sana.
   const isKarya = objectTypes.find((t) => t.id === typeId)?.code === "KARYA";

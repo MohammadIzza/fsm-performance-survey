@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
 import { copyPeriodAction } from "@/lib/actions/admin-periods";
 
 const fieldClass =
@@ -11,7 +11,7 @@ const fieldClass =
 // SENGAJA tidak ikut disalin — selalu dievaluasi ulang dari nol (lihat komentar copyPeriod di
 // services/periods.ts) — tidak ada jawaban lama yang ikut dihitung di periode hasil salinan.
 export function CopyPeriodForm({ sourcePeriodId }: { sourcePeriodId: string }) {
-  const [state, formAction, pending] = useActionState(copyPeriodAction, {});
+  const [state, formAction, pending] = useAksi(copyPeriodAction, {}, "Periode disalin.");
 
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-4">

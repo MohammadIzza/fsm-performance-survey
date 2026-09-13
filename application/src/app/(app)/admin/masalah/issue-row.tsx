@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
+import { useState } from "react";
 import { resolveIssueAction } from "@/lib/actions/assignmentIssues";
 import type { listAllIssues } from "@/lib/services/assignmentIssues";
 import { StatusPill } from "@/components/theme/status-pill";
@@ -21,7 +22,7 @@ const statusTone = {
 
 export function IssueRow({ issue }: { issue: Issue }) {
   const [open, setOpen] = useState(false);
-  const [state, formAction, pending] = useActionState(resolveIssueAction, {});
+  const [state, formAction, pending] = useAksi(resolveIssueAction, {}, "Laporan masalah ditindaklanjuti.");
 
   return (
     <div className="space-y-2">

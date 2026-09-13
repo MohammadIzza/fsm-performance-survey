@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
 import { reportIssueAction } from "@/lib/actions/assignmentIssues";
 
 const typeOptions = [
@@ -12,7 +12,7 @@ const typeOptions = [
 ];
 
 export function IssueReportForm({ assignmentId }: { assignmentId: string }) {
-  const [state, formAction, pending] = useActionState(reportIssueAction, {});
+  const [state, formAction, pending] = useAksi(reportIssueAction, {}, "Laporan masalah terkirim.");
 
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-3">

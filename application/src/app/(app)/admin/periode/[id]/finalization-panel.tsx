@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
+import { useState } from "react";
 import { finalizePeriodAction, openRevisionAction } from "@/lib/actions/finalization";
 import type { FinalizationPreview } from "@/lib/services/finalization";
 import type { PeriodStatus } from "@/generated/prisma/enums";
@@ -14,8 +15,8 @@ export function FinalizationPanel({
   status: PeriodStatus;
   preview: FinalizationPreview | null;
 }) {
-  const [finalizeState, finalizeAction, finalizePending] = useActionState(finalizePeriodAction, {});
-  const [revisionState, revisionAction, revisionPending] = useActionState(openRevisionAction, {});
+  const [finalizeState, finalizeAction, finalizePending] = useAksi(finalizePeriodAction, {}, "Periode difinalkan.");
+  const [revisionState, revisionAction, revisionPending] = useAksi(openRevisionAction, {}, "Revisi periode dibuka.");
   const [confirmed, setConfirmed] = useState(false);
   const [showRevisionForm, setShowRevisionForm] = useState(false);
 

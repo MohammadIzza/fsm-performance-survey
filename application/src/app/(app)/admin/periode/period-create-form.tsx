@@ -1,13 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
 import { createPeriodAction } from "@/lib/actions/admin-periods";
 
 const fieldClass =
   "form__control";
 
 export function PeriodCreateForm() {
-  const [state, formAction, pending] = useActionState(createPeriodAction, {});
+  const [state, formAction, pending] = useAksi(createPeriodAction, {}, "Periode dibuat.");
 
   return (
     <form action={formAction} className="grid gap-3 sm:grid-cols-4">

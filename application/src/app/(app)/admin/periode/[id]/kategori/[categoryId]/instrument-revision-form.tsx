@@ -1,5 +1,6 @@
 "use client";
-import { useActionState } from "react";
+
+import { useAksi } from "@/components/theme/notifikasi";
 import { beginInstrumentRevisionAction } from "@/lib/actions/admin-instruments";
 import { ThemeButton } from "@/components/theme-button";
 
@@ -14,7 +15,7 @@ export function InstrumentRevisionForm({
   categoryId: string;
   periodId: string;
 }) {
-  const [state, action, pending] = useActionState(beginInstrumentRevisionAction, {});
+  const [state, action, pending] = useAksi(beginInstrumentRevisionAction, {}, "Revisi instrumen dibuka.");
 
   return (
     <form action={action} className="app-panel app-panel--ruled space-y-4">

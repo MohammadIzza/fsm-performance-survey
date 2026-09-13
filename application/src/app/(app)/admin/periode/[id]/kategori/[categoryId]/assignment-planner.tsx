@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
 import {
   previewAssignmentPlanAction,
   commitAssignmentPlanAction,
@@ -20,14 +20,8 @@ export function AssignmentPlanner({
   categoryId: string;
   editable: boolean;
 }) {
-  const [previewState, previewAction, previewPending] = useActionState(
-    previewAssignmentPlanAction,
-    {}
-  );
-  const [commitState, commitAction, commitPending] = useActionState(
-    commitAssignmentPlanAction,
-    {}
-  );
+  const [previewState, previewAction, previewPending] = useAksi(previewAssignmentPlanAction, {}, null);
+  const [commitState, commitAction, commitPending] = useAksi(commitAssignmentPlanAction, {}, "Tugas penilaian dibagikan.");
 
   if (!editable) {
     return (

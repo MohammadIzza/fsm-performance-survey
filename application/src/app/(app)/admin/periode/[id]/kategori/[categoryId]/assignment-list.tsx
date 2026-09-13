@@ -1,7 +1,8 @@
 "use client";
 
+import { useAksi } from "@/components/theme/notifikasi";
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { RowActionMenu } from "@/components/theme/data-list";
 import { cancelAssignmentAction } from "@/lib/actions/admin-assignments";
 import type { listAssignmentsForCategory } from "@/lib/services/assignments";
@@ -82,7 +83,7 @@ function AssignmentRow({
   categoryId: string;
 }) {
   const [cancelling, setCancelling] = useState(false);
-  const [state, formAction, pending] = useActionState(cancelAssignmentAction, {});
+  const [state, formAction, pending] = useAksi(cancelAssignmentAction, {}, "Penugasan dibatalkan.");
 
   const canCancel = assignment.status === "BELUM_MULAI" || assignment.status === "DIBUKA_KEMBALI";
 

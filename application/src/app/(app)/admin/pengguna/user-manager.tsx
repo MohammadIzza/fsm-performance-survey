@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useAksi, useAksiLangsung } from "@/components/theme/notifikasi";
+import { useState } from "react";
 import {
   DataList,
   DataRow,
@@ -37,8 +38,8 @@ export function UserManager({
   userTypes: UserType[];
   units: Unit[];
 }) {
-  const [createState, createFormAction, createPending] = useActionState(createUserAction, {});
-  const [typeState, typeFormAction, typePending] = useActionState(createUserTypeAction, {});
+  const [createState, createFormAction, createPending] = useAksi(createUserAction, {}, "Pengguna ditambahkan.");
+  const [typeState, typeFormAction, typePending] = useAksi(createUserTypeAction, {}, "Jenis pengguna ditambahkan.");
   // Bab 16.2: "Tabel panjang memiliki pencarian, filter, pagination, dan state kosong" — daftar
   // pengguna tumbuh dengan cepat (satu baris per orang di fakultas), jadi pencarian bukan opsional.
   const [search, setSearch] = useState("");
@@ -179,8 +180,10 @@ function UserRow({
   userTypes: UserType[];
   units: Unit[];
 }) {
-  const [updateState, updateFormAction, updatePending] = useActionState(updateUserAction, {});
-  const [grantState, grantFormAction, grantPending] = useActionState(grantRoleAction, {});
+  const cabutPeran = useAksiLangsung(revokeRoleAction, "Peran dicabut.");
+  const ubahAktifPengguna = useAksiLangsung(setUserActiveAction, (fd) => (fd.get("active") === "true" ? "Pengguna diaktifkan." : "Pengguna dinonaktifkan."));
+  const [updateState, updateFormAction, updatePending] = useAksi(updateUserAction, {}, "Perubahan pengguna disimpan.");
+  const [grantState, grantFormAction, grantPending] = useAksi(grantRoleAction, {}, "Peran diberikan.");
 
   const rowFields = (
     <>
@@ -331,7 +334,7 @@ function UserRow({
                       <span className="font-medium text-[var(--foreground)]">
                         {g.role === "ADMIN" ? "Admin" : "Dekan"}
                       </span>
-                      <form action={revokeRoleAction}>
+                      <form action={cabutPeran}>
                         <input type="hidden" name="grantId" value={g.id} />
                         <button
                           type="submit"
@@ -379,7 +382,7 @@ function UserRow({
           </section>
 
           <RowPanelActions>
-            <form action={setUserActiveAction}>
+            <form action={ubahAktifPengguna}>
               <input type="hidden" name="userId" value={user.id} />
               <input type="hidden" name="active" value={(!user.active).toString()} />
               <button type="submit" className="app-btn">

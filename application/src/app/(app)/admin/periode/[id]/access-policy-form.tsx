@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
+import { useState } from "react";
 import { setAccessPolicyAction } from "@/lib/actions/admin-periods";
 import type { getPeriodDetail } from "@/lib/services/periods";
 import type { AccessMode } from "@/generated/prisma/enums";
@@ -24,7 +25,7 @@ export function AccessPolicyForm({
   periodId: string;
   accessPolicy: AccessPolicy;
 }) {
-  const [state, formAction, pending] = useActionState(setAccessPolicyAction, {});
+  const [state, formAction, pending] = useAksi(setAccessPolicyAction, {}, "Waktu akses hasil disimpan.");
   const [mode, setMode] = useState<AccessMode>(accessPolicy?.mode ?? "SETELAH_FINAL");
 
   if (!accessPolicy) {

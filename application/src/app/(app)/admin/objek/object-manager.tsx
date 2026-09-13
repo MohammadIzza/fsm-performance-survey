@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useAksi, useAksiLangsung } from "@/components/theme/notifikasi";
+import { useMemo, useState } from "react";
 import {
   DataList,
   DataRow,
@@ -42,7 +43,7 @@ export function ObjectManager({
   units: Unit[];
   users: UserOption[];
 }) {
-  const [typeState, typeFormAction, typePending] = useActionState(createObjectTypeAction, {});
+  const [typeState, typeFormAction, typePending] = useAksi(createObjectTypeAction, {}, "Jenis objek ditambahkan.");
   // Bab 16.2: "Tabel panjang memiliki pencarian, filter, pagination, dan state kosong" — master
   // objek mencakup seluruh orang/unit/karya lintas kategori, jadi bisa cepat panjang.
   const [search, setSearch] = useState("");
@@ -152,6 +153,7 @@ function ObjectRow({
   units: Unit[];
   users: UserOption[];
 }) {
+  const ubahAktifObjek = useAksiLangsung(setObjectActiveAction, (fd) => (fd.get("active") === "true" ? "Objek diaktifkan." : "Objek dinonaktifkan."));
 
   // Form sunting dulu menempati satu <tr> tambahan ber-colSpan di bawah barisnya; sekarang jadi
   // panel di dalam <li> yang sama, dengan barisnya tetap terlihat selama disunting.
@@ -193,7 +195,7 @@ function ObjectRow({
           </section>
 
           <RowPanelActions>
-            <form action={setObjectActiveAction}>
+            <form action={ubahAktifObjek}>
               <input type="hidden" name="objectId" value={object.id} />
               <input type="hidden" name="active" value={(!object.active).toString()} />
               <button type="submit" className="app-btn">
@@ -253,7 +255,7 @@ function ObjectForm({
   defaultValues?: ObjectWithMeta;
   onCancel?: () => void;
 }) {
-  const [state, formAction, pending] = useActionState(action, {});
+  const [state, formAction, pending] = useAksi(action, {}, submitLabel === "Simpan" ? "Perubahan objek disimpan." : "Objek ditambahkan.");
   // Bawaannya Orang: sebagian besar objek yang didaftarkan adalah orang, dan jenis itulah yang paling
   // sering dipilih (daftar jenis sendiri diurutkan Orang, Unit, Karya, Lainnya — listObjectTypes).
   const [typeId, setTypeId] = useState(

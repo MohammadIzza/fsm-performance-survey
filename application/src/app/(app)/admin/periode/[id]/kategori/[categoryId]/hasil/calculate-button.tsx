@@ -1,10 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
 import { calculateResultsAction } from "@/lib/actions/calculations";
 
 export function CalculateButton({ categoryId, periodId }: { categoryId: string; periodId: string }) {
-  const [state, formAction, pending] = useActionState(calculateResultsAction, {});
+  const [state, formAction, pending] = useAksi(calculateResultsAction, {}, "Hasil selesai dihitung.");
 
   return (
     <form action={formAction} className="flex items-center gap-2">

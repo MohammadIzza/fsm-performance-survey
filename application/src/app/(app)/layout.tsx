@@ -3,6 +3,7 @@ import { getSession } from "@/lib/session";
 import { getAuthContext } from "@/lib/authz";
 import { logoutAction } from "@/lib/actions/auth";
 import { SidebarNav } from "./sidebar-nav";
+import { NotifikasiProvider } from "@/components/theme/notifikasi";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -46,6 +47,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const initial = ctx.name.trim().charAt(0).toUpperCase() || "?";
 
   return (
+    <NotifikasiProvider>
     <div className="survey-shell min-h-screen lg:flex">
       <SidebarNav
         mainLinks={mainLinks}
@@ -71,5 +73,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-5 pb-10 sm:px-6 sm:pt-6">{children}</main>
       </div>
     </div>
+    </NotifikasiProvider>
   );
 }
