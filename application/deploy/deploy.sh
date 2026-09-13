@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Deploy Survei Penilaian FSM UNDIP ke fsm.heyizza.my.id, di server ini (host mbkm).
+# Deploy Survei Penilaian FSM UNDIP di server ini (host mbkm). Aplikasi hidup di bawah /survey dan
+# dijangkau lewat dua jalan: gateway UNDIP (https://apps-fsm.undip.ac.id/survey/ → nginx :8094) dan
+# tunnel Cloudflare (https://fsm.heyizza.my.id/survey/). Rute gateway dikelola di luar server ini.
 #
 # Aman dijalankan ulang (idempotent) — setiap langkah memeriksa kondisi sebelum bertindak.
 # TIDAK menyentuh aplikasi lain di server ini (survei-fsm lama tetap di port 3910/8093,
@@ -114,13 +116,14 @@ echo "OK: DNS record $DOMAIN -> tunnel $TUNNEL_ID dipastikan ada."
 
 echo "== 8/8: Verifikasi =="
 sleep 2
-LOCAL_CODE=$(curl -sS -o /dev/null -w "%{http_code}" "http://127.0.0.1:$NGINX_PORT/login" || echo "000")
-echo "Lokal lewat nginx (http://127.0.0.1:$NGINX_PORT/login): $LOCAL_CODE"
+LOCAL_CODE=$(curl -sS -o /dev/null -w "%{http_code}" "http://127.0.0.1:$NGINX_PORT/survey/login" || echo "000")
+echo "Lokal lewat nginx (http://127.0.0.1:$NGINX_PORT/survey/login): $LOCAL_CODE"
 if [ "$LOCAL_CODE" != "200" ]; then
   echo "PERINGATAN: nginx tidak mengembalikan 200. Cek: journalctl -u fsm-survei -n 50" >&2
 fi
 echo ""
 echo "Verifikasi publik (tunggu beberapa detik untuk propagasi tunnel), lalu jalankan manual:"
-echo "  curl -sS -o /dev/null -w '%{http_code}\n' https://$DOMAIN/login"
+echo "  curl -sS -o /dev/null -w '%{http_code}\n' https://$DOMAIN/survey/login"
+echo "  curl -sS -o /dev/null -w '%{http_code}\n' https://apps-fsm.undip.ac.id/survey/login"
 echo ""
 echo "Selesai. survei-fsm lama (port 3910/8093, survei.heyizza.my.id) tidak disentuh."

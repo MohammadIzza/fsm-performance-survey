@@ -10,7 +10,7 @@ Jalankan bukti sendiri sebelum mempercayai baris manapun di sini:
 ```bash
 cd application && npx tsc --noEmit && npm run test:all
 ```
-Terakhir dijalankan: 254/254 assertion lulus di 7 skrip (`test-services`, `test-tahap2`..`test-tahap7`).
+Terakhir dijalankan 13 September 2026: 254/254 assertion lulus di 7 skrip (`test-services`, `test-tahap2`..`test-tahap7`).
 
 Untuk bukti UI browser sungguhan (UC-01/02/03/06/07/10, lihat bagian "UC-01..10" di bawah):
 ```bash
@@ -20,6 +20,11 @@ bash scripts/reset-e2e-db.sh
 set -a && source .env.e2e && set +a && next start -p 3931 -H 127.0.0.1 &
 npx playwright test   # target default: http://127.0.0.1:3931, lihat playwright.config.ts
 ```
+
+> **Belum disesuaikan dengan awalan `/survey`.** Aplikasi kini dibangun dengan `basePath: "/survey"`,
+> sedangkan `tests/e2e/uc-admin-flows.spec.ts` masih membuka `/login` dan seterusnya dari akar. Uji E2E
+> ini perlu diperbarui (awalan pada setiap `page.goto`) sebelum dijalankan lagi; hasil ✅ UC di bawah
+> berasal dari jalannya sebelum perubahan awalan.
 
 ## Legenda
 
@@ -34,9 +39,9 @@ npx playwright test   # target default: http://127.0.0.1:3931, lihat playwright.
 | -- | ------ | ----- |
 | AC-01 | ✅ | `test-tahap2.ts` "Category"/"Instrument & Parameter" — kategori+instrumen dibuat lewat service admin, tanpa kode baru. |
 | AC-02 | ✅ | `test-tahap2.ts`: bobot 80% "masih dilaporkan sebagai masalah" oleh `checkReadiness`. |
-| AC-03 | ✅ (diuji sesi ini) | `test-tahap3.ts` "AC-03/AC-05/EDGE-07/AC-07/EDGE-23" — DEP-FIS (2 pimpinan nyata dari seed) target 2 → keduanya terpilih, `instrumentVersionId` sama untuk kedua tugas. |
+| AC-03 | ✅ | `test-tahap3.ts` "AC-03/AC-05/EDGE-07/AC-07/EDGE-23" — DEP-FIS dengan dua pimpinan (ketua dari seed + jabatan uji sementara yang dibuat dan dihapus uji itu sendiri, karena data pimpinan resmi Fisika hanya punya ketua) target 2 → keduanya terpilih, `instrumentVersionId` sama untuk kedua tugas. |
 | AC-04 | ✅ | `test-tahap3.ts` "EDGE-06: pimpinan menjadi objek dirinya sendiri". |
-| AC-05 | ✅ (diuji sesi ini) | `test-tahap3.ts` blok yang sama — pool Selain Pimpinan (9 staf) dibuktikan TIDAK berisi kedua pimpinan (sudah terpakai kelompok Pimpinan objek yang sama), jadi yang terpilih murni staf. |
+| AC-05 | ✅ | `test-tahap3.ts` blok yang sama — pool Selain Pimpinan (61 calon) dibuktikan TIDAK berisi kedua pimpinan (sudah terpakai kelompok Pimpinan objek yang sama), jadi yang terpilih murni staf. |
 | AC-06 | ✅ | `test-tahap3.ts` "computePlan"/shortage — target vs kandidat sah dihitung dan dilaporkan sebagai `shortage`, bukan tugas palsu. |
 | AC-07 | ✅ (diuji sesi ini) | `test-tahap3.ts` blok yang sama — 1 kandidat dibebani manual (3 tugas dummy di kategori lain, periode sama) sementara 8 lainnya nol; dibuktikan kandidat berbeban itu TIDAK pernah terpilih untuk target 1 (pemerataan beban Bab 10.4 deterministik, bukan uji distribusi statistik). |
 | AC-08 | ✅ | `test-tahap3.ts` "Pembatalan & pengisian ulang slot": tugas dibatalkan → slot kembali kosong, diganti; tugas terkirim tidak disentuh (lihat juga EDGE-14 di bawah). |

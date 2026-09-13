@@ -1,63 +1,132 @@
-# Arsitektur dan catatan migrasi
+# Arsitektur situs publik
+
+Dokumen ini membahas bagian Astro (akar repositori) dan cara ia diterbitkan bersama ruang survei
+Next di `application/`. Aturan bisnis aplikasi dijelaskan di requirement dan di komentar
+`application/src/lib/services/`.
 
 ## Pilihan teknologi
 
-Astro cocok untuk tujuh halaman konten yang sebagian besar statis. Komponen dirender sebagai HTML pada saat build. Tidak ada dependensi runtime WordPress, jQuery, atau Contact Form 7.
+Tujuh halaman publik (beranda, alur penilaian, tiga panduan peran, dua kebijakan) sebagian besar
+statis, jadi Astro merendernya menjadi HTML saat build. Tidak ada WordPress, jQuery, atau PHP.
 
-Animasi memakai **runtime tema asli**: GSAP, Luge, lottie-web, dan `main.js` milik tema Nod. Migrasi awal melepas runtime ini dan menggantinya dengan modul TypeScript sederhana, sehingga seluruh gerakan situs hilang. Runtime dikembalikan agar perilakunya sama dengan nodcoding.com.
+`src/pages` hanya menyusun bagian halaman lewat `SiteLayout`, yang mengelola metadata, font,
+stylesheet, header, footer, dan bootstrap runtime tema. Bagian yang dipakai ulang ada di
+`components/sections/shared`. Nama folder bagian (`data-bootcamp`, `professional-training`, …) dan
+nama kelas CSS mengikuti kerangka tema yang dipakai; isinya konten FSM UNDIP.
 
-`src/pages` hanya menyusun bagian halaman melalui `SiteLayout`. Layout mengelola metadata, font, stylesheet, header, dan footer. Bagian halaman yang dipakai ulang berada dalam `components/sections/shared`. `CourseSession` memakai jadwal dari `data/courses.ts`; setiap kartu kategori menautkan langsung ke `/login`, bukan ke formulir pendaftaran (ID penilai/pimpinan disiapkan oleh admin, bukan pendaftaran mandiri — lihat "Batas integrasi").
+HTML bagian konten memakai nama kelas tema agar dikenali runtime dan CSS-nya. CSS tema dipisah
+menjadi `base`, `elements`, `blocks`, `sections`, `shell`, dan `layouts` di `src/styles/theme/`,
+diimpor dalam urutan cascade tetap. `global.css` menampung penyesuaian situs ini.
 
-HTML pada bagian konten mempertahankan nama kelas tema asli agar tampilannya tetap konsisten. CSS tema diformat dan dipisah menjadi `base`, `elements`, `blocks`, `sections`, `shell`, dan `layouts`, lalu diimpor dalam urutan cascade aslinya. Untuk perubahan visual, edit kelompok yang sesuai. `global.css` menampung penyesuaian perilaku yang diperlukan setelah runtime tema lama dilepas.
+Hasil `dist/` tidak dipasang di hosting statis: `scripts/prepare-application.mjs` menyalinnya ke
+`application/public-site` (HTML) dan `application/public` (aset), dan Next yang menyajikannya.
 
 ## Runtime tema
 
-`SiteLayout` memuat empat berkas dari `public/assets/js` dalam urutan tetap: `npm-gsap.js`, `npm-luge.js`, `npm-lottie-web.js`, lalu `main.js`. Ketiganya adalah split chunk webpack yang mendaftarkan diri pada `webpackChunknod`; `main.js` berisi runtime webpack sekaligus entry point.
+Animasi dijalankan runtime tema: GSAP, Luge, lottie-web, dan `main.js` beserta potongan (chunk)
+komponennya di `public/assets/js/`. Berkas-berkas itu build pihak ketiga — jangan diedit.
 
-`main.js` memuat controller tiap komponen sebagai **lazy chunk** terpisah, dan chunk itu tidak ikut dalam `archive/webcopy` saat penyalinan awal. Ke-33 chunk diunduh ulang dari origin memakai peta hash di dalam `main.js`, dan disimpan di `public/assets/js/`. Webpack menghitung `publicPath` dari lokasi `main.js` (`/assets/js/` + `../`), sehingga tata letak direktori itu wajib dipertahankan.
+- **Server dev** memuat empat berkas berurutan dari `SiteLayout`: `npm-gsap.js`, `npm-luge.js`,
+  `npm-lottie-web.js`, lalu `main.js` (dengan `?v=<versi tema>`). Tiga yang pertama mendaftarkan
+  diri pada `webpackChunknod`; `main.js` berisi runtime webpack dan entry point, lalu memuat
+  controller komponen sebagai potongan terpisah.
+- **Build** menjalankan `integrations/preload-tema.mjs`: keempat skrip dan semua potongan komponen
+  yang dipakai halaman mana pun digabung menjadi satu `assets/js/tema-<hash>.js`. Potongan yang
+  sudah terdaftar sebelum `main.js` berjalan dipakai tanpa diunduh. Peta potongan dibaca dari
+  `main.js` sendiri; potongan besar yang jarang (`npm-matter-js`) tetap dimuat terpisah. Berkas
+  gabungan harus satu folder dengan `main.js`: webpack menghitung `publicPath` dari alamat skrip
+  yang berjalan.
 
 Bootstrap `window.plr` ditulis inline oleh `SiteLayout` dari `src/data/theme-runtime.ts`:
 
-- `bundles` mendaftarkan komponen dan layout beserta strategi pemuatan JS-nya. Flag `css` sengaja dihilangkan: seluruh CSS komponen sudah tergabung dalam `src/styles/theme/`, dan permintaan `<tpl_dir>/build/css/components/*.css` hanya akan menghasilkan 404. Promise stylesheet yang ditolak akan menggagalkan `loadControllers()` dan menghentikan inisialisasi situs.
-- `transitions` dibangun ulang terhadap `location.origin` di browser, karena controller `SiteLoader` mencarinya berdasarkan URL absolut.
+- `bundles` mendaftarkan komponen dan layout beserta strategi pemuatan JS-nya. Flag `css` sengaja
+  tidak dipakai: seluruh CSS komponen sudah ada di `src/styles/theme/`, dan permintaan
+  `<tpl_dir>/build/css/…` hanya menghasilkan 404 yang menggagalkan `loadControllers()`.
+- `transitions` diberi awalan situs lalu dibangun ulang terhadap `location.origin`, karena
+  controller `SiteLoader` mencarinya berdasarkan URL absolut.
+- `tpl_dir` adalah `/survey/assets`.
 
-Plugin Luge yang aktif: reveal, transition, scroll, smooth (Lenis), lottie, mouse, parallax, browser. `main.js` juga mendaftarkan tiga tipe reveal khusus melalui GSAP SplitText — `heading` (per kata), `letters` (per karakter), dan `text` (fade naik).
+Plugin Luge yang aktif: reveal, transition, scroll, smooth (Lenis), lottie, mouse, parallax,
+browser. `main.js` juga mendaftarkan tipe reveal `heading`, `letters`, dan `text`.
 
-Karena runtime asli kembali, modul `navigation.ts`, `dialogs.ts`, `sliders.ts`, dan `media.ts` dihapus; keduanya akan berebut elemen yang sama. Tidak ada modul aplikasi tersisa di `<body>` — seluruh interaksi (menu, reveal, slider, lottie) ditangani `main.js` milik tema.
+Skrip milik situs ini (`src/scripts/`, dimuat sebagai modul dari `SiteLayout`):
 
-Situs asli tidak menghormati `prefers-reduced-motion`, dan perilaku itu dipertahankan.
+- `hero-fsm.ts` — adapter hero F/S/M (lihat bagian Hero FSM).
+- `luge-navigation-guard.ts` — mencegah transisi halaman kedua dimulai di atas yang pertama, yang
+  membuat pemuat krem tidak pernah disembunyikan.
+- `reveal-fallback.ts` — memasang `is-in` pada elemen reveal yang sudah terlihat tetapi tidak
+  terpicu.
+- `pulih-dari-bfcache.ts` — lihat "Kembali ke halaman".
+
+Runtime tema tidak menghormati `prefers-reduced-motion`; perilaku itu dipertahankan.
 
 ## Atribut animasi
 
-Gerakan dikendalikan oleh atribut `data-lg-*` dan `data-plr-component` pada markup. Migrasi awal melepas seluruhnya lalu menyematkan `is-in` agar konten yang seharusnya `opacity: 0` tetap terlihat.
+Gerakan dikendalikan atribut `data-lg-*` dan `data-plr-component` pada markup. Bila mengubah markup
+bagian, pertahankan atribut itu pada elemen yang sama — tanpa `data-lg-reveal` elemen yang semula
+`opacity: 0` tetap tak terlihat, dan tanpa `data-plr-component` controller-nya tidak dimuat.
+Nilai `data-lg-lottie` ditulis lewat `withBase()`.
 
-`scripts/restore-theme-attributes.py` mengembalikannya dengan mencocokkan tiap elemen ke arsip berdasarkan `(kelas komponen induk terdekat, tanda tangan kelas)`. Konteks diperlukan karena kelas yang sama berbeda perlakuan menurut tempatnya — `.sb__title` melakukan reveal di dalam `s-usps` tetapi tidak di dalam `sb-slide`. Nilai `data-lg-lottie` tidak pernah diambil dari tabel karena unik per elemen; jalurnya sudah benar di komponen, jadi atributnya diganti nama di tempat dan flag pendampingnya dicari berdasarkan nama berkas animasi. Script menghapus semua atribut animasi sebelum menerapkan ulang, sehingga aman dijalankan berkali-kali.
+## Aset
 
-`scripts/verify-theme-attributes.py` membandingkan `dist/` dengan arsip elemen demi elemen dan gagal bila ada selisih. Saat ini ketujuh halaman cocok persis: 0 kurang, 0 lebih.
+Gambar, font, ilustrasi, Lottie, dan video ada di `public/assets/`. Semua alamat memakai awalan
+situs:
 
-## Aset dan salinan asli
+- Alamat di templat Astro memakai `withBase()` dari `src/utils/url.ts`.
+- `url(/assets/…)` di CSS diberi awalan oleh Vite saat build. Server dev tidak melakukannya, jadi
+  plugin dev di `astro.config.mjs` menambahkan awalan pada CSS yang disisipkan ke halaman.
+- Salinan CSS tema di aplikasi diberi awalan oleh `scripts/prepare-application.mjs`.
 
-Semua gambar, font, ilustrasi, dan video yang digunakan halaman berada dalam `public/assets`. Jalur URL menggunakan root `/assets/`, sehingga tidak bergantung pada kedalaman route. Tautan email Cloudflare sudah dipulihkan menjadi `mailto:`, dan tautan lama `/b2b-course/` diarahkan ke `/professional-training/`.
-
-`archive/webcopy` menyimpan berkas asli sebelum perubahan. Folder ini tidak diimpor oleh aplikasi dan tidak dipublikasikan ke `dist`. `scripts/migrate-webcopy.py` adalah alat ekstraksi awal, bukan bagian dari workflow development atau build; komponen hasil ekstraksi kemudian direfaktor. Jangan menjalankannya untuk memperbarui konten. `scripts/download-assets.ps1` dan manifest-nya mencatat 28 aset yang perlu dilengkapi saat migrasi; aset tersebut sudah tersedia lokal.
-
-`public/assets/js` berisi runtime tema: empat bundel dari arsip ditambah 33 lazy chunk yang diunduh dari origin. Berkas-berkas ini adalah build tema pihak ketiga, bukan kode aplikasi; jangan diedit.
+Berkas statis disimpan peramban dan CDN (lihat bawah), jadi berkas yang isinya diganti diberi nama
+baru — mis. `tutorial-survei-fsm-v2.mp4` — bukan ditimpa.
 
 ## Batas integrasi
 
-Formulir WordPress asli (Contact Form 7: "Ajukan Akses", "Minta Dokumen Instrumen", "Minta Ringkasan Kategori dan Instrumen", "Ada Kendala Konfigurasi") **dihapus**, bukan diadaptasi — tidak ada backend untuk menerimanya, dan ID penilai/pimpinan memang disiapkan oleh admin, bukan lewat pendaftaran mandiri (Bab 5–6 requirements). Membiarkan formulir itu tampil aktif namun diam-diam tidak mengirim apa pun ("Pratinjau lokal: formulir ini belum terhubung ke server") menyesatkan pengguna. Setiap CTA yang dulu membuka formulir tersebut sekarang menuju salah satu dari dua tujuan nyata: `/login` (sudah punya ID) atau `mailto:survei.fsm@undip.ac.id` (belum punya akses/pertanyaan konfigurasi) — kontak yang sama yang sudah dipakai di header dan footer, bukan layanan baru yang dikarang. `ApplicationModal`, `FormModal`, `ContactForm`, `CatalogueModal`, keempat varian `Curriculum`, `src/data/forms.json`, dan `src/scripts/forms.ts` sudah dihapus seluruhnya karena tidak lagi punya pemanggil.
+Tidak ada formulir di halaman publik: ID penilai dan pimpinan disiapkan admin (Bab 5–6
+requirement), bukan lewat pendaftaran mandiri. Setiap ajakan bertindak menuju `/survey/login` atau
+`mailto:up2ti@live.undip.ac.id`, kontak yang sama di header dan footer.
 
-Script tracking dan banner persetujuan dari salinan WordPress tidak digunakan karena aplikasi ini tidak memasang tracker. Tautan sosial media (`nod-coding` LinkedIn/YouTube) dan tanda tangan pengembang (`waaark.com`) di header/footer juga dihapus — keduanya akun/situs pihak ketiga asli milik pembuat tema asal, bukan kanal resmi FSM UNDIP, dan menampilkannya seolah kanal resmi FSM UNDIP menyesatkan. Halaman kebijakan tetap mempertahankan teks sumber; konten kebijakan perlu diselaraskan dengan integrasi yang benar-benar dipilih sebelum publikasi. Tanggal dan harga mengikuti salinan sumber, bukan sinkronisasi CMS langsung.
+Tidak ada tracker, banner persetujuan cookie, atau tautan media sosial. Halaman kebijakan perlu
+diselaraskan dengan kebijakan resmi sebelum dipakai untuk data asli.
 
-Efek scroll, smooth scrolling, transisi halaman, loader, dan custom scrollbar milik tema kembali aktif melalui runtime asli. Server hanya bind ke `127.0.0.1` untuk development; hasil `dist/` bisa dipasang di static hosting.
+## Kunjungan pertama dan cache
+
+Gateway UNDIP melayani HTTP/1.1, jadi setiap permintaan tambahan terasa. Yang dilakukan:
+
+- **Satu langkah tampil.** `html:not(.is-loaded) .site-container` tak terlihat sampai tema
+  memasang `is-loaded` (sesaat sebelum animasi masuk), sehingga halaman setengah jadi tidak pernah
+  terlihat. Jaring pengaman: animasi CSS menampilkannya setelah 4 detik, dan `<noscript>`
+  menampilkannya langsung.
+- **Preload.** Integrasi build menulis preload untuk skrip gabungan, font SemiBold/Bold, dan JSON
+  Lottie bertanda `data-lg-lottie-required`. Beranda turun dari 48 menjadi ±25 permintaan.
+- **Cache** (`application/next.config.ts`): nama ber-hash (`_astro/`, potongan tema,
+  `tema-<hash>.js`) disimpan setahun dan `immutable`; sisa `assets/` seminggu dengan
+  `stale-while-revalidate`. HTML tetap `max-age=0`.
+- **Halaman masuk aplikasi** memuat ketiga font dan JSON huruf F/S/M sejak HTML diterima.
+
+Masih di luar kendali server ini: gateway belum HTTP/2, dan gateway menjawab `/survey` (tanpa garis
+miring) dengan alih ke `http://…/survey/`. Karena itu tautan beranda di hasil build ditulis
+`/survey/` — alih ke `http` diblokir peramban sebagai konten campuran saat transisi halaman.
+
+## Kembali ke halaman
+
+Tautan yang meninggalkan situs publik lewat muat ulang penuh (`data-lg-reload`, mis. "Masuk
+Survei") menjalankan transisi keluar tema lebih dulu: pemuat krem menutup layar dan Lenis
+dihentikan. Back/forward cache peramban membekukan halaman dalam keadaan itu. `pulih-dari-bfcache.ts`
+mengembalikan pemuat, kelas penahan, dan Lenis saat `pageshow` dengan `persisted`.
 
 ## Dependensi dan verifikasi
 
-`package-lock.json` dikomit bersama source; gunakan `npm ci` untuk instalasi yang konsisten. Override `unifont` ke `0.7.4` mempertahankan kompatibilitas dengan Node 22.13 yang terpasang saat migrasi: `unifont 0.7.5` menarik `undici 8` yang mensyaratkan Node 22.19. Font aplikasi dilayani dari file lokal.
+`package-lock.json` dikomit; gunakan `npm ci`. Override `unifont` ke `0.7.4` menjaga kompatibilitas
+dengan Node 22.13 (`unifont 0.7.5` menarik `undici 8` yang mensyaratkan Node 22.19). Font dilayani
+dari berkas lokal. `lottie-web` bukan dependency npm situs publik: pemutarnya ikut bundel tema.
 
-`lottie-web` tidak lagi menjadi dependency npm. Pemutarnya ikut dalam bundel tema (`npm-lottie-web.js`) dan dipakai oleh plugin lottie milik Luge, sehingga Astro tidak perlu mem-bundle salinan kedua. Peringatan `eval` saat build pun hilang bersamanya.
-
-Sebelum menyelesaikan perubahan, jalankan `npm run format:check`, `npm run build`, `python scripts/verify-theme-attributes.py`, kemudian `npm test` dengan server lokal aktif. Tes mencakup semua route dan gambar lokal, tautan internal, boot runtime tema di setiap halaman, reveal yang benar-benar terpicu saat scroll, pemutaran lottie, kartu kategori yang menautkan ke `/login` (bukan formulir), FAQ, slider, dan navigasi mobile. Screenshot pengujian disimpan di `.local-server/`; trace kegagalan ada di `test-results/`.
+Sebelum menyelesaikan perubahan: `npm run check`, `npm run build`, lalu `npm test` dengan server dev
+berjalan (`npm run dev`). Tes mencakup semua halaman dan gambar lokal, tautan internal, boot runtime
+tema, reveal saat gulir, Lottie, FAQ, slider, navigasi ponsel, dan hero FSM; semuanya berjalan di
+bawah awalan `/survey` lewat `tests/base.ts`. Konfigurasi memakai Chrome terpasang
+(`channel: 'chrome'`); di LXC server demo Chrome sistem tidak bisa membuka alamat lokal, jadi pakai
+Chromium bawaan Playwright (`channel` dikosongkan).
 
 ## Hero FSM
 
@@ -84,10 +153,10 @@ controller tangkai.
 Tes terfokus: `npx playwright test tests/fsm-hero.spec.ts`. Browser tanpa jaringan
 bisa memakai `TEST_STATIC_DIR=/path/to/isolated-build` dan
 `TEST_BASE_URL=https://hero-test.local`; fixture memuat hasil build lengkap dari
-disk. Tes mencakup ukuran desktop/mobile/landscape, geometri sambungan, respons
-mouse, pause/resume dan navigasi pulang ke beranda. Pemeriksaan atribut arsip
-menyesuaikan hanya enam referensi Lottie hero menjadi tiga; selisih lama di luar
-hero tetap dilaporkan (pada baseline sebelum FSM: 61 missing, 36 extra).
+disk (awalan `/survey` dilepas sebelum mencari berkas). Tes mencakup ukuran
+desktop/mobile/landscape, geometri sambungan, respons mouse, pause/resume dan
+navigasi pulang ke beranda. Satu kasus — sambungan tangkai pada 1920×900 — sudah
+gagal sebelum perubahan awalan `/survey` dan belum diperbaiki.
 
 Batas tes navigasi: intro hero panduan admin dibiarkan selesai sebelum kembali
 ke beranda. Berpindah sebelum intro tersebut selesai dapat memicu error lama
@@ -98,27 +167,21 @@ oleh pekerjaan FSM ini.
 
 Alamat publik: https://apps-fsm.undip.ac.id/survey/. Gateway UNDIP mengakhiri TLS dan meneruskan
 permintaan **dengan awalan utuh** ke `http://10.137.58.132:8094/survey/`, beserta `Host`,
-`X-Forwarded-For`, dan `X-Forwarded-Proto: https`. Konfigurasi gateway dikelola di luar LXC ini.
+`X-Forwarded-For`, dan `X-Forwarded-Proto: https`. Konfigurasi gateway dikelola di luar server ini.
+Alamat cadangan https://fsm.heyizza.my.id/survey/ lewat tunnel Cloudflare memakai vhost yang sama.
 
-Rantai di dalam LXC: nginx `:8094` → `next start` di `127.0.0.1:3930` (`fsm-survei.service`).
-Salinan vhost nginx ada di [`deploy/nginx-fsm-survey.conf`](deploy/nginx-fsm-survey.conf); yang
-aktif ada di `/etc/nginx/sites-available/fsm.heyizza.my.id`. Hal yang bergantung padanya:
+Rantai di server: nginx `:8094` → `next start` di `127.0.0.1:3930` (`fsm-survei.service`). Vhost
+nginx ada di [`application/deploy/nginx-fsm.heyizza.my.id.conf`](../application/deploy/nginx-fsm.heyizza.my.id.conf)
+dan dipasang `application/deploy/deploy.sh`. Hal yang bergantung padanya:
 
 - `/survey/` diteruskan ke Next sebagai `/survey`. Next dengan basePath membalas `/survey/` dengan
   alih 308 ke `/survey`; bila gateway mengalihkan balik ke `/survey/`, keduanya berputar tanpa akhir.
 - Alamat di luar `/survey` dialihkan (302, relatif) ke padanannya di bawah `/survey`, jadi tautan lama
-  `fsm.heyizza.my.id/login` tetap sampai.
+  seperti `fsm.heyizza.my.id/login` tetap sampai.
 - `X-Forwarded-Proto` dari depan diteruskan apa adanya, bukan ditimpa skema koneksi lokal (`http`).
 - `client_max_body_size 10M` untuk impor Excel; header `Range` diteruskan (video beranda butuh 206).
 
 Cookie sesi `survey_fsm_session` ber-path `/survey` dan selalu `Secure` di produksi, jadi login hanya
-berhasil lewat HTTPS.
+berhasil lewat HTTPS. Cookie `cookiesession1` berasal dari gateway, bukan dari aplikasi.
 
-Membangun ulang dan menerbitkan:
-
-```sh
-PATH=/opt/node22/bin:$PATH npm run build:all
-chown -R restart:restart dist application/public application/public-site application/src/styles/theme application/.next
-systemctl restart fsm-survei.service
-curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8094/survey/   # 200
-```
+Langkah membangun ulang dan menerbitkan ada di [application/docs/deployment.md](../application/docs/deployment.md).
