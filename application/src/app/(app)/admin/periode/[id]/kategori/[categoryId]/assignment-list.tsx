@@ -3,7 +3,7 @@
 import { useAksi } from "@/components/theme/notifikasi";
 import Link from "next/link";
 import { useState } from "react";
-import { RowActionMenu } from "@/components/theme/data-list";
+import { StatusPill } from "@/components/theme/status-pill";
 import { cancelAssignmentAction } from "@/lib/actions/admin-assignments";
 import type { listAssignmentsForCategory } from "@/lib/services/assignments";
 
@@ -23,13 +23,13 @@ const statusLabel: Record<string, string> = {
   LEWAT_TENGGAT: "Lewat tenggat",
 };
 
-const statusClass: Record<string, string> = {
-  BELUM_MULAI: "bg-black/5 text-[var(--muted)]",
-  DRAF: "bg-blue-500/10 text-blue-600",
-  TERKIRIM: "bg-[var(--success)]/10 text-[var(--success)]",
-  DIBUKA_KEMBALI: "bg-amber-500/10 text-amber-600",
-  DIBATALKAN: "bg-[var(--danger)]/10 text-[var(--danger)]",
-  LEWAT_TENGGAT: "bg-amber-500/10 text-amber-600",
+const statusTone: Record<string, "netral" | "proses" | "selesai" | "perhatian" | "gagal"> = {
+  BELUM_MULAI: "netral",
+  DRAF: "proses",
+  TERKIRIM: "selesai",
+  DIBUKA_KEMBALI: "perhatian",
+  DIBATALKAN: "gagal",
+  LEWAT_TENGGAT: "gagal",
 };
 
 export function AssignmentList({
@@ -52,15 +52,15 @@ export function AssignmentList({
 
   return (
     <div className="app-table-wrap">
-      <table className="w-full min-w-[720px] text-left app-text-sm">
+      <table className="tugas-tabel">
         <thead>
           <tr>
-            <th className="px-3 py-2 font-medium">Objek</th>
-            <th className="px-3 py-2 font-medium">Kelompok</th>
-            <th className="px-3 py-2 font-medium">Penilai</th>
-            <th className="px-3 py-2 font-medium">Asal</th>
-            <th className="px-3 py-2 font-medium">Status</th>
-            <th className="px-3 py-2 font-medium">Aksi</th>
+            <th>Objek</th>
+            <th>Kelompok</th>
+            <th>Penilai</th>
+            <th>Asal</th>
+            <th>Status</th>
+            <th className="tugas-tabel__aksi">Aksi</th>
           </tr>
         </thead>
         <tbody>
@@ -88,68 +88,52 @@ function AssignmentRow({
   const canCancel = assignment.status === "BELUM_MULAI" || assignment.status === "DIBUKA_KEMBALI";
 
   return (
-    <tr className="border-b border-[var(--border)] last:border-b-0 align-top">
-      <td data-label="Objek" className="px-3 py-2 text-[var(--foreground)]">
-        <Link href={`/tugas/${assignment.id}`} className="hover:underline">
+    <tr>
+      <td data-label="Objek">
+        <Link href={`/tugas/${assignment.id}`} className="tugas-tabel__objek">
           {assignment.categoryObject.nameSnapshot}
         </Link>
       </td>
-      <td data-label="Kelompok" className="px-3 py-2 text-[var(--muted)]">{groupLabel[assignment.group]}</td>
-      <td data-label="Penilai" className="px-3 py-2 text-[var(--foreground)]">
-        {assignment.evaluator.name}
-        <div className="font-mono app-text-xs text-[var(--muted)]">
-          {assignment.evaluator.loginIdentifier}
-        </div>
-      </td>
-      <td data-label="Asal" className="px-3 py-2 text-[var(--muted)]">{assignment.reason ?? "—"}</td>
-      <td data-label="Status" className="px-3 py-2">
-        <span
-          className={`inline-flex rounded-full px-2 py-0.5 app-text-xs font-medium ${statusClass[assignment.status]}`}
-        >
-          {statusLabel[assignment.status]}
+      <td data-label="Kelompok">{groupLabel[assignment.group]}</td>
+      <td data-label="Penilai">
+        <span>
+          {assignment.evaluator.name}
+          <small>{assignment.evaluator.loginIdentifier}</small>
         </span>
-        {assignment.status === "DIBATALKAN" && assignment.cancelReason && (
-          <div className="mt-1 app-text-xs text-[var(--muted)]">{assignment.cancelReason}</div>
-        )}
       </td>
-      <td data-label="Aksi" className="px-3 py-2">
-        {canCancel &&
-          (cancelling ? (
-            <form action={formAction} className="admin-inline-form flex flex-col gap-1.5">
+      <td data-label="Asal">{assignment.reason ?? "—"}</td>
+      <td data-label="Status">
+        <span>
+          <StatusPill tone={statusTone[assignment.status]}>{statusLabel[assignment.status]}</StatusPill>
+          {assignment.status === "DIBATALKAN" && assignment.cancelReason && <small>{assignment.cancelReason}</small>}
+        </span>
+      </td>
+      <td data-label="Aksi" className="tugas-tabel__aksi">
+        {canCancel ? (
+          cancelling ? (
+            <form action={formAction} className="tugas-batal">
               <input type="hidden" name="assignmentId" value={assignment.id} />
               <input type="hidden" name="periodId" value={periodId} />
               <input type="hidden" name="categoryId" value={categoryId} />
-              <input
-                name="reason"
-                placeholder="Alasan pembatalan"
-                required
-                className="form__control app-text-xs"
-              />
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  disabled={pending}
-                  className="app-text-xs font-medium text-[var(--danger)] hover:underline disabled:opacity-60"
-                >
-                  {pending ? "Membatalkan…" : "Konfirmasi"}
+              <input name="reason" placeholder="Alasan pembatalan" required autoFocus className="form__control" />
+              <span className="tugas-batal__tombol">
+                <button type="submit" disabled={pending} className="app-btn app-btn--danger">
+                  {pending ? "Membatalkan…" : "Batalkan tugas"}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setCancelling(false)}
-                  className="app-text-xs font-medium text-[var(--muted)] hover:underline"
-                >
-                  Batal
+                <button type="button" onClick={() => setCancelling(false)} className="app-btn app-btn--polos">
+                  Tidak jadi
                 </button>
-              </div>
-              {state.error && <p className="app-text-xs text-[var(--danger)]">{state.error}</p>}
+              </span>
+              {state.error && <p className="aturan-galat">{state.error}</p>}
             </form>
           ) : (
-            <RowActionMenu>
-              <button type="button" onClick={() => setCancelling(true)}>
-                Batalkan
-              </button>
-            </RowActionMenu>
-          ))}
+            <button type="button" onClick={() => setCancelling(true)} className="app-btn app-btn--polos app-btn--danger">
+              Batalkan
+            </button>
+          )
+        ) : (
+          <span className="tugas-tabel__kosong">—</span>
+        )}
       </td>
     </tr>
   );

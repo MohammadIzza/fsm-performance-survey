@@ -3150,3 +3150,35 @@ input[type="range"]:disabled::-moz-range-thumb {
 @media only screen and (max-width: 640px) {
   .aturan-centang label {font-size:.76rem}
 }
+
+/* Daftar tugas yang sudah diterbitkan (kategori → Pembagian tugas). Ukuran hurufnya disamakan dengan
+   tabel pratinjau pembagian di atasnya; aksi Batalkan berupa tombol teks sebaris, dan formulir
+   alasannya terbuka di sel yang sama. */
+.tugas-tabel {width:100%;min-width:44rem;font-size:.64rem;text-align:left}
+.survey-shell main .tugas-tabel td {vertical-align:top}
+.tugas-tabel td small {display:block;margin-top:.12rem;color:var(--muted);font-size:.56rem;font-family:var(--font-family-text)}
+.tugas-tabel__objek {color:var(--color-brand-3);font-weight:600;text-decoration:none}
+.tugas-tabel__objek:hover {text-decoration:underline}
+.tugas-tabel__aksi {width:1%;text-align:right;white-space:nowrap}
+.tugas-tabel__kosong {color:var(--muted)}
+.survey-shell main .tugas-tabel .status-pill {padding:.25em .7em;font-size:.56rem}
+.survey-shell main .tugas-tabel .app-btn {min-height:1.7rem;padding:.3rem .65rem;font-size:.6rem}
+.tugas-batal {display:grid;gap:.35rem;min-width:13rem;margin:0;text-align:left;white-space:normal}
+.survey-shell main .tugas-batal .form__control {min-height:1.8rem;font-size:.62rem}
+.tugas-batal__tombol {display:flex;flex-wrap:wrap;gap:.3rem}
+@media only screen and (max-width: 640px) {
+  .tugas-tabel {min-width:0}
+  .tugas-tabel__aksi {width:auto;text-align:left}
+}
+.survey-shell main .tugas-tabel thead th {padding:.5rem .5rem;font-size:.54rem;line-height:1.25}
+.survey-shell main .tugas-tabel tbody td {padding:.6rem .5rem;font-size:.62rem;line-height:1.4}
+.survey-shell main .tugas-tabel .app-btn--danger {border-color:var(--color-brand-9);color:var(--color-brand-1)}
+.survey-shell main .tugas-tabel .app-btn--polos.app-btn--danger {border-color:transparent;text-decoration:none}
+@media only screen and (max-width: 640px) {
+  .survey-shell main .tugas-tabel tbody td {padding:.2rem 0;font-size:.72rem}
+}
+.survey-shell main .tugas-tabel td a.tugas-tabel__objek {font-size:inherit;line-height:inherit}
+.survey-shell main .tugas-tabel td button {font-size:.6rem}
+@media only screen and (max-width: 640px) {
+  .survey-shell .admin-area .tugas-tabel td.tugas-tabel__aksi > * {justify-self:start}
+}
