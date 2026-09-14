@@ -237,7 +237,7 @@ async function updateInstrumentScaleImpl(
     throw new ServiceError("Skala minimum harus lebih kecil dari maksimum.");
   }
   if (!Number.isFinite(input.scaleStep) || input.scaleStep <= 0) {
-    throw new ServiceError("Langkah skala harus lebih besar dari nol.");
+    throw new ServiceError("Kelipatan skor harus lebih besar dari nol.");
   }
 
   const instrument = await prisma.instrumentVersion.update({

@@ -81,7 +81,7 @@ function validateScores(assignment: AssignmentContext, scores: ScoreInput[], req
     }
     if (!isValidScore(s.score, scaleMin, scaleMax, scaleStep)) {
       throw new ServiceError(
-        `Skor harus di antara ${scaleMin} dan ${scaleMax}${scaleStep ? ` (langkah ${scaleStep})` : ""}.`
+        `Skor harus di antara ${scaleMin} dan ${scaleMax}${scaleStep ? `, kelipatan ${scaleStep}` : ""}.`
       );
     }
   }

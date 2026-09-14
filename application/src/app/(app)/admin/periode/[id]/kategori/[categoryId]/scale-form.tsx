@@ -57,7 +57,7 @@ export function ScaleForm({
           />
         </label>
         <label className="admin-tools__field">
-          <span>Langkah<Info>{KET.skalaLangkah}</Info></span>
+          <span>Kelipatan skor<Info>{KET.skalaLangkah}</Info></span>
           <input
             name="scaleStep"
             type="number"

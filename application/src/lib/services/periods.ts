@@ -259,7 +259,7 @@ export async function checkReadiness(periodId: string): Promise<string[]> {
         problems.push(`${label}: rentang skala tidak valid (minimum harus lebih kecil dari maksimum).`);
       }
       if (instrument.scaleStep <= 0) {
-        problems.push(`${label}: langkah skala harus lebih besar dari nol.`);
+        problems.push(`${label}: kelipatan skor harus lebih besar dari nol.`);
       }
     }
 

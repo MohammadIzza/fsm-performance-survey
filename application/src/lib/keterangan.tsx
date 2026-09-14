@@ -52,7 +52,7 @@ export const KET: Record<string, ReactNode> = {
   skalaBatas: <>Batas skor yang boleh diisi penilai untuk setiap parameter, mis. 0 sampai 100.</>,
   skalaLangkah: (
     <>
-      Jarak antarskor yang boleh diisi, dihitung dari nilai minimum. <b>1</b>: bilangan bulat (70, 71, 72).{" "}
+      Skor yang boleh diisi harus kelipatan angka ini, dihitung dari nilai minimum. <b>1</b>: bilangan bulat (70, 71, 72).{" "}
       <b>0,5</b>: boleh setengah (70; 70,5). <b>5</b>: hanya kelipatan 5 (70, 75, 80). Harus lebih dari 0.
     </>
   ),
