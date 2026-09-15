@@ -8,6 +8,8 @@ import {
   reopenAssignment,
   adminEditResponse,
   voidResponse,
+  listMyAssignments,
+  computeDisplayStatus,
   type ScoreInput,
 } from "@/lib/services/responses";
 import { ServiceError } from "@/lib/services/units";
@@ -16,6 +18,11 @@ export interface FormState {
   error?: string;
   savedAt?: string;
   version?: number;
+  /** Diisi setelah kirim berhasil — memicu dialog "Penilaian terkirim" di lembar penilaian. */
+  submittedAt?: string;
+  /** Tugas berikutnya yang masih bisa diisi, supaya penilai bisa langsung lanjut. */
+  nextAssignmentId?: string | null;
+  remainingCount?: number;
 }
 
 function readExpectedVersion(formData: FormData): number | null {
@@ -72,7 +79,20 @@ export async function submitResponseAction(_prev: FormState, formData: FormData)
   }
   revalidatePath(`/tugas/${assignmentId}`);
   revalidatePath("/tugas");
-  return {};
+  const sisa = (await listMyAssignments(actor.userId)).filter(
+    (a) =>
+      a.id !== assignmentId &&
+      (a.status === "BELUM_MULAI" || a.status === "DRAF" || a.status === "DIBUKA_KEMBALI") &&
+      computeDisplayStatus(a.status, a.categoryObject.category.period.status, a.categoryObject.category.period.endsAt) !==
+        "LEWAT_TENGGAT" &&
+      a.categoryObject.category.period.status !== "DITUTUP" &&
+      a.categoryObject.category.period.status !== "FINAL"
+  );
+  return {
+    submittedAt: new Date().toISOString(),
+    nextAssignmentId: sisa[0]?.id ?? null,
+    remainingCount: sisa.length,
+  };
 }
 
 export async function reopenAssignmentAction(

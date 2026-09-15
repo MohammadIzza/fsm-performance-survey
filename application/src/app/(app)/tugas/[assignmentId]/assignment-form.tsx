@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useAksi } from "@/components/theme/notifikasi";
+import { useEffect, useRef, useState } from "react";
 import {
   adminEditResponseAction,
   saveDraftAction,
@@ -9,6 +10,7 @@ import {
 } from "@/lib/actions/responses";
 import { ThemeButton } from "@/components/theme-button";
 import { useKonfirmasi } from "@/components/theme/confirm-dialog";
+import { DialogTerkirim } from "./dialog-terkirim";
 import { SHEET_ID, useAdminEdit } from "./admin-edit-context";
 
 interface ParameterView {
@@ -275,12 +277,9 @@ export function AssignmentForm({
   initialVersion: number | null;
   effectiveInfo: { submittedAt: string; revision: number } | null;
 }) {
-  const [draftState, draftAction, draftPending] = useActionState(saveDraftAction, draftInitial);
-  const [submitState, submitAction, submitPending] = useActionState(submitResponseAction, submitInitial);
-  const [adminState, adminAction, adminPending] = useActionState(
-    adminEditResponseAction,
-    adminEditInitial
-  );
+  const [draftState, draftAction, draftPending] = useAksi(saveDraftAction, draftInitial, "Draf tersimpan.");
+  const [submitState, submitAction, submitPending] = useAksi(submitResponseAction, submitInitial, null);
+  const [adminState, adminAction, adminPending] = useAksi(adminEditResponseAction, adminEditInitial, "Koreksi skor disimpan.");
   const { editing: adminEditing, selesai: selesaiKoreksi } = useAdminEdit();
   const expectedVersion = draftState.version ?? initialVersion;
   // Kunci idempotensi dibuat sekali per pemuatan halaman (bukan saat render, Bab 11.4/EDGE-11).
@@ -291,6 +290,9 @@ export function AssignmentForm({
   // ditulis dari event handler dan dibaca dari listener tanpa melanggar aturan kemurnian render.
   const dirtyRef = useRef(false);
   const [konfirmasi, dialogKonfirmasi] = useKonfirmasi();
+  // Dialog "Penilaian terkirim" terbuka untuk setiap kiriman berhasil yang belum ditutup.
+  const [terkirimDitutup, setTerkirimDitutup] = useState<string | null>(null);
+  const dialogTerkirimBuka = !!submitState.submittedAt && terkirimDitutup !== submitState.submittedAt;
 
   const sortedParameters = parameters.slice().sort((a, b) => a.order - b.order);
 
@@ -338,6 +340,17 @@ export function AssignmentForm({
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
   }, []);
+
+  // Setelah kiriman berhasil halaman dimuat ulang dalam keadaan terkunci (cabang isLocked di bawah),
+  // jadi dialognya harus ikut dirender di sana juga.
+  const dialogTerkirim = (
+    <DialogTerkirim
+      buka={dialogTerkirimBuka}
+      sisa={submitState.remainingCount ?? 0}
+      tugasBerikutnya={submitState.nextAssignmentId ?? null}
+      onTutup={() => setTerkirimDitutup(submitState.submittedAt ?? null)}
+    />
+  );
 
   // Mode koreksi admin menggantikan kedua tampilan di bawah: lembar yang sama, tetapi skornya
   // dapat diketik dan terkirim ke aksi admin, bukan ke draf/kirim milik penilai.
@@ -409,6 +422,7 @@ export function AssignmentForm({
           guide={guide}
           editable={false}
         />
+        {dialogTerkirim}
       </div>
     );
   }
@@ -520,6 +534,7 @@ export function AssignmentForm({
         </div>
       )}
       {dialogKonfirmasi}
+      {dialogTerkirim}
     </form>
   );
 }
