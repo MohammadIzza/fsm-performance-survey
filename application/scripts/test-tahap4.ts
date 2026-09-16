@@ -2,7 +2,8 @@ import "dotenv/config";
 import { prisma } from "../src/lib/prisma";
 import { ServiceError } from "../src/lib/services/units";
 import { createPeriod, transitionPeriodStatus } from "../src/lib/services/periods";
-import { createCategory, addCategoryObjects } from "../src/lib/services/categories";
+import { createCategory, addCategoryObjects, removeCategoryObject } from "../src/lib/services/categories";
+import { manualAssignEvaluator } from "../src/lib/services/assignments";
 import { addParameter } from "../src/lib/services/instruments";
 import { updateGroupRule } from "../src/lib/services/groupRules";
 import { updateAssignmentRule } from "../src/lib/services/assignmentRules";
@@ -408,6 +409,49 @@ async function main() {
     () => submitResponse(shortAssignment.id, [{ parameterId: shortParam.id, score: 80 }], "test-t4-deadline-after", null, shortActor)
   );
 
+  console.log("== Penambahan saat periode berjalan (Aktif) ==");
+  const dosen1007 = await prisma.user.findUniqueOrThrow({ where: { loginIdentifier: "dosen1007" } });
+  const objBerjalan = await createObject(
+    { typeId: orangType.id, name: dosen1007.name, ownerUnitId: depMat.id, referenceUserId: dosen1007.id, referenceUnitId: null, responsibleUserId: null, url: null, description: null, contributorUserIds: [] },
+    adminActor
+  );
+  await expectServiceError("Tambah objek saat Aktif tanpa alasan ditolak", () =>
+    addCategoryObjects(category.id, [objBerjalan.id], adminActor)
+  );
+  const ditambah = await addCategoryObjects(category.id, [objBerjalan.id], adminActor, "Dosen baru bergabung");
+  ok("Tambah objek saat Aktif dengan alasan berhasil", ditambah === 1);
+  const auditTambah = await prisma.auditEvent.findFirst({
+    where: { action: "CATEGORY_OBJECTS_ADD", entityId: category.id },
+    orderBy: { createdAt: "desc" },
+  });
+  ok("Alasan penambahan objek tercatat di audit", auditTambah?.reason === "Dosen baru bergabung");
+  const coBerjalan = await prisma.categoryObject.findFirstOrThrow({ where: { categoryId: category.id, objectId: objBerjalan.id } });
+  await expectServiceError("Mengeluarkan objek saat Aktif tetap ditolak", () => removeCategoryObject(coBerjalan.id, adminActor));
+  await expectServiceError("Mengubah aturan penilai saat Aktif tetap ditolak", () =>
+    updateGroupRule(selainRule.id, { aggregation: "RATA_RATA", target: 5, minimum: 1 }, adminActor)
+  );
+  await expectServiceError("Penugasan manual saat Aktif tanpa alasan ditolak", () =>
+    manualAssignEvaluator({ categoryObjectId: coBerjalan.id, group: "SELAIN_PIMPINAN", evaluatorId: dosen1005.id }, adminActor)
+  );
+  const manual = await manualAssignEvaluator(
+    { categoryObjectId: coBerjalan.id, group: "SELAIN_PIMPINAN", evaluatorId: dosen1005.id, reason: "Penilai tambahan" },
+    adminActor
+  );
+  ok("Penugasan manual saat Aktif dengan alasan berhasil (dengan snapshot nama penilai)", manual.status === "BELUM_MULAI" && manual.evaluatorNameSnapshot === dosen1005.name);
+  await expectServiceError("Pembagian otomatis saat Aktif tanpa alasan ditolak", () =>
+    commitPlan(category.id, "test-t4-berjalan", adminActor)
+  );
+  const sebelumBagi = await prisma.assignment.count({ where: { categoryObject: { categoryId: category.id } } });
+  const bagi = await commitPlan(category.id, "test-t4-berjalan", adminActor, undefined, "Objek baru perlu penilai");
+  const sesudahBagi = await prisma.assignment.count({ where: { categoryObject: { categoryId: category.id } } });
+  ok(
+    `Pembagian otomatis saat Aktif hanya menambah tugas (${bagi.plan.totalNewAssignments} baru)`,
+    bagi.plan.totalNewAssignments > 0 && sesudahBagi === sebelumBagi + bagi.plan.totalNewAssignments
+  );
+  await expectServiceError("Penambahan setelah tenggat lewat ditolak walau status masih Aktif", () =>
+    addCategoryObjects(shortCategory.id, [objBerjalan.id], adminActor, "Terlambat")
+  );
+
   console.log("\n=== Ringkasan ===");
   console.log(`Lulus: ${pass}  Gagal: ${fail}`);
   if (fail > 0) process.exitCode = 1;
@@ -427,7 +471,7 @@ async function main() {
   await prisma.category.deleteMany({ where: { periodId: { in: periodIds } } });
   await prisma.accessPolicy.deleteMany({ where: { periodId: { in: periodIds } } });
   await prisma.period.deleteMany({ where: { id: { in: periodIds } } });
-  await prisma.assessmentObject.deleteMany({ where: { id: { in: [objDosen1004.id, shortObj.id] } } });
+  await prisma.assessmentObject.deleteMany({ where: { id: { in: [objDosen1004.id, shortObj.id, objBerjalan.id] } } });
   console.log("Selesai.");
 }
 

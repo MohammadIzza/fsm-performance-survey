@@ -77,7 +77,7 @@ export async function addCategoryObjectsAction(
   const periodId = String(formData.get("periodId") ?? "");
   const objectIds = formData.getAll("objectIds").map(String).filter(Boolean);
   try {
-    await addCategoryObjects(categoryId, objectIds, actor);
+    await addCategoryObjects(categoryId, objectIds, actor, String(formData.get("reason") ?? ""));
   } catch (e) {
     if (e instanceof ServiceError) return { error: e.message };
     throw e;

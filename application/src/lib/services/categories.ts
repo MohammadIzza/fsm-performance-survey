@@ -4,6 +4,7 @@ import { writeAudit } from "@/lib/services/audit";
 import { ServiceError } from "@/lib/services/units";
 import type { AuthContext } from "@/lib/authz";
 import { kodeUnikDariNama } from "@/lib/kode-otomatis";
+import { periksaPenambahan } from "@/lib/services/penambahan-berjalan";
 
 export interface CategoryInput {
   code: string;
@@ -177,11 +178,12 @@ export async function getCategoryDetail(categoryId: string) {
 async function addCategoryObjectsImpl(
   categoryId: string,
   objectIds: string[],
-  actor: AuthContext
+  actor: AuthContext,
+  alasan?: string | null
 ) {
-  const category = await prisma.category.findUnique({ where: { id: categoryId } });
+  const category = await prisma.category.findUnique({ where: { id: categoryId }, include: { period: true } });
   if (!category) throw new ServiceError("Kategori tidak ditemukan.");
-  await assertPeriodEditable(category.periodId);
+  const reason = periksaPenambahan(category.period, alasan, "Penambahan objek");
 
   if (objectIds.length === 0) throw new ServiceError("Pilih minimal satu objek.");
 
@@ -223,7 +225,8 @@ async function addCategoryObjectsImpl(
     action: "CATEGORY_OBJECTS_ADD",
     entity: "Category",
     entityId: categoryId,
-    after: { added: toAdd.map((o) => o.name) },
+    after: { added: toAdd.map((o) => o.name), periodStatus: category.period.status },
+    reason: reason ?? undefined,
   });
 
   return toAdd.length;

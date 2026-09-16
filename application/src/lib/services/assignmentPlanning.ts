@@ -7,6 +7,7 @@ import { getUnitAndDescendantIds } from "@/lib/units";
 import { createRng, seededShuffle } from "@/lib/prng";
 import type { AuthContext } from "@/lib/authz";
 import type { AssessmentGroup } from "@/generated/prisma/enums";
+import { periksaPenambahan } from "@/lib/services/penambahan-berjalan";
 
 export interface PlanCandidate {
   userId: string;
@@ -222,7 +223,7 @@ export async function computePlan(categoryId: string, seed: string): Promise<Ass
 // Bab 10.4: menerapkan pratinjau menjadi tugas nyata. Menghitung ulang rencana dengan seed yang
 // sama di dalam transaksi (menangkap perubahan data sejak pratinjau terakhir) lalu menyimpan
 // batch + tugas sekaligus untuk keterlacakan (Bab 10.4 penutup, Bab 18 AssignmentBatch).
-async function commitPlanImpl(categoryId: string, seed: string, actor: AuthContext, fingerprint?:string) {
+async function commitPlanImpl(categoryId: string, seed: string, actor: AuthContext, fingerprint?:string, alasan?: string | null) {
   const category = await prisma.category.findUnique({
     where: { id: categoryId },
     include: {
@@ -232,9 +233,9 @@ async function commitPlanImpl(categoryId: string, seed: string, actor: AuthConte
     },
   });
   if (!category) throw new ServiceError("Kategori tidak ditemukan.");
-  if (category.period.status !== "DRAF") {
-    throw new ServiceError("Penugasan hanya dapat diterapkan selama periode berstatus Draf.");
-  }
+  // Pembagian otomatis hanya menambah tugas untuk slot yang belum terisi, jadi aman dijalankan
+  // ulang saat periode berjalan — mis. setelah objek baru ditambahkan.
+  const reason = periksaPenambahan(category.period, alasan, "Pembagian tugas");
   const instrumentVersion = category.instrumentVersions[0];
   if (!instrumentVersion) throw new ServiceError("Kategori belum memiliki versi instrumen.");
 
@@ -291,7 +292,7 @@ async function commitPlanImpl(categoryId: string, seed: string, actor: AuthConte
               group: entry.group,
               batchId: createdBatch.id,
               instrumentVersionId: instrumentVersion.id,
-              reason: "Pengacakan otomatis (mengisi ulang slot dibatalkan)",
+              reason: reason ? `Pengacakan otomatis saat periode berjalan: ${reason}` : "Pengacakan otomatis (mengisi ulang slot dibatalkan)",
               cancelledAt: null,
               cancelReason: null,
             },
@@ -306,7 +307,7 @@ async function commitPlanImpl(categoryId: string, seed: string, actor: AuthConte
               group: entry.group,
               batchId: createdBatch.id,
               instrumentVersionId: instrumentVersion.id,
-              reason: "Pengacakan otomatis",
+              reason: reason ? `Pengacakan otomatis saat periode berjalan: ${reason}` : "Pengacakan otomatis",
             },
           });
         }
@@ -322,7 +323,8 @@ async function commitPlanImpl(categoryId: string, seed: string, actor: AuthConte
     action: "ASSIGNMENT_BATCH_COMMIT",
     entity: "AssignmentBatch",
     entityId: batch.id,
-    after: { categoryId, totalNewAssignments: plan.totalNewAssignments, seed },
+    after: { categoryId, totalNewAssignments: plan.totalNewAssignments, seed, periodStatus: category.period.status },
+    reason: reason ?? undefined,
   });
 
   return { batch, plan };

@@ -69,7 +69,7 @@ export async function commitAssignmentPlanAction(
   try {
     const fingerprint=String(formData.get("fingerprint")??"");
     if(!fingerprint) throw new ServiceError("Jalankan pratinjau sebelum menerapkan.");
-    await commitPlan(categoryId, seed, actor, fingerprint);
+    await commitPlan(categoryId, seed, actor, fingerprint, String(formData.get("reason") ?? ""));
   } catch (e) {
     if (e instanceof ServiceError) return { error: e.message };
     throw e;
@@ -92,6 +92,7 @@ export async function manualAssignEvaluatorAction(
         categoryObjectId: String(formData.get("categoryObjectId") ?? ""),
         group: String(formData.get("group") ?? "") as AssessmentGroup,
         evaluatorId: String(formData.get("evaluatorId") ?? ""),
+        reason: String(formData.get("reason") ?? ""),
       },
       actor
     );

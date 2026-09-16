@@ -4,6 +4,7 @@ import { writeAudit } from "@/lib/services/audit";
 import { ServiceError } from "@/lib/services/units";
 import type { AuthContext } from "@/lib/authz";
 import type { AssessmentGroup } from "@/generated/prisma/enums";
+import { periksaPenambahan } from "@/lib/services/penambahan-berjalan";
 
 export async function listAssignmentsForCategory(categoryId: string) {
   return prisma.assignment.findMany({
@@ -22,7 +23,7 @@ export async function listAssignmentsForCategory(categoryId: string) {
 // tetap ditegakkan; keanggotaan pool otomatis (unit/jabatan) sengaja tidak disyaratkan di sini
 // karena tujuan jalur ini justru mengatasi kekurangan pada pool otomatis tersebut.
 export async function manualAssignEvaluator(
-  input: { categoryObjectId: string; group: AssessmentGroup; evaluatorId: string },
+  input: { categoryObjectId: string; group: AssessmentGroup; evaluatorId: string; reason?: string | null },
   actor: AuthContext
 ) {
   const categoryObject = await prisma.categoryObject.findUnique({
@@ -38,9 +39,7 @@ export async function manualAssignEvaluator(
     },
   });
   if (!categoryObject) throw new ServiceError("Objek peserta tidak ditemukan.");
-  if (categoryObject.category.period.status !== "DRAF") {
-    throw new ServiceError("Penugasan hanya dapat diubah selama periode berstatus Draf.");
-  }
+  const alasan = periksaPenambahan(categoryObject.category.period, input.reason, "Penugasan manual");
   const instrumentVersion = categoryObject.category.instrumentVersions[0];
   if (!instrumentVersion) throw new ServiceError("Kategori belum memiliki versi instrumen.");
 
@@ -81,7 +80,7 @@ export async function manualAssignEvaluator(
         status: "BELUM_MULAI",
         group: input.group,
         instrumentVersionId: instrumentVersion.id,
-        reason: "Pengganti manual",
+        reason: alasan ? `Pengganti manual saat periode berjalan: ${alasan}` : "Pengganti manual",
         cancelledAt: null,
         cancelReason: null,
       },
@@ -93,7 +92,9 @@ export async function manualAssignEvaluator(
         evaluatorId: input.evaluatorId,
         group: input.group,
         instrumentVersionId: instrumentVersion.id,
-        reason: "Pengganti manual",
+        evaluatorNameSnapshot: evaluator.name,
+        evaluatorLoginSnapshot: evaluator.loginIdentifier,
+        reason: alasan ? `Pengganti manual saat periode berjalan: ${alasan}` : "Pengganti manual",
       },
     });
   }
@@ -105,6 +106,7 @@ export async function manualAssignEvaluator(
     entity: "Assignment",
     entityId: assignment.id,
     after: assignment,
+    reason: alasan ?? undefined,
   });
 
   return assignment;
