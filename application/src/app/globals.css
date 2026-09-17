@@ -3237,7 +3237,7 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell .admin-area .assignment-planner__table thead {display:table-header-group}
   .survey-shell .admin-area .assignment-planner__table thead th {
     /* Membungkus di spasi saja: "KEKURANGAN" tidak boleh terpenggal jadi "KEKUR ANGAN". */
-    padding:.3rem .1rem;font-size:.42rem;letter-spacing:.02em;line-height:1.15;
+    padding:.3rem .04rem;font-size:.35rem;letter-spacing:0;line-height:1.15;
     white-space:normal;overflow-wrap:normal;word-break:keep-all;vertical-align:bottom;
   }
   .survey-shell .admin-area .assignment-planner__table tbody {display:table-row-group}
@@ -3254,17 +3254,19 @@ input[type="range"]:disabled::-moz-range-thumb {
   /* Ikon keterangan di kepala kolom tabel sempit: dikecilkan dan diikat ke barisnya sendiri supaya
      tidak mendorong nama kolom ke baris terpisah dan membuat kepala tabel tampak tidak sejajar. */
   .survey-shell .admin-area :is(.assignment-planner__table,.pantau-tabel,.tugas-tabel,.parameter-table) thead th .info {
-    width:.7rem;height:.7rem;margin-left:.15rem;font-size:.4rem;vertical-align:baseline;
+    /* Ikon diletakkan di barisnya sendiri: sebaris dengan teks, lebarnya ikut dihitung sebagai
+       bagian nama kolom dan membuat kolom tersempit meluber beberapa piksel. */
+    display:block;width:.7rem;height:.7rem;margin:.12rem auto 0;font-size:.4rem;
   }
-  .survey-shell .admin-area .assignment-planner__table :is(th,td):is(:nth-child(3),:nth-child(4),:nth-child(6)) {
+  /* Kolom berisi angka: selebar angkanya saja, sama rata, dan isinya sejajar tengah dengan nama
+     kolomnya. Dua kolom teks di depan mendapat sisa lebarnya. */
+  .survey-shell .admin-area .assignment-planner__table :is(th,td):is(:nth-child(3),:nth-child(4),:nth-child(5),:nth-child(6)) {
     text-align:center!important;font-variant-numeric:tabular-nums;
   }
-  .assignment-planner__table :is(th,td):nth-child(1) {width:23%}
-  .assignment-planner__table :is(th,td):nth-child(2) {width:17%}
-  .assignment-planner__table :is(th,td):nth-child(3) {width:13%}
-  .assignment-planner__table :is(th,td):nth-child(4) {width:13%}
-  .assignment-planner__table :is(th,td):nth-child(5) {width:18%}
-  .assignment-planner__table :is(th,td):nth-child(6) {width:16%}
+  .survey-shell .admin-area .assignment-planner__table thead th {vertical-align:bottom}
+  .assignment-planner__table :is(th,td):nth-child(1) {width:27%}
+  .assignment-planner__table :is(th,td):nth-child(2) {width:21%}
+  .assignment-planner__table :is(th,td):is(:nth-child(3),:nth-child(4),:nth-child(5),:nth-child(6)) {width:13%}
   /* Progres kategori di Pemantauan mengisi lebar penuh di bawah nama kategorinya. */
   .survey-shell .admin-area .pantau-tabel tbody td.pantau-tabel__progres {grid-column:1/-1;width:auto}
   .pantau-progres {gap:.5rem}
