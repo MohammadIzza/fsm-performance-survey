@@ -1188,13 +1188,17 @@ input[type="range"]:disabled::-moz-range-thumb {
    "Aktif" dan "Nonaktif". Di sini isinya "Memenuhi syarat" dan "Belum ada penilaian", yang
    meluber sampai menutupi tombol buka-tutup di kolom Aksi. Status dilebarkan, dan jatahnya
    diambil dari Respons dan Nilai — dua kolom yang isinya cuma angka pendek. */
-@media only screen and (min-width:1180px) {
+@media only screen and (min-width:988px) {
+  /* Kolom Status boleh menyusut kalau layarnya sempit; Respons dan Nilai punya lebar dasar supaya
+     nama kolom beserta ikon keterangannya tidak saling menimpa di layar 1000–1300px. */
   .survey-shell main .admin-area .leaderboard-list .s-courses-list:has(.sb__disclosure)
-    .sb-course .sb__link > .sb__dates {flex:0 0 10.5rem}
+    .sb-course .sb__link > .sb__title {flex:2.2 1 8rem;min-width:7rem}
   .survey-shell main .admin-area .leaderboard-list .s-courses-list:has(.sb__disclosure)
-    .sb-course .sb__link > .sb__duration {flex:1.5 1 0}
+    .sb-course .sb__link > .sb__duration {flex:1.5 1 6rem;min-width:5rem}
   .survey-shell main .admin-area .leaderboard-list .s-courses-list:has(.sb__disclosure)
-    .sb-course .sb__link > :is(.sb__location,.sb__topic) {flex:.7 1 0}
+    .sb-course .sb__link > :is(.sb__location,.sb__topic) {flex:0 0 5rem}
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list:has(.sb__disclosure)
+    .sb-course .sb__link > .sb__dates {flex:0 1 10.5rem;min-width:8.6rem}
 }
 
 /* Simpul pohon organisasi: kotak beige bergaris hitam seperti sel tabel, bukan kartu berbayang. */
@@ -2185,7 +2189,10 @@ input[type="range"]:disabled::-moz-range-thumb {
    di bawah itu kolom yang tersisa tinggal puluhan piksel dan isinya terpotong. Di bawah 1180px
    barisnya disusun menurun — perlakuan yang sama yang sudah dipakai seluruh daftar di bawah 987px,
    diperluas untuk daftar admin saja tepat di bawah ini. */
-@media only screen and (min-width:1180px) {
+/* Berlaku sejak 988px, bukan 1180px: di antara keduanya baris admin sudah satu baris, tetapi
+   lebar kolomnya masih memakai persentase tema sehingga kolom pendek menyempit sampai nama
+   kolomnya saling menimpa. */
+@media only screen and (min-width:988px) {
 .admin-area .s-courses-list .sb-course .sb__link {
   flex-wrap:nowrap;align-items:center;gap:1rem;
   /* Tema melipat barisnya di bawah 1280px dan menyisakan 8rem di kanan untuk tombol daftar
@@ -3101,13 +3108,18 @@ input[type="range"]:disabled::-moz-range-thumb {
   display:inline-grid;place-items:center;flex:none;width:.95rem;height:.95rem;min-height:0;
   margin:0 0 0 .3rem;padding:0;border:1px solid currentColor;border-radius:50%;
   background:transparent;color:var(--muted);box-shadow:none;
-  font:italic 700 .5rem/1 Georgia,serif;text-transform:none;letter-spacing:0;vertical-align:.08em;cursor:help;
+  /* Huruf teks tema, bukan serif miring: pada ukuran sekecil ini "i" miring terbaca seperti "I". */
+  font:700 .52rem/1 var(--font-family-text);text-transform:none;letter-spacing:0;vertical-align:.06em;cursor:help;
   transition:color .12s linear,background-color .12s linear;
 }
 .survey-shell .info:hover,
 .survey-shell .info:focus-visible,
 .survey-shell .info[aria-expanded="true"] {background:var(--color-black);border-color:var(--color-black);color:var(--color-white)}
 .info:focus-visible {outline:2px solid var(--color-brand-5);outline-offset:2px}
+/* Nama kolom yang membawa ikon keterangan tetap satu baris bersama ikonnya. Tanpa ini ikon dianggap
+   kata terakhir dan turun sendiri ke baris berikutnya saat kolomnya menyempit; dengan flex, teksnya
+   yang malah dipecah satu huruf per baris. Nama kolom di daftar ini semuanya satu kata pendek. */
+.survey-shell .sb-course--head .sb__link > span:has(> .info) {white-space:nowrap}
 .info__gelembung {
   position:fixed;z-index:300;display:block;max-width:min(19rem,calc(100vw - 1rem));
   padding:.55rem .7rem;border-radius:.6rem;background:var(--color-black);color:var(--color-white);
@@ -3342,3 +3354,11 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell main :is(.tugas-tabel,.pantau-tabel,.parameter-table,.assignment-planner__table) td a {
   white-space:normal;overflow-wrap:anywhere;
 }
+/* Ditulis ulang di akhir berkas dengan !important: aturan lebar kolom tema di rentang 988–1180px
+   mengembalikan white-space ke normal, sehingga nama kolom pendek seperti "Respons" pecah per huruf
+   saat kolomnya menyempit dan ikon keterangannya turun sendiri. */
+.survey-shell .sb-course--head .sb__link > span:has(> .info) {white-space:nowrap!important}
+/* Tema mendorong kolom ke-3 daftar kursus ke kanan dengan margin-left:auto (di sana hanya ada tiga
+   kolom). Baris daftar admin punya enam kolom, jadi dorongan itu menyisakan lubang di tengah baris
+   dan mendorong kolom terakhir keluar dari barisnya di layar 1000–1300px. */
+.survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__location {margin-left:0}
