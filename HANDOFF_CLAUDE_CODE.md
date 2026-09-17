@@ -41,10 +41,7 @@ Matematika), `dosen1004` (penilai, 7 tugas belum diisi). Login hanya dengan ID.
 ```bash
 cd /home/restart/survey-fsm && export PATH=/opt/node22/bin:$PATH
 (cd application && npx tsc --noEmit && npm run test:all)
-npm run build:all
-chown -R restart:restart dist application/public application/public-site application/src/styles/theme application/.next
-systemctl restart fsm-survei.service
-# tunggu http://127.0.0.1:8094/survey/ membalas 200 sebelum membuka alamat publik
+sudo application/deploy/terbitkan.sh   # build ke .next-a/.next-b lalu tukar; situs tidak error selama build
 ```
 
 Memeriksa tampilan: Playwright dengan Chromium bawaan (`application/node_modules/playwright`).
@@ -65,7 +62,7 @@ Chrome sistem di LXC ini tidak bisa membuka alamat lokal (`ERR_ACCESS_DENIED`); 
 **Syarat sebelum dipakai sungguhan**
 1. Login tanpa kata sandi dan daftar akun demo tampil di halaman login — perlu SSO UNDIP atau
    autentikasi lain (Bab 6.3).
-2. Belum ada backup database terjadwal.
+2. Backup database harian sudah ada (lokal, 14 hari); belum ada salinan ke luar server.
 3. Banner dan footer "Demonstrasi", data selain pimpinan adalah data demo.
 4. Belum ada pembatasan percobaan login; header keamanan (CSP, X-Frame-Options, Referrer-Policy)
    belum dipasang (`X-Powered-By` sudah dilepas).

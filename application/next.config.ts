@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   basePath: BASE_PATH,
   env: { NEXT_PUBLIC_BASE_PATH: BASE_PATH },
   poweredByHeader: false,
+  // Deploy tanpa jeda (deploy/terbitkan.sh) membangun ke folder terpisah lalu menukarnya dengan
+  // .next sekaligus; tanpa variabel ini build langsung ke .next seperti biasa.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   // Berkas statis halaman publik dan tema (public/_astro, public/assets) dilayani Next dengan
   // `max-age=0`: setiap kunjungan menanyakan ulang puluhan berkas ke server, satu per satu lewat
   // gateway HTTP/1.1. Sumber di sini relatif terhadap basePath. Bila dua aturan cocok, yang terakhir

@@ -7,14 +7,22 @@ import { pangkasCssTema } from './pangkas-css-tema.mjs';
 // di sumber (dist/) — tanpa ini, foto/aset lama yang sudah dihapus dari repo tetap nyangkut dan
 // tetap terlayani di aplikasi (pernah kejadian: foto lama masih bisa diakses meski sudah diganti
 // di Astro dan sudah di-build ulang).
-await rm('application/public-site', { recursive: true, force: true });
-await rm('application/public/assets', { recursive: true, force: true });
-await rm('application/public/_astro', { recursive: true, force: true });
+// Mode terbit (application/deploy/terbitkan.sh): aplikasi yang sedang melayani tidak boleh kehilangan
+// berkasnya selama build. Halaman publik ditulis ke public-site-baru (ditukar setelah build selesai),
+// dan aset hanya ditimpa — berkas usang dibuang oleh skrip terbit sesudah aplikasi baru jalan.
+const modeTerbit = process.env.SIAPKAN_TERBIT === '1';
+const tujuanSitus = modeTerbit ? 'application/public-site-baru' : 'application/public-site';
+
+await rm(tujuanSitus, { recursive: true, force: true });
+if (!modeTerbit) {
+  await rm('application/public/assets', { recursive: true, force: true });
+  await rm('application/public/_astro', { recursive: true, force: true });
+}
 
 await rm('application/src/styles/theme', { recursive: true, force: true });
 
 await mkdir('application/public', { recursive: true });
-await cp('dist', 'application/public-site', { recursive: true });
+await cp('dist', tujuanSitus, { recursive: true });
 await cp('dist/assets', 'application/public/assets', { recursive: true });
 await cp('dist/_astro', 'application/public/_astro', { recursive: true });
 

@@ -2,7 +2,7 @@
 
 **Status:** deployment **demo** di host `mbkm` (LXC), database demo `survey_fsm_demo` berisi data
 demonstrasi. Ini **bukan** gerbang produksi (Bab 25.3 requirement): login masih tanpa kata sandi,
-belum ada backup terjadwal, dan data sivitas selain nama pimpinan bukan data asli.
+backup database hanya tersimpan di server ini, dan data sivitas selain nama pimpinan bukan data asli.
 
 ## Alamat
 
@@ -29,6 +29,7 @@ Cloudflare ────┘      -> next start 127.0.0.1:3930 (fsm-survei.service
 | `survey-fsm-postgres.service` | Database demo, terpisah dari database aplikasi lain di server ini. |
 | `fsm-survei.service` | `next start` aplikasi (Astro sudah disalin ke dalamnya), port 3930. |
 | `fsm-survei-scheduler.timer` + `.service` | Tiap 5 menit menjalankan `scripts/run-scheduled-transitions.ts` — membuka periode berstatus Siap saat tanggal mulainya tiba (Bab 7.2). Penutupan sengaja tidak otomatis; lihat `runScheduledOpenings()` di `src/lib/services/periods.ts`. |
+| `survey-fsm-backup-db.timer` + `.service` | Tiap hari 02.00 WIB menjalankan `deploy/survey-fsm-backup-db.sh`: `pg_dump` ke `/home/restart/backups/survey-fsm/`, disimpan 14 hari (minimal 3 berkas). Lihat "Backup dan pemulihan database". |
 | `survey-fsm-db-watchdog.timer` + `.service` | Tiap 2 menit menjalankan `deploy/survey-fsm-db-watchdog.sh`: bila database tidak menjawab `select 1` dua kali berturut-turut, `survey-fsm-postgres` di-restart otomatis. Status "active" di systemd saja tidak cukup — lihat catatan di bawah. |
 
 > **Wajib: `RemoveIPC=no`.** Postgres demo berjalan sebagai user `restart`, bukan `postgres`.
@@ -54,16 +55,49 @@ Node 22 untuk build ada di `/opt/node22/bin`. Node sistem (20.x) dipakai layanan
 tidak diganti.
 
 ```bash
-cd /home/restart/survey-fsm
-export PATH=/opt/node22/bin:$PATH
-npm run build:all
-chown -R restart:restart dist application/public application/public-site application/src/styles/theme application/.next
-systemctl restart fsm-survei.service
-until curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8094/survey/ | grep -q 200; do sleep 1; done
+cd /home/restart/survey-fsm/application && export PATH=/opt/node22/bin:$PATH
+npx tsc --noEmit && npm run test:all        # sebagai user restart
+sudo deploy/terbitkan.sh                     # build + tukar build + restart, ±45 detik
 ```
+
+`terbitkan.sh` membangun ke folder build yang **tidak** sedang dipakai (`.next-a` / `.next-b`,
+dicatat di `application/.dist-aktif` yang dibaca `fsm-survei.service`), lalu me-restart layanan
+memakai build baru. Selama build situs tetap melayani versi lama; jeda hanya saat restart (<1 detik,
+terukur 17 Sep 2026). Bila build gagal, tidak ada yang diganti; bila build baru tidak menjawab,
+skrip kembali ke build sebelumnya. Build sebelumnya disimpan sebagai cadangan — kembali cepat:
+tulis `NEXT_DIST_DIR=<folder lama>` ke `.dist-aktif` lalu `systemctl restart fsm-survei`.
+
+> Jangan lagi `npm run build:all` + restart untuk menerbitkan: hasilnya masuk `.next`, yang tidak
+> dipakai layanan, dan selama build situs publik kehilangan asetnya.
 
 Tunggu origin membalas 200 **sebelum** membuka alamat publik: Cloudflare menyimpan jawaban 404 untuk
 berkas `_next`/`_astro` yang diminta saat server belum siap.
+
+## Backup dan pemulihan database
+
+Backup otomatis tiap hari pukul 02.00 WIB ke `/home/restart/backups/survey-fsm/` (hanya bisa dibaca
+user `restart`), format `pg_dump` custom, disimpan 14 hari. Backup manual sebelum perubahan besar:
+
+```bash
+sudo systemctl start survey-fsm-backup-db.service && journalctl -u survey-fsm-backup-db -n 1
+```
+
+Memulihkan (menimpa isi database demo — hentikan aplikasi dulu):
+
+```bash
+sudo systemctl stop fsm-survei.service fsm-survei-scheduler.timer
+cd /home/restart/survey-fsm/application
+URL=$(grep -m1 '^DATABASE_URL=' .env | cut -d= -f2- | tr -d '"' | sed 's/?.*$//')
+sudo -u restart /usr/lib/postgresql/16/bin/pg_restore --clean --if-exists --no-owner --no-privileges \
+  -d "$URL" /home/restart/backups/survey-fsm/<berkas>.dump
+sudo systemctl start fsm-survei.service fsm-survei-scheduler.timer
+```
+
+Pemulihan sudah diuji 17 Sep 2026 ke database sementara: jumlah pengguna, tugas, jawaban, skor, dan
+audit sama persis dengan database asli.
+
+> Backup masih di disk yang sama dengan database. Untuk perlindungan dari kerusakan server, salin
+> berkasnya secara berkala ke tempat lain (mis. penyimpanan UNDIP).
 
 ## Deploy lengkap (mesin baru atau memasang ulang layanan)
 

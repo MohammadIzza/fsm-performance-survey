@@ -13,6 +13,12 @@ Thumbs.db
 __pycache__/
 
 .next/
+# Build bergantian deploy tanpa jeda (application/deploy/terbitkan.sh)
+.next-a/
+.next-b/
+application/.dist-aktif
+application/public-site-baru/
+application/public-site-lama/
 application/src/generated/
 *.tsbuildinfo
 artifacts/

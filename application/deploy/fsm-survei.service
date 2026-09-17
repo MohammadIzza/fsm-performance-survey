@@ -10,6 +10,9 @@ User=restart
 Group=restart
 WorkingDirectory=/home/restart/survey-fsm/application
 # next start baca .env dari WorkingDirectory sendiri — tidak perlu EnvironmentFile=.
+# .dist-aktif (ditulis deploy/terbitkan.sh) memilih folder build .next-a atau .next-b; tanpa berkas
+# itu Next memakai .next.
+EnvironmentFile=-/home/restart/survey-fsm/application/.dist-aktif
 ExecStart=/home/restart/survey-fsm/application/node_modules/.bin/next start -H 127.0.0.1 -p 3930
 Restart=always
 RestartSec=5

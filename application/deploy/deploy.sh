@@ -66,11 +66,7 @@ systemctl enable --now survey-fsm-postgres.service
 sleep 2
 systemctl is-active --quiet survey-fsm-postgres.service && echo "OK: survey-fsm-postgres aktif." || { echo "GAGAL: survey-fsm-postgres tidak aktif." >&2; exit 1; }
 
-echo "== 2/8: Build aplikasi (Astro + Next) =="
-# Dijalankan sebagai user restart (BUKAN root) — build harus dijalankan oleh pemilik berkas
-# ($APP_ROOT dimiliki restart:restart), kalau tidak .next/dist hasil build akan dimiliki root dan
-# tidak bisa ditulis ulang/dibaca oleh proses fsm-survei.service yang jalan sebagai restart.
-su - restart -c "export PATH=$NODE22_BIN:$NODE_BIN:\$PATH && cd $APP_ROOT && npm run build:all"
+echo "== 2/8: Build aplikasi — dijalankan di langkah 4 oleh deploy/terbitkan.sh =="
 
 echo "== 3/8: Uji layanan sebelum deploy (jangan lanjut kalau ada yang gagal) =="
 su - restart -c "export PATH=$NODE22_BIN:$NODE_BIN:\$PATH && cd $APP_DIR && npx tsc --noEmit && npm run test:all" | tail -20
@@ -78,7 +74,9 @@ su - restart -c "export PATH=$NODE22_BIN:$NODE_BIN:\$PATH && cd $APP_DIR && npx 
 echo "== 4/8: Systemd — aplikasi Next.js =="
 cp "$DEPLOY_DIR/fsm-survei.service" /etc/systemd/system/fsm-survei.service
 systemctl daemon-reload
-systemctl enable --now fsm-survei.service
+systemctl enable fsm-survei.service
+# Build ke folder yang tidak sedang dipakai (.next-a/.next-b), lalu start/restart layanan memakainya.
+"$DEPLOY_DIR/terbitkan.sh"
 sleep 2
 systemctl is-active --quiet fsm-survei.service && echo "OK: fsm-survei aktif." || { echo "GAGAL: fsm-survei tidak aktif. Cek: journalctl -u fsm-survei -n 50" >&2; exit 1; }
 
@@ -87,6 +85,11 @@ cp "$DEPLOY_DIR/fsm-survei-scheduler.service" /etc/systemd/system/fsm-survei-sch
 cp "$DEPLOY_DIR/fsm-survei-scheduler.timer" /etc/systemd/system/fsm-survei-scheduler.timer
 systemctl daemon-reload
 systemctl enable --now fsm-survei-scheduler.timer
+# Backup harian database.
+cp "$DEPLOY_DIR/survey-fsm-backup-db.service" /etc/systemd/system/survey-fsm-backup-db.service
+cp "$DEPLOY_DIR/survey-fsm-backup-db.timer" /etc/systemd/system/survey-fsm-backup-db.timer
+systemctl daemon-reload
+systemctl enable --now survey-fsm-backup-db.timer
 # Penjaga database: tiap 2 menit memastikan Postgres menjawab kueri, dan me-restart-nya bila tidak.
 cp "$DEPLOY_DIR/survey-fsm-db-watchdog.service" /etc/systemd/system/survey-fsm-db-watchdog.service
 cp "$DEPLOY_DIR/survey-fsm-db-watchdog.timer" /etc/systemd/system/survey-fsm-db-watchdog.timer
