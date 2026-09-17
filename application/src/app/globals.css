@@ -3026,3 +3026,45 @@ input[type="range"]:disabled::-moz-range-thumb {
   .notifikasi__item,.konfirmasi__centang,.konfirmasi__centang path {animation:none}
   .konfirmasi__centang path {stroke-dashoffset:0}
 }
+
+/* Pemantauan per periode (app/(app)/admin/pemantauan). Batang progres memakai warna status yang sama
+   dengan lencana: tosca = sudah dikirim, biru = sedang diisi, abu = belum dibuka. */
+.pantau-periode {display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:.8rem 1.5rem}
+.pantau-periode__pilih {display:flex;flex-direction:column;gap:.3rem;flex:1 1 20rem;max-width:30rem}
+.pantau-periode__keadaan {display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;font-size:.66rem}
+.pantau-kalimat {margin:0 0 .8rem;font-size:.78rem;line-height:1.55;max-width:48rem}
+.pantau-penjelasan {margin:-.2rem 0 .9rem;max-width:52rem;color:var(--muted);font-size:.64rem;line-height:1.55}
+.pantau-batang {display:flex;height:.9rem;overflow:hidden;border-radius:999em;background:var(--color-grey-2)}
+.pantau-batang--tipis {height:.42rem}
+.pantau-batang__isi {display:block;height:100%}
+.pantau-batang__isi--terkirim {background:var(--color-brand-4)}
+.pantau-batang__isi--draf {background:var(--color-brand-5)}
+.pantau-legenda {display:flex;flex-wrap:wrap;gap:.4rem 1.3rem;margin:.6rem 0 0;padding:0;list-style:none;font-size:.62rem}
+.pantau-legenda li {display:flex;align-items:center;gap:.35rem}
+.pantau-legenda b {font-weight:600}
+.pantau-legenda__warna {display:inline-block;width:.6rem;height:.6rem;border-radius:50%;background:var(--color-grey-2)}
+.pantau-legenda__warna.pantau-batang__isi--terkirim {background:var(--color-brand-4)}
+.pantau-legenda__warna.pantau-batang__isi--draf {background:var(--color-brand-5)}
+.pantau-tabel__kelompok {display:grid;gap:.25rem}
+.pantau-kategori {display:grid;gap:1rem;margin:0;padding:0;list-style:none}
+.pantau-kategori__kepala {display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.2rem 1rem;margin-bottom:.35rem}
+.pantau-kategori__nama {color:var(--color-black);font-size:.74rem;font-weight:600;text-decoration:none}
+.pantau-kategori__nama:hover {text-decoration:underline}
+.pantau-kategori__angka {font-size:.66rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pantau-kategori__catatan {margin:.35rem 0 0;color:var(--muted);font-size:.6rem}
+.pantau-kategori__kurang {color:var(--color-brand-1);font-weight:600}
+.pantau-daftar {display:grid;gap:.7rem;justify-items:start}
+.pantau-daftar > .app-table-wrap {width:100%}
+.survey-shell main .pantau-daftar__cari {max-width:22rem}
+.pantau-tabel {width:100%;font-size:.64rem}
+.pantau-tabel td small {display:block;margin-top:.1rem;color:var(--muted);font-size:.56rem}
+.pantau-tabel__angka {text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pantau-tautan {color:var(--color-brand-3);font-size:.64rem;font-weight:600;text-decoration:none;white-space:nowrap}
+.pantau-tautan:hover {text-decoration:underline}
+.pantau-catatan {color:var(--muted);font-size:.62rem}
+.pantau-laporan {display:grid;gap:.6rem;margin:0 0 .8rem;padding:0;list-style:none;font-size:.66rem}
+.pantau-laporan small {display:block;margin-top:.15rem;color:var(--muted);font-size:.6rem}
+@media only screen and (max-width: 640px) {
+  .pantau-kalimat {font-size:.8rem}
+  .pantau-tabel__angka {text-align:left}
+}
