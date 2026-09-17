@@ -3230,22 +3230,11 @@ input[type="range"]:disabled::-moz-range-thumb {
     td:is([data-label="Kelompok"],[data-label="Penilai"],[data-label="Asal"],[data-label="Kategori"],[data-label="Unit"],[data-label="Kelompok penilai"],[data-label="Calon sah"],[data-label="Sudah ada"],[data-label="Ditambahkan"],[data-label="Kekurangan"],[data-label="Sudah dikirim"],[data-label="Belum cukup dinilai"],[data-label="Sudah dinilai / minimum"],[data-label="Yang perlu dilakukan"],[data-label="Belum dikirim"])::before {
     content:attr(data-label) ": ";color:var(--muted);font-size:.6rem;font-weight:600;
   }
-  /* Pratinjau pembagian di ponsel: satu data mengalir dalam satu baris (boleh membungkus), tanpa
-     kotak dan tanpa kolom. Nama objek tebal di depan; angka-angkanya menyusul dengan nama kolom
-     kecil di depan masing-masing. "Akan ditambah" berisi daftar nama, jadi digeser ke belakang. */
-  .survey-shell .admin-area .assignment-planner__table tbody tr {
-    display:flex;flex-wrap:wrap;align-items:baseline;gap:.1rem .7rem;padding:.5rem .1rem;line-height:1.45;
-  }
-  .survey-shell .admin-area .assignment-planner__table tbody td {
-    display:inline;padding:0!important;border:0!important;font-size:.62rem;
-  }
-  .survey-shell .admin-area .assignment-planner__table tbody td:first-child {
-    flex:1 1 100%;font-size:.64rem;font-weight:600;
-  }
-  .survey-shell .admin-area .assignment-planner__table tbody td:not(:first-child)::before {
-    content:attr(data-label) " ";color:var(--muted);font-weight:600;font-size:.53rem;letter-spacing:.03em;text-transform:uppercase;
-  }
-  .survey-shell .admin-area .assignment-planner__table tbody td:nth-child(5) {order:1;flex:1 1 100%}
+  /* Pratinjau pembagian mengikuti bentuk daftar lain di ruang survei (lihat aturan bersama di
+     atas): nama tebal di baris pertama, keterangan menyusul sebagai "NAMA KOLOM: nilai", satu
+     garis tipis antardata. Yang khusus di sini hanya urutannya — "Akan ditambah" berisi daftar
+     nama, jadi ditaruh paling bawah. */
+  .survey-shell .admin-area .assignment-planner__table tbody td:nth-child(5) {order:1}
   /* Progres kategori di Pemantauan mengisi lebar penuh di bawah nama kategorinya. */
   .survey-shell .admin-area .pantau-tabel tbody td.pantau-tabel__progres {grid-column:1/-1;width:auto}
   .pantau-progres {gap:.5rem}
