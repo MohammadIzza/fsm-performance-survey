@@ -3251,6 +3251,11 @@ input[type="range"]:disabled::-moz-range-thumb {
   }
   .survey-shell .admin-area .assignment-planner__table tbody td:first-child {font-size:.56rem;font-weight:600}
   .survey-shell .admin-area .assignment-planner__table tbody td::before {content:none!important}
+  /* Ikon keterangan di kepala kolom tabel sempit: dikecilkan dan diikat ke barisnya sendiri supaya
+     tidak mendorong nama kolom ke baris terpisah dan membuat kepala tabel tampak tidak sejajar. */
+  .survey-shell .admin-area :is(.assignment-planner__table,.pantau-tabel,.tugas-tabel,.parameter-table) thead th .info {
+    width:.7rem;height:.7rem;margin-left:.15rem;font-size:.4rem;vertical-align:baseline;
+  }
   .survey-shell .admin-area .assignment-planner__table :is(th,td):is(:nth-child(3),:nth-child(4),:nth-child(6)) {
     text-align:center!important;font-variant-numeric:tabular-nums;
   }
