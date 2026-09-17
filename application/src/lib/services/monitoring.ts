@@ -4,9 +4,8 @@ import { prisma } from "@/lib/prisma";
 // berlaku; tugas batal tidak menjadi denominator." Dihitung per periode aktif/ditutup/revisi
 // (yang masih relevan dipantau), bukan seluruh riwayat periode selamanya.
 export async function getMonitoringSummary() {
-  const [assignmentsByStatus, openIssueCount, pendingCalcCount, failedCalcCount] = await Promise.all([
+  const [assignmentsByStatus, pendingCalcCount, failedCalcCount] = await Promise.all([
     prisma.assignment.groupBy({ by: ["status"], _count: { _all: true } }),
-    prisma.assignmentIssue.count({ where: { status: "TERBUKA" } }),
     prisma.calculationRun.count({ where: { status: "BERJALAN" } }),
     prisma.calculationRun.count({ where: { status: "GAGAL" } }),
   ]);
@@ -39,7 +38,6 @@ export async function getMonitoringSummary() {
     validAssignments,
     submitted,
     submissionRate,
-    openIssueCount,
     pendingCalcCount,
     failedCalcCount,
     belowMinimumObjectCount: belowMinimum.length,
@@ -93,7 +91,7 @@ export async function getPeriodMonitoring(periodId: string) {
   });
   if (!period) return null;
 
-  const [categories, assignments, issues, runs] = await Promise.all([
+  const [categories, assignments, runs] = await Promise.all([
     prisma.category.findMany({
       where: { periodId, active: true },
       select: {
@@ -116,19 +114,6 @@ export async function getPeriodMonitoring(periodId: string) {
           select: { id: true, name: true, loginIdentifier: true, active: true, primaryUnit: { select: { name: true } } },
         },
       },
-    }),
-    prisma.assignmentIssue.findMany({
-      where: { status: "TERBUKA", assignment: { categoryObject: { category: { periodId } } } },
-      select: {
-        id: true,
-        type: true,
-        detail: true,
-        createdAt: true,
-        assignmentId: true,
-        reporter: { select: { name: true } },
-        assignment: { select: { categoryObject: { select: { nameSnapshot: true, category: { select: { name: true } } } } } },
-      },
-      orderBy: { createdAt: "desc" },
     }),
     prisma.calculationRun.findMany({
       where: { category: { periodId } },
@@ -235,16 +220,6 @@ export async function getPeriodMonitoring(periodId: string) {
     penilaiBelum,
     kategori,
     objekKurang,
-    laporanTerbuka: issues.map((i) => ({
-      id: i.id,
-      jenis: i.type,
-      detail: i.detail,
-      dibuat: i.createdAt,
-      assignmentId: i.assignmentId,
-      pelapor: i.reporter.name,
-      objek: i.assignment.categoryObject.nameSnapshot,
-      kategori: i.assignment.categoryObject.category.name,
-    })),
     perhitunganGagal: kategori.filter((k) => k.perhitunganGagal).map((k) => k.nama),
     perhitunganMacet: runs.filter((r) => r.status === "BERJALAN").length,
   };

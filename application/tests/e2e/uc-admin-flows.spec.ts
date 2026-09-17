@@ -229,37 +229,9 @@ test("UC-01/02/03/06/07/10: alur admin utuh lewat UI", async ({ page }) => {
     }
   });
 
-  // ===== UC-06 — Menangani kesalahan tugas =====
-  await test.step("UC-06: penilai melaporkan masalah tugas, admin menangani laporan", async () => {
-    test.skip(!firstAssignmentUrl, "Tidak ada tugas terbit (kekurangan calon) — lihat anotasi readiness-problems di atas.");
-
-    await logout(page);
-    await login(page, firstEvaluatorLogin); // penilai sebenarnya yang dipilih commitAssignmentPlan
-    await page.goto(firstAssignmentUrl);
-    await page.locator('select[name="type"]').selectOption("LAINNYA");
-    const issueDetail = `Uji E2E ${stamp}: objek sepertinya keliru, mohon ditinjau.`;
-    await page.getByPlaceholder("Keterangan").fill(issueDetail);
-    await page.getByRole("button", { name: "Laporkan" }).click();
-    // reportIssueAction tidak menampilkan pesan sukses eksplisit (form re-render diam via
-    // revalidatePath) — bukti nyata laporan tersimpan ada di langkah admin di bawah, yang melihat
-    // laporan ini muncul di /admin/masalah. Di sini cukup pastikan TIDAK ada galat tervalidasi.
-    await expect(page.locator('p[role="alert"]')).toHaveCount(0);
-
-    await logout(page);
-    await login(page, "admin01");
-    await page.goto("/admin/masalah");
-    await expect(page.getByText(issueDetail).first()).toBeVisible();
-    const issueRow = page.locator("tr", { hasText: issueDetail });
-    await issueRow.getByRole("button", { name: "Tangani" }).click(); // buka form resolusi
-    await issueRow.locator('select[name="status"]').selectOption("DITANGANI");
-    await issueRow.getByPlaceholder("Tanggapan / tindakan yang diambil").fill("Sudah ditinjau, tugas dipertahankan (uji E2E).");
-    await issueRow.getByRole("button", { name: "Simpan" }).click();
-    await expect(issueRow.locator("span", { hasText: "Ditangani" })).toBeVisible();
-  });
-
   // ===== UC-07 — Koreksi jawaban =====
   await test.step("UC-07: penilai mengirim jawaban, admin mengoreksi langsung", async () => {
-    test.skip(!firstAssignmentUrl, "Tidak ada tugas terbit — lihat langkah UC-03/06 di atas.");
+    test.skip(!firstAssignmentUrl, "Tidak ada tugas terbit — lihat langkah UC-03 di atas.");
 
     await logout(page);
     await login(page, firstEvaluatorLogin);

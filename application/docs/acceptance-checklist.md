@@ -73,7 +73,7 @@ npx playwright test   # target default: http://127.0.0.1:3931, lihat playwright.
 | AC-34 | ✅ (diuji sesi ini) | `test-tahap2.ts` "AC-34" — `getAuthContext` dipanggil langsung (primitif yang sama dipakai `getCurrentAuthContext`/login): sebelum nonaktif `active===true`, segera setelah `prisma.user.update({active:false})` konteksnya `active===false` (yang oleh `getCurrentAuthContext` diperlakukan sebagai tanpa sesi sah). `loginAction` sendiri tidak dipanggil langsung (butuh konteks request Next.js), tapi predikatnya identik. |
 | AC-35 | ✅ (fitur baru sesi ini) | `LeaderboardTable`/`LeaderboardGroups` — pencarian klien murni menyaring array yang sudah diperingkat, tidak pernah menghitung ulang `rank`. Diverifikasi manual lewat Playwright (bukan skrip `test-*.ts`, karena tidak ada infra uji komponen React di proyek ini). |
 | AC-36 | ✅ | `test-tahap2.ts` "Salin periode (Bab 7.5)". |
-| AC-37 | ✅ | `test-services.ts` "Laporan masalah penugasan (Bab 11.6)". |
+| AC-37 | ➖ dihapus | Fitur laporan masalah penugasan (Bab 11.6) dihapus atas keputusan pemilik (17 Sep 2026); sebelumnya disembunyikan sejak 10 Sep 2026. |
 | AC-38 | ✅ (diuji sesi ini) | Retry kalkulasi: `test-tahap5.ts` Bab 21.4, `test-tahap7.ts` AC-26. Retry EKSPOR: `test-tahap6.ts` "AC-38" — `buildResultsExport` dipanggil dua kali berturut-turut, keduanya berhasil dengan struktur sheet identik (regenerasi murni baca-saja, bukan akumulasi state). |
 
 ## EDGE-01..30 (ringkas — hanya yang belum tercakup tabel AC di atas)

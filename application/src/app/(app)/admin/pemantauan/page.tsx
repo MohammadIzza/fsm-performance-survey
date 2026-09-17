@@ -173,7 +173,6 @@ async function PemantauanPage({ searchParams }: { searchParams: Promise<{ period
           bisaTambah={berjalan || d.period.status === "DRAF"}
           penilai={d.penilaiBelum}
           objek={d.objekKurang}
-          laporan={d.laporanTerbuka.map((l) => ({ ...l, dibuat: l.dibuat.toISOString() }))}
           bagian={sp.bagian}
         />
         {(d.perhitunganGagal.length > 0 || d.perhitunganMacet > 0) && (

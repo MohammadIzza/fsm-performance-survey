@@ -7,19 +7,9 @@ import { CategoryTabs } from "../periode/[id]/kategori/[categoryId]/category-tab
 type Penilai = { id: string; nama: string; login: string; unit: string | null; aktif: boolean; belumMulai: number; draf: number; terkirim: number };
 type Kelompok = { kelompok: "PIMPINAN" | "SELAIN_PIMPINAN"; minimum: number; terkirim: number; ditugaskan: number };
 type Objek = { categoryId: string; kategori: string; objek: string; unit: string; kelompok: Kelompok[] };
-type Laporan = { id: string; jenis: string; detail: string; dibuat: string; pelapor: string; objek: string; kategori: string };
 
 const BATAS = 10;
 const namaKelompok = (k: Kelompok["kelompok"]) => (k === "PIMPINAN" ? "Pimpinan" : "Selain pimpinan");
-const jenisLaporan: Record<string, string> = {
-  OBJEK_KELIRU: "Objek keliru",
-  UNIT_KELIRU: "Unit keliru",
-  PENGGUNA_NONAKTIF: "Pengguna nonaktif",
-  TAUTAN_KARYA_SALAH: "Tautan karya salah",
-  LAINNYA: "Lainnya",
-};
-const tanggal = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Jakarta" });
-
 /** Daftar dengan batas tampil dan tombol "tampilkan semua". */
 function Terbatas<T>({ data, kosong, render }: { data: T[]; kosong: string; render: (tampil: T[]) => ReactNode }) {
   const [semua, setSemua] = useState(false);
@@ -45,14 +35,12 @@ export function TindakLanjut({
   bisaTambah,
   penilai,
   objek,
-  laporan,
   bagian,
 }: {
   periodeId: string;
   bisaTambah: boolean;
   penilai: Penilai[];
   objek: Objek[];
-  laporan: Laporan[];
   bagian?: string;
 }) {
   const [cari, setCari] = useState("");
@@ -223,37 +211,6 @@ export function TindakLanjut({
                   </tbody>
                 </table>
               </div>
-            )}
-          />
-        </>
-      ),
-    },
-    {
-      key: "laporan",
-      label: "Laporan masalah",
-      count: laporan.length,
-      content: (
-        <>
-          <Petunjuk>Laporan dari penilai tentang tugas yang keliru, misalnya objek atau unit yang salah.</Petunjuk>
-          <Terbatas
-            data={laporan}
-            kosong="Tidak ada laporan yang menunggu ditangani."
-            render={(tampil) => (
-              <>
-                <ul className="pantau-laporan">
-                  {tampil.map((l) => (
-                    <li key={l.id}>
-                      <strong>{jenisLaporan[l.jenis] ?? l.jenis}</strong> — {l.objek} ({l.kategori})
-                      <small>
-                        {l.pelapor}, {tanggal.format(new Date(l.dibuat))}: “{l.detail}”
-                      </small>
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/admin/masalah" className="pantau-tautan">
-                  Tangani laporan →
-                </Link>
-              </>
             )}
           />
         </>

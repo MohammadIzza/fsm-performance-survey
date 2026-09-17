@@ -74,8 +74,6 @@ model User {
   createdAssignmentBatches AssignmentBatch[] @relation("BatchCreator")
   editedResponseRevisions  ResponseRevision[] @relation("ResponseEditor")
   voidedResponseRevisions  ResponseRevision[] @relation("ResponseVoider")
-  reportedIssues           AssignmentIssue[]  @relation("IssueReporter")
-  resolvedIssues           AssignmentIssue[]  @relation("IssueResolver")
   triggeredCalculationRuns CalculationRun[]   @relation("CalculationTrigger")
   finalizationsPerformed   Finalization[]     @relation("FinalizationActor")
   importBatchesApplied     ImportBatch[]      @relation("ImportActor")
@@ -488,7 +486,6 @@ model Assignment {
   cancelReason  String?   @map("cancel_reason")
 
   responseRevisions ResponseRevision[]
-  issues            AssignmentIssue[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -554,41 +551,6 @@ model ResponseScore {
 
   @@unique([responseRevisionId, parameterId])
   @@map("response_scores")
-}
-
-enum IssueType {
-  OBJEK_KELIRU
-  UNIT_KELIRU
-  PENGGUNA_NONAKTIF
-  TAUTAN_KARYA_SALAH
-  LAINNYA
-}
-
-enum IssueStatus {
-  TERBUKA
-  DITANGANI
-  SELESAI
-}
-
-// Bab 11.6: laporan bukan jawaban survei dan tidak membebaskan kewajiban sebelum admin bertindak.
-model AssignmentIssue {
-  id           String      @id @default(cuid())
-  assignmentId String      @map("assignment_id")
-  assignment   Assignment  @relation(fields: [assignmentId], references: [id])
-  reporterId   String      @map("reporter_id")
-  reporter     User        @relation("IssueReporter", fields: [reporterId], references: [id])
-  type         IssueType
-  detail       String
-  status       IssueStatus @default(TERBUKA)
-  resolution   String?
-  resolvedById String?     @map("resolved_by_id")
-  resolvedBy   User?       @relation("IssueResolver", fields: [resolvedById], references: [id])
-  resolvedAt   DateTime?   @map("resolved_at")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("assignment_issues")
 }
 
 // ---------------------------------------------------------------------------

@@ -63,7 +63,6 @@ async function hapusRancanganLama() {
   await prisma.finalization.deleteMany({});
   await prisma.responseScore.deleteMany({});
   await prisma.responseRevision.deleteMany({});
-  await prisma.assignmentIssue.deleteMany({});
   // Tugas pengganti menunjuk tugas yang digantikannya; tautannya diputus dulu supaya penghapusan
   // tidak bergantung pada urutan baris.
   await prisma.assignment.updateMany({ data: { replacesId: null } });

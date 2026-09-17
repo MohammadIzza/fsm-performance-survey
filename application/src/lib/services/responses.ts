@@ -421,7 +421,6 @@ export async function getAssignmentFormData(assignmentId: string, actor: AuthCon
         orderBy: { revision: "desc" },
         include: { scores: true, editedBy: { select: { name: true } } },
       },
-      issues: { orderBy: { createdAt: "desc" }, include: { reporter: { select: { name: true } } } },
     },
   });
   if (!assignment) throw new ServiceError("Tugas tidak ditemukan.");

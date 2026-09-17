@@ -31,7 +31,6 @@ export async function getFinalizationPreview(periodId: string): Promise<Finaliza
             include: {
               assignments: {
                 where: { status: { not: "DIBATALKAN" } },
-                include: { issues: { where: { status: "TERBUKA" } } },
               },
             },
           },
@@ -60,11 +59,6 @@ export async function getFinalizationPreview(periodId: string): Promise<Finaliza
 
   for (const cat of period.categories) {
     const allAssignments = cat.categoryObjects.flatMap((co) => co.assignments);
-    const openIssues = allAssignments.reduce((s, a) => s + a.issues.length, 0);
-    if (openIssues > 0) {
-      blockers.push(`${cat.name}: ${openIssues} laporan masalah belum diberi disposisi.`);
-    }
-
     for (const rule of cat.groupRules) {
       if (rule.target === 0) continue;
       // Perkiraan cepat: objek tanpa penugasan sama sekali pada kelompok ini.

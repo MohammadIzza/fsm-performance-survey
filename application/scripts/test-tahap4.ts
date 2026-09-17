@@ -17,7 +17,6 @@ import {
   voidResponse,
   getAssignmentFormData,
 } from "../src/lib/services/responses";
-import { reportIssue, resolveIssue } from "../src/lib/services/assignmentIssues";
 import type { AuthContext } from "../src/lib/authz";
 
 let pass = 0;
@@ -246,21 +245,7 @@ async function main() {
     voidResponse(corrected.id, "Coba lagi", adminActor)
   );
 
-  console.log("== Laporan masalah penugasan (Bab 11.6) ==");
-  await expectServiceError("Melaporkan tugas milik orang lain ditolak", () =>
-    reportIssue(assignment.id, "OBJEK_KELIRU", "Ini bukan tugas saya", strangerActor)
-  );
   const otherAssignmentEvaluator = await prisma.user.findUniqueOrThrow({ where: { id: otherAssignment!.evaluatorId } });
-  const issue = await reportIssue(
-    otherAssignment!.id,
-    "OBJEK_KELIRU",
-    "Objek yang dinilai sudah pindah unit",
-    actorFor(otherAssignmentEvaluator)
-  );
-  ok("Laporan masalah berhasil dibuat berstatus TERBUKA", issue.status === "TERBUKA");
-
-  const resolved = await resolveIssue(issue.id, { status: "SELESAI", resolution: "Data unit sudah diperbaiki" }, adminActor);
-  ok("Laporan berhasil ditandai SELESAI dengan tanggapan", resolved.status === "SELESAI" && resolved.resolution === "Data unit sudah diperbaiki");
 
   console.log("== Tugas dibatalkan tidak dapat diisi ==");
   const cancelTarget = otherAssignment!;
@@ -458,7 +443,6 @@ async function main() {
 
   console.log("\n== Membersihkan data uji ==");
   const periodIds = [period.id, shortPeriod.id];
-  await prisma.assignmentIssue.deleteMany({ where: { assignment: { categoryObject: { category: { periodId: { in: periodIds } } } } } });
   await prisma.responseScore.deleteMany({ where: { responseRevision: { assignment: { categoryObject: { category: { periodId: { in: periodIds } } } } } } });
   await prisma.responseRevision.deleteMany({ where: { assignment: { categoryObject: { category: { periodId: { in: periodIds } } } } } });
   await prisma.assignment.deleteMany({ where: { categoryObject: { category: { periodId: { in: periodIds } } } } });
