@@ -3138,3 +3138,15 @@ input[type="range"]:disabled::-moz-range-thumb {
 @media (prefers-reduced-motion: reduce) {
   .info__gelembung {animation:none}
 }
+
+/* Form aturan penilai & syarat penilai: label, keterangan, centang, dan catatan status memakai
+   skala huruf yang sama dengan kolom isian lain (label kapital kecil, keterangan .6rem), bukan
+   ukuran teks halaman yang tampil jauh lebih besar di dalam panel langkah periode. */
+.aturan-centang {display:flex;flex-wrap:wrap;gap:.35rem 1rem;padding:.25rem 0}
+.aturan-centang label {display:inline-flex;align-items:center;gap:.4rem;color:var(--color-black);font-size:.66rem;font-weight:400;text-transform:none;letter-spacing:0;cursor:pointer}
+.aturan-centang input {width:.85rem;height:.85rem;margin:0;accent-color:var(--color-brand-3)}
+.aturan-terkunci {margin:0;color:var(--color-text);font-size:.58rem;line-height:1.4}
+.aturan-galat {margin:0;color:var(--color-brand-1);font-size:.6rem;line-height:1.4}
+@media only screen and (max-width: 640px) {
+  .aturan-centang label {font-size:.76rem}
+}

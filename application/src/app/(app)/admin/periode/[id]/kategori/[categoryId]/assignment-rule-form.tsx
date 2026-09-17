@@ -43,45 +43,45 @@ export function AssignmentRuleForm({
         </select>
       </label>
 
-      <label className="admin-tools__field">
+      <div className="admin-tools__field">
         <span>
-          Filter jenis pengguna (kosongkan untuk semua jenis)
+          Jenis pengguna yang boleh menilai
           <Info>{KET.filterJenis}</Info>
         </span>
-        <div className="flex flex-wrap gap-3">
+        <div className="aturan-centang">
           {userTypes.map((t) => (
-            <label key={t.id} className="flex items-center gap-1.5 app-text-sm text-[var(--foreground)]">
+            <label key={t.id}>
               <input
                 type="checkbox"
                 name="userTypeIds"
                 value={t.id}
                 defaultChecked={currentTypeIds.has(t.id)}
                 disabled={!editable}
-                className="h-4 w-4"
               />
               {t.name}
             </label>
           ))}
         </div>
-      </label>
+        <span className="admin-tools__hint">Kosongkan untuk semua jenis.</span>
+      </div>
 
       {editable ? (
         <div className="flex items-center gap-2">
           <button
             type="submit"
             disabled={pending}
-            className="rounded-lg bg-[var(--accent)] px-3 py-1.5 app-text-sm font-medium text-white hover:bg-[var(--accent-hover)] disabled:opacity-60"
+            className="app-btn app-btn--primary"
           >
             {pending ? "Menyimpan…" : "Simpan aturan"}
           </button>
           {state.error && (
-            <p role="alert" className="text-sm text-[var(--danger)]">
+            <p role="alert" className="aturan-galat">
               {state.error}
             </p>
           )}
         </div>
       ) : (
-        <p className="app-text-sm text-[var(--muted)]">Terkunci di luar status Draf.</p>
+        <p className="aturan-terkunci">Terkunci — hanya bisa diubah saat periode berstatus Draf.</p>
       )}
     </form>
   );

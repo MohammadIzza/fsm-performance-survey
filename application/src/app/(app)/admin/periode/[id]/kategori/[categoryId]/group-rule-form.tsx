@@ -72,15 +72,23 @@ export function GroupRuleForm({
           />
         </label>
       </div>
-      <label className="text-sm">Parameter pembeda nilai sama (opsional)<Info>{KET.pembeda}</Info>
+      <div className="admin-tools__field">
+        <span>
+          Parameter pembeda nilai sama (opsional)
+          <Info>{KET.pembeda}</Info>
+        </span>
         <PilihanCariBanyak
           name="tieBreakParameterIds"
+          aria-label="Parameter pembeda nilai sama"
           disabled={!editable}
           defaultValue={(rule.tieBreakParameterIds as string[] | null) ?? []}
           className="block w-full"
           options={parameters.map((p) => ({ value: p.id, label: p.name }))}
-        /><span className="block text-xs text-[var(--muted)]">Urutan sesuai urutan parameter. Tanpa pilihan, peringkat bersama 1, 2, 2, 4.</span>
-      </label>
+        />
+        <span className="admin-tools__hint">
+          Dipakai sesuai urutan parameter. Tanpa pilihan, nilai yang sama berbagi peringkat (1, 2, 2, 4).
+        </span>
+      </div>
       {editable ? (
         <div className="flex items-center gap-2">
           <button
@@ -91,13 +99,13 @@ export function GroupRuleForm({
             {pending ? "Menyimpan…" : "Simpan"}
           </button>
           {state.error && (
-            <p role="alert" className="text-sm text-[var(--danger)]">
+            <p role="alert" className="aturan-galat">
               {state.error}
             </p>
           )}
         </div>
       ) : (
-        <p className="app-text-sm text-[var(--muted)]">Terkunci di luar status Draf.</p>
+        <p className="aturan-terkunci">Terkunci — hanya bisa diubah saat periode berstatus Draf.</p>
       )}
     </form>
   );
