@@ -9,8 +9,8 @@ Type=oneshot
 User=restart
 Group=restart
 WorkingDirectory=/home/restart/survey-fsm/application
-Environment=PATH=/home/restart/.local/lib/survey-runtime/node_modules/.bin:/usr/bin:/bin
-ExecStart=/home/restart/.local/lib/survey-runtime/node_modules/.bin/tsx scripts/run-scheduled-transitions.ts
+Environment=PATH=/home/restart/survey-fsm/application/node_modules/.bin:/usr/bin:/bin
+ExecStart=/home/restart/survey-fsm/application/node_modules/.bin/tsx scripts/run-scheduled-transitions.ts
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=fsm-survei-scheduler

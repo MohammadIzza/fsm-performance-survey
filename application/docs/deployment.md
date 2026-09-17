@@ -29,13 +29,21 @@ Cloudflare ────┘      -> next start 127.0.0.1:3930 (fsm-survei.service
 | `survey-fsm-postgres.service` | Database demo, terpisah dari database aplikasi lain di server ini. |
 | `fsm-survei.service` | `next start` aplikasi (Astro sudah disalin ke dalamnya), port 3930. |
 | `fsm-survei-scheduler.timer` + `.service` | Tiap 5 menit menjalankan `scripts/run-scheduled-transitions.ts` — membuka periode berstatus Siap saat tanggal mulainya tiba (Bab 7.2). Penutupan sengaja tidak otomatis; lihat `runScheduledOpenings()` di `src/lib/services/periods.ts`. |
+| `survey-fsm-db-watchdog.timer` + `.service` | Tiap 2 menit menjalankan `deploy/survey-fsm-db-watchdog.sh`: bila database tidak menjawab `select 1` dua kali berturut-turut, `survey-fsm-postgres` di-restart otomatis. Status "active" di systemd saja tidak cukup — lihat catatan di bawah. |
 
 > **Wajib: `RemoveIPC=no`.** Postgres demo berjalan sebagai user `restart`, bukan `postgres`.
 > Bawaan systemd-logind (`RemoveIPC=yes`) menghapus shared memory milik user biasa begitu sesi login
 > terakhirnya berakhir, sehingga database masih "active" tetapi setiap kueri gagal dengan
 > `could not open shared memory segment` dan halaman menampilkan "This page couldn't load".
 > `deploy.sh` menulis `/etc/systemd/logind.conf.d/survey-fsm-postgres.conf` berisi `RemoveIPC=no`.
-> Bila galat itu muncul: `systemctl restart survey-fsm-postgres`.
+> Bila galat itu tetap muncul, `survey-fsm-db-watchdog.timer` me-restart database dalam ±2 menit;
+> secara manual: `systemctl restart survey-fsm-postgres`.
+>
+> Kejadian 17 Sep 2026: sesi login terakhir user `restart` ditutup pukul 10.44 WIB, 25 detik kemudian
+> semua kueri gagal, dan situs error sampai database di-restart pukul 12.42 WIB.
+>
+> Penjadwal (`fsm-survei-scheduler`) sempat gagal sejak 10 Sep 2026 (`203/EXEC`) karena menunjuk
+> `tsx` di `~/.local/lib/survey-runtime` yang tidak ada; kini memakai `application/node_modules/.bin/tsx`.
 
 Semua berkas unit dan vhost nginx ada di `application/deploy/`. Aplikasi lama `survei-fsm`
 (port 3910/8093) dan aplikasi tetangga lain tidak disentuh.
@@ -92,7 +100,7 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8094/survey/login     
 curl -s -o /dev/null -w '%{http_code}\n' https://apps-fsm.undip.ac.id/survey/login
 curl -s -o /dev/null -w '%{http_code}\n' https://fsm.heyizza.my.id/survey/login
 curl -s -o /dev/null -w '%{http_code}\n' -r 0-999 http://127.0.0.1:8094/survey/assets/media/tutorial-survei-fsm-v2.mp4   # 206
-systemctl status survey-fsm-postgres fsm-survei fsm-survei-scheduler.timer --no-pager
+systemctl status survey-fsm-postgres fsm-survei fsm-survei-scheduler.timer survey-fsm-db-watchdog.timer --no-pager
 journalctl -u fsm-survei -n 50 --no-pager
 ```
 
@@ -103,7 +111,7 @@ journalctl -u fsm-survei -n 50 --no-pager
 git -C /home/restart/survey-fsm checkout <commit>
 
 # Melepas layanan sepenuhnya (tidak memengaruhi aplikasi lain):
-systemctl disable --now fsm-survei.service fsm-survei-scheduler.timer
+systemctl disable --now fsm-survei.service fsm-survei-scheduler.timer survey-fsm-db-watchdog.timer
 rm /etc/nginx/sites-enabled/fsm.heyizza.my.id && systemctl reload nginx
 cp /etc/cloudflared/config.yml.bak.<timestamp> /etc/cloudflared/config.yml && systemctl restart cloudflared
 ```

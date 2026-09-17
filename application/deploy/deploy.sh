@@ -87,6 +87,12 @@ cp "$DEPLOY_DIR/fsm-survei-scheduler.service" /etc/systemd/system/fsm-survei-sch
 cp "$DEPLOY_DIR/fsm-survei-scheduler.timer" /etc/systemd/system/fsm-survei-scheduler.timer
 systemctl daemon-reload
 systemctl enable --now fsm-survei-scheduler.timer
+# Penjaga database: tiap 2 menit memastikan Postgres menjawab kueri, dan me-restart-nya bila tidak.
+cp "$DEPLOY_DIR/survey-fsm-db-watchdog.service" /etc/systemd/system/survey-fsm-db-watchdog.service
+cp "$DEPLOY_DIR/survey-fsm-db-watchdog.timer" /etc/systemd/system/survey-fsm-db-watchdog.timer
+chmod +x "$DEPLOY_DIR/survey-fsm-db-watchdog.sh"
+systemctl daemon-reload
+systemctl enable --now survey-fsm-db-watchdog.timer
 echo "OK: timer scheduler aktif (jalan tiap 5 menit)."
 
 echo "== 6/8: Nginx vhost =="

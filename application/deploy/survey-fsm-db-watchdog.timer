@@ -1,0 +1,10 @@
+[Unit]
+Description=Survei FSM UNDIP - cek kesehatan database demo tiap 2 menit
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=2min
+AccuracySec=15s
+
+[Install]
+WantedBy=timers.target

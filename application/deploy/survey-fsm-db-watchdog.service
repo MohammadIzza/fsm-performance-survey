@@ -1,0 +1,9 @@
+[Unit]
+Description=Survei FSM UNDIP - pastikan database demo menjawab kueri, restart bila tidak
+Documentation=file:///home/restart/survey-fsm/application/docs/deployment.md
+After=survey-fsm-postgres.service
+
+[Service]
+Type=oneshot
+ExecStart=/home/restart/survey-fsm/application/deploy/survey-fsm-db-watchdog.sh
+SyslogIdentifier=survey-fsm-db-watchdog
