@@ -1,28 +1,5 @@
 @import "tailwindcss";
 
-/* Skala huruf ruang survei. Sebelumnya tiap bagian memilih ukurannya sendiri (lebih dari 25 nilai
-   berbeda antara .46rem dan .95rem), sehingga judul di satu halaman lebih besar daripada judul di
-   halaman lain dan keterangan kadang lebih besar daripada isinya. Semua ukuran di panel admin kini
-   mengambil salah satu dari enam tingkat ini; ponsel memakai tingkat yang sama, hanya dinaikkan. */
-:root {
-  --t-nilai: .92rem;    /* angka besar pada kartu ringkasan */
-  --t-judul: .78rem;    /* judul kartu dan judul langkah */
-  --t-subjudul: .7rem;  /* nama baris daftar, nama kategori */
-  --t-isi: .64rem;      /* teks isi, sel tabel, tombol */
-  --t-kecil: .56rem;    /* keterangan sekunder */
-  --t-label: .5rem;     /* label kapital: nama kolom dan nama isian */
-}
-@media only screen and (max-width: 640px) {
-  :root {
-    --t-nilai: 1.02rem;
-    --t-judul: .88rem;
-    --t-subjudul: .8rem;
-    --t-isi: .74rem;
-    --t-kecil: .66rem;
-    --t-label: .56rem;
-  }
-}
-
 /* Lembar gaya tema yang sama persis dipakai halaman publik (fsm.heyizza.my.id) — disalin otomatis
  * dari src/styles/theme/ oleh scripts/prepare-application.mjs, jadi warna, skala huruf, bentuk
  * tombol, dan kelas tipografi (.t-h-*, .u-container) di ruang survei benar-benar berasal dari
@@ -361,7 +338,7 @@ input[type="range"]:disabled::-moz-range-thumb {
    pemasaran, terlalu besar untuk daftar kerja yang isinya puluhan baris. Padding dan ikonnya ikut
    mengecil karena semuanya dinyatakan dalam em. */
 @media only screen and (min-width: 988px) {
-  .survey-shell .s-courses-list .sb-course {font-size:var(--t-judul)}
+  .survey-shell .s-courses-list .sb-course {font-size:.75rem}
   .survey-shell .s-courses-list .sb-course .sb__link {gap:1.5rem}
   .survey-shell .s-courses-list .sb-course .sb__title {width:24%}
   .survey-shell .s-courses-list .sb-course .sb__dates {width:16%}
@@ -395,7 +372,7 @@ input[type="range"]:disabled::-moz-range-thumb {
   font:600 1.6rem/1.1 var(--font-family-heading);letter-spacing:-.03em;margin:0;
 }
 .survey-shell .page-intro__text {
-  font-size:var(--t-judul);color:var(--color-text);max-width:30em;margin:.45rem 0 0;
+  font-size:.8125rem;color:var(--color-text);max-width:30em;margin:.45rem 0 0;
 }
 /* Judul dan seluruh ringkasan menjadi satu tumpukan. Flex-grow yang berbeda menghasilkan ukuran
    kartu yang bervariasi, sedangkan pola empat-langkah untuk tinggi, posisi, rotasi, dan z-index
@@ -487,18 +464,18 @@ input[type="range"]:disabled::-moz-range-thumb {
      Angka dipertahankan sedikit lebih besar karena merupakan nilai utama, bukan judul kartu. */
   .survey-shell .summary .page-intro__title,
   .survey-shell .summary .summary__label {
-    font-size:var(--t-isi);line-height:1.2;font-weight:600;letter-spacing:.025em;
+    font-size:.65rem;line-height:1.2;font-weight:600;letter-spacing:.025em;
   }
   .survey-shell .summary .page-intro__text,
-  .survey-shell .summary .summary__note {font-size:var(--t-kecil);line-height:1.3}
+  .survey-shell .summary .summary__note {font-size:.55rem;line-height:1.3}
   .survey-shell .summary .page-intro__text {margin-top:.22rem}
-  .survey-shell .summary .summary__value {font-size:var(--t-nilai);line-height:1.08}
+  .survey-shell .summary .summary__value {font-size:.95rem;line-height:1.08}
 }
 .survey-shell .summary__label {
-  font-size:var(--t-isi);font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  font-size:.625rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
 }
 .survey-shell .summary__value {font:600 1.5rem/1.15 var(--font-family-heading);letter-spacing:-.02em}
-.survey-shell .summary__note {font-size:var(--t-judul);line-height:1.35}
+.survey-shell .summary__note {font-size:.75rem;line-height:1.35}
 
 /* Daftar baris di layar sempit.
    Tema menyusun bidangnya berdampingan dengan lebar persen sampai lebar ponsel — cukup untuk
@@ -521,7 +498,7 @@ input[type="range"]:disabled::-moz-range-thumb {
     width:auto;max-width:100%;margin:0;order:0;text-align:left;
   }
   .survey-shell .s-courses-list .sb-course .sb__title {
-    font-size:var(--t-nilai);font-weight:600;
+    font-size:.9375rem;font-weight:600;
   }
   .survey-shell .s-courses-list .sb-course .sb__actions {
     width:auto;justify-content:flex-start;margin-top:.2rem;
@@ -546,7 +523,7 @@ input[type="range"]:disabled::-moz-range-thumb {
     width:auto;max-width:100%;margin:0;order:0;text-align:left;flex:0 0 auto;
   }
   .survey-shell .admin-area .s-courses-list .sb-course .sb__title {
-    font-size:var(--t-nilai);font-weight:600;
+    font-size:.9375rem;font-weight:600;
   }
   .survey-shell .admin-area .s-courses-list .sb-course .sb__actions {
     width:auto;justify-content:flex-start;margin-top:.2rem;
@@ -563,7 +540,7 @@ input[type="range"]:disabled::-moz-range-thumb {
   flex:1 1 12rem;max-width:16rem}
 .survey-shell .filter-bar__field--wide {flex:1 1 22rem;max-width:34rem}
 .survey-shell .filter-bar__label {
-  font-size:var(--t-label);font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  font-size:.52rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
   color:var(--color-text);
 }
 .survey-shell .filter-bar input,
@@ -577,7 +554,7 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell .filter-bar__field--wide {flex:1 1 100%;max-width:none;gap:.18rem}
   /* Nama penyaring seukuran nama penyaring di kepala daftar Tugas Saya, bukan seukuran nama
      kolom di layar lebar — supaya bilah ini terbaca sebagai bagian dari daftarnya. */
-  .survey-shell .filter-bar__label {font-size:var(--t-label)}
+  .survey-shell .filter-bar__label {font-size:.5rem}
   .survey-shell .filter-bar__action {width:100%}
   .survey-shell .filter-bar__action .btn-plain {width:100%}
   .survey-shell .filter-bar__action .btn-plain__inner {text-align:center}
@@ -671,16 +648,16 @@ input[type="range"]:disabled::-moz-range-thumb {
 .admin-actions__row[open] > .admin-actions__summary::before {transform:rotate(90deg)}
 .admin-actions__summary:hover {background:var(--color-beige-dark)}
 .admin-actions__name {display:flex;flex-wrap:wrap;align-items:baseline;gap:.15rem .6rem;min-width:0}
-.admin-actions__name strong {font-size:var(--t-subjudul);line-height:1.3}
-.admin-actions__name > span {color:var(--color-text);font-size:var(--t-isi);line-height:1.3}
+.admin-actions__name strong {font-size:.7rem;line-height:1.3}
+.admin-actions__name > span {color:var(--color-text);font-size:.62rem;line-height:1.3}
 .admin-actions__body {
   display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;
   gap:.5rem .9rem;padding:0 .1rem .75rem 1rem;
 }
 .admin-actions__fields {display:flex;flex:1 1 22rem;flex-wrap:wrap;align-items:flex-end;gap:.5rem;min-width:0}
-.admin-actions__note {max-width:34rem;color:var(--color-text);font-size:var(--t-isi);line-height:1.45}
+.admin-actions__note {max-width:34rem;color:var(--color-text);font-size:.62rem;line-height:1.45}
 .admin-actions__run {display:flex;flex:0 0 auto;justify-content:flex-end}
-.admin-actions__error {flex:1 1 100%;color:var(--color-brand-1);font-size:var(--t-isi)}
+.admin-actions__error {flex:1 1 100%;color:var(--color-brand-1);font-size:.62rem}
 
 /* Alur kerja periode berupa accordion satu langkah per baris. Langkah berikutnya tetap terlihat
    sebagai arah kerja, tetapi baru dapat dibuka setelah langkah sebelumnya selesai. */
@@ -688,12 +665,12 @@ input[type="range"]:disabled::-moz-range-thumb {
 .period-stepper__heading {
   display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:.65rem;
 }
-.period-stepper__heading .eyebrow {margin:0 0 .22rem;font-size:var(--t-kecil)}
+.period-stepper__heading .eyebrow {margin:0 0 .22rem;font-size:.55rem}
 .period-stepper__heading h2 {
   margin:0;font:600 1rem/1.15 var(--font-family-heading);letter-spacing:-.025em;
 }
 .period-stepper__heading p:not(.eyebrow) {
-  margin:.28rem 0 0;color:var(--color-text);font-size:var(--t-isi);line-height:1.4;
+  margin:.28rem 0 0;color:var(--color-text);font-size:.62rem;line-height:1.4;
 }
 .period-stepper__heading > strong {
   flex:0 0 auto;font:600 1rem/1 var(--font-family-heading);color:var(--color-brand-3);
@@ -730,18 +707,18 @@ input[type="range"]:disabled::-moz-range-thumb {
 .period-stepper__summary--locked {cursor:not-allowed;opacity:.55}
 .period-stepper__number {
   display:inline-flex;width:1.55rem;height:1.55rem;align-items:center;justify-content:center;
-  border-radius:999em;background:var(--color-grey-2);font-size:var(--t-isi);font-weight:600;
+  border-radius:999em;background:var(--color-grey-2);font-size:.62rem;font-weight:600;
 }
 .period-stepper__list li[data-state="done"] .period-stepper__number {background:var(--color-brand-4)}
 .period-stepper__list li[data-state="current"] .period-stepper__number {background:var(--color-brand-2)}
 .period-stepper__content {display:flex;min-width:0;flex-direction:column;gap:.16rem}
-.period-stepper__content strong {font-size:var(--t-subjudul);line-height:1.3;overflow-wrap:anywhere}
+.period-stepper__content strong {font-size:.68rem;line-height:1.3;overflow-wrap:anywhere}
 .period-stepper__content > span:not(.period-stepper__state) {
-  color:var(--color-text);font-size:var(--t-kecil);line-height:1.35;
+  color:var(--color-text);font-size:.56rem;line-height:1.35;
 }
-.period-stepper__content small {margin-top:.14rem;color:var(--color-black);font-size:var(--t-label);line-height:1.3}
+.period-stepper__content small {margin-top:.14rem;color:var(--color-black);font-size:.5rem;line-height:1.3}
 .period-stepper__state {
-  color:var(--color-text);font-size:var(--t-label);font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--color-text);font-size:.46rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
 }
 .period-stepper__list li[data-state="current"] .period-stepper__state {color:var(--color-brand-3)}
 .period-stepper__arrow {
@@ -760,17 +737,17 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 .period-stepper__form-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem 1.5rem}
 .period-stepper__form-section > h3 {
-  margin:0 0 .6rem;color:var(--color-text);font-size:var(--t-kecil);font-weight:600;
+  margin:0 0 .6rem;color:var(--color-text);font-size:.54rem;font-weight:600;
   letter-spacing:.06em;text-transform:uppercase;
 }
 /* Form di dalam langkah mengikuti skala teks admin di sekitarnya. Aturan ini juga mengimbangi
    batas 16px umum pada input mobile, yang terlalu besar untuk daftar kerja ringkas ini. */
 .survey-shell main .period-stepper__panel :is(input,select,textarea).form__control {
   min-height:1.9rem;padding:.38rem .52rem;font-family:var(--font-family-text);
-  font-size:var(--t-isi)!important;line-height:1.35;
+  font-size:.62rem!important;line-height:1.35;
 }
-.survey-shell main .period-stepper__panel .app-btn {min-height:1.85rem;padding:.36rem .78rem;font-size:var(--t-isi)}
-.period-stepper__category-intro {margin:0 0 .55rem;color:var(--color-text);font-size:var(--t-isi);line-height:1.45}
+.survey-shell main .period-stepper__panel .app-btn {min-height:1.85rem;padding:.36rem .78rem;font-size:.6rem}
+.period-stepper__category-intro {margin:0 0 .55rem;color:var(--color-text);font-size:.6rem;line-height:1.45}
 .period-stepper__categories {border-top:1px solid var(--color-grey-2)}
 .period-stepper__categories > details {border-bottom:1px solid var(--color-grey-2)}
 .period-stepper__categories > details > summary {
@@ -782,9 +759,9 @@ input[type="range"]:disabled::-moz-range-thumb {
    panelnya sendiri. */
 .period-stepper__categories > details > summary:hover {background:var(--color-brand-7)}
 .period-stepper__categories > details[open] > summary {background:var(--color-beige-dark)}
-.period-stepper__categories summary strong {display:block;font-size:var(--t-isi);line-height:1.3}
+.period-stepper__categories summary strong {display:block;font-size:.64rem;line-height:1.3}
 .period-stepper__categories summary small {
-  display:block;margin-top:.08rem;color:var(--color-text);font-size:var(--t-label);line-height:1.35;
+  display:block;margin-top:.08rem;color:var(--color-text);font-size:.52rem;line-height:1.35;
 }
 .period-stepper__category-arrow {
   width:.36rem;height:.36rem;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
@@ -793,45 +770,45 @@ input[type="range"]:disabled::-moz-range-thumb {
 .period-stepper__categories > details[open] > summary .period-stepper__category-arrow {transform:rotate(225deg)}
 .period-stepper__category-form {padding:.75rem .35rem 1rem}
 .period-stepper__form-status {
-  margin:0;color:var(--color-brand-4-dark);font-size:var(--t-kecil);font-weight:600;
+  margin:0;color:var(--color-brand-4-dark);font-size:.58rem;font-weight:600;
 }
 .period-stepper__rules-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
 
 /* Pratinjau pembagian tugas memakai skala teks yang sama dengan panduan stepper di atasnya.
    Tabel memberi sebagian besar ruang kepada daftar nama penilai, sementara angka ringkas tidak
    ikut meregang. Area persetujuan dan tombol dibaca sebagai satu tindakan yang kompak. */
-.assignment-planner {font-size:var(--t-isi);line-height:1.4}
+.assignment-planner {font-size:.6rem;line-height:1.4}
 .assignment-planner__preview {display:flex;justify-content:flex-start;margin:0 0 .2rem}
 .survey-shell main .assignment-planner .assignment-planner__apply .app-btn {
-  min-height:1.9rem;padding:.38rem .75rem;font-size:var(--t-isi);
+  min-height:1.9rem;padding:.38rem .75rem;font-size:.6rem;
 }
-.survey-shell main .assignment-planner .assignment-planner__preview-button {font-size:var(--t-isi)}
+.survey-shell main .assignment-planner .assignment-planner__preview-button {font-size:.6rem}
 .assignment-planner__table-wrap {border:0;border-radius:0;background:transparent}
 .survey-shell main .assignment-planner__table {
-  table-layout:fixed;font-size:var(--t-isi);line-height:1.4;
+  table-layout:fixed;font-size:.6rem;line-height:1.4;
 }
 .survey-shell main .assignment-planner__table thead th {
-  padding:.5rem .45rem;font-size:var(--t-kecil);line-height:1.25;white-space:normal;
+  padding:.5rem .45rem;font-size:.54rem;line-height:1.25;white-space:normal;
 }
 .survey-shell main .assignment-planner__table tbody td {
-  padding:.55rem .45rem;font-size:var(--t-isi);line-height:1.4;vertical-align:top;
+  padding:.55rem .45rem;font-size:.6rem;line-height:1.4;vertical-align:top;
 }
 .survey-shell main .assignment-planner__table :is(th,td):is(:nth-child(3),:nth-child(4),:nth-child(6)) {
   text-align:center;
 }
 .assignment-planner__footer {display:block}
-.assignment-planner__summary {margin:0;font-size:var(--t-isi);line-height:1.4}
+.assignment-planner__summary {margin:0;font-size:.6rem;line-height:1.4}
 .assignment-planner__apply {display:grid;gap:.45rem;margin:0}
 .assignment-planner__apply-row {display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}
 .survey-shell main .assignment-planner .assignment-planner__apply .app-btn {align-self:center}
 .assignment-planner__acceptance {
   display:flex;align-items:flex-start;gap:.35rem;max-width:34rem;
-  color:var(--color-black);font-size:var(--t-kecil);line-height:1.4;
+  color:var(--color-black);font-size:.58rem;line-height:1.4;
 }
 .assignment-planner__acceptance input {
   width:.72rem;height:.72rem;flex:0 0 .72rem;margin:.08rem 0 0;accent-color:var(--color-brand-3);
 }
-.assignment-planner__message {margin:0;font-size:var(--t-isi);line-height:1.4}
+.assignment-planner__message {margin:0;font-size:.6rem;line-height:1.4}
 
 @media only screen and (min-width:641px) {
   .assignment-planner__table :is(th,td):nth-child(1) {width:15%}
@@ -853,17 +830,17 @@ input[type="range"]:disabled::-moz-range-thumb {
   padding:.7rem;border-top:1px solid var(--color-grey-2);background:rgba(255,255,255,.32);
 }
 .period-stepper__secondary-link {
-  display:inline-block;color:var(--color-brand-3);font-size:var(--t-kecil);font-weight:600;text-decoration:none;
+  display:inline-block;color:var(--color-brand-3);font-size:.58rem;font-weight:600;text-decoration:none;
 }
 .period-stepper__secondary-link:hover {text-decoration:underline}
 /* Ukuran hurufnya dulu ikut bawaan tema (15px) sementara tabel admin lain di halaman yang sama
    berhuruf 12px — satu bagian terbaca lebih besar daripada bagian di atas dan di bawahnya. */
-.survey-shell main .parameter-table {font-size:var(--t-isi);line-height:1.4}
+.survey-shell main .parameter-table {font-size:.6rem;line-height:1.4}
 .survey-shell main .parameter-table thead th {
-  padding:.5rem .45rem;font-size:var(--t-kecil);line-height:1.25;
+  padding:.5rem .45rem;font-size:.54rem;line-height:1.25;
 }
 .survey-shell main .parameter-table tbody td {
-  padding:.55rem .45rem;font-size:var(--t-isi);line-height:1.4;
+  padding:.55rem .45rem;font-size:.6rem;line-height:1.4;
 }
 .parameter-table {table-layout:fixed}
 .parameter-table th:nth-child(1) {width:30%}
@@ -878,7 +855,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell main .parameter-row--editing .form__control,
 .survey-shell main .parameter-add-row .form__control {
   width:100%;min-height:1.7rem;padding:.28rem .4rem;
-  border:0;border-radius:.25rem;background:var(--color-white);font-size:var(--t-isi);
+  border:0;border-radius:.25rem;background:var(--color-white);font-size:.6rem;
 }
 .survey-shell main .parameter-row__actions-inner button {
   display:inline-flex;min-height:1.7rem;align-items:center;justify-content:center;
@@ -892,15 +869,15 @@ input[type="range"]:disabled::-moz-range-thumb {
   stroke-linecap:round;stroke-linejoin:round;
 }
 .parameter-row__error {
-  width:8rem;margin:.3rem 0 0;color:var(--color-brand-1);font-size:var(--t-label);line-height:1.3;text-align:left;
+  width:8rem;margin:.3rem 0 0;color:var(--color-brand-1);font-size:.5rem;line-height:1.3;text-align:left;
 }
 .parameter-add-row {background:rgba(255,255,255,.2)}
 .parameter-add-row__action > form {margin:0}
 .parameter-add-row__action > span {
-  display:block;margin-top:.25rem;color:var(--color-text);font-size:var(--t-label);line-height:1.2;
+  display:block;margin-top:.25rem;color:var(--color-text);font-size:.5rem;line-height:1.2;
 }
 .parameter-add-row__action > [role="alert"] {
-  margin:.3rem 0 0;color:var(--color-brand-1);font-size:var(--t-label);line-height:1.3;
+  margin:.3rem 0 0;color:var(--color-brand-1);font-size:.48rem;line-height:1.3;
 }
 /* Daftar objek yang dinilai pada satu kategori: dua kolom berlabel dengan satu tindakan di
    ujungnya. Sebelumnya tiap baris hanya nama berhuruf 20px — sebesar judul halaman — dengan unit
@@ -913,29 +890,29 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 .participant-list__head {
   border-bottom:2px solid var(--color-black);padding-top:0;
-  color:var(--color-text);font-size:var(--t-label);font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--color-text);font-size:.52rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
 }
 .participant-list__head > :last-child {text-align:right}
 .participant-list__item {border-bottom:1px solid var(--color-grey-2)}
 .participant-list__name {
-  min-width:0;color:var(--color-black);font-size:var(--t-subjudul);font-weight:600;line-height:1.35;
+  min-width:0;color:var(--color-black);font-size:.68rem;font-weight:600;line-height:1.35;
   overflow-wrap:anywhere;
 }
-.participant-list__unit {min-width:0;color:var(--color-text);font-size:var(--t-isi);line-height:1.35}
+.participant-list__unit {min-width:0;color:var(--color-text);font-size:.62rem;line-height:1.35}
 /* Label kolom diulang di dalam sel hanya saat kepala kolomnya disembunyikan, yakni di layar sempit. */
 .participant-list__label {display:none}
 .participant-list__action {margin:0;justify-self:end}
 
 .participant-add {display:grid;gap:.6rem;justify-items:start;margin-top:1.1rem}
 .participant-add .admin-tools__field {width:100%}
-.survey-shell main .participant-add__select {min-height:0;padding:.35rem;font-size:var(--t-isi)}
+.survey-shell main .participant-add__select {min-height:0;padding:.35rem;font-size:.62rem}
 .survey-shell main .participant-add__select option {padding:.3rem .35rem}
 /* Pilih cepat: ambil semua objek, atau semua objek milik satu unit beserta sub-unitnya. */
 .participant-add__cepat {display:flex;flex-wrap:wrap;align-items:center;gap:.45rem;width:100%}
-.participant-add__cepat-label {font-size:var(--t-label);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.participant-add__cepat-label {font-size:.52rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .participant-add__unit {flex:1 1 14rem;min-width:0;max-width:22rem}
-.participant-add__ringkas {margin:0;font-size:var(--t-kecil);color:var(--muted)}
-.participant-add__error {margin:0;color:var(--color-brand-1);font-size:var(--t-kecil);line-height:1.4}
+.participant-add__ringkas {margin:0;font-size:.58rem;color:var(--muted)}
+.participant-add__error {margin:0;color:var(--color-brand-1);font-size:.58rem;line-height:1.4}
 
 @media only screen and (max-width:640px) {
   /* Tiga kolom tidak muat selebar ponsel: kepala kolom disembunyikan dan tiap sel membawa
@@ -946,7 +923,7 @@ input[type="range"]:disabled::-moz-range-thumb {
   .participant-list__unit {grid-column:1}
   .participant-list__label {
     display:inline;margin-right:.3rem;
-    font-size:var(--t-label);font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    font-size:.5rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
   }
   .participant-list__action {grid-column:2;grid-row:1/3;align-self:center}
   .duplicate-instrument-form {grid-template-columns:1fr}
@@ -967,21 +944,21 @@ input[type="range"]:disabled::-moz-range-thumb {
 
 @media only screen and (max-width:640px) {
   .period-stepper__heading {align-items:flex-start}
-  .period-stepper__heading h2 {font-size:var(--t-judul)}
-  .period-stepper__heading p:not(.eyebrow) {font-size:var(--t-kecil)}
-  .period-stepper__heading > strong {font-size:var(--t-judul)}
+  .period-stepper__heading h2 {font-size:.8rem}
+  .period-stepper__heading p:not(.eyebrow) {font-size:.55rem}
+  .period-stepper__heading > strong {font-size:.78rem}
   .period-stepper__summary {
     grid-template-columns:1.45rem minmax(0,1fr) .38rem;min-height:0;padding:.58rem .15rem;
   }
-  .period-stepper__number {width:1.35rem;height:1.35rem;font-size:var(--t-kecil)}
-  .period-stepper__content strong {font-size:var(--t-isi)}
-  .period-stepper__content > span:not(.period-stepper__state) {font-size:var(--t-label)}
-  .period-stepper__content small {font-size:var(--t-label)}
+  .period-stepper__number {width:1.35rem;height:1.35rem;font-size:.55rem}
+  .period-stepper__content strong {font-size:.62rem}
+  .period-stepper__content > span:not(.period-stepper__state) {font-size:.52rem}
+  .period-stepper__content small {font-size:.48rem}
   .period-stepper__panel {padding:.7rem .55rem .85rem}
   .period-stepper__form-grid {grid-template-columns:1fr;gap:.8rem}
   .period-stepper__rules-grid {grid-template-columns:1fr;gap:.65rem}
   .survey-shell main .period-stepper__panel :is(input,select,textarea).form__control {
-    min-height:1.8rem;padding:.34rem .48rem;font-size:var(--t-isi)!important;
+    min-height:1.8rem;padding:.34rem .48rem;font-size:.6rem!important;
   }
   .period-stepper__categories > details > summary {padding:.5rem .05rem}
   .period-stepper__category-form {padding:.65rem .05rem .8rem}
@@ -1014,10 +991,10 @@ input[type="range"]:disabled::-moz-range-thumb {
 /* Keterangan di bawah nama kolom, untuk isian yang akibatnya tidak jelas dari namanya saja. */
 .admin-tools__field > .admin-tools__hint {
   margin:-.05rem 0 .1rem;color:var(--color-text);
-  font-size:var(--t-isi);font-weight:400;line-height:1.4;letter-spacing:0;text-transform:none;
+  font-size:.6rem;font-weight:400;line-height:1.4;letter-spacing:0;text-transform:none;
 }
 .admin-tools__field > span {
-  font-size:var(--t-label);font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  font-size:.52rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
   color:var(--color-text);
 }
 /* Isian di bagian ini mengikuti skalanya: aturan .form__control umum dibuat untuk form setinggi
@@ -1030,7 +1007,7 @@ input[type="range"]:disabled::-moz-range-thumb {
    terpengaruh karena berada di luar .survey-shell. */
 .survey-shell main .form__control {
   width:100%;min-width:0;min-height:1.85rem;padding:.3rem .55rem;
-  border-radius:.3rem;font-size:var(--t-isi);
+  border-radius:.3rem;font-size:.65rem;
 }
 .survey-shell main .admin-tools input[type="datetime-local"].form__control {
   width:11rem;padding-left:1.9em;background-position:.6em 50%;background-size:.7em .7em;
@@ -1093,7 +1070,7 @@ input[type="range"]:disabled::-moz-range-thumb {
   display:flex;align-items:flex-start;justify-content:space-between;gap:1.5rem;
   padding:.25rem 0 .85rem;background:transparent;
 }
-.app-panel__intro .eyebrow {font-size:var(--t-isi)}
+.app-panel__intro .eyebrow {font-size:.6rem}
 .app-panel__intro h2 {
   margin:.3rem 0 0;font:600 1.05rem/1.15 var(--font-family-heading);letter-spacing:-.025em;
 }
@@ -1101,7 +1078,7 @@ input[type="range"]:disabled::-moz-range-thumb {
    tiap halaman memilih ukuran dan warnanya sendiri. */
 .survey-shell main a.app-back {
   display:inline-block;margin-bottom:-.35rem;color:var(--color-text);
-  font-size:var(--t-subjudul);font-weight:600;text-decoration:none;
+  font-size:.68rem;font-weight:600;text-decoration:none;
 }
 .survey-shell main a.app-back:hover {color:var(--color-black);text-decoration:underline}
 
@@ -1113,7 +1090,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 .app-panel__label--tight {margin-bottom:.3rem}
 .app-panel__text {
-  max-width:44rem;margin-top:.35rem;color:var(--color-text);font-size:var(--t-subjudul);line-height:1.45;
+  max-width:44rem;margin-top:.35rem;color:var(--color-text);font-size:.72rem;line-height:1.45;
 }
 /* Baris "belum ada isinya": satu kalimat di atas garis daftar, bukan kotak setinggi 8rem.
    .app-empty-box adalah pembungkusnya di halaman yang menaruh kalimat itu di dalam <p> sendiri. */
@@ -1121,11 +1098,11 @@ input[type="range"]:disabled::-moz-range-thumb {
   padding:1.5rem 0;border-top:2px solid var(--color-black);border-bottom:2px solid var(--color-black);
   text-align:center;
 }
-.app-empty-box > p {margin:0;color:var(--color-text);font-size:var(--t-judul)}
+.app-empty-box > p {margin:0;color:var(--color-text);font-size:.75rem}
 .app-empty {
   margin:0;padding:1.5rem 0;border-top:2px solid var(--color-black);
   border-bottom:2px solid var(--color-black);
-  color:var(--color-text);font-size:var(--t-judul);text-align:center;
+  color:var(--color-text);font-size:.75rem;text-align:center;
 }
 .app-panel__intro + .app-empty {border-top:2px solid var(--color-black)}
 
@@ -1133,26 +1110,26 @@ input[type="range"]:disabled::-moz-range-thumb {
   .app-panel + .app-panel,
   .app-panel--ruled {padding-top:.85rem}
   .app-panel__intro {gap:.75rem;padding:.15rem 0 .6rem}
-  .app-panel__intro .eyebrow {font-size:var(--t-label)}
-  .app-panel__intro h2 {font-size:var(--t-nilai)}
-  .survey-shell main a.app-back {font-size:var(--t-isi)}
-  .app-panel__label {margin-bottom:.6rem;font-size:var(--t-label)}
-  .app-panel__text {font-size:var(--t-isi)}
-  .app-empty {padding:1.1rem 0;font-size:var(--t-isi)}
+  .app-panel__intro .eyebrow {font-size:.52rem}
+  .app-panel__intro h2 {font-size:.88rem}
+  .survey-shell main a.app-back {font-size:.6rem}
+  .app-panel__label {margin-bottom:.6rem;font-size:.52rem}
+  .app-panel__text {font-size:.62rem}
+  .app-empty {padding:1.1rem 0;font-size:.65rem}
   .app-empty-box {padding:1.1rem 0}
-  .app-empty-box > p {font-size:var(--t-isi)}
+  .app-empty-box > p {font-size:.65rem}
 }
 
 /* Tombol di bagian ini sedikit lebih besar daripada di alat admin: ia aksi utama sebuah halaman,
    bukan tindakan sesekali di baris terakhir. Bentuknya sama persis. */
-.survey-shell main .app-btn {min-height:2.1rem;padding:.42rem .95rem;font-size:var(--t-subjudul)}
+.survey-shell main .app-btn {min-height:2.1rem;padding:.42rem .95rem;font-size:.6875rem}
 
 /* Catatan berwarna — peringatan, galat, keberhasilan. Sebelumnya tiap halaman memilih warnanya
    sendiri (amber-50, danger/10, black/5) dengan sudut dan tebal huruf yang berbeda-beda. */
 .app-note {
   margin:0;padding:.7rem .85rem;border-left:3px solid var(--color-black);
   background:var(--color-beige-dark);color:var(--color-black);
-  font-size:var(--t-subjudul);line-height:1.5;
+  font-size:.7rem;line-height:1.5;
 }
 .app-note--perhatian {border-left-color:var(--color-brand-2)}
 .app-note--selesai {border-left-color:var(--color-brand-4)}
@@ -1204,7 +1181,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 .leaderboard-detail {display:grid;gap:.4rem;margin:0;padding:0;list-style:none}
 .leaderboard-detail li {
   display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:.2rem 1rem;
-  font-size:var(--t-isi);line-height:1.45;
+  font-size:.62rem;line-height:1.45;
 }
 .leaderboard-detail__muted {color:var(--color-text)}
 /* Lebar kolom leaderboard. Daftar accordion admin mengunci kolom Status 6rem — cukup untuk
@@ -1228,7 +1205,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 
 /* Keterangan geser di atas bagan: sebaris kecil, sewarna teks bantu di halaman ini. */
 .org-tree__hint {
-  margin:0 0 .5rem;color:var(--color-text);font-size:var(--t-isi);line-height:1.4;
+  margin:0 0 .5rem;color:var(--color-text);font-size:.6rem;line-height:1.4;
 }
 
 /* Lebar pohon mengikuti isinya, bukan sebaliknya. Versi sebelumnya membagi lebar layar rata ke
@@ -1250,8 +1227,8 @@ input[type="range"]:disabled::-moz-range-thumb {
   .org-tree li::after,
   .org-tree ul::before {height:1.05rem}
   .org-tree__node {width:7.4rem;padding:.36rem .45rem;border-width:1px}
-  .org-tree__node .app-text-sm {font-size:var(--t-kecil);line-height:1.25}
-  .org-tree__node .app-text-xs {font-size:var(--t-label);line-height:1.2}
+  .org-tree__node .app-text-sm {font-size:.55rem;line-height:1.25}
+  .org-tree__node .app-text-xs {font-size:.48rem;line-height:1.2}
 }
 
 /* Petak angka pada Pemantauan: sel bernomor, bukan catatan — jadi tanpa garis aksen di kiri. */
@@ -1264,15 +1241,15 @@ input[type="range"]:disabled::-moz-range-thumb {
 .app-stat {margin:0;font:600 1.05rem/1.1 var(--font-family-heading);letter-spacing:-.02em}
 
 /* Dua tingkat huruf di bawah ukuran teks tema, untuk keterangan dan catatan kaki baris. */
-.app-text-sm {font-size:var(--t-subjudul);line-height:1.45}
-.app-text-xs {font-size:var(--t-isi);line-height:1.4}
+.app-text-sm {font-size:.7rem;line-height:1.45}
+.app-text-xs {font-size:.62rem;line-height:1.4}
 
 @media only screen and (max-width:640px) {
-  .survey-shell main .app-btn {min-height:1.95rem;padding:.38rem .85rem;font-size:var(--t-isi)}
-  .app-note {padding:.55rem .7rem;font-size:var(--t-isi)}
-  .app-stat {font-size:var(--t-nilai)}
-  .app-text-sm {font-size:var(--t-isi)}
-  .app-text-xs {font-size:var(--t-kecil)}
+  .survey-shell main .app-btn {min-height:1.95rem;padding:.38rem .85rem;font-size:.62rem}
+  .app-note {padding:.55rem .7rem;font-size:.62rem}
+  .app-stat {font-size:.9rem}
+  .app-text-sm {font-size:.62rem}
+  .app-text-xs {font-size:.56rem}
 }
 
 /* Tombol buka-tutup bidang pelengkap sebuah baris. Hanya berguna di layar ponsel — di layar lebar
@@ -1282,7 +1259,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 /* Baris "tidak ada hasil": memakai kerangka baris biasa supaya garis dan lebarnya menyatu dengan
    daftar, tetapi tanpa kolom dan tanpa tautan. */
 .survey-shell .s-courses-list .sb-course--empty .sb__link {
-  display:block;padding:1.6rem 0;color:var(--color-text);font-size:var(--t-judul);cursor:default;
+  display:block;padding:1.6rem 0;color:var(--color-text);font-size:.8125rem;cursor:default;
 }
 
 /* Daftar pilihan sebuah <select> digambar oleh sistem operasi, bukan oleh lembar gaya halaman —
@@ -1369,7 +1346,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 .assignments-data-list .sb-course--head .sb__link {align-items:center;min-height:3.25rem}
 .assignment-head-filter {display:flex;width:100%;min-width:0;align-items:center;
   justify-content:space-between;gap:.45rem;text-align:left}
-.assignment-head-filter > span {font-size:var(--t-isi);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.assignment-head-filter > span {font-size:.62rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
 /* Nilai terpilih bisa sepanjang "Penilaian Kinerja Semester Ganjil 2026", sedangkan kolomnya
    selebar kolom tabel. Dijaga satu baris dan dipotong dengan elipsis: nama lengkapnya tetap
    terbaca saat daftarnya dibuka, dan tinggi baris kepala tidak ikut berubah-ubah. */
@@ -1377,7 +1354,7 @@ input[type="range"]:disabled::-moz-range-thumb {
   min-width:0;width:100%;max-width:100%;flex:1 1 auto;min-height:2rem;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   padding:.42em 1.7em .42em .65em;border:1px solid transparent;border-radius:.45rem;
-  background-color:var(--color-beige-dark);font-size:var(--t-subjudul)!important;
+  background-color:var(--color-beige-dark);font-size:.68rem!important;
   transition:border-color .18s ease,background-color .18s ease,box-shadow .18s ease;
 }
 .assignment-head-filter select.form__control:hover {border-color:var(--color-grey-2);background-color:var(--color-white)}
@@ -1401,7 +1378,7 @@ input[type="range"]:disabled::-moz-range-thumb {
   .assignment-head-filter {position:relative;display:block}
   .assignment-head-filter > span {
     position:static;width:auto;height:auto;margin:0;padding:0 1.1em 0 0;overflow:visible;clip:auto;
-    display:inline-block;color:var(--color-text);font-size:var(--t-subjudul);font-weight:600;
+    display:inline-block;color:var(--color-text);font-size:.6875rem;font-weight:600;
     letter-spacing:.06em;text-transform:uppercase;
   }
   .assignment-head-filter > span::after {
@@ -1430,8 +1407,8 @@ input[type="range"]:disabled::-moz-range-thumb {
 /* Lembar instrumen menggabungkan keterbacaan formulir satu-per-satu dengan ringkasan kolom pada
    contoh pengguna. Setiap parameter tetap menjadi satu kelompok visual, tetapi tidak lagi berupa
    kartu besar yang terpisah jauh. */
-.assignment-detail .summary__value {font-size:var(--t-nilai);line-height:1.2;overflow-wrap:anywhere}
-.assignment-detail .summary__note {font-size:var(--t-isi)}
+.assignment-detail .summary__value {font-size:.92rem;line-height:1.2;overflow-wrap:anywhere}
+.assignment-detail .summary__note {font-size:.65rem}
 .assessment-sheet {overflow:visible;border:0;border-radius:0;background:transparent}
 .assessment-sheet__intro {display:flex;align-items:flex-start;justify-content:space-between;gap:1.5rem;
   padding:.25rem 0 1rem;background:transparent}
@@ -1540,9 +1517,9 @@ input[type="range"]:disabled::-moz-range-thumb {
      Safari iOS mem-zoom halaman saat kolom isian difokuskan — itu berlaku pada kolom yang diketik,
      bukan pada <select>, yang membuka pemilih tanpa mengubah perbesaran halaman. */
   .assignment-head-filter {align-items:stretch;flex-direction:column;gap:.15rem}
-  .assignment-head-filter > span {font-size:var(--t-label)}
+  .assignment-head-filter > span {font-size:.5rem}
   .assignment-head-filter select.form__control {width:100%;max-width:100%;min-height:1.9rem;
-    padding:.35em 1.7em .35em .5em;font-size:var(--t-subjudul)!important}
+    padding:.35em 1.7em .35em .5em;font-size:.72rem!important}
   /* Bentuk baris daftar di layar ponsel, untuk seluruh ruang survei — bukan hanya Tugas Saya.
      Dua kolom: nama entri dan keterangannya di kiri, angka/tanggal/status di kanan. Nomor
      barisnya tidak ditetapkan, hanya kolomnya; penempatan otomatis lalu mengisi baris sesuai
@@ -1559,22 +1536,22 @@ input[type="range"]:disabled::-moz-range-thumb {
     gap:.35rem .6rem;padding:.62rem .68rem;overflow:hidden;border-radius:.6rem;
   }
   .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__title {
-    grid-column:1;width:auto;font-size:var(--t-subjudul);line-height:1.25;
+    grid-column:1;width:auto;font-size:.68rem;line-height:1.25;
   }
   .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__location,
   .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__duration,
   .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__topic {
-    grid-column:1;width:auto;margin:0;font-size:var(--t-kecil);line-height:1.25;
+    grid-column:1;width:auto;margin:0;font-size:.56rem;line-height:1.25;
   }
   .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__dates {
     grid-column:2;width:auto;justify-self:end;padding-left:1.05rem;
-    font-size:var(--t-kecil);line-height:1.2;white-space:nowrap;
+    font-size:.56rem;line-height:1.2;white-space:nowrap;
   }
   .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__dates::before {width:11px;height:10px}
   .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__price {
-    grid-column:2;width:auto;justify-self:end;text-align:right;font-size:var(--t-kecil);
+    grid-column:2;width:auto;justify-self:end;text-align:right;font-size:.56rem;
   }
-  .survey-shell main .s-courses-list .status-pill {padding:.25em .65em;font-size:var(--t-kecil)}
+  .survey-shell main .s-courses-list .status-pill {padding:.25em .65em;font-size:.54rem}
   /* Panah baris disembunyikan: pada kisi dua kolom ia merebut satu petak dan mendorong isinya. */
   .survey-shell main .s-courses-list .sb-course:not(.sb-course--head) .sb__arrow {display:none}
 
@@ -1584,7 +1561,7 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell main .sb__detail-toggle {
     display:inline-flex;align-items:center;align-self:start;grid-column:1;
     margin-top:.1rem;padding:0;border:0;background:none;
-    color:var(--color-brand-3);font-size:var(--t-kecil);font-weight:600;
+    color:var(--color-brand-3);font-size:.56rem;font-weight:600;
   }
   .survey-shell main .sb__detail-toggle::after {
     content:"";margin-left:.3rem;
@@ -1596,13 +1573,13 @@ input[type="range"]:disabled::-moz-range-thumb {
     transform:rotate(90deg);
   }
   .assignment-row__leadership {display:block;margin-top:.12rem;color:var(--color-text);
-    font-size:var(--t-label);font-weight:400;line-height:1.2}
+    font-size:.52rem;font-weight:400;line-height:1.2}
 
   /* Judul daftar: di Beranda ia sebesar judul halaman dan mendorong daftarnya ke bawah layar. */
   .survey-shell main .s-courses-list .s__top {margin:0}
   .survey-shell main .s-courses-list .s__header {margin-bottom:.45rem}
-  .survey-shell main .s-courses-list .s__title {font-size:var(--t-nilai);line-height:1.15}
-  .survey-shell main .s-courses-list .s__intro {margin-top:.2rem;font-size:var(--t-isi);line-height:1.35}
+  .survey-shell main .s-courses-list .s__title {font-size:.92rem;line-height:1.15}
+  .survey-shell main .s-courses-list .s__intro {margin-top:.2rem;font-size:.62rem;line-height:1.35}
 
   .assignment-detail.space-y-8 > :not([hidden]) ~ :not([hidden]) {margin-top:1rem}
   .assignment-detail .survey-hero {
@@ -1611,13 +1588,13 @@ input[type="range"]:disabled::-moz-range-thumb {
   .assignment-detail .survey-hero .eyebrow {font-size:.55rem;line-height:1.25}
   .assignment-detail .survey-hero h1 {font-size:1rem;line-height:1.15;letter-spacing:-.025em}
   .assignment-detail .survey-hero p {margin-top:.25rem;font-size:.62rem;line-height:1.3}
-  .assignment-detail__meta {gap:.35rem;font-size:var(--t-kecil);line-height:1.25}
+  .assignment-detail__meta {gap:.35rem;font-size:.58rem;line-height:1.25}
   .assignment-detail__meta > span {padding:.25rem .55rem}
   .assignment-detail__meta > span:not([class*="rounded-full"]) {padding-left:0}
-  .assignment-detail__notice {padding:.7rem .8rem;font-size:var(--t-isi);line-height:1.4}
+  .assignment-detail__notice {padding:.7rem .8rem;font-size:.62rem;line-height:1.4}
   .assignment-form.space-y-5 > :not([hidden]) ~ :not([hidden]) {margin-top:.75rem}
-  .assignment-detail .summary__value {font-size:var(--t-isi)}
-  .assignment-detail .summary__note {font-size:var(--t-label)}
+  .assignment-detail .summary__value {font-size:.62rem}
+  .assignment-detail .summary__note {font-size:.5rem}
   .assessment-sheet {border-radius:0}
   .assessment-sheet__intro {gap:.5rem;padding:.45rem 0 .55rem}
   .assessment-sheet__intro .eyebrow {font-size:.48rem}
@@ -1712,14 +1689,14 @@ input[type="range"]:disabled::-moz-range-thumb {
 .admin-row-details__field {min-width:0}
 .admin-row-details dt {
   margin-bottom:.22rem;color:var(--color-text);
-  font-size:var(--t-kecil);font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  font-size:.58rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
 }
-.admin-row-details dd {margin:0;color:var(--color-black);font-size:var(--t-subjudul);line-height:1.4;overflow-wrap:anywhere}
+.admin-row-details dd {margin:0;color:var(--color-black);font-size:.7rem;line-height:1.4;overflow-wrap:anywhere}
 .admin-row-details a {color:var(--color-brand-3);font-weight:600}
 /* Daftar di dalam panel — riwayat jabatan, peran yang dipegang — memakai garis pemisah seperti
    baris daftar di halaman ini, bukan kartu putih bersudut membulat. */
 .admin-row-list__item {
-  padding:.5rem .1rem;border-bottom:1px solid var(--color-grey-2);font-size:var(--t-subjudul);
+  padding:.5rem .1rem;border-bottom:1px solid var(--color-grey-2);font-size:.7rem;
 }
 .admin-row-list__item:first-child {border-top:1px solid var(--color-grey-2)}
 
@@ -1744,7 +1721,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 
 .survey-shell main .admin-row-panel-actions .app-btn {
-  min-height:1.85rem;padding:.35rem .75rem;font-size:var(--t-isi);
+  min-height:1.85rem;padding:.35rem .75rem;font-size:.62rem;
 }
 
 /* Panah accordion menempati satu-satunya kontrol pada kolom Aksi. */
@@ -1807,7 +1784,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 /* Baris kepala: memakai kerangka baris yang sama supaya kolomnya pasti sejajar, tapi dilucuti
    perilaku barisnya — tidak bisa diklik, tidak ada isian latar saat disorot, tidak ada garis tebal
    di atas. Yang tersisa cuma label kecil berhuruf kapital di atas garis pembatas tabel. */
-.survey-shell .s-courses-list .sb-course--head {font-size:var(--t-subjudul);font-weight:600;cursor:default}
+.survey-shell .s-courses-list .sb-course--head {font-size:.6875rem;font-weight:600;cursor:default}
 .survey-shell .s-courses-list .sb-course--head .sb__link {padding-top:0;padding-bottom:.6rem}
 .survey-shell .s-courses-list .sb-course--head .sb__link:before {border-top-width:0}
 .survey-shell .s-courses-list .sb-course--head span {
@@ -1950,21 +1927,21 @@ input[type="range"]:disabled::-moz-range-thumb {
    jarak itu hanya mengenai saudara sesudahnya — tanpa ini kalimatnya menempel 4px di atas garis
    bagian berikutnya. */
 .category-tabs__hint {
-  margin:.18rem 0 0;max-width:48rem;color:var(--color-text);font-size:var(--t-subjudul);line-height:1.45;
+  margin:.18rem 0 0;max-width:48rem;color:var(--color-text);font-size:.66rem;line-height:1.45;
 }
 .category-tabs__guide {
   margin:0 0 1.1rem;padding:.65rem .8rem;border-left:3px solid var(--color-brand-3);
   background:var(--color-beige-dark);
 }
 .category-tabs__step {
-  margin:0;color:var(--color-brand-3);font-size:var(--t-label);font-weight:600;
+  margin:0;color:var(--color-brand-3);font-size:.48rem;font-weight:600;
   letter-spacing:.07em;line-height:1.25;text-transform:uppercase;
 }
 .category-tabs__guide h2 {
   margin:.16rem 0 0;color:var(--color-black);font:600 .78rem/1.25 var(--font-family-heading);
 }
 .category-tabs__completion {
-  margin:.3rem 0 0;color:var(--color-text);font-size:var(--t-kecil);line-height:1.4;
+  margin:.3rem 0 0;color:var(--color-text);font-size:.56rem;line-height:1.4;
 }
 .category-tabs__completion strong {color:var(--color-black);font-weight:600}
 .category-tabs__strip {scrollbar-width:none}
@@ -1973,7 +1950,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 /* Pembagian tugas dijelaskan sebagai tiga tindakan yang berurutan. Bentuknya tetap berupa baris
    dan garis seperti daftar lain, sehingga petunjuk tidak berubah menjadi kartu tambahan. */
 .assignment-section__intro {
-  max-width:48rem;margin:-.25rem 0 .7rem;color:var(--color-text);font-size:var(--t-isi);line-height:1.45;
+  max-width:48rem;margin:-.25rem 0 .7rem;color:var(--color-text);font-size:.64rem;line-height:1.45;
 }
 .assignment-process {
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:0 0 .8rem;padding:0;
@@ -1987,15 +1964,15 @@ input[type="range"]:disabled::-moz-range-thumb {
 .assignment-process li:last-child {border-right:0}
 .assignment-process li > span {
   display:flex;align-items:center;justify-content:center;width:1.25rem;height:1.25rem;
-  border-radius:50%;background:var(--color-brand-2);font-size:var(--t-kecil);font-weight:600;
+  border-radius:50%;background:var(--color-brand-2);font-size:.55rem;font-weight:600;
 }
-.assignment-process strong {display:block;font-size:var(--t-isi);line-height:1.3}
+.assignment-process strong {display:block;font-size:.62rem;line-height:1.3}
 .assignment-process small {
-  display:block;margin-top:.08rem;color:var(--color-text);font-size:var(--t-label);line-height:1.35;
+  display:block;margin-top:.08rem;color:var(--color-text);font-size:.52rem;line-height:1.35;
 }
 .assignment-list__empty {
   margin:0;padding:.7rem 0;border-top:1px solid var(--color-grey-2);
-  color:var(--color-text);font-size:var(--t-isi);line-height:1.45;
+  color:var(--color-text);font-size:.62rem;line-height:1.45;
 }
 .assignment-list__empty strong {color:var(--color-black);font-weight:600}
 .manual-assignment-form {
@@ -2005,30 +1982,30 @@ input[type="range"]:disabled::-moz-range-thumb {
 /* `align-self:center` dari aturan .app-btn umum membuat tombol naik sepuluh piksel terhadap isian
    di sampingnya, karena isian punya label di atasnya sedangkan tombol tidak. */
 .survey-shell main .manual-assignment-form .app-btn {
-  min-height:2.2rem;padding:.38rem .75rem;font-size:var(--t-isi);align-self:end;
+  min-height:2.2rem;padding:.38rem .75rem;font-size:.62rem;align-self:end;
 }
-.manual-assignment-form__error {grid-column:1/-1;margin:0;font-size:var(--t-kecil);line-height:1.4}
+.manual-assignment-form__error {grid-column:1/-1;margin:0;font-size:.58rem;line-height:1.4}
 
 @media only screen and (max-width:640px) {
   .category-tabs__strip {margin-bottom:.75rem}
   .survey-shell main .category-tabs__tab {padding:.5rem .6rem}
-  .category-tabs__name {font-size:var(--t-label)}
+  .category-tabs__name {font-size:.52rem}
   .category-tabs__guide {margin-bottom:.8rem;padding:.55rem .6rem}
-  .category-tabs__guide h2 {font-size:var(--t-subjudul)}
-  .category-tabs__hint {font-size:var(--t-kecil)}
-  .category-tabs__completion {font-size:var(--t-label)}
+  .category-tabs__guide h2 {font-size:.7rem}
+  .category-tabs__hint {font-size:.58rem}
+  .category-tabs__completion {font-size:.52rem}
   /* Batas 16px global mencegah zoom pada form publik. Editor kategori adalah panel kerja ringkas;
      ukurannya mengikuti teks admin di atasnya seperti form di stepper Periode. */
   .survey-shell main .category-tabs :is(input,select,textarea).form__control {
-    min-height:1.8rem;padding:.34rem .48rem;font-size:var(--t-isi)!important;
+    min-height:1.8rem;padding:.34rem .48rem;font-size:.6rem!important;
   }
-  .assignment-section__intro {margin-top:-.15rem;font-size:var(--t-kecil)}
+  .assignment-section__intro {margin-top:-.15rem;font-size:.58rem}
   .assignment-process {grid-template-columns:1fr}
   .assignment-process li {border-right:0;border-bottom:1px solid var(--color-grey-2)}
   .assignment-process li:last-child {border-bottom:0}
-  .assignment-process strong {font-size:var(--t-kecil)}
-  .assignment-process small {font-size:var(--t-label)}
-  .assignment-list__empty {font-size:var(--t-kecil)}
+  .assignment-process strong {font-size:.58rem}
+  .assignment-process small {font-size:.5rem}
+  .assignment-list__empty {font-size:.58rem}
   .manual-assignment-form {grid-template-columns:1fr;gap:.45rem}
   .survey-shell main .manual-assignment-form .app-btn {width:100%}
 }
@@ -2052,7 +2029,7 @@ input[type="range"]:disabled::-moz-range-thumb {
   padding:.7em 1em;
   border-bottom:2px solid var(--color-black);
   color:var(--color-text);
-  font-size:var(--t-subjudul);
+  font-size:.6875rem;
   font-weight:600;
   letter-spacing:.06em;
   text-transform:uppercase;
@@ -2063,10 +2040,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 /* Aksi tersier di dalam sel tabel tetap memakai warna tautan tema. Pada daftar CRUD, beberapa
    aksi per baris dikumpulkan oleh RowActionMenu supaya kolom terakhir tetap ringkas. */
 .survey-shell main td button:not(.btn-plain),
-/* Tautan di dalam sel tabel: seukuran isinya dan boleh membungkus. Sebelumnya dikunci nowrap dan
-   berukuran sendiri, sehingga nama panjang (mis. judul kategori) menerobos kolom di sebelahnya di
-   layar sempit dan tampil lebih besar daripada teks tabelnya. */
-.survey-shell main td a {color:var(--color-brand-3);font-size:inherit;white-space:normal;overflow-wrap:anywhere}
+.survey-shell main td a {color:var(--color-brand-3);font-size:.75rem;white-space:nowrap}
 .survey-shell main td > div[class*="flex"] {flex-wrap:nowrap;justify-content:flex-end;gap:.9rem}
 .survey-shell main thead th:last-child,
 .survey-shell main tbody td:last-child {text-align:right}
@@ -2090,7 +2064,7 @@ input[type="range"]:disabled::-moz-range-thumb {
      lebih besar daripada teks tabel di bawahnya. Ukurannya disebut langsung, keluarga hurufnya
      tetap diwarisi. */
   font-family:inherit;
-  font-size:var(--t-isi);
+  font-size:.65rem;
   font-weight:400;
   line-height:1.35;
 }
@@ -2311,7 +2285,7 @@ input[type="range"]:disabled::-moz-range-thumb {
      spesifik daripada batas 16px mobile global yang cocok untuk formulir utama, tetapi terlalu
      besar untuk editor ringkas di dalam satu baris daftar admin. */
   .survey-shell main .admin-area .sb__panel
-    :is(input,select,textarea).form__control {font-size:var(--t-isi)!important}
+    :is(input,select,textarea).form__control {font-size:.62rem!important}
   /* Baris yang membuka halaman detail memakai panah tema pada petak kanan yang sama. */
   .survey-shell main .admin-area .s-courses-list
     .sb-course:not(.sb-course--static):not(.sb-course--head) .sb__arrow {
@@ -2320,39 +2294,39 @@ input[type="range"]:disabled::-moz-range-thumb {
   }
   /* Seukuran judul baris di daftar lain, bukan setingkat lebih besar. */
   .survey-shell main .admin-area .s-courses-list .sb-course .sb__title {
-    font-size:var(--t-subjudul);line-height:1.25;
+    font-size:.68rem;line-height:1.25;
   }
   .survey-shell main .admin-area .s-courses-list .sb-course .sb__topic,
   .survey-shell main .admin-area .s-courses-list .sb-course .sb__dates,
   .survey-shell main .admin-area .s-courses-list .sb-course .sb__duration,
   .survey-shell main .admin-area .s-courses-list .sb-course .sb__location,
   .survey-shell main .admin-area .s-courses-list .sb-course .sb__price {
-    font-size:var(--t-kecil);line-height:1.3;
+    font-size:.56rem;line-height:1.3;
   }
   .survey-shell main .admin-area .s-courses-list .sb-course .sb__subtitle {
-    margin-top:.1rem;font-size:var(--t-kecil);line-height:1.25;
+    margin-top:.1rem;font-size:.55rem;line-height:1.25;
   }
   .survey-shell main .admin-area .s-courses-list .sb-course .sb__actions {
     flex-wrap:wrap;gap:.35rem .65rem;margin-top:.12rem;
   }
   .survey-shell main .admin-area .s-courses-list .sb-course .sb__actions a,
   .survey-shell main .admin-area .s-courses-list .sb-course .sb__actions button {
-    font-size:var(--t-isi);line-height:1.25;
+    font-size:.6rem;line-height:1.25;
   }
-  .survey-shell main .admin-area .status-pill {padding:.25em .65em;font-size:var(--t-kecil)}
+  .survey-shell main .admin-area .status-pill {padding:.25em .65em;font-size:.56rem}
   .admin-area .sb__panel {padding-bottom:.65rem}
   .admin-area .sb__panel > * {padding:.7rem}
   .admin-row-panel {gap:.75rem}
   .admin-row-details {grid-template-columns:1fr;gap:.55rem}
-  .admin-row-details dt {font-size:var(--t-label)}
-  .admin-row-details dd {font-size:var(--t-isi)}
+  .admin-row-details dt {font-size:.5rem}
+  .admin-row-details dd {font-size:.62rem}
   .admin-row-panel-actions {gap:.35rem}
 
   .admin-area div.overflow-x-auto:has(> table) {
     overflow:visible;background:transparent;border:0;border-radius:0;
   }
   .admin-area table {
-    display:block;min-width:0!important;font-size:var(--t-isi);line-height:1.3;
+    display:block;min-width:0!important;font-size:.64rem;line-height:1.3;
   }
   .admin-area table thead {
     position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
@@ -2375,20 +2349,20 @@ input[type="range"]:disabled::-moz-range-thumb {
     overflow-wrap:anywhere;
   }
   .admin-area table tbody td[data-label]::before {
-    content:attr(data-label);color:var(--color-text);font-size:var(--t-label);font-weight:600;
+    content:attr(data-label);color:var(--color-text);font-size:.52rem;font-weight:600;
     letter-spacing:.045em;line-height:1.35;text-transform:uppercase;
   }
   .survey-shell .admin-area table tbody td:not([data-label]) {display:block;text-align:center!important}
   .survey-shell .admin-area table td button:not(.btn-plain),
-  .survey-shell .admin-area table td a {font-size:var(--t-isi)}
+  .survey-shell .admin-area table td a {font-size:.6rem}
   .survey-shell .admin-area table td > div[class*="flex"] {
     flex-wrap:wrap;justify-content:flex-start;gap:.5rem;
   }
   .admin-area table tbody td [class*="text-[11px]"],
-  .admin-area table tbody td [class*="text-[12px]"] {font-size:var(--t-kecil)}
-  .admin-area ul.divide-y > li {padding:.55rem!important;font-size:var(--t-isi);line-height:1.3}
+  .admin-area table tbody td [class*="text-[12px]"] {font-size:.56rem}
+  .admin-area ul.divide-y > li {padding:.55rem!important;font-size:.64rem;line-height:1.3}
   .admin-area form.grid > * {min-width:0;max-width:100%}
-  .admin-area input[type="file"] {width:100%;min-width:0;font-size:var(--t-isi)}
+  .admin-area input[type="file"] {width:100%;min-width:0;font-size:.64rem}
 }
 
 /* ── Bilah samping ──────────────────────────────────────────────────────────
@@ -2972,7 +2946,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 .pilihan-cari__kosong {padding:.55rem .6rem;color:var(--color-text);font-size:.85em}
 /* Di layar lebar teks daftar mengikuti skala kolom isian ruang survei, bukan ukuran situs publik. */
 @media only screen and (min-width: 641px) {
-  .pilihan-cari__daftar {font-size:var(--t-subjudul)}
+  .pilihan-cari__daftar {font-size:.7rem}
   .pilihan-cari__opsi {padding:.38rem .55rem}
   .pilihan-cari__opsi--centang {padding-left:1.65rem}
 }
@@ -2984,11 +2958,11 @@ input[type="range"]:disabled::-moz-range-thumb {
 .pilihan-cari__lencana {
   display:inline-flex;align-items:center;gap:.15rem;max-width:100%;
   padding:.18rem .2rem .18rem .6rem;border:1px solid var(--color-grey-2);border-radius:999em;
-  background:var(--color-white);font-size:var(--t-isi);font-weight:600;line-height:1.25;
+  background:var(--color-white);font-size:.6rem;font-weight:600;line-height:1.25;
 }
 .pilihan-cari__lepas {
   display:inline-grid;place-items:center;width:1.05rem;height:1.05rem;min-height:0;padding:0;
-  border:0;border-radius:50%;background:transparent;color:var(--color-text);font-size:var(--t-judul);line-height:1;
+  border:0;border-radius:50%;background:transparent;color:var(--color-text);font-size:.8rem;line-height:1;
 }
 .pilihan-cari__lepas:hover {background:var(--color-beige-dark);color:var(--color-black)}
 .survey-shell main .pilihan-cari__lencana--lagi {
@@ -2996,7 +2970,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 .survey-shell main .pilihan-cari__lencana--lagi:hover {background:var(--color-beige-dark)}
 @media only screen and (max-width: 640px) {
-  .pilihan-cari__lencana {font-size:var(--t-subjudul)}
+  .pilihan-cari__lencana {font-size:.72rem}
   .pilihan-cari__lepas {width:1.4rem;height:1.4rem}
 }
 
@@ -3057,21 +3031,21 @@ input[type="range"]:disabled::-moz-range-thumb {
    sudah dikirim, biru = sedang diisi, abu = belum dibuka. */
 .pantau-periode {display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:.7rem 1.5rem}
 .pantau-periode__pilih {display:flex;flex-direction:column;gap:.3rem;flex:1 1 18rem;max-width:26rem}
-.pantau-periode__keadaan {display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin:0;font-size:var(--t-isi)}
+.pantau-periode__keadaan {display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin:0;font-size:.64rem}
 .pantau-batang {display:flex;height:.75rem;overflow:hidden;border-radius:999em;background:var(--color-grey-2)}
 .pantau-batang--tipis {flex:1 1 auto;height:.4rem}
 .pantau-batang__isi {display:block;height:100%}
 .pantau-warna--terkirim {background:var(--color-brand-4)!important}
 .pantau-warna--draf {background:var(--color-brand-5)!important}
-.pantau-legenda {display:flex;flex-wrap:wrap;gap:.35rem 1.2rem;margin:.55rem 0 0;padding:0;list-style:none;font-size:var(--t-isi)}
+.pantau-legenda {display:flex;flex-wrap:wrap;gap:.35rem 1.2rem;margin:.55rem 0 0;padding:0;list-style:none;font-size:.62rem}
 .pantau-legenda li {display:flex;align-items:center;gap:.35rem}
 .pantau-legenda i {display:inline-block;width:.55rem;height:.55rem;border-radius:50%;background:var(--color-grey-2)}
 .pantau-legenda b {font-weight:600;font-variant-numeric:tabular-nums}
 .pantau-kategori {margin-top:1.4rem}
 .pantau-kategori__nama {color:var(--color-black);font-weight:600;text-decoration:none}
 .pantau-kategori__nama:hover {text-decoration:underline}
-.pantau-tabel {width:100%;font-size:var(--t-isi)}
-.pantau-tabel td small {display:block;margin-top:.1rem;color:var(--muted);font-size:var(--t-kecil);font-weight:400}
+.pantau-tabel {width:100%;font-size:.64rem}
+.pantau-tabel td small {display:block;margin-top:.1rem;color:var(--muted);font-size:.56rem;font-weight:400}
 .pantau-tabel__angka {text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .pantau-tabel__progres {width:38%}
 .pantau-tabel__aksi {text-align:right;white-space:nowrap}
@@ -3081,13 +3055,13 @@ input[type="range"]:disabled::-moz-range-thumb {
 .pantau-baris {display:block}
 .pantau-merah {color:var(--color-brand-1);font-weight:600}
 .pantau-hijau {color:var(--muted)}
-.pantau-petunjuk {margin:0 0 .8rem;max-width:50rem;color:var(--muted);font-size:var(--t-isi);line-height:1.55}
+.pantau-petunjuk {margin:0 0 .8rem;max-width:50rem;color:var(--muted);font-size:.62rem;line-height:1.55}
 .survey-shell main .pantau-cari {max-width:20rem;margin-bottom:.7rem}
 .pantau-lagi {margin-top:.6rem}
-.pantau-tautan {color:var(--color-brand-3);font-size:var(--t-isi);font-weight:600;text-decoration:none;white-space:nowrap}
+.pantau-tautan {color:var(--color-brand-3);font-size:.62rem;font-weight:600;text-decoration:none;white-space:nowrap}
 .pantau-tautan:hover {text-decoration:underline}
-.pantau-laporan {display:grid;gap:.6rem;margin:0 0 .8rem;padding:0;list-style:none;font-size:var(--t-isi)}
-.pantau-laporan small {display:block;margin-top:.15rem;color:var(--muted);font-size:var(--t-kecil)}
+.pantau-laporan {display:grid;gap:.6rem;margin:0 0 .8rem;padding:0;list-style:none;font-size:.64rem}
+.pantau-laporan small {display:block;margin-top:.15rem;color:var(--muted);font-size:.58rem}
 .pantau-seluler {display:none}
 
 
@@ -3100,11 +3074,11 @@ input[type="range"]:disabled::-moz-range-thumb {
 .admin-row-panel-actions:has(.tombol-hapus__galat) {align-items:flex-start}
 .admin-row-panel-actions .tombol-hapus {display:contents}
 .admin-row-panel-actions .tombol-hapus__galat {flex:1 1 100%;order:10}
-.tombol-hapus__galat {margin:0;max-width:34rem;color:var(--color-brand-1);font-size:var(--t-isi);line-height:1.45}
+.tombol-hapus__galat {margin:0;max-width:34rem;color:var(--color-brand-1);font-size:.6rem;line-height:1.45}
 .daftar-jenis {display:grid;margin:1rem 0 0;padding:0;list-style:none;border-top:2px solid var(--color-black)}
 .daftar-jenis__baris {display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.4rem 1rem;padding:.55rem 0;border-bottom:1px solid var(--color-grey-2)}
-.daftar-jenis__nama {display:flex;flex-direction:column;gap:.05rem;font-size:var(--t-subjudul)}
-.daftar-jenis__nama small {color:var(--muted);font-size:var(--t-kecil)}
+.daftar-jenis__nama {display:flex;flex-direction:column;gap:.05rem;font-size:.68rem}
+.daftar-jenis__nama small {color:var(--muted);font-size:.56rem}
 .daftar-jenis__aksi {display:flex;flex-wrap:wrap;align-items:flex-start;gap:.3rem}
 .daftar-jenis__ubah {display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;flex:1 1 100%}
 .survey-shell main .daftar-jenis__ubah .form__control {max-width:18rem}
@@ -3114,7 +3088,7 @@ input[type="range"]:disabled::-moz-range-thumb {
    memberi setiap tombol latar biru, jadi selektornya dibuat lebih spesifik. */
 .survey-shell main .daftar-jenis .daftar-jenis__tombol {
   min-height:0;padding:.25rem .45rem;border:0;border-radius:.4rem;background:transparent;box-shadow:none;
-  color:var(--color-brand-3);font-size:var(--t-isi);font-weight:600;text-decoration:none;cursor:pointer;
+  color:var(--color-brand-3);font-size:.6rem;font-weight:600;text-decoration:none;cursor:pointer;
 }
 .survey-shell main .daftar-jenis .daftar-jenis__tombol:hover {background:var(--color-beige-dark)}
 .survey-shell main .daftar-jenis .daftar-jenis__tombol--hapus {color:var(--color-brand-1)}
@@ -3157,37 +3131,37 @@ input[type="range"]:disabled::-moz-range-thumb {
    skala huruf yang sama dengan kolom isian lain (label kapital kecil, keterangan .6rem), bukan
    ukuran teks halaman yang tampil jauh lebih besar di dalam panel langkah periode. */
 .aturan-centang {display:flex;flex-wrap:wrap;gap:.35rem 1rem;padding:.25rem 0}
-.aturan-centang label {display:inline-flex;align-items:center;gap:.4rem;color:var(--color-black);font-size:var(--t-subjudul);font-weight:400;text-transform:none;letter-spacing:0;cursor:pointer}
+.aturan-centang label {display:inline-flex;align-items:center;gap:.4rem;color:var(--color-black);font-size:.66rem;font-weight:400;text-transform:none;letter-spacing:0;cursor:pointer}
 .aturan-centang input {width:.85rem;height:.85rem;margin:0;accent-color:var(--color-brand-3)}
-.aturan-terkunci {margin:0;color:var(--color-text);font-size:var(--t-kecil);line-height:1.4}
-.aturan-galat {margin:0;color:var(--color-brand-1);font-size:var(--t-isi);line-height:1.4}
+.aturan-terkunci {margin:0;color:var(--color-text);font-size:.58rem;line-height:1.4}
+.aturan-galat {margin:0;color:var(--color-brand-1);font-size:.6rem;line-height:1.4}
 @media only screen and (max-width: 640px) {
-  .aturan-centang label {font-size:var(--t-judul)}
+  .aturan-centang label {font-size:.76rem}
 }
 
 /* Daftar tugas yang sudah diterbitkan (kategori → Pembagian tugas). Ukuran hurufnya disamakan dengan
    tabel pratinjau pembagian di atasnya; aksi Batalkan berupa tombol teks sebaris, dan formulir
    alasannya terbuka di sel yang sama. */
-.tugas-tabel {width:100%;min-width:44rem;font-size:var(--t-isi);text-align:left}
+.tugas-tabel {width:100%;min-width:44rem;font-size:.64rem;text-align:left}
 .survey-shell main .tugas-tabel td {vertical-align:top}
-.tugas-tabel td small {display:block;margin-top:.12rem;color:var(--muted);font-size:var(--t-kecil);font-family:var(--font-family-text)}
+.tugas-tabel td small {display:block;margin-top:.12rem;color:var(--muted);font-size:.56rem;font-family:var(--font-family-text)}
 .tugas-tabel__objek {color:var(--color-brand-3);font-weight:600;text-decoration:none}
 .tugas-tabel__objek:hover {text-decoration:underline}
 .tugas-tabel__aksi {width:1%;text-align:right;white-space:nowrap}
 .tugas-tabel__kosong {color:var(--muted)}
-.survey-shell main .tugas-tabel .status-pill {padding:.25em .7em;font-size:var(--t-kecil)}
-.survey-shell main .tugas-tabel .app-btn {min-height:1.7rem;padding:.3rem .65rem;font-size:var(--t-isi)}
+.survey-shell main .tugas-tabel .status-pill {padding:.25em .7em;font-size:.56rem}
+.survey-shell main .tugas-tabel .app-btn {min-height:1.7rem;padding:.3rem .65rem;font-size:.6rem}
 .tugas-batal {display:grid;gap:.35rem;min-width:13rem;margin:0;text-align:left;white-space:normal}
-.survey-shell main .tugas-batal .form__control {min-height:1.8rem;font-size:var(--t-isi)}
+.survey-shell main .tugas-batal .form__control {min-height:1.8rem;font-size:.62rem}
 .tugas-batal__tombol {display:flex;flex-wrap:wrap;gap:.3rem}
 
-.survey-shell main .tugas-tabel thead th {padding:.5rem .5rem;font-size:var(--t-kecil);line-height:1.25}
-.survey-shell main .tugas-tabel tbody td {padding:.6rem .5rem;font-size:var(--t-isi);line-height:1.4}
+.survey-shell main .tugas-tabel thead th {padding:.5rem .5rem;font-size:.54rem;line-height:1.25}
+.survey-shell main .tugas-tabel tbody td {padding:.6rem .5rem;font-size:.62rem;line-height:1.4}
 .survey-shell main .tugas-tabel .app-btn--danger {border-color:var(--color-brand-9);color:var(--color-brand-1)}
 .survey-shell main .tugas-tabel .app-btn--polos.app-btn--danger {border-color:transparent;text-decoration:none}
 
 .survey-shell main .tugas-tabel td a.tugas-tabel__objek {font-size:inherit;line-height:inherit}
-.survey-shell main .tugas-tabel td button {font-size:var(--t-isi)}
+.survey-shell main .tugas-tabel td button {font-size:.6rem}
 
 
 /* Ponsel: tabel data admin tanpa geser mendatar dan tanpa teks terpotong.
@@ -3198,13 +3172,13 @@ input[type="range"]:disabled::-moz-range-thumb {
    tabel ini labelnya membuat tiap data setinggi layar. */
 @media only screen and (max-width: 640px) {
   .survey-shell .admin-area :is(.parameter-table,.pantau-tabel,.tugas-tabel,.assignment-planner__table) {
-    display:table;width:100%;min-width:0!important;font-size:var(--t-subjudul);
+    display:table;width:100%;min-width:0!important;font-size:.7rem;
   }
   .survey-shell .admin-area :is(.parameter-table,.pantau-tabel,.tugas-tabel,.assignment-planner__table) thead {
     position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;
   }
   .survey-shell .admin-area :is(.parameter-table,.pantau-tabel,.tugas-tabel,.assignment-planner__table) thead th {
-    padding:.4rem .3rem;font-size:var(--t-label);line-height:1.2;white-space:normal;overflow-wrap:anywhere;
+    padding:.4rem .3rem;font-size:.5rem;line-height:1.2;white-space:normal;overflow-wrap:anywhere;
   }
   .survey-shell .admin-area :is(.parameter-table,.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody {display:table-row-group}
   .survey-shell .admin-area :is(.parameter-table,.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody tr {
@@ -3213,7 +3187,7 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell .admin-area :is(.parameter-table,.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody td {
     display:table-cell;padding:.45rem .3rem!important;
     border:0!important;border-bottom:1px solid var(--color-grey-2)!important;
-    font-size:var(--t-subjudul);line-height:1.35;vertical-align:top;white-space:normal;overflow-wrap:anywhere;
+    font-size:.68rem;line-height:1.35;vertical-align:top;white-space:normal;overflow-wrap:anywhere;
   }
   .admin-area :is(.parameter-table,.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody td[data-label]::before {content:none}
   .parameter-table th:nth-child(1) {width:30%}
@@ -3232,17 +3206,17 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell .admin-area :is(.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody tr:last-child {border-bottom:0!important}
   .survey-shell .admin-area :is(.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody td {
     display:block;grid-column:1;padding:0!important;border:0!important;text-align:left!important;
-    color:var(--color-text);font-size:var(--t-subjudul);
+    color:var(--color-text);font-size:.66rem;
   }
   .survey-shell .admin-area :is(.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody td {min-width:0}
   .survey-shell .admin-area :is(.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody td:first-child {
-    color:var(--color-black);font-size:var(--t-subjudul);font-weight:600;line-height:1.3;
+    color:var(--color-black);font-size:.74rem;font-weight:600;line-height:1.3;
   }
   /* Nilai pertama sudah jelas dari tempatnya; namanya tidak perlu diulang di depannya. */
   .survey-shell .admin-area :is(.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody td:first-child::before {content:none!important}
   /* NIP/NIM panjang tanpa spasi tidak boleh memaksa lebar tabel melebihi layar. */
   .survey-shell .admin-area :is(.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody td small {word-break:break-all}
-  .survey-shell .admin-area :is(.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody td small {font-size:var(--t-isi)}
+  .survey-shell .admin-area :is(.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody td small {font-size:.6rem}
   /* Nilai ringkas (angka, status, aksi) naik ke kanan baris pertama. */
   .survey-shell .admin-area :is(.pantau-tabel,.tugas-tabel) tbody td:is(.pantau-tabel__angka,.tugas-tabel__aksi,[data-label="Status"]) {
     grid-column:2;grid-row:1;justify-self:end;text-align:right!important;
@@ -3254,7 +3228,7 @@ input[type="range"]:disabled::-moz-range-thumb {
   /* Nilai yang tanpa label tidak jelas artinya tetap membawa namanya, sebaris di depan nilainya. */
   .survey-shell .admin-area :is(.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody
     td:is([data-label="Kelompok"],[data-label="Penilai"],[data-label="Asal"],[data-label="Kategori"],[data-label="Unit"],[data-label="Kelompok penilai"],[data-label="Calon sah"],[data-label="Sudah ada"],[data-label="Ditambahkan"],[data-label="Kekurangan"],[data-label="Sudah dikirim"],[data-label="Belum cukup dinilai"],[data-label="Sudah dinilai / minimum"],[data-label="Yang perlu dilakukan"],[data-label="Belum dikirim"])::before {
-    content:attr(data-label) ": ";color:var(--muted);font-size:var(--t-isi);font-weight:600;
+    content:attr(data-label) ": ";color:var(--muted);font-size:.6rem;font-weight:600;
   }
   /* Tabel pratinjau pembagian: empat angkanya berjajar dua-dua, bukan satu baris per angka. */
   .survey-shell .admin-area .assignment-planner__table tbody tr {grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -3269,17 +3243,8 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell .admin-area .parameter-table tbody tr:is(.parameter-row--editing,.parameter-add-row) td {display:block;padding:0!important;border:0!important}
   .survey-shell .admin-area .parameter-table tbody tr:is(.parameter-row--editing,.parameter-add-row) td[data-label]::before {
     content:attr(data-label);display:block;margin-bottom:.15rem;
-    color:var(--color-text);font-size:var(--t-label);font-weight:600;letter-spacing:.045em;text-transform:uppercase;
+    color:var(--color-text);font-size:.5rem;font-weight:600;letter-spacing:.045em;text-transform:uppercase;
   }
   .survey-shell .admin-area .tugas-tabel tbody tr:has(.tugas-batal) {grid-template-columns:minmax(0,1fr)}
   .survey-shell .admin-area .tugas-tabel tbody tr:has(.tugas-batal) td {grid-column:1;grid-row:auto;justify-self:stretch;text-align:left!important}
-}
-
-/* Kolom terakhir daftar admin yang berisi lencana status ("Diterapkan", "Aktif") diberi lebar
-   sesuai isinya. Sebagai jatah sama rata seperti kolom teks, lencananya — yang tidak boleh
-   membungkus — lebih lebar daripada petaknya dan terpotong oleh baris. */
-@media only screen and (min-width: 988px) {
-  .survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__price:not(.sb__actions) {
-    flex:0 0 auto;max-width:12rem;text-align:right;
-  }
 }
