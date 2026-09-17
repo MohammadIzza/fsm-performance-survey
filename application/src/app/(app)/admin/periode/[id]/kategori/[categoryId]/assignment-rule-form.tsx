@@ -1,5 +1,8 @@
 "use client";
 
+import { Info } from "@/components/theme/info";
+import { KET } from "@/lib/keterangan";
+
 import { useAksi } from "@/components/theme/notifikasi";
 import { updateAssignmentRuleAction } from "@/lib/actions/admin-assignments";
 import type { getCategoryDetail } from "@/lib/services/categories";
@@ -33,7 +36,7 @@ export function AssignmentRuleForm({
       <input type="hidden" name="categoryId" value={categoryId} />
 
       <label className="admin-tools__field">
-        <span>Lingkup calon</span>
+        <span>Lingkup calon<Info>{KET.lingkup}</Info></span>
         <select name="scope" defaultValue={rule.scope} disabled={!editable} className={fieldClass}>
           <option value="UNIT_OBJEK">Unit objek saja</option>
           <option value="UNIT_DAN_SUBUNIT">Unit objek dan subunitnya</option>
@@ -43,6 +46,7 @@ export function AssignmentRuleForm({
       <label className="admin-tools__field">
         <span>
           Filter jenis pengguna (kosongkan untuk semua jenis)
+          <Info>{KET.filterJenis}</Info>
         </span>
         <div className="flex flex-wrap gap-3">
           {userTypes.map((t) => (

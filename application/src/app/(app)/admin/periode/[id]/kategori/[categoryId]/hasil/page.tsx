@@ -1,3 +1,5 @@
+import { Info } from "@/components/theme/info";
+import { KET } from "@/lib/keterangan";
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import Link from "next/link";
 import { PageIntro, SummaryCard } from "@/components/theme/summary";
@@ -87,7 +89,7 @@ async function HasilPage({
       <PageIntro title={`Hasil — ${category.name}`} intro={category.period.name}>
         <SummaryCard
           tone={latestRun ? "tosca" : "kuning"}
-          label="Perhitungan"
+          label={<>Perhitungan<Info>{KET.sementara}</Info></>}
           value={latestRun ? dateFmt.format(latestRun.createdAt) : "Belum pernah"}
           note={latestRun ? (category.period.status === "FINAL" ? "Final" : "Sementara") : "belum dijalankan"}
         />

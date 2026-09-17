@@ -1,5 +1,8 @@
 "use client";
 
+import { Info } from "@/components/theme/info";
+import { KET } from "@/lib/keterangan";
+
 import { useAksi } from "@/components/theme/notifikasi";
 import {
   previewAssignmentPlanAction,
@@ -68,10 +71,10 @@ export function AssignmentPlanner({
                 <tr>
                   <th className="px-3 py-2 font-medium">Objek</th>
                   <th className="px-3 py-2 font-medium">Kelompok</th>
-                  <th className="px-3 py-2 font-medium">Calon sah</th>
+                  <th className="px-3 py-2 font-medium">Calon sah<Info>{KET.calonSah}</Info></th>
                   <th className="px-3 py-2 font-medium">Sudah ada</th>
                   <th className="px-3 py-2 font-medium">Akan ditambah</th>
-                  <th className="px-3 py-2 font-medium">Kekurangan</th>
+                  <th className="px-3 py-2 font-medium">Kekurangan<Info>{KET.kekurangan}</Info></th>
                 </tr>
               </thead>
               <tbody>

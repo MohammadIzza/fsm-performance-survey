@@ -1,5 +1,8 @@
 "use client";
 
+import { Info } from "@/components/theme/info";
+import { KET } from "@/lib/keterangan";
+
 import { useAksi } from "@/components/theme/notifikasi";
 import { useState } from "react";
 import { createCategoryAction } from "@/lib/actions/admin-categories";
@@ -27,7 +30,7 @@ export function CategoryCreateForm({
         <input name="name" placeholder="mis. Dosen Favorit se-FSM" required className={fieldClass} />
       </label>
       <label className="admin-tools__field">
-        <span>Yang akan dinilai</span>
+        <span>Yang akan dinilai<Info>{KET.jenisObjek}</Info></span>
         <select
           name="objectTypeId"
           required
@@ -58,6 +61,7 @@ export function CategoryCreateForm({
         <label className="flex items-center gap-2 app-text-sm text-[var(--foreground)]">
           <input type="checkbox" name="excludeContributors" defaultChecked className="h-4 w-4" />
           Kecualikan pembuat karya sebagai penilai
+          <Info>{KET.kecualikanPembuat}</Info>
         </label>
       ) : (
         // Jenis lain tetap menyimpan bawaan yang aman (dikecualikan), tanpa menampilkan pilihannya.

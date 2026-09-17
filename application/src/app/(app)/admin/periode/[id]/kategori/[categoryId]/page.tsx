@@ -1,3 +1,5 @@
+import { Info } from "@/components/theme/info";
+import { KET } from "@/lib/keterangan";
 import { TombolHapus } from "@/components/theme/tombol-hapus";
 import { deleteCategoryAction } from "@/lib/actions/admin-hapus";
 import { InstrumentRevisionForm } from "./instrument-revision-form";
@@ -216,6 +218,7 @@ async function CategoryDetailPage({
                         >
                           <h2 className="app-panel__label">
                             {rule.group === "PIMPINAN" ? "Pimpinan" : "Selain Pimpinan"}
+                            <Info>{KET.kelompok}</Info>
                           </h2>
                           <GroupRuleForm parameters={instrument?.parameters ?? []}
                             rule={rule}
@@ -241,6 +244,7 @@ async function CategoryDetailPage({
                         >
                           <h2 className="app-panel__label">
                             {rule.group === "PIMPINAN" ? "Pimpinan" : "Selain Pimpinan"}
+                            <Info>{KET.kelompok}</Info>
                           </h2>
                           <AssignmentRuleForm
                             rule={rule}

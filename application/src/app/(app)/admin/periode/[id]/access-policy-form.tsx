@@ -1,5 +1,8 @@
 "use client";
 
+import { Info } from "@/components/theme/info";
+import { KET } from "@/lib/keterangan";
+
 import { useAksi } from "@/components/theme/notifikasi";
 import { useState } from "react";
 import { setAccessPolicyAction } from "@/lib/actions/admin-periods";
@@ -42,7 +45,7 @@ export function AccessPolicyForm({
         data-has-time={mode === "WAKTU_TERTENTU" ? "true" : "false"}
       >
         <label className="admin-tools__field access-policy-form__policy">
-          <span>Kebijakan</span>
+          <span>Kebijakan<Info>{KET.kebijakanAkses}</Info></span>
           <select
             name="mode"
             value={mode}

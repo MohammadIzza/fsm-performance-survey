@@ -1,5 +1,8 @@
 "use client";
 
+import { Info } from "@/components/theme/info";
+import { KET } from "@/lib/keterangan";
+
 import { useAksi } from "@/components/theme/notifikasi";
 import { updateGroupRuleAction } from "@/lib/actions/admin-instruments";
 import type { getCategoryDetail } from "@/lib/services/categories";
@@ -32,7 +35,7 @@ export function GroupRuleForm({
       <input type="hidden" name="categoryId" value={categoryId} />
 
       <label className="admin-tools__field">
-        <span>Metode agregasi</span>
+        <span>Metode agregasi<Info>{KET.agregasi}</Info></span>
         <select
           name="aggregation"
           defaultValue={rule.aggregation}
@@ -45,7 +48,7 @@ export function GroupRuleForm({
       </label>
       <div className="grid grid-cols-2 gap-3">
         <label className="admin-tools__field">
-          <span>Target penilai</span>
+          <span>Target penilai<Info>{KET.target}</Info></span>
           <input
             name="target"
             type="number"
@@ -57,7 +60,7 @@ export function GroupRuleForm({
           />
         </label>
         <label className="admin-tools__field">
-          <span>Minimum respons</span>
+          <span>Minimum respons<Info>{KET.minimum}</Info></span>
           <input
             name="minimum"
             type="number"
@@ -69,7 +72,7 @@ export function GroupRuleForm({
           />
         </label>
       </div>
-      <label className="text-sm">Parameter pembeda nilai sama (opsional)
+      <label className="text-sm">Parameter pembeda nilai sama (opsional)<Info>{KET.pembeda}</Info>
         <PilihanCariBanyak
           name="tieBreakParameterIds"
           disabled={!editable}

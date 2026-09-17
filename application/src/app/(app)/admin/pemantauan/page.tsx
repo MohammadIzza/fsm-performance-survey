@@ -1,3 +1,5 @@
+import { Info } from "@/components/theme/info";
+import { KET } from "@/lib/keterangan";
 import Link from "next/link";
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import { getPeriodMonitoring, listMonitorablePeriods } from "@/lib/services/monitoring";
@@ -60,19 +62,19 @@ async function PemantauanPage({ searchParams }: { searchParams: Promise<{ period
       <PageIntro title="Pemantauan" intro="Sejauh mana pengisian, dan apa yang perlu ditindaklanjuti.">
         <SummaryCard
           tone="kuning"
-          label="Sudah dikirim"
+          label={<>Sudah dikirim<Info>{KET.sudahDikirim}</Info></>}
           value={persen(d.persen)}
           note={`${angka.format(d.terkirim)} dari ${angka.format(d.total)} tugas`}
         />
         <SummaryCard
           tone="biru"
-          label="Penilai belum selesai"
+          label={<>Penilai belum selesai<Info>{KET.penilaiBelumSelesai}</Info></>}
           value={angka.format(d.penilaiBelum.length)}
           note={`dari ${angka.format(d.jumlahPenilai)} penilai`}
         />
         <SummaryCard
           tone={d.objekKurang.length > 0 ? "merah" : "tosca"}
-          label="Belum cukup dinilai"
+          label={<>Belum cukup dinilai<Info>{KET.belumCukup}</Info></>}
           value={angka.format(d.objekKurang.length)}
           note="objek belum masuk peringkat"
         />
@@ -108,7 +110,7 @@ async function PemantauanPage({ searchParams }: { searchParams: Promise<{ period
             <i className="pantau-warna--terkirim" /> Sudah dikirim <b>{angka.format(d.terkirim)}</b>
           </li>
           <li>
-            <i className="pantau-warna--draf" /> Sedang diisi <b>{angka.format(sedangDiisi)}</b>
+            <i className="pantau-warna--draf" /> Sedang diisi<Info>{KET.sedangDiisi}</Info> <b>{angka.format(sedangDiisi)}</b>
           </li>
           <li>
             <i /> Belum dibuka <b>{angka.format(d.belumMulai)}</b>
@@ -122,7 +124,7 @@ async function PemantauanPage({ searchParams }: { searchParams: Promise<{ period
                 <tr>
                   <th>Kategori</th>
                   <th className="pantau-tabel__progres">Sudah dikirim</th>
-                  <th className="pantau-tabel__angka">Belum cukup dinilai</th>
+                  <th className="pantau-tabel__angka">Belum cukup dinilai<Info>{KET.belumCukup}</Info></th>
                 </tr>
               </thead>
               <tbody>
@@ -138,7 +140,7 @@ async function PemantauanPage({ searchParams }: { searchParams: Promise<{ period
                           {k.jenis} · {k.objek} objek{k.perhitunganGagal && " · perhitungan terakhir gagal"}
                         </small>
                       </td>
-                      <td data-label="Sudah dikirim" className="pantau-tabel__progres">
+                      <td data-label={<>Sudah dikirim<Info>{KET.sudahDikirim}</Info></>} className="pantau-tabel__progres">
                         <span className="pantau-progres">
                           <span className="pantau-batang pantau-batang--tipis">
                             <span className="pantau-batang__isi pantau-warna--terkirim" style={{ width: `${p}%` }} />
@@ -148,7 +150,7 @@ async function PemantauanPage({ searchParams }: { searchParams: Promise<{ period
                           </span>
                         </span>
                       </td>
-                      <td data-label="Belum cukup dinilai" className="pantau-tabel__angka">
+                      <td data-label={<>Belum cukup dinilai<Info>{KET.belumCukup}</Info></>} className="pantau-tabel__angka">
                         {k.objekKurang > 0 ? (
                           <span className="pantau-merah">
                             {k.objekKurang} objek<span className="pantau-seluler"> belum cukup dinilai</span>

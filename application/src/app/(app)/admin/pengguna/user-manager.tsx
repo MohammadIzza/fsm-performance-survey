@@ -1,5 +1,8 @@
 "use client";
 
+import { Info } from "@/components/theme/info";
+import { KET } from "@/lib/keterangan";
+
 import { useAksi, useAksiLangsung } from "@/components/theme/notifikasi";
 import { TombolHapus } from "@/components/theme/tombol-hapus";
 import { DaftarJenis, type Jenis } from "@/components/theme/daftar-jenis";
@@ -69,7 +72,7 @@ export function UserManager({
         >
         <form action={createFormAction} className="grid gap-3 sm:grid-cols-4">
           <label className="admin-tools__field">
-            <span>ID masuk</span>
+            <span>ID masuk<Info>{KET.idMasuk}</Info></span>
             <input
               name="loginIdentifier"
               placeholder="NIP / NIM / NIK"
@@ -82,7 +85,7 @@ export function UserManager({
             <input name="name" placeholder="Nama lengkap" required className="form__control" />
           </label>
           <label className="admin-tools__field">
-          <span>Jenis pengguna</span>
+          <span>Jenis pengguna<Info>{KET.jenisPengguna}</Info></span>
           <PilihanCari
             name="userTypeId"
             required
@@ -91,7 +94,7 @@ export function UserManager({
           />
           </label>
           <label className="admin-tools__field">
-          <span>Unit utama (opsional)</span>
+          <span>Unit utama (opsional)<Info>{KET.unitUtama}</Info></span>
           <PilihanCari
             name="primaryUnitId"
             defaultValue=""
@@ -275,7 +278,7 @@ function UserRow({
           <form action={updateFormAction} className="admin-inline-form grid gap-3 sm:grid-cols-4">
             <input type="hidden" name="userId" value={user.id} />
             <label className="admin-tools__field">
-              <span>ID masuk</span>
+              <span>ID masuk<Info>{KET.idMasuk}</Info></span>
               <input
                 name="loginIdentifier"
                 defaultValue={user.loginIdentifier}
@@ -288,7 +291,7 @@ function UserRow({
               <input name="name" defaultValue={user.name} required className="form__control" />
             </label>
             <label className="admin-tools__field">
-              <span>Jenis pengguna</span>
+              <span>Jenis pengguna<Info>{KET.jenisPengguna}</Info></span>
               <PilihanCari
                 name="userTypeId"
                 defaultValue={user.userTypeId}
@@ -297,7 +300,7 @@ function UserRow({
               />
             </label>
             <label className="admin-tools__field">
-              <span>Unit utama</span>
+              <span>Unit utama<Info>{KET.unitUtama}</Info></span>
               <PilihanCari
                 name="primaryUnitId"
                 defaultValue={user.primaryUnitId ?? ""}
@@ -358,7 +361,7 @@ function UserRow({
               <form action={grantFormAction} className="admin-inline-form grid gap-3 sm:grid-cols-4">
                 <input type="hidden" name="userId" value={user.id} />
                 <label className="admin-tools__field">
-                  <span>Beri peran</span>
+                  <span>Beri peran<Info>{KET.peran}</Info></span>
                   {/* Tanpa pilihan kosong di depan, kotak ini selalu memperlihatkan "Admin" —
                       nilai pertama daftarnya — dan pada tiap pengguna terbaca seolah menyatakan
                       peran yang dipegangnya, bukan peran yang hendak diberikan. */}

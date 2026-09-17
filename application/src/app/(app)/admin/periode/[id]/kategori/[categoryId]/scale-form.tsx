@@ -1,5 +1,8 @@
 "use client";
 
+import { Info } from "@/components/theme/info";
+import { KET } from "@/lib/keterangan";
+
 import { useAksi } from "@/components/theme/notifikasi";
 import { updateInstrumentScaleAction } from "@/lib/actions/admin-instruments";
 import type { getCategoryDetail } from "@/lib/services/categories";
@@ -30,7 +33,7 @@ export function ScaleForm({
 
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <label className="admin-tools__field">
-          <span>Minimum</span>
+          <span>Minimum<Info>{KET.skalaBatas}</Info></span>
           <input
             name="scaleMin"
             type="number"
@@ -42,7 +45,7 @@ export function ScaleForm({
           />
         </label>
         <label className="admin-tools__field">
-          <span>Maksimum</span>
+          <span>Maksimum<Info>{KET.skalaBatas}</Info></span>
           <input
             name="scaleMax"
             type="number"
@@ -54,7 +57,7 @@ export function ScaleForm({
           />
         </label>
         <label className="admin-tools__field">
-          <span>Langkah</span>
+          <span>Langkah<Info>{KET.skalaLangkah}</Info></span>
           <input
             name="scaleStep"
             type="number"

@@ -50,7 +50,7 @@ export function SummaryCard({
   note,
   tone = "kuning",
 }: {
-  label: string;
+  label: ReactNode;
   value: ReactNode;
   note?: ReactNode;
   tone?: keyof typeof toneVar;

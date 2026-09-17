@@ -1,5 +1,8 @@
 "use client";
 
+import { Info } from "@/components/theme/info";
+import { KET } from "@/lib/keterangan";
+
 import { useState, type ReactNode } from "react";
 import type { RankedEntry } from "@/lib/services/rankings";
 import {
@@ -76,12 +79,14 @@ export function LeaderboardTable({
   return (
     <div className="leaderboard-list">
       <DataList
+        // Kepala kolom memuat ikon keterangan yang bisa difokus, jadi tidak boleh aria-hidden.
+        columnHeaderHidden={false}
         columns={[
           ["title", "Objek"],
           ["duration", "Unit"],
-          ["location", "Respons"],
-          ["topic", "Nilai"],
-          ["dates", "Status"],
+          ["location", <>Respons<Info>{KET.respons}</Info></>],
+          ["topic", <>Nilai<Info>{KET.nilaiAkhir}</Info></>],
+          ["dates", <>Status<Info>{KET.statusKelayakan}</Info></>],
           ["price", "Aksi"],
         ]}
       >
@@ -276,7 +281,7 @@ export function LeaderboardGroups({
       </FilterBar>
 
       <div>
-        <h2 className="app-panel__label">Leaderboard Pimpinan</h2>
+        <h2 className="app-panel__label">Leaderboard Pimpinan<Info>{KET.kelompok}</Info></h2>
         <LeaderboardTable
           entries={pimpinanEntries}
           minimum={pimpinanMinimum}
@@ -286,7 +291,7 @@ export function LeaderboardGroups({
         />
       </div>
       <div>
-        <h2 className="app-panel__label">Leaderboard Selain Pimpinan</h2>
+        <h2 className="app-panel__label">Leaderboard Selain Pimpinan<Info>{KET.kelompok}</Info></h2>
         <LeaderboardTable
           entries={selainEntries}
           minimum={selainMinimum}

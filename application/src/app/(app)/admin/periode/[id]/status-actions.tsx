@@ -1,5 +1,8 @@
 "use client";
 
+import { Info } from "@/components/theme/info";
+import { KET } from "@/lib/keterangan";
+
 import { useAksi } from "@/components/theme/notifikasi";
 import { transitionPeriodStatusAction } from "@/lib/actions/admin-periods";
 import type { PeriodStatus } from "@/generated/prisma/enums";
@@ -52,7 +55,7 @@ export function StatusActions({
 
   return (
     <div className="app-panel app-panel--ruled">
-      <h2 className="app-panel__label">Buka atau tutup pengisian</h2>
+      <h2 className="app-panel__label">Buka atau tutup pengisian<Info>{KET.siklusPeriode}</Info></h2>
       <div className="flex flex-wrap items-center gap-3">
         {status === "DRAF" && (
           <TransitionButton

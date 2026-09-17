@@ -1,5 +1,8 @@
 "use client";
 
+import { Info } from "@/components/theme/info";
+import { KET } from "@/lib/keterangan";
+
 import { useAksi } from "@/components/theme/notifikasi";
 import { updateCategoryAction } from "@/lib/actions/admin-categories";
 import type { getCategoryDetail } from "@/lib/services/categories";
@@ -50,6 +53,7 @@ export function CategoryEditForm({
             className="h-4 w-4"
           />
           Kecualikan pembuat karya sebagai penilai
+          <Info>{KET.kecualikanPembuat}</Info>
         </label>
       ) : (
         // Pilihan hanya untuk kategori Karya; kategori lain mempertahankan nilai yang tersimpan.

@@ -1,5 +1,8 @@
 "use client";
 
+import { Info } from "@/components/theme/info";
+import { KET } from "@/lib/keterangan";
+
 import { useAksi, useAksiLangsung } from "@/components/theme/notifikasi";
 import { TombolHapus } from "@/components/theme/tombol-hapus";
 import { deleteUnitAction } from "@/lib/actions/admin-hapus";
@@ -51,7 +54,7 @@ export function UnitManager({
             <input name="name" placeholder="Nama unit" required className="form__control" />
           </label>
           <label className="admin-tools__field">
-          <span>Induk</span>
+          <span>Induk<Info>{KET.induk}</Info></span>
           <PilihanCari
             name="parentId"
             defaultValue=""
@@ -177,7 +180,7 @@ function UnitRow({
               <input name="name" defaultValue={unit.name} required className="form__control" />
             </label>
             <label className="admin-tools__field">
-            <span>Induk</span>
+            <span>Induk<Info>{KET.induk}</Info></span>
             <PilihanCari
               name="parentId"
               defaultValue={unit.parentId ?? ""}
@@ -254,7 +257,7 @@ function UnitRow({
                 />
                 </label>
                 <label className="admin-tools__field">
-                  <span>Jabatan</span>
+                  <span>Jabatan<Info>{KET.jabatan}</Info></span>
                   <input
                     name="title"
                     placeholder="mis. Ketua Departemen"

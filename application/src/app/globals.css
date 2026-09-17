@@ -3104,3 +3104,37 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 .survey-shell main .daftar-jenis .daftar-jenis__tombol:hover {background:var(--color-beige-dark)}
 .survey-shell main .daftar-jenis .daftar-jenis__tombol--hapus {color:var(--color-brand-1)}
+
+/* Keterangan istilah (components/theme/info.tsx): ikon bulat kecil sebaris dengan labelnya, dan
+   gelembung gelap yang dipasang ke <body>. Huruf dan warnanya dari token tema; gelembungnya
+   sama gelapnya dengan notifikasi supaya terbaca sebagai lapisan sementara. */
+.survey-shell .info,
+.info {
+  display:inline-grid;place-items:center;flex:none;width:.95rem;height:.95rem;min-height:0;
+  margin:0 0 0 .3rem;padding:0;border:1px solid currentColor;border-radius:50%;
+  background:transparent;color:var(--muted);box-shadow:none;
+  font:italic 700 .5rem/1 Georgia,serif;text-transform:none;letter-spacing:0;vertical-align:.08em;cursor:help;
+  transition:color .12s linear,background-color .12s linear;
+}
+.survey-shell .info:hover,
+.survey-shell .info:focus-visible,
+.survey-shell .info[aria-expanded="true"] {background:var(--color-black);border-color:var(--color-black);color:var(--color-white)}
+.info:focus-visible {outline:2px solid var(--color-brand-5);outline-offset:2px}
+.info__gelembung {
+  position:fixed;z-index:300;display:block;max-width:min(19rem,calc(100vw - 1rem));
+  padding:.55rem .7rem;border-radius:.6rem;background:var(--color-black);color:var(--color-white);
+  box-shadow:0 .6rem 1.6rem rgb(33 30 31 / .25);
+  font:400 .62rem/1.5 var(--font-family-text);text-transform:none;letter-spacing:0;text-align:left;white-space:normal;
+  pointer-events:none;animation:info-muncul .14s ease-out;
+}
+.info__gelembung b,
+.info__gelembung strong {font-weight:700}
+@keyframes info-muncul {from {opacity:0;transform:translateY(3px)}}
+@media only screen and (max-width: 640px) {
+  .survey-shell .info,
+  .info {width:1.15rem;height:1.15rem;font-size:.62rem}
+  .info__gelembung {font-size:.74rem}
+}
+@media (prefers-reduced-motion: reduce) {
+  .info__gelembung {animation:none}
+}

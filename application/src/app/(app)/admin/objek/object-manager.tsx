@@ -1,5 +1,8 @@
 "use client";
 
+import { Info } from "@/components/theme/info";
+import { KET } from "@/lib/keterangan";
+
 import { useAksi, useAksiLangsung } from "@/components/theme/notifikasi";
 import { useMemo, useState } from "react";
 import {
@@ -332,7 +335,7 @@ function ObjectForm({
 
   const kolomPengguna = isOrang && (
     <label className="admin-tools__field">
-      <span>Pengguna terkait</span>
+      <span>Pengguna terkait<Info>{KET.penggunaTerkait}</Info></span>
       <PilihanCari
         name="referenceUserId"
         required
@@ -346,7 +349,7 @@ function ObjectForm({
 
   const kolomUnitDinilai = isUnitType && (
     <label className="admin-tools__field">
-      <span>Unit yang dinilai</span>
+      <span>Unit yang dinilai<Info>{KET.unitDinilai}</Info></span>
       <PilihanCari
         name="referenceUnitId"
         required
@@ -376,7 +379,7 @@ function ObjectForm({
       {defaultValues && <input type="hidden" name="objectId" value={defaultValues.id} />}
 
       <label className="admin-tools__field">
-      <span>Jenis objek</span>
+      <span>Jenis objek<Info>{KET.jenisObjek}</Info></span>
       <PilihanCari
         name="typeId"
         required
@@ -403,7 +406,7 @@ function ObjectForm({
       </label>
 
       <label className="admin-tools__field">
-      <span>Unit pemilik</span>
+      <span>Unit pemilik<Info>{KET.unitPemilik}</Info></span>
       {petunjukUnit && <span className="admin-tools__hint">{petunjukUnit}</span>}
       <PilihanCari
         name="ownerUnitId"
@@ -417,7 +420,7 @@ function ObjectForm({
 
       {!isOrang && (
         <label className="admin-tools__field">
-        <span>Penanggung jawab</span>
+        <span>Penanggung jawab<Info>{KET.penanggungJawab}</Info></span>
         <PilihanCari
           name="responsibleUserId"
           defaultValue={defaultValues?.responsibleUserId ?? ""}
