@@ -31,6 +31,10 @@ async function CategoryDetailPage({
   if (!category || category.periodId !== periodId) notFound();
 
   const editable = category.period.status === "DRAF" || category.period.status === "REVISI";
+  // Saat periode berjalan, objek dan penilai masih boleh DITAMBAH (tidak diubah atau dihapus) —
+  // lib/services/penambahan-berjalan.ts.
+  const berjalan = category.period.status === "AKTIF" && new Date() < category.period.endsAt;
+  const bisaTambah = category.period.status === "DRAF" || berjalan;
   const instrument = category.instrumentVersions[0];
   const totalWeight = instrument
     ? instrument.parameters.reduce((s, p) => s + p.weight, 0)
@@ -252,7 +256,9 @@ async function CategoryDetailPage({
                   candidateObjects={candidateObjects}
                   units={units}
                   objectTypeName={category.objectType.name}
-                  editable={editable}
+                  editable={category.period.status === "DRAF"}
+                  bisaTambah={bisaTambah}
+                  berjalan={berjalan}
                 />
               </div>
             ),
@@ -288,7 +294,7 @@ async function CategoryDetailPage({
                       <div><strong>Terapkan</strong><small>Tugas baru diterbitkan dan masuk ke daftar di bawah.</small></div>
                     </li>
                   </ol>
-                  <AssignmentPlanner periodId={periodId} categoryId={categoryId} editable={editable} />
+                  <AssignmentPlanner periodId={periodId} categoryId={categoryId} editable={bisaTambah} berjalan={berjalan} />
                 </div>
 
                 <div className="app-panel app-panel--ruled">
@@ -300,7 +306,7 @@ async function CategoryDetailPage({
                   </p>
                   <div className="space-y-4">
                     <AssignmentList assignments={assignments} periodId={periodId} categoryId={categoryId} />
-                    {editable && category.categoryObjects.length > 0 && (
+                    {bisaTambah && category.categoryObjects.length > 0 && (
                       <div className="assignment-manual border-t border-[var(--border)] pt-4">
                         <h3 className="app-panel__label">
                           Tambah satu tugas secara manual
@@ -316,6 +322,7 @@ async function CategoryDetailPage({
                             nameSnapshot: co.nameSnapshot,
                           }))}
                           users={activeUsers}
+                          berjalan={berjalan}
                         />
                       </div>
                     )}

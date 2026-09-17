@@ -5,6 +5,7 @@ import {
   previewAssignmentPlanAction,
   commitAssignmentPlanAction,
 } from "@/lib/actions/admin-assignments";
+import { AlasanBerjalan } from "@/components/theme/alasan-berjalan";
 
 const groupLabel: Record<string, string> = {
   PIMPINAN: "Pimpinan",
@@ -15,10 +16,13 @@ export function AssignmentPlanner({
   periodId,
   categoryId,
   editable,
+  berjalan = false,
 }: {
   periodId: string;
   categoryId: string;
+  /** Boleh menerbitkan tugas baru — saat Draf, dan saat Aktif sebelum tenggat. */
   editable: boolean;
+  berjalan?: boolean;
 }) {
   const [previewState, previewAction, previewPending] = useAksi(previewAssignmentPlanAction, {}, null);
   const [commitState, commitAction, commitPending] = useAksi(commitAssignmentPlanAction, {}, "Tugas penilaian dibagikan.");
@@ -26,7 +30,8 @@ export function AssignmentPlanner({
   if (!editable) {
     return (
       <p className="app-text-sm text-[var(--muted)]">
-        Pengacakan penugasan hanya dapat dijalankan selama periode berstatus Draf.
+        Pembagian tugas hanya dapat dijalankan selama periode berstatus Draf, atau Aktif sebelum
+        tenggatnya lewat.
       </p>
     );
   }
@@ -105,6 +110,9 @@ export function AssignmentPlanner({
                       Saya menerima kekurangan calon yang ditampilkan. Minimum respons tetap berlaku.
                     </span>
                   </label>
+                )}
+                {berjalan && (
+                  <AlasanBerjalan contoh="Mis. objek baru ditambahkan setelah periode dibuka" />
                 )}
                 <div className="assignment-planner__apply-row">
                   <p className="assignment-planner__summary text-[var(--muted)]">

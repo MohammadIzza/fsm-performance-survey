@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { addCategoryObjectsAction, removeCategoryObjectAction } from "@/lib/actions/admin-categories";
 import type { getCategoryDetail } from "@/lib/services/categories";
 import { PilihanCari, PilihanCariBanyak } from "@/components/theme/pilihan-cari";
+import { AlasanBerjalan } from "@/components/theme/alasan-berjalan";
 
 type Participant = NonNullable<Awaited<ReturnType<typeof getCategoryDetail>>>["categoryObjects"][number];
 type CandidateObject = { id: string; name: string; ownerUnitId: string; ownerUnit: { name: string } };
@@ -40,6 +41,8 @@ export function ParticipantManager({
   units,
   objectTypeName,
   editable,
+  bisaTambah,
+  berjalan,
 }: {
   periodId: string;
   categoryId: string;
@@ -47,7 +50,12 @@ export function ParticipantManager({
   candidateObjects: CandidateObject[];
   units: Unit[];
   objectTypeName: string;
+  /** Boleh mengeluarkan objek (hanya saat Draf). */
   editable: boolean;
+  /** Boleh menambah objek — saat Draf, dan saat Aktif sebelum tenggat. */
+  bisaTambah: boolean;
+  /** Periode sedang Aktif: penambahan butuh alasan. */
+  berjalan: boolean;
 }) {
   const keluarkanObjek = useAksiLangsung(removeCategoryObjectAction, "Objek dikeluarkan dari kategori.");
   const [addState, addFormAction, addPending] = useAksi(addCategoryObjectsAction, {}, (_h, fd) => `${fd.getAll("objectIds").length} objek ditambahkan ke kategori.`);
@@ -97,7 +105,7 @@ export function ParticipantManager({
         </p>
       )}
 
-      {editable && (
+      {bisaTambah && (
         <form action={addFormAction} className="participant-add">
           <input type="hidden" name="periodId" value={periodId} />
           <input type="hidden" name="categoryId" value={categoryId} />
@@ -148,6 +156,9 @@ export function ParticipantManager({
                   </button>
                 )}
               </div>
+              {berjalan && pilihan.length > 0 && (
+                <AlasanBerjalan contoh="Mis. dosen baru bergabung setelah periode dibuka" />
+              )}
               {pilihan.length > 0 && (
                 <p className="participant-add__ringkas" aria-live="polite">
                   {pilihan.length} dari {candidateObjects.length} objek dipilih.

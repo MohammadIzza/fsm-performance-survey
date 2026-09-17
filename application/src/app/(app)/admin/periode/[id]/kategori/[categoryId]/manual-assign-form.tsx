@@ -3,6 +3,7 @@
 import { useAksi } from "@/components/theme/notifikasi";
 import { manualAssignEvaluatorAction } from "@/lib/actions/admin-assignments";
 import { PilihanCari } from "@/components/theme/pilihan-cari";
+import { AlasanBerjalan } from "@/components/theme/alasan-berjalan";
 
 const fieldClass =
   "form__control";
@@ -12,11 +13,13 @@ export function ManualAssignForm({
   categoryId,
   categoryObjects,
   users,
+  berjalan = false,
 }: {
   periodId: string;
   categoryId: string;
   categoryObjects: { id: string; nameSnapshot: string }[];
   users: { id: string; name: string; loginIdentifier: string }[];
+  berjalan?: boolean;
 }) {
   const [state, formAction, pending] = useAksi(manualAssignEvaluatorAction, {}, "Penilai ditugaskan.");
 
@@ -51,6 +54,7 @@ export function ManualAssignForm({
           options={users.map((u) => ({ value: u.id, label: `${u.name} (${u.loginIdentifier})` }))}
         />
       </label>
+      {berjalan && <AlasanBerjalan contoh="Mis. penilai semula berhalangan" />}
       <button
         type="submit"
         disabled={pending}

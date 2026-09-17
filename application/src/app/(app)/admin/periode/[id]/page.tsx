@@ -81,6 +81,8 @@ async function PeriodDetailPage({
         })
       : [];
   const editable = period.status === "DRAF" || period.status === "REVISI";
+  const berjalan = period.status === "AKTIF" && new Date() < period.endsAt;
+  const bisaTambah = period.status === "DRAF" || berjalan;
   const units =
     categoryCount > 0
       ? await prisma.unit.findMany({ select: { id: true, name: true, parentId: true }, orderBy: { name: "asc" } })
@@ -268,7 +270,9 @@ async function PeriodDetailPage({
               )}
               units={units}
               objectTypeName={category.objectType.name}
-              editable={editable}
+              editable={period.status === "DRAF"}
+              bisaTambah={bisaTambah}
+              berjalan={berjalan}
             />
           );
         },
@@ -342,7 +346,8 @@ async function PeriodDetailPage({
             <AssignmentPlanner
               periodId={period.id}
               categoryId={category.id}
-              editable={editable}
+              editable={bisaTambah}
+              berjalan={berjalan}
             />
             <Link
               href={`/admin/periode/${period.id}/kategori/${category.id}?bagian=penugasan`}
