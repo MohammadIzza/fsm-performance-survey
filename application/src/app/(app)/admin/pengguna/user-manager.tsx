@@ -1,6 +1,9 @@
 "use client";
 
 import { useAksi, useAksiLangsung } from "@/components/theme/notifikasi";
+import { TombolHapus } from "@/components/theme/tombol-hapus";
+import { DaftarJenis, type Jenis } from "@/components/theme/daftar-jenis";
+import { deleteUserAction, deleteUserTypeAction, renameUserTypeAction } from "@/lib/actions/admin-hapus";
 import { useState } from "react";
 import {
   DataList,
@@ -33,10 +36,13 @@ export function UserManager({
   users,
   userTypes,
   units,
+  daftarJenis,
 }: {
   users: UserWithMeta[];
   userTypes: UserType[];
   units: Unit[];
+  /** Semua jenis pengguna beserta keterangan pemakaiannya, untuk diubah namanya atau dihapus. */
+  daftarJenis: Jenis[];
 }) {
   const [createState, createFormAction, createPending] = useAksi(createUserAction, {}, "Pengguna ditambahkan.");
   const [typeState, typeFormAction, typePending] = useAksi(createUserTypeAction, {}, "Jenis pengguna ditambahkan.");
@@ -130,6 +136,7 @@ export function UserManager({
               </button>
             </div>
           </form>
+          <DaftarJenis jenis={daftarJenis} aksiUbah={renameUserTypeAction} aksiHapus={deleteUserTypeAction} sebutan="jenis pengguna" />
         </AdminAction>
       </AdminActionList>
 
@@ -389,6 +396,14 @@ function UserRow({
                 {user.active ? "Nonaktifkan pengguna" : "Aktifkan pengguna"}
               </button>
             </form>
+            <TombolHapus
+              aksi={deleteUserAction}
+              id={user.id}
+              label="Hapus pengguna"
+              judul={`Hapus ${user.name}?`}
+              pesan={<p>Pengguna hanya bisa dihapus bila belum pernah punya tugas, jawaban, jabatan, atau objek penilaian. Bila sudah, nonaktifkan saja agar tidak bisa masuk.</p>}
+              berhasil="Pengguna dihapus."
+            />
           </RowPanelActions>
         </div>
       }

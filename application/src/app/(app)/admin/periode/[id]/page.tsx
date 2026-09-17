@@ -1,3 +1,5 @@
+import { TombolHapus } from "@/components/theme/tombol-hapus";
+import { deletePeriodAction } from "@/lib/actions/admin-hapus";
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -191,6 +193,23 @@ async function PeriodDetailPage({
           <section className="period-stepper__form-section">
             <h3>Informasi periode</h3>
             <PeriodSettingsForm period={period} />
+            {period.status === "DRAF" && (
+              <div className="hapus-zona">
+                <TombolHapus
+                  aksi={deletePeriodAction}
+                  id={period.id}
+                  label="Hapus periode"
+                  judul={`Hapus periode ${period.name}?`}
+                  pesan={
+                    <p>
+                      Seluruh isi periode ini — {period.categories.length} kategori beserta pertanyaan, aturan, objek yang
+                      dinilai, dan tugas yang sudah dibagikan — ikut terhapus permanen. Hanya bisa selama periode masih Draf.
+                    </p>
+                  }
+                  berhasil="Periode dihapus."
+                />
+              </div>
+            )}
           </section>
           <section className="period-stepper__form-section">
             <h3>Waktu akses hasil</h3>

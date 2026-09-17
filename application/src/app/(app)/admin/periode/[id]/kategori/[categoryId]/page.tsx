@@ -1,3 +1,5 @@
+import { TombolHapus } from "@/components/theme/tombol-hapus";
+import { deleteCategoryAction } from "@/lib/actions/admin-hapus";
 import { InstrumentRevisionForm } from "./instrument-revision-form";
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import Link from "next/link";
@@ -123,6 +125,23 @@ async function CategoryDetailPage({
                       Pengaturan kategori
                     </h2>
                     <CategoryEditForm category={category} periodId={periodId} editable={editable} />
+                    {category.period.status === "DRAF" && (
+                      <div className="hapus-zona">
+                        <TombolHapus
+                          aksi={deleteCategoryAction}
+                          id={category.id}
+                          label="Hapus kategori"
+                          judul={`Hapus kategori ${category.name}?`}
+                          pesan={
+                            <p>
+                              Pertanyaan, aturan penilai, {category.categoryObjects.length} objek yang dinilai, dan tugas yang sudah
+                              dibagikan di kategori ini ikut terhapus permanen. Hanya bisa selama periode masih Draf.
+                            </p>
+                          }
+                          berhasil="Kategori dihapus."
+                        />
+                      </div>
+                    )}
                   </div>
 
                   {instrument && (

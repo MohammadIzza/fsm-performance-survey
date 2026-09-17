@@ -3076,3 +3076,31 @@ input[type="range"]:disabled::-moz-range-thumb {
   .pantau-tabel td strong + small {display:inline;margin-left:.35rem}
   .pantau-periode__pilih {max-width:none}
 }
+
+/* Hapus permanen (components/theme/tombol-hapus.tsx) dan daftar jenis pengguna/objek
+   (components/theme/daftar-jenis.tsx). Alasan penolakan tampil tepat di bawah tombolnya. */
+.tombol-hapus {display:inline-flex;flex-direction:column;align-items:flex-start;gap:.35rem;margin:0}
+.survey-shell main .tombol-hapus > button {align-self:flex-start}
+/* Di panel baris admin, Hapus berdiri sebaris dengan Nonaktifkan; alasan penolakannya turun ke
+   baris sendiri selebar panel, bukan menjepit tombol di sebelahnya. */
+.admin-row-panel-actions:has(.tombol-hapus__galat) {align-items:flex-start}
+.admin-row-panel-actions .tombol-hapus {display:contents}
+.admin-row-panel-actions .tombol-hapus__galat {flex:1 1 100%;order:10}
+.tombol-hapus__galat {margin:0;max-width:34rem;color:var(--color-brand-1);font-size:.6rem;line-height:1.45}
+.daftar-jenis {display:grid;margin:1rem 0 0;padding:0;list-style:none;border-top:2px solid var(--color-black)}
+.daftar-jenis__baris {display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.4rem 1rem;padding:.55rem 0;border-bottom:1px solid var(--color-grey-2)}
+.daftar-jenis__nama {display:flex;flex-direction:column;gap:.05rem;font-size:.68rem}
+.daftar-jenis__nama small {color:var(--muted);font-size:.56rem}
+.daftar-jenis__aksi {display:flex;flex-wrap:wrap;align-items:flex-start;gap:.3rem}
+.daftar-jenis__ubah {display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;flex:1 1 100%}
+.survey-shell main .daftar-jenis__ubah .form__control {max-width:18rem}
+.daftar-jenis__baris > .tombol-hapus__galat {flex:1 1 100%}
+.hapus-zona {margin-top:1.1rem;padding-top:.9rem;border-top:1px dashed var(--color-grey-2)}
+/* Aksi pada daftar jenis: tautan teks kecil, bukan pil — aturan tombol di dalam panel "Kelola"
+   memberi setiap tombol latar biru, jadi selektornya dibuat lebih spesifik. */
+.survey-shell main .daftar-jenis .daftar-jenis__tombol {
+  min-height:0;padding:.25rem .45rem;border:0;border-radius:.4rem;background:transparent;box-shadow:none;
+  color:var(--color-brand-3);font-size:.6rem;font-weight:600;text-decoration:none;cursor:pointer;
+}
+.survey-shell main .daftar-jenis .daftar-jenis__tombol:hover {background:var(--color-beige-dark)}
+.survey-shell main .daftar-jenis .daftar-jenis__tombol--hapus {color:var(--color-brand-1)}

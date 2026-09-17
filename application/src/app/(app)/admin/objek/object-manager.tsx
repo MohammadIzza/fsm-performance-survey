@@ -12,6 +12,9 @@ import {
   RowPanelActions,
 } from "@/components/theme/data-list";
 import { AdminActionList, AdminAction } from "@/components/theme/admin-actions";
+import { TombolHapus } from "@/components/theme/tombol-hapus";
+import { DaftarJenis, type Jenis } from "@/components/theme/daftar-jenis";
+import { deleteObjectAction, deleteObjectTypeAction, renameObjectTypeAction } from "@/lib/actions/admin-hapus";
 import { StatusPill } from "@/components/theme/status-pill";
 import { FilterBar, FilterField } from "@/components/theme/filter-bar";
 import { TextInput } from "@/components/theme/form-field";
@@ -37,11 +40,13 @@ export function ObjectManager({
   objectTypes,
   units,
   users,
+  daftarJenis,
 }: {
   objects: ObjectWithMeta[];
   objectTypes: ObjectType[];
   units: Unit[];
   users: UserOption[];
+  daftarJenis: Jenis[];
 }) {
   const [typeState, typeFormAction, typePending] = useAksi(createObjectTypeAction, {}, "Jenis objek ditambahkan.");
   // Bab 16.2: "Tabel panjang memiliki pencarian, filter, pagination, dan state kosong" — master
@@ -95,6 +100,7 @@ export function ObjectManager({
               </button>
             </div>
           </form>
+          <DaftarJenis jenis={daftarJenis} aksiUbah={renameObjectTypeAction} aksiHapus={deleteObjectTypeAction} sebutan="jenis objek" />
         </AdminAction>
       </AdminActionList>
 
@@ -202,6 +208,14 @@ function ObjectRow({
                 {object.active ? "Nonaktifkan objek" : "Aktifkan objek"}
               </button>
             </form>
+            <TombolHapus
+              aksi={deleteObjectAction}
+              id={object.id}
+              label="Hapus objek"
+              judul={`Hapus objek ${object.name}?`}
+              pesan={<p>Objek hanya bisa dihapus bila belum pernah dimasukkan ke kategori penilaian mana pun. Bila sudah, nonaktifkan saja.</p>}
+              berhasil="Objek dihapus."
+            />
           </RowPanelActions>
         </div>
       }

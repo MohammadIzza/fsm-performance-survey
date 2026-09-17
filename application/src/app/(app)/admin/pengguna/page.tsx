@@ -5,11 +5,17 @@ import { UserManager } from "./user-manager";
 import { PageIntro, SummaryCard } from "@/components/theme/summary";
 
 async function PenggunaPage() {
-  const [users, userTypes, units] = await Promise.all([
+  const [users, userTypes, units, semuaJenis] = await Promise.all([
     listUsersWithMeta(),
     prisma.userType.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     prisma.unit.findMany({ where: { active: true }, orderBy: { code: "asc" } }),
+    prisma.userType.findMany({ include: { _count: { select: { users: true } } }, orderBy: { name: "asc" } }),
   ]);
+  const daftarJenis = semuaJenis.map((t) => ({
+    id: t.id,
+    name: t.name,
+    dipakai: t._count.users ? `${t._count.users} pengguna` : "Belum dipakai",
+  }));
 
   return (
     <div className="space-y-8">
@@ -32,7 +38,7 @@ async function PenggunaPage() {
         />
       </PageIntro>
 
-      <UserManager users={users} userTypes={userTypes} units={units} />
+      <UserManager users={users} userTypes={userTypes} units={units} daftarJenis={daftarJenis} />
     </div>
   );
 }

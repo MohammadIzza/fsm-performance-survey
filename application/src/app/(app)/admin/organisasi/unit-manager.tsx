@@ -1,6 +1,8 @@
 "use client";
 
 import { useAksi, useAksiLangsung } from "@/components/theme/notifikasi";
+import { TombolHapus } from "@/components/theme/tombol-hapus";
+import { deleteUnitAction } from "@/lib/actions/admin-hapus";
 import {
   DataList,
   DataRow,
@@ -294,6 +296,14 @@ function UnitRow({
                 {unit.active ? "Nonaktifkan unit" : "Aktifkan unit"}
               </button>
             </form>
+            <TombolHapus
+              aksi={deleteUnitAction}
+              id={unit.id}
+              label="Hapus unit"
+              judul={`Hapus unit ${unit.name}?`}
+              pesan={<p>Unit hanya bisa dihapus bila belum punya sub-unit, pengguna, objek, atau riwayat jabatan. Bila sudah dipakai, nonaktifkan saja.</p>}
+              berhasil="Unit dihapus."
+            />
           </RowPanelActions>
         </div>
       }
