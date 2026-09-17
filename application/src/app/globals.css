@@ -3225,6 +3225,13 @@ input[type="range"]:disabled::-moz-range-thumb {
   /* Lebar 1% pada kolom Aksi hanya berlaku untuk tabel di layar lebar; di kisi ponsel ia membuat
      tombolnya menyempit jadi satu piksel dan meluber ke luar layar. */
   .survey-shell .admin-area .tugas-tabel tbody td.tugas-tabel__aksi {grid-row:2;width:auto!important}
+  /* Daftar tugas: seukuran paragraf pengantar di atasnya (.62rem), bukan lebih besar. */
+  .survey-shell .admin-area .tugas-tabel tbody td {font-size:.62rem}
+  .survey-shell .admin-area .tugas-tabel tbody td:first-child {font-size:.64rem}
+  .survey-shell .admin-area .tugas-tabel tbody td small {font-size:.55rem}
+  .survey-shell .admin-area .tugas-tabel tbody td::before {font-size:.55rem}
+  .survey-shell main .tugas-tabel .status-pill {font-size:.52rem;padding:.22em .6em}
+  .survey-shell main .tugas-tabel td button {font-size:.58rem}
   /* Nilai yang tanpa label tidak jelas artinya tetap membawa namanya, sebaris di depan nilainya. */
   .survey-shell .admin-area :is(.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody
     td:is([data-label="Kelompok"],[data-label="Penilai"],[data-label="Asal"],[data-label="Kategori"],[data-label="Unit"],[data-label="Kelompok penilai"],[data-label="Calon sah"],[data-label="Sudah ada"],[data-label="Ditambahkan"],[data-label="Kekurangan"],[data-label="Sudah dikirim"],[data-label="Belum cukup dinilai"],[data-label="Sudah dinilai / minimum"],[data-label="Yang perlu dilakukan"],[data-label="Belum dikirim"])::before {
