@@ -3249,6 +3249,23 @@ input[type="range"]:disabled::-moz-range-thumb {
   /* Di markah, "Akan ditambah" berada di antara angka-angka; di kisi ponsel ia dipindah ke bawah
      supaya ketiga angkanya tetap berjajar dalam satu baris. */
   .survey-shell .admin-area .assignment-planner__table tbody td:nth-child(5) {order:1}
+  /* Ukuran huruf disamakan dengan teks langkah di atas tabelnya (nama kategori .64rem, keterangan
+     .62rem), dan ketiga angkanya diberi garis pemisah — atas, bawah, dan antar-kolom — supaya
+     terbaca sebagai satu tabel kecil, bukan tiga angka yang mengambang. */
+  .survey-shell .admin-area .assignment-planner__table tbody td:first-child {font-size:.64rem;line-height:1.35}
+  .survey-shell .admin-area .assignment-planner__table tbody td {font-size:.62rem;line-height:1.4}
+  .survey-shell .admin-area .assignment-planner__table tbody td:is(:nth-child(3),:nth-child(4),:nth-child(6)) {
+    padding:.3rem .2rem!important;margin-top:.15rem;
+    border-top:1px solid var(--color-grey-2)!important;border-bottom:1px solid var(--color-grey-2)!important;
+  }
+  .survey-shell .admin-area .assignment-planner__table tbody td:is(:nth-child(4),:nth-child(6)) {
+    border-left:1px solid var(--color-grey-2)!important;
+  }
+  .survey-shell .admin-area .assignment-planner__table tbody td:is(:nth-child(3),:nth-child(4),:nth-child(6))::before {
+    font-size:.53rem;
+  }
+  .survey-shell .admin-area .assignment-planner__table tbody td:nth-child(5) {margin-top:.2rem}
+  .survey-shell .admin-area .assignment-planner__table tbody tr {padding:.7rem .1rem}
   .survey-shell .admin-area .assignment-planner__table tbody td:nth-child(5)::before {
     content:attr(data-label) ": ";color:var(--muted);font-size:.6rem;font-weight:600;
   }
