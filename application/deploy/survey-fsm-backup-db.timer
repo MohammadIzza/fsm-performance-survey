@@ -1,0 +1,11 @@
+[Unit]
+Description=Survei FSM UNDIP - backup database tiap hari pukul 02.00 WIB
+
+[Timer]
+OnCalendar=*-*-* 19:00:00 UTC
+# Bila server mati saat jadwal, backup dijalankan begitu server menyala lagi.
+Persistent=true
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target

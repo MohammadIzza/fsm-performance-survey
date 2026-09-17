@@ -1,0 +1,12 @@
+[Unit]
+Description=Survei FSM UNDIP - backup harian database demo
+Documentation=file:///home/restart/survey-fsm/application/docs/deployment.md
+After=survey-fsm-postgres.service
+Requires=survey-fsm-postgres.service
+
+[Service]
+Type=oneshot
+User=restart
+Group=restart
+ExecStart=/home/restart/survey-fsm/application/deploy/survey-fsm-backup-db.sh
+SyslogIdentifier=survey-fsm-backup-db
