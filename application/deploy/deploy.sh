@@ -51,6 +51,12 @@ echo "== 1/8: Pastikan database demo hidup =="
 # hanya untuk memastikan konsisten dengan yang ada di repo, lalu mengaktifkannya.
 cp "$DEPLOY_DIR/survey-fsm-postgres.service" /etc/systemd/system/survey-fsm-postgres.service
 systemctl daemon-reload
+# Postgres ini berjalan sebagai user biasa (restart). Dengan RemoveIPC=yes bawaan systemd-logind,
+# shared memory-nya dihapus setiap kali sesi login terakhir user itu berakhir (termasuk `su - restart`
+# di skrip ini), dan setiap kueri lalu gagal "could not open shared memory segment" — situs error.
+mkdir -p /etc/systemd/logind.conf.d
+printf '[Login]\nRemoveIPC=no\n' > /etc/systemd/logind.conf.d/survey-fsm-postgres.conf
+systemctl restart systemd-logind
 if ss -ltn 2>/dev/null | grep -q ':55432 '; then
   echo "Postgres demo sudah berjalan (proses manual dari sesi sebelumnya) — akan diambil alih systemd."
   su - restart -c "/usr/lib/postgresql/16/bin/pg_ctl stop -D /home/restart/.local/share/survey-fsm/postgres -m fast -w -t 60" || true

@@ -30,6 +30,13 @@ Cloudflare ────┘      -> next start 127.0.0.1:3930 (fsm-survei.service
 | `fsm-survei.service` | `next start` aplikasi (Astro sudah disalin ke dalamnya), port 3930. |
 | `fsm-survei-scheduler.timer` + `.service` | Tiap 5 menit menjalankan `scripts/run-scheduled-transitions.ts` — membuka periode berstatus Siap saat tanggal mulainya tiba (Bab 7.2). Penutupan sengaja tidak otomatis; lihat `runScheduledOpenings()` di `src/lib/services/periods.ts`. |
 
+> **Wajib: `RemoveIPC=no`.** Postgres demo berjalan sebagai user `restart`, bukan `postgres`.
+> Bawaan systemd-logind (`RemoveIPC=yes`) menghapus shared memory milik user biasa begitu sesi login
+> terakhirnya berakhir, sehingga database masih "active" tetapi setiap kueri gagal dengan
+> `could not open shared memory segment` dan halaman menampilkan "This page couldn't load".
+> `deploy.sh` menulis `/etc/systemd/logind.conf.d/survey-fsm-postgres.conf` berisi `RemoveIPC=no`.
+> Bila galat itu muncul: `systemctl restart survey-fsm-postgres`.
+
 Semua berkas unit dan vhost nginx ada di `application/deploy/`. Aplikasi lama `survei-fsm`
 (port 3910/8093) dan aplikasi tetangga lain tidak disentuh.
 
