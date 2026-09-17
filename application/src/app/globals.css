@@ -3063,19 +3063,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 .pantau-laporan {display:grid;gap:.6rem;margin:0 0 .8rem;padding:0;list-style:none;font-size:.64rem}
 .pantau-laporan small {display:block;margin-top:.15rem;color:var(--muted);font-size:.58rem}
 .pantau-seluler {display:none}
-/* Ponsel: tabel admin umumnya menjadi kartu berlabel dua kolom (lihat .admin-area table di atas).
-   Untuk daftar pemantauan yang isinya pendek, label itu justru bertumpuk dengan nilainya; tiap
-   baris cukup ditumpuk apa adanya, dan keterangan yang tadinya dibawa kepala kolom ditulis di
-   nilainya sendiri (.pantau-seluler). */
-@media only screen and (max-width: 640px) {
-  .pantau-seluler {display:inline}
-  .survey-shell .admin-area table.pantau-tabel tbody td {display:block;padding:.15rem 0!important;text-align:left!important}
-  .admin-area table.pantau-tabel tbody td[data-label]::before {content:none}
-  .pantau-tabel__progres {width:auto}
-  .pantau-progres {margin:.3rem 0 .1rem}
-  .pantau-tabel td strong + small {display:inline;margin-left:.35rem}
-  .pantau-periode__pilih {max-width:none}
-}
+
 
 /* Hapus permanen (components/theme/tombol-hapus.tsx) dan daftar jenis pengguna/objek
    (components/theme/daftar-jenis.tsx). Alasan penolakan tampil tepat di bawah tombolnya. */
@@ -3166,19 +3154,68 @@ input[type="range"]:disabled::-moz-range-thumb {
 .tugas-batal {display:grid;gap:.35rem;min-width:13rem;margin:0;text-align:left;white-space:normal}
 .survey-shell main .tugas-batal .form__control {min-height:1.8rem;font-size:.62rem}
 .tugas-batal__tombol {display:flex;flex-wrap:wrap;gap:.3rem}
-@media only screen and (max-width: 640px) {
-  .tugas-tabel {min-width:0}
-  .tugas-tabel__aksi {width:auto;text-align:left}
-}
+
 .survey-shell main .tugas-tabel thead th {padding:.5rem .5rem;font-size:.54rem;line-height:1.25}
 .survey-shell main .tugas-tabel tbody td {padding:.6rem .5rem;font-size:.62rem;line-height:1.4}
 .survey-shell main .tugas-tabel .app-btn--danger {border-color:var(--color-brand-9);color:var(--color-brand-1)}
 .survey-shell main .tugas-tabel .app-btn--polos.app-btn--danger {border-color:transparent;text-decoration:none}
-@media only screen and (max-width: 640px) {
-  .survey-shell main .tugas-tabel tbody td {padding:.2rem 0;font-size:.72rem}
-}
+
 .survey-shell main .tugas-tabel td a.tugas-tabel__objek {font-size:inherit;line-height:inherit}
 .survey-shell main .tugas-tabel td button {font-size:.6rem}
+
+
+/* Ponsel: tabel admin tetap berbentuk TABEL, bukan kartu berlabel.
+   Bentuk kartu (satu baris = satu blok label + nilai, lihat .admin-area table di layar sempit) dibuat
+   untuk daftar CRUD berkolom banyak. Untuk tabel data — parameter, pemantauan, pratinjau pembagian,
+   daftar tugas — kartu itu membuat tiap baris setinggi layar dan nilainya tidak bisa dibandingkan
+   antarbaris. Tabel-tabel ini tetap tabel; bila lebih lebar dari layar, pembungkusnya (.app-table-wrap)
+   sudah bisa digeser mendatar. Baris yang sedang disunting tetap ditumpuk karena isinya kolom isian. */
 @media only screen and (max-width: 640px) {
-  .survey-shell .admin-area .tugas-tabel td.tugas-tabel__aksi > * {justify-self:start}
+  .survey-shell .admin-area :is(.parameter-table,.pantau-tabel,.tugas-tabel,.assignment-planner__table) {
+    display:table;width:100%;font-size:.62rem;
+  }
+  .survey-shell .admin-area :is(.parameter-table,.pantau-tabel,.tugas-tabel,.assignment-planner__table) thead {
+    position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;
+  }
+  .survey-shell .admin-area :is(.parameter-table,.pantau-tabel,.tugas-tabel,.assignment-planner__table) thead th {
+    padding:.4rem .35rem;font-size:.5rem;line-height:1.2;white-space:normal;
+  }
+  .survey-shell .admin-area :is(.parameter-table,.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody {display:table-row-group}
+  .survey-shell .admin-area :is(.parameter-table,.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody tr {
+    display:table-row;padding:0;border:0!important;border-radius:0;
+  }
+  .survey-shell .admin-area :is(.parameter-table,.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody td {
+    display:table-cell;padding:.45rem .35rem!important;
+    border:0!important;border-bottom:1px solid var(--color-grey-2)!important;
+    font-size:.62rem;vertical-align:top;overflow-wrap:anywhere;
+  }
+  .survey-shell .admin-area :is(.parameter-table,.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody tr:last-child td {
+    border-bottom:0!important;
+  }
+  .admin-area :is(.parameter-table,.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody td[data-label]::before {content:none}
+  /* Lebar minimum supaya kolom tidak saling menghimpit; selebihnya digeser mendatar. */
+  /* Dalam piksel, bukan rem: ukuran huruf dasar ruang survei kecil, sehingga lebar dalam rem
+     menghasilkan kolom yang masih terhimpit dan kata terpenggal per suku kata. */
+  .survey-shell .admin-area .pantau-tabel {min-width:460px!important}
+  .survey-shell .admin-area .tugas-tabel {min-width:660px!important}
+  .survey-shell .admin-area .assignment-planner__table {min-width:560px!important;table-layout:auto}
+  .survey-shell .admin-area .parameter-table {min-width:0!important}
+  .parameter-table th:nth-child(1) {width:32%}
+  .parameter-table th:nth-child(3) {width:3.4rem}
+  .parameter-table th:nth-child(4) {width:2.6rem}
+  .survey-shell .admin-area .parameter-table tbody td:nth-child(3) {text-align:right}
+  .pantau-tabel__angka,
+  .tugas-tabel__aksi {text-align:right!important}
+  .pantau-progres {gap:.4rem}
+  .pantau-progres__angka {flex-basis:4rem}
+  .pantau-periode__pilih {max-width:none}
+  /* Baris sunting dan baris tambah: kembali menumpuk supaya kolom isian tidak terjepit. */
+  .survey-shell .admin-area .parameter-table tbody tr:is(.parameter-row--editing,.parameter-add-row) {display:grid;gap:.3rem;padding:.5rem .35rem}
+  .survey-shell .admin-area .parameter-table tbody tr:is(.parameter-row--editing,.parameter-add-row) td {display:block;padding:0!important;border:0!important}
+  .survey-shell .admin-area .parameter-table tbody tr:is(.parameter-row--editing,.parameter-add-row) td[data-label]::before {
+    content:attr(data-label);display:block;margin-bottom:.15rem;
+    color:var(--color-text);font-size:.5rem;font-weight:600;letter-spacing:.045em;text-transform:uppercase;
+  }
+  .survey-shell .admin-area .tugas-tabel tbody tr:has(.tugas-batal) {display:grid;gap:.3rem;padding:.5rem .35rem}
+  .survey-shell .admin-area .tugas-tabel tbody tr:has(.tugas-batal) td {display:block;padding:.1rem 0!important;border:0!important;text-align:left!important}
 }
