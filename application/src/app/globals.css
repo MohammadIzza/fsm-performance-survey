@@ -3323,3 +3323,10 @@ input[type="range"]:disabled::-moz-range-thumb {
 @media only screen and (max-width: 640px) {
   .objek-baris__pj {font-size:.62rem}
 }
+
+/* Nama objek pada tabel data boleh membungkus. Aturan umum untuk tautan di dalam sel mengunci
+   nowrap — benar untuk tautan aksi pendek, tetapi nama objek yang panjang lalu menerobos kolom
+   di sebelahnya, terutama di layar ponsel. */
+.survey-shell main :is(.tugas-tabel,.pantau-tabel,.parameter-table,.assignment-planner__table) td a {
+  white-space:normal;overflow-wrap:anywhere;
+}
