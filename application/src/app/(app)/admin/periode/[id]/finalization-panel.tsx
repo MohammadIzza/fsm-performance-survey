@@ -58,12 +58,18 @@ export function FinalizationPanel({
         {preview.ready && (
           <form action={finalizeAction} className="space-y-3">
             <input type="hidden" name="periodId" value={periodId} />
-            <textarea
-              name="note"
-              placeholder="Catatan finalisasi (opsional)"
-              rows={2}
-              className="form__control"
-            />
+            {/* Server mewajibkan catatan ini (finalizePeriod: "Pernyataan finalisasi wajib diisi"); dulu
+                tertulis "opsional", sehingga finalisasi lewat UI selalu ditolak. */}
+            <label className="admin-tools__field">
+              <span>Catatan finalisasi (wajib)</span>
+              <textarea
+                name="note"
+                required
+                placeholder="Mis. Hasil disahkan rapat pimpinan 20 November 2026"
+                rows={2}
+                className="form__control"
+              />
+            </label>
             <label className="flex items-start gap-2 app-text-sm text-[var(--foreground)]">
               <input
                 type="checkbox"
