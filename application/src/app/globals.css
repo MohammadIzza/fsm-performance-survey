@@ -3216,6 +3216,14 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell .admin-area .pantau-tabel tbody td {font-size:.6rem;line-height:1.4}
   .survey-shell .admin-area .pantau-tabel tbody td small {font-size:.55rem}
   .survey-shell .admin-area .pantau-tabel tbody td::before {font-size:.55rem}
+  /* Tab "Perlu penilai tambahan" dan "Menunggu penilaian" memakai susunan yang sama dengan tab
+     "Penilai belum selesai": keterangan ringkas di kanan baris pertama, tautan tindakan di bawahnya. */
+  .survey-shell .admin-area .pantau-tabel tbody tr {grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+  .survey-shell .admin-area .pantau-tabel tbody td.pantau-tabel__angka {justify-self:stretch;max-width:none}
+  .survey-shell .admin-area .pantau-tabel tbody td.pantau-tabel__angka .pantau-baris {display:block;text-align:right}
+  .survey-shell .admin-area .pantau-tabel tbody td.pantau-tabel__aksi {
+    grid-column:2;grid-row:2;justify-self:end;text-align:right!important;
+  }
   /* Nilai pertama sudah jelas dari tempatnya; namanya tidak perlu diulang di depannya. */
   .survey-shell .admin-area :is(.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody td:first-child::before {content:none!important}
   /* NIP/NIM panjang tanpa spasi tidak boleh memaksa lebar tabel melebihi layar. */

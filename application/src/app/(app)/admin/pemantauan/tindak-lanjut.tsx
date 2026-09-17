@@ -88,12 +88,12 @@ export function TindakLanjut({
                           <small>{o.unit}</small>
                         </td>
                         <td data-label="Kategori">{o.kategori}</td>
-                        <td data-label="Kekurangan">
+                        <td data-label="Kekurangan" className="pantau-tabel__angka">
                           {o.kelompok
                             .filter((k) => k.ditugaskan < k.minimum)
                             .map((k) => (
                               <span key={k.kelompok} className="pantau-baris">
-                                {namaKelompok(k.kelompok)}: {k.ditugaskan} dari {k.minimum} penilai
+                                {namaKelompok(k.kelompok)} {k.ditugaskan}/{k.minimum} penilai
                               </span>
                             ))}
                         </td>
@@ -199,10 +199,10 @@ export function TindakLanjut({
                           <small>{o.unit}</small>
                         </td>
                         <td data-label="Kategori">{o.kategori}</td>
-                        <td data-label="Sudah dikirim">
+                        <td data-label="Sudah dikirim" className="pantau-tabel__angka">
                           {o.kelompok.map((k) => (
                             <span key={k.kelompok} className="pantau-baris">
-                              {namaKelompok(k.kelompok)}: {k.terkirim} dari minimum {k.minimum}
+                              {namaKelompok(k.kelompok)} {k.terkirim}/{k.minimum}
                             </span>
                           ))}
                         </td>
