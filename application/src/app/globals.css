@@ -3362,3 +3362,16 @@ input[type="range"]:disabled::-moz-range-thumb {
    kolom). Baris daftar admin punya enam kolom, jadi dorongan itu menyisakan lubang di tengah baris
    dan mendorong kolom terakhir keluar dari barisnya di layar 1000–1300px. */
 .survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__location {margin-left:0}
+/* Ikon keterangan pada label kartu ringkasan. Ikon mengikuti kata terakhir labelnya seperti tanda
+   baca: dengan flex ia terdorong ke tepi kanan kartu dan berdiri sendiri jauh dari tulisannya, yang
+   justru terlihat lebih berantakan daripada sebelumnya. Ukurannya dinyatakan dalam em supaya ikut
+   mengecil bersama label di layar ponsel dan tetap sepadan dengan tinggi hurufnya. */
+.survey-shell .summary__label:has(.info) {display:block}
+/* Kartu ringkasan memaksa setiap <span> di dalamnya membungkus (white-space:normal) supaya nama
+   panjang tidak keluar kartu; potongan ekor ini perlu menang atas aturan itu, jadi selektornya
+   disebut lengkap sampai kartunya. */
+.survey-shell .info-ekor,
+.survey-shell .summary__card .info-ekor {white-space:nowrap}
+.survey-shell .summary__label .info {
+  font-size:.72em;width:1.5em;height:1.5em;margin:0 0 0 .35em;vertical-align:.04em;
+}

@@ -1,4 +1,4 @@
-import { Info } from "@/components/theme/info";
+import { InfoLabel } from "@/components/theme/info";
 import { KET } from "@/lib/keterangan";
 import { PageIntro, SummaryCard } from "@/components/theme/summary";
 import { getPeriodScope } from "@/lib/authz";
@@ -130,7 +130,7 @@ export default async function HasilDetailPage({
       <PageIntro title={category.name} intro={category.period.name}>
         <SummaryCard
           tone={category.period.status === "FINAL" ? "tosca" : "kuning"}
-          label={<>Nilai<Info>{KET.sementara}</Info></>}
+          label={<InfoLabel ket={KET.sementara}>Nilai</InfoLabel>}
           value={category.period.status === "FINAL" ? "Final" : "Sementara"}
           note={category.period.status === "FINAL" ? "sudah dikunci" : "masih dapat berubah"}
         />

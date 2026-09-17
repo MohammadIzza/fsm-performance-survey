@@ -105,3 +105,30 @@ export function Info({ children, label = "Keterangan" }: { children: ReactNode; 
     </>
   );
 }
+
+/**
+ * Label yang membawa ikon keterangan, mis. judul kartu ringkasan. Kata terakhir labelnya dan ikonnya
+ * dibungkus satu potongan yang dilarang berganti baris: tanpa itu ikon dihitung sebagai "kata"
+ * berikutnya dan turun sendirian ke baris baru begitu labelnya nyaris selebar kartunya. Sekarang
+ * yang turun adalah kata terakhir bersama ikonnya, jadi ikon tidak pernah berdiri sendiri.
+ */
+export function InfoLabel({ children, ket }: { children: ReactNode; ket: ReactNode }) {
+  if (typeof children !== "string") {
+    return (
+      <>
+        {children}
+        <Info>{ket}</Info>
+      </>
+    );
+  }
+  const pisah = children.lastIndexOf(" ");
+  return (
+    <>
+      {children.slice(0, pisah + 1)}
+      <span className="info-ekor">
+        {children.slice(pisah + 1)}
+        <Info>{ket}</Info>
+      </span>
+    </>
+  );
+}
