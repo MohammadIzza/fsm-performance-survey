@@ -3234,7 +3234,10 @@ input[type="range"]:disabled::-moz-range-thumb {
     display:grid;grid-template-columns:1.15fr 1.45fr .95fr;gap:0 .35rem;padding:0 .1rem .3rem;
     border-bottom:2px solid var(--color-black);
   }
-  .survey-shell .admin-area .tugas-tabel thead th {padding:0!important;font-size:.5rem;text-align:left!important}
+  /* Satu garis lurus di bawah kepala tabel: garis milik tiap sel terputus di sela kolomnya. */
+  .survey-shell .admin-area .tugas-tabel thead th {
+    padding:0!important;border:0!important;font-size:.44rem;text-align:left!important;
+  }
   .survey-shell .admin-area .tugas-tabel thead th:is(:nth-child(2),:nth-child(4),:nth-child(6)) {display:none}
   .survey-shell .admin-area .tugas-tabel thead th:nth-child(5) {text-align:right!important}
   .survey-shell .admin-area .tugas-tabel tbody tr {
@@ -3252,13 +3255,12 @@ input[type="range"]:disabled::-moz-range-thumb {
   /* Nama kolom sudah ada di kepala tabel, jadi tidak diulang di depan tiap nilai. */
   .survey-shell .admin-area .tugas-tabel tbody td::before {content:none!important}
   .survey-shell main .tugas-tabel .status-pill {display:inline-block;max-width:100%;white-space:normal;text-align:center}
-  /* Daftar tugas: seukuran paragraf pengantar di atasnya (.62rem), bukan lebih besar. */
-  .survey-shell .admin-area .tugas-tabel tbody td {font-size:.62rem}
-  .survey-shell .admin-area .tugas-tabel tbody td:first-child {font-size:.64rem}
-  .survey-shell .admin-area .tugas-tabel tbody td small {font-size:.55rem}
-  .survey-shell .admin-area .tugas-tabel tbody td::before {font-size:.55rem}
-  .survey-shell main .tugas-tabel .status-pill {font-size:.52rem;padding:.22em .6em}
-  .survey-shell main .tugas-tabel td button {font-size:.58rem}
+  /* Seukuran tabel pratinjau di atasnya, bukan lebih besar. */
+  .survey-shell .admin-area .tugas-tabel tbody td {font-size:.56rem;line-height:1.35}
+  .survey-shell .admin-area .tugas-tabel tbody td:first-child {font-size:.56rem}
+  .survey-shell .admin-area .tugas-tabel tbody td small {font-size:.5rem}
+  .survey-shell main .tugas-tabel .status-pill {font-size:.46rem;padding:.2em .55em}
+  .survey-shell main .tugas-tabel td button {font-size:.52rem}
   /* Nilai yang tanpa label tidak jelas artinya tetap membawa namanya, sebaris di depan nilainya. */
   .survey-shell .admin-area :is(.pantau-tabel,.tugas-tabel,.assignment-planner__table) tbody
     td:is([data-label="Kelompok"],[data-label="Penilai"],[data-label="Asal"],[data-label="Kategori"],[data-label="Unit"],[data-label="Kelompok penilai"],[data-label="Calon sah"],[data-label="Sudah ada"],[data-label="Ditambahkan"],[data-label="Kekurangan"],[data-label="Sudah dikirim"],[data-label="Belum cukup dinilai"],[data-label="Sudah dinilai / minimum"],[data-label="Yang perlu dilakukan"],[data-label="Belum dikirim"])::before {
