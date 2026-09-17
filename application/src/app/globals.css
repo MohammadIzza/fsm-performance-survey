@@ -3225,6 +3225,33 @@ input[type="range"]:disabled::-moz-range-thumb {
   /* Lebar 1% pada kolom Aksi hanya berlaku untuk tabel di layar lebar; di kisi ponsel ia membuat
      tombolnya menyempit jadi satu piksel dan meluber ke luar layar. */
   .survey-shell .admin-area .tugas-tabel tbody td.tugas-tabel__aksi {grid-row:2;width:auto!important}
+  /* Daftar tugas di ponsel disusun sebagai tabel tiga kolom: Objek, Penilai, Status. Kelompok dan
+     asal penugasan ikut sebagai baris kecil di bawah kolomnya masing-masing, dan tombol Batalkan
+     di bawah status — enam kolom tidak muat berdampingan selebar layar ponsel. */
+  .survey-shell .admin-area .tugas-tabel {display:block}
+  .survey-shell .admin-area .tugas-tabel thead {display:block}
+  .survey-shell .admin-area .tugas-tabel thead tr {
+    display:grid;grid-template-columns:1.15fr 1.45fr .95fr;gap:0 .35rem;padding:0 .1rem .3rem;
+    border-bottom:2px solid var(--color-black);
+  }
+  .survey-shell .admin-area .tugas-tabel thead th {padding:0!important;font-size:.5rem;text-align:left!important}
+  .survey-shell .admin-area .tugas-tabel thead th:is(:nth-child(2),:nth-child(4),:nth-child(6)) {display:none}
+  .survey-shell .admin-area .tugas-tabel thead th:nth-child(5) {text-align:right!important}
+  .survey-shell .admin-area .tugas-tabel tbody tr {
+    display:grid;grid-template-columns:1.15fr 1.45fr .95fr;gap:.1rem .35rem;align-items:start;padding:.5rem .1rem;
+  }
+  .survey-shell .admin-area .tugas-tabel tbody td {grid-row:auto}
+  .survey-shell .admin-area .tugas-tabel tbody td[data-label="Objek"] {grid-column:1;grid-row:1}
+  .survey-shell .admin-area .tugas-tabel tbody td[data-label="Kelompok"] {grid-column:1;grid-row:2;color:var(--muted)}
+  .survey-shell .admin-area .tugas-tabel tbody td[data-label="Penilai"] {grid-column:2;grid-row:1}
+  .survey-shell .admin-area .tugas-tabel tbody td[data-label="Asal"] {grid-column:2;grid-row:2;color:var(--muted)}
+  /* Sel status dan aksi mengisi lebar kolomnya lalu isinya dirapatkan ke kanan; bila hanya selebar
+     isinya, lencana yang lebih lebar dari petaknya menerobos ke luar tabel. */
+  .survey-shell .admin-area .tugas-tabel tbody td[data-label="Status"] {grid-column:3;grid-row:1;justify-self:stretch;text-align:right!important}
+  .survey-shell .admin-area .tugas-tabel tbody td.tugas-tabel__aksi {grid-column:3;grid-row:2;justify-self:stretch;text-align:right!important}
+  /* Nama kolom sudah ada di kepala tabel, jadi tidak diulang di depan tiap nilai. */
+  .survey-shell .admin-area .tugas-tabel tbody td::before {content:none!important}
+  .survey-shell main .tugas-tabel .status-pill {display:inline-block;max-width:100%;white-space:normal;text-align:center}
   /* Daftar tugas: seukuran paragraf pengantar di atasnya (.62rem), bukan lebih besar. */
   .survey-shell .admin-area .tugas-tabel tbody td {font-size:.62rem}
   .survey-shell .admin-area .tugas-tabel tbody td:first-child {font-size:.64rem}
