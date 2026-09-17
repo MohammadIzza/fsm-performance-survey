@@ -131,7 +131,6 @@ export function ObjectManager({
           ["title", "Objek"],
           ["duration", "Jenis"],
           ["location", "Unit pemilik"],
-          ["topic", "Penanggung jawab"],
           ["dates", "Status"],
           ["price", "Aksi"],
         ]}
@@ -230,6 +229,12 @@ function ObjectRow({
     >
       <RowTitle>
         {object.name}
+        {/* Penanggung jawab hanya ada pada objek selain Orang, dan tidak selalu diisi. Kolom sendiri
+            untuknya membuat sebagian besar baris berisi tanda pisah; keterangannya ikut di bawah nama
+            objeknya saja, seperti unit pada daftar lain. */}
+        {perluPenanggungJawab && object.responsibleUser && (
+          <span className="objek-baris__pj">Penanggung jawab: {object.responsibleUser.name}</span>
+        )}
         {object.url && (
           <a
             href={object.url}
@@ -247,9 +252,6 @@ function ObjectRow({
       </RowField>
       <RowField kind="location" icon={false} detail>
         {object.ownerUnit.name}
-      </RowField>
-      <RowField kind="topic" icon={false} detail>
-        {perluPenanggungJawab ? object.responsibleUser?.name ?? "\u2014" : ""}
       </RowField>
       <RowField kind="dates" icon={false}>
         <StatusPill tone={object.active ? "selesai" : "netral"}>
