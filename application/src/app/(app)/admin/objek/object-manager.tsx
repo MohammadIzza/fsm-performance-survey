@@ -166,6 +166,7 @@ function ObjectRow({
 
   // Form sunting dulu menempati satu <tr> tambahan ber-colSpan di bawah barisnya; sekarang jadi
   // panel di dalam <li> yang sama, dengan barisnya tetap terlihat selama disunting.
+  const perluPenanggungJawab = object.type.code !== "ORANG";
   return (
     <DataRow
       collapsible
@@ -174,9 +175,13 @@ function ObjectRow({
           <RowPanelDetails>
             <RowPanelField label="Jenis">{object.type.name}</RowPanelField>
             <RowPanelField label="Unit pemilik">{object.ownerUnit.name}</RowPanelField>
-            <RowPanelField label="Penanggung jawab">
-              {object.responsibleUser ? object.responsibleUser.name : "—"}
-            </RowPanelField>
+            {/* Penanggung jawab hanya berlaku untuk objek selain Orang (karya, unit, lainnya);
+                orang bertanggung jawab atas dirinya sendiri, jadi barisnya tidak perlu muncul. */}
+            {perluPenanggungJawab && (
+              <RowPanelField label="Penanggung jawab">
+                {object.responsibleUser ? object.responsibleUser.name : "—"}
+              </RowPanelField>
+            )}
             {object.url && (
               <RowPanelField label="Tautan">
                 <a href={object.url} target="_blank" rel="noreferrer">
@@ -244,7 +249,7 @@ function ObjectRow({
         {object.ownerUnit.name}
       </RowField>
       <RowField kind="topic" icon={false} detail>
-        {object.responsibleUser ? object.responsibleUser.name : "\u2014"}
+        {perluPenanggungJawab ? object.responsibleUser?.name ?? "\u2014" : ""}
       </RowField>
       <RowField kind="dates" icon={false}>
         <StatusPill tone={object.active ? "selesai" : "netral"}>
