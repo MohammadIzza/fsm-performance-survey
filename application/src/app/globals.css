@@ -3230,9 +3230,28 @@ input[type="range"]:disabled::-moz-range-thumb {
     td:is([data-label="Kelompok"],[data-label="Penilai"],[data-label="Asal"],[data-label="Kategori"],[data-label="Unit"],[data-label="Kelompok penilai"],[data-label="Calon sah"],[data-label="Sudah ada"],[data-label="Ditambahkan"],[data-label="Kekurangan"],[data-label="Sudah dikirim"],[data-label="Belum cukup dinilai"],[data-label="Sudah dinilai / minimum"],[data-label="Yang perlu dilakukan"],[data-label="Belum dikirim"])::before {
     content:attr(data-label) ": ";color:var(--muted);font-size:.6rem;font-weight:600;
   }
-  /* Tabel pratinjau pembagian: empat angkanya berjajar dua-dua, bukan satu baris per angka. */
-  .survey-shell .admin-area .assignment-planner__table tbody tr {grid-template-columns:repeat(2,minmax(0,1fr))}
+  /* Pratinjau pembagian di ponsel: nama objek dan kelompoknya satu baris penuh, lalu ketiga
+     angkanya berjajar dengan nama kolom kecil di atas masing-masing angka — terbaca sebagai tabel
+     mini, bukan daftar "label: nilai" yang menurun. Nama penilai yang akan ditambahkan bisa panjang,
+     jadi ia mendapat barisnya sendiri selebar kartu. */
+  .survey-shell .admin-area .assignment-planner__table tbody tr {
+    grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:.25rem .5rem;
+  }
   .survey-shell .admin-area .assignment-planner__table tbody td:is(:nth-child(1),:nth-child(2),:nth-child(5)) {grid-column:1/-1}
+  .survey-shell .admin-area .assignment-planner__table tbody td:is(:nth-child(3),:nth-child(4),:nth-child(6)) {
+    grid-column:auto;text-align:center!important;font-variant-numeric:tabular-nums;
+  }
+  .survey-shell .admin-area .assignment-planner__table tbody td:is(:nth-child(3),:nth-child(4),:nth-child(6))::before {
+    content:attr(data-label);display:block;margin-bottom:.1rem;
+    color:var(--muted);font-size:.5rem;font-weight:600;letter-spacing:.04em;line-height:1.2;text-transform:uppercase;
+  }
+  .survey-shell .admin-area .assignment-planner__table tbody td:nth-child(2) {margin-bottom:.15rem}
+  /* Di markah, "Akan ditambah" berada di antara angka-angka; di kisi ponsel ia dipindah ke bawah
+     supaya ketiga angkanya tetap berjajar dalam satu baris. */
+  .survey-shell .admin-area .assignment-planner__table tbody td:nth-child(5) {order:1}
+  .survey-shell .admin-area .assignment-planner__table tbody td:nth-child(5)::before {
+    content:attr(data-label) ": ";color:var(--muted);font-size:.6rem;font-weight:600;
+  }
   /* Progres kategori di Pemantauan mengisi lebar penuh di bawah nama kategorinya. */
   .survey-shell .admin-area .pantau-tabel tbody td.pantau-tabel__progres {grid-column:1/-1;width:auto}
   .pantau-progres {gap:.5rem}
