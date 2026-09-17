@@ -4,14 +4,14 @@ import { getPeriodMonitoring, listMonitorablePeriods } from "@/lib/services/moni
 import { PageIntro, SummaryCard } from "@/components/theme/summary";
 import { StatusPill } from "@/components/theme/status-pill";
 import { PilihPeriode } from "./pilih-periode";
-import { DaftarPenilai } from "./daftar-penilai";
-import { DaftarObjekKurang } from "./daftar-objek-kurang";
+import { TindakLanjut } from "./tindak-lanjut";
 
 /**
- * Pemantauan satu periode. Versi sebelumnya berisi angka gabungan seluruh periode ("Tingkat
- * pengiriman", "Perhitungan tertunda", "Objek di bawah minimum") tanpa nama siapa pun, sehingga
- * admin tidak tahu apa yang harus dilakukan. Halaman ini menjawab tiga pertanyaan: sudah sejauh
- * mana, siapa yang perlu diingatkan, dan objek mana yang perlu ditambah penilainya.
+ * Pemantauan satu periode, disusun sebagai tiga pertanyaan berurutan:
+ *   1. Sudah sejauh mana? — satu kalimat, satu batang, dan tabel ringkas per kategori.
+ *   2. Apa yang perlu dilakukan? — daftar tindak lanjut dalam tab, masing-masing dengan satu
+ *      kalimat penjelasan, supaya halaman tidak memanjang oleh daftar nama.
+ * Versi awal berisi angka gabungan seluruh periode tanpa nama siapa pun.
  */
 
 const statusPeriode: Record<string, { label: string; tone: "proses" | "perhatian" | "selesai" | "arsip" | "netral" }> = {
@@ -22,29 +22,20 @@ const statusPeriode: Record<string, { label: string; tone: "proses" | "perhatian
   REVISI: { label: "Revisi", tone: "perhatian" },
 };
 
-const jenisLaporan: Record<string, string> = {
-  OBJEK_KELIRU: "Objek keliru",
-  UNIT_KELIRU: "Unit keliru",
-  PENGGUNA_NONAKTIF: "Pengguna nonaktif",
-  TAUTAN_KARYA_SALAH: "Tautan karya salah",
-  LAINNYA: "Lainnya",
-};
-
 const tanggal = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Jakarta" });
 const angka = new Intl.NumberFormat("id-ID");
-const persen = (n: number) => `${new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(n)}%`;
+const persen = (n: number) => `${Math.round(n)}%`;
 
-function kalimatTenggat(status: string, endsAt: Date) {
+function keteranganTenggat(status: string, endsAt: Date) {
   const sisaHari = Math.ceil((endsAt.getTime() - Date.now()) / 864e5);
-  if (status === "AKTIF") {
-    if (sisaHari > 1) return `Tenggat ${tanggal.format(endsAt)} — sisa ${sisaHari} hari.`;
-    if (sisaHari === 1) return `Tenggat ${tanggal.format(endsAt)} — besok.`;
-    if (sisaHari <= 0) return `Tenggat ${tanggal.format(endsAt)} sudah lewat; pengisian belum ditutup.`;
-  }
-  return `Tenggat ${tanggal.format(endsAt)}.`;
+  const tgl = tanggal.format(endsAt);
+  if (status !== "AKTIF") return `Tenggat ${tgl}`;
+  if (sisaHari > 1) return `Tenggat ${tgl} · sisa ${sisaHari} hari`;
+  if (sisaHari === 1) return `Tenggat ${tgl} · besok`;
+  return `Tenggat ${tgl} sudah lewat`;
 }
 
-async function PemantauanPage({ searchParams }: { searchParams: Promise<{ periode?: string }> }) {
+async function PemantauanPage({ searchParams }: { searchParams: Promise<{ periode?: string; bagian?: string }> }) {
   const sp = await searchParams;
   const periods = await listMonitorablePeriods();
 
@@ -60,161 +51,138 @@ async function PemantauanPage({ searchParams }: { searchParams: Promise<{ period
   const periodeId = periods.some((p) => p.id === sp.periode) ? sp.periode! : periods[0].id;
   const d = (await getPeriodMonitoring(periodeId))!;
   const status = statusPeriode[d.period.status] ?? { label: d.period.status, tone: "netral" as const };
-  const objekKurangUnik = d.objekKurang.length;
   const berjalan = d.period.status === "AKTIF" && d.period.endsAt > new Date();
+  const sedangDiisi = d.draf + d.dibukaKembali;
   const lebar = (n: number) => `${d.total ? (n / d.total) * 100 : 0}%`;
 
   return (
     <div className="space-y-8">
-      <PageIntro title="Pemantauan" intro="Sejauh mana pengisian dan siapa yang perlu ditindaklanjuti.">
+      <PageIntro title="Pemantauan" intro="Sejauh mana pengisian, dan apa yang perlu ditindaklanjuti.">
         <SummaryCard
           tone="kuning"
-          label="Penilaian masuk"
+          label="Sudah dikirim"
           value={persen(d.persen)}
           note={`${angka.format(d.terkirim)} dari ${angka.format(d.total)} tugas`}
         />
         <SummaryCard
           tone="biru"
-          label="Belum selesai"
+          label="Penilai belum selesai"
           value={angka.format(d.penilaiBelum.length)}
           note={`dari ${angka.format(d.jumlahPenilai)} penilai`}
         />
         <SummaryCard
-          tone={objekKurangUnik > 0 ? "merah" : "tosca"}
+          tone={d.objekKurang.length > 0 ? "merah" : "tosca"}
           label="Belum cukup dinilai"
-          value={angka.format(objekKurangUnik)}
-          note="objek belum bisa masuk peringkat"
+          value={angka.format(d.objekKurang.length)}
+          note="objek belum masuk peringkat"
         />
       </PageIntro>
 
-      <section className="app-panel app-panel--ruled pantau-periode">
+      <div className="pantau-periode">
         <div className="pantau-periode__pilih">
-          <label className="filter-bar__label" htmlFor="pantau-periode">Periode</label>
+          <label className="filter-bar__label" htmlFor="pantau-periode">
+            Periode
+          </label>
           <PilihPeriode
             periodeId={periodeId}
-            pilihan={periods.map((p) => ({ value: p.id, label: p.status === "AKTIF" ? p.name : `${p.name} (${statusPeriode[p.status]?.label ?? p.status})` }))}
+            pilihan={periods.map((p) => ({
+              value: p.id,
+              label: p.status === "AKTIF" ? p.name : `${p.name} (${statusPeriode[p.status]?.label ?? p.status})`,
+            }))}
           />
         </div>
-        <div className="pantau-periode__keadaan">
+        <p className="pantau-periode__keadaan">
           <StatusPill tone={status.tone}>{status.label}</StatusPill>
-          <span>{kalimatTenggat(d.period.status, d.period.endsAt)}</span>
-        </div>
-      </section>
+          <span>{keteranganTenggat(d.period.status, d.period.endsAt)}</span>
+        </p>
+      </div>
 
       <section className="app-panel app-panel--ruled">
-        <h2 className="app-panel__label">Progres pengisian</h2>
-        <p className="pantau-kalimat">
-          <strong>{angka.format(d.terkirim)}</strong> dari <strong>{angka.format(d.total)}</strong> tugas penilaian sudah
-          dikirim ({persen(d.persen)}). {angka.format(d.penilaiSelesai)} dari {angka.format(d.jumlahPenilai)} penilai sudah
-          menyelesaikan semua tugasnya.
-        </p>
-        <div className="pantau-batang" role="img" aria-label={`Terkirim ${d.terkirim}, draf ${d.draf}, dibuka kembali ${d.dibukaKembali}, belum dibuka ${d.belumMulai}`}>
-          <span className="pantau-batang__isi pantau-batang__isi--terkirim" style={{ width: lebar(d.terkirim) }} />
-          <span className="pantau-batang__isi pantau-batang__isi--draf" style={{ width: lebar(d.draf + d.dibukaKembali) }} />
+        <h2 className="app-panel__label">Sudah sejauh mana</h2>
+        <div className="pantau-batang" aria-hidden="true">
+          <span className="pantau-batang__isi pantau-warna--terkirim" style={{ width: lebar(d.terkirim) }} />
+          <span className="pantau-batang__isi pantau-warna--draf" style={{ width: lebar(sedangDiisi) }} />
         </div>
         <ul className="pantau-legenda">
-          <li><i className="pantau-legenda__warna pantau-batang__isi--terkirim" />Sudah dikirim <b>{angka.format(d.terkirim)}</b></li>
-          <li><i className="pantau-legenda__warna pantau-batang__isi--draf" />Sedang diisi (draf) <b>{angka.format(d.draf + d.dibukaKembali)}</b></li>
-          <li><i className="pantau-legenda__warna" />Belum dibuka <b>{angka.format(d.belumMulai)}</b></li>
+          <li>
+            <i className="pantau-warna--terkirim" /> Sudah dikirim <b>{angka.format(d.terkirim)}</b>
+          </li>
+          <li>
+            <i className="pantau-warna--draf" /> Sedang diisi <b>{angka.format(sedangDiisi)}</b>
+          </li>
+          <li>
+            <i /> Belum dibuka <b>{angka.format(d.belumMulai)}</b>
+          </li>
         </ul>
-      </section>
 
-      <section className="app-panel app-panel--ruled">
-        <h2 className="app-panel__label">Per kategori</h2>
-        {d.kategori.length === 0 ? (
-          <p className="app-empty">Periode ini tidak punya kategori aktif.</p>
-        ) : (
-          <ul className="pantau-kategori">
-            {d.kategori.map((k) => {
-              const p = k.tugas ? (k.terkirim / k.tugas) * 100 : 0;
-              return (
-                <li key={k.id}>
-                  <div className="pantau-kategori__kepala">
-                    <Link href={`/admin/periode/${periodeId}/kategori/${k.id}?bagian=penugasan`} className="pantau-kategori__nama">
-                      {k.nama}
-                    </Link>
-                    <span className="pantau-kategori__angka">
-                      {angka.format(k.terkirim)}/{angka.format(k.tugas)} · {persen(p)}
-                    </span>
-                  </div>
-                  <div className="pantau-batang pantau-batang--tipis">
-                    <span className="pantau-batang__isi pantau-batang__isi--terkirim" style={{ width: `${p}%` }} />
-                  </div>
-                  <p className="pantau-kategori__catatan">
-                    {k.jenis} · {k.objek} objek
-                    {k.objekKurang > 0 ? (
-                      <> · <span className="pantau-kategori__kurang">{k.objekKurang} objek belum cukup dinilai</span></>
-                    ) : (
-                      " · semua objek sudah cukup dinilai"
-                    )}
-                    {k.perhitunganGagal && <> · <span className="pantau-kategori__kurang">perhitungan terakhir gagal</span></>}
-                  </p>
-                </li>
-              );
-            })}
-          </ul>
+        {d.kategori.length > 0 && (
+          <div className="app-table-wrap pantau-kategori">
+            <table className="pantau-tabel">
+              <thead>
+                <tr>
+                  <th>Kategori</th>
+                  <th className="pantau-tabel__progres">Sudah dikirim</th>
+                  <th className="pantau-tabel__angka">Belum cukup dinilai</th>
+                </tr>
+              </thead>
+              <tbody>
+                {d.kategori.map((k) => {
+                  const p = k.tugas ? (k.terkirim / k.tugas) * 100 : 0;
+                  return (
+                    <tr key={k.id}>
+                      <td data-label="Kategori">
+                        <Link href={`/admin/periode/${periodeId}/kategori/${k.id}?bagian=penugasan`} className="pantau-kategori__nama">
+                          {k.nama}
+                        </Link>
+                        <small>
+                          {k.jenis} · {k.objek} objek{k.perhitunganGagal && " · perhitungan terakhir gagal"}
+                        </small>
+                      </td>
+                      <td data-label="Sudah dikirim" className="pantau-tabel__progres">
+                        <span className="pantau-progres">
+                          <span className="pantau-batang pantau-batang--tipis">
+                            <span className="pantau-batang__isi pantau-warna--terkirim" style={{ width: `${p}%` }} />
+                          </span>
+                          <span className="pantau-progres__angka">
+                            {persen(p)} <small>{angka.format(k.terkirim)}/{angka.format(k.tugas)}</small>
+                          </span>
+                        </span>
+                      </td>
+                      <td data-label="Belum cukup dinilai" className="pantau-tabel__angka">
+                        {k.objekKurang > 0 ? (
+                          <span className="pantau-merah">
+                            {k.objekKurang} objek<span className="pantau-seluler"> belum cukup dinilai</span>
+                          </span>
+                        ) : (
+                          <span className="pantau-hijau">Semua<span className="pantau-seluler"> objek</span> cukup<span className="pantau-seluler"> dinilai</span></span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
 
       <section className="app-panel app-panel--ruled">
-        <h2 className="app-panel__label">Penilai yang belum selesai ({angka.format(d.penilaiBelum.length)})</h2>
-        <p className="pantau-penjelasan">
-          Orang yang masih punya tugas belum dikirim — mereka yang perlu diingatkan. <b>Belum dibuka</b>: tugas belum
-          disentuh sama sekali. <b>Draf</b>: sudah diisi sebagian tetapi belum dikirim, jadi belum dihitung.
-        </p>
-        {d.penilaiBelum.length === 0 ? (
-          <p className="app-empty">Semua penilai sudah mengirim seluruh tugasnya.</p>
-        ) : (
-          <DaftarPenilai penilai={d.penilaiBelum} />
-        )}
-      </section>
-
-      <section className="app-panel app-panel--ruled">
-        <h2 className="app-panel__label">Objek yang belum cukup dinilai ({angka.format(objekKurangUnik)})</h2>
-        <p className="pantau-penjelasan">
-          Objek baru masuk peringkat bila penilaian yang <b>sudah dikirim</b> mencapai <b>minimum</b> di aturan penilai
-          kategorinya. Bila penilai yang ditugaskan saja kurang dari minimum, menunggu tidak akan cukup —
-          {berjalan ? " tambah penilainya." : " penilai hanya bisa ditambah saat periode Draf atau sedang berjalan."}
-        </p>
-        {d.objekKurang.length === 0 ? (
-          <p className="app-empty">Semua objek sudah memenuhi minimum penilaian.</p>
-        ) : (
-          <DaftarObjekKurang periodeId={periodeId} objek={d.objekKurang} bisaTambah={berjalan} />
-        )}
-      </section>
-
-      <section className="app-panel app-panel--ruled">
-        <h2 className="app-panel__label">Laporan masalah dari penilai ({d.laporanTerbuka.length})</h2>
-        {d.laporanTerbuka.length === 0 ? (
-          <p className="app-empty">Tidak ada laporan yang menunggu ditangani.</p>
-        ) : (
-          <>
-            <ul className="pantau-laporan">
-              {d.laporanTerbuka.slice(0, 5).map((l) => (
-                <li key={l.id}>
-                  <strong>{jenisLaporan[l.jenis] ?? l.jenis}</strong> — {l.objek} ({l.kategori})
-                  <small>
-                    Dilaporkan {l.pelapor}, {tanggal.format(l.dibuat)}: “{l.detail}”
-                  </small>
-                </li>
-              ))}
-            </ul>
-            <Link href="/admin/masalah" className="pantau-tautan">
-              Tangani laporan →
-            </Link>
-          </>
-        )}
-      </section>
-
-      {(d.perhitunganGagal.length > 0 || d.perhitunganMacet > 0) && (
-        <section className="app-panel app-panel--ruled">
-          <h2 className="app-panel__label">Perhitungan hasil bermasalah</h2>
-          <p className="pantau-penjelasan">
-            {d.perhitunganGagal.length > 0 && <>Perhitungan terakhir gagal pada: {d.perhitunganGagal.join(", ")}. Jalankan ulang dari halaman hasil kategori. </>}
-            {d.perhitunganMacet > 0 && <>{d.perhitunganMacet} perhitungan tidak selesai (berhenti di tengah jalan).</>}
+        <h2 className="app-panel__label">Yang perlu ditindaklanjuti</h2>
+        <TindakLanjut
+          periodeId={periodeId}
+          bisaTambah={berjalan || d.period.status === "DRAF"}
+          penilai={d.penilaiBelum}
+          objek={d.objekKurang}
+          laporan={d.laporanTerbuka.map((l) => ({ ...l, dibuat: l.dibuat.toISOString() }))}
+          bagian={sp.bagian}
+        />
+        {(d.perhitunganGagal.length > 0 || d.perhitunganMacet > 0) && (
+          <p className="pantau-petunjuk pantau-merah">
+            {d.perhitunganGagal.length > 0 && `Perhitungan hasil terakhir gagal pada: ${d.perhitunganGagal.join(", ")}. `}
+            {d.perhitunganMacet > 0 && `${d.perhitunganMacet} perhitungan berhenti di tengah jalan.`}
           </p>
-        </section>
-      )}
+        )}
+      </section>
     </div>
   );
 }
