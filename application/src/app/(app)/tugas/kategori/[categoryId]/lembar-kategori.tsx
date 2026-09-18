@@ -2,7 +2,6 @@
 
 import { startTransition, useEffect, useId, useRef, useState } from "react";
 import { useAksi } from "@/components/theme/notifikasi";
-import { ThemeButton } from "@/components/theme-button";
 import { useKonfirmasi } from "@/components/theme/confirm-dialog";
 import {
   ScoreField,
@@ -213,164 +212,165 @@ export function LembarKategori({
 
   const pertanyaan = urut[langkah];
   const kurang = pertanyaan ? kurangPada(pertanyaan.id) : 0;
+  const semuaLengkap = bisaDiisi.every((b) => urut.every((p) => terisi(b.assignmentId, p.id)));
+
+  const keterangan =
+    kurang > 0
+      ? `${kurang} objek belum diberi skor — lengkapi dulu untuk lanjut.`
+      : simpan === "menyimpan"
+        ? "Menyimpan…"
+        : simpan === "tersimpan"
+          ? "Tersimpan otomatis sebagai draf."
+          : simpan === "gagal"
+            ? "Gagal menyimpan draf — isian masih ada di layar, coba lanjutkan lagi."
+            : "";
 
   return (
-    <div className="lembar-kategori" id={idLembar}>
-      {/* Kemajuan: satu penanda per pertanyaan, ditambah ringkasan di ujungnya. Pertanyaan yang
-          sudah selesai boleh dibuka lagi lewat penandanya; yang belum, hanya lewat Berikutnya. */}
-      <ol className="lembar-langkah" aria-label="Kemajuan pengisian">
+    <div className="lembar-kategori space-y-6" id={idLembar}>
+      {/* Pertanyaan sebagai tab, bentuknya sama dengan tab di halaman kategori admin: nama pendek
+          di atas satu garis tebal, jumlah objek yang sudah diberi skor di sebelahnya. Pertanyaan
+          yang belum dijangkau tidak bisa dibuka — urutannya tetap satu per satu. */}
+      <div role="tablist" aria-label="Pertanyaan" className="category-tabs__strip lembar-tab">
         {urut.map((p, i) => {
-          const selesai = bisaDiisi.length > 0 && kurangPada(p.id) === 0;
-          const bisaDibuka = selesai || i <= langkah;
+          const sudah = bisaDiisi.length - kurangPada(p.id);
+          const bisaDibuka = bisaDiisi.length > 0 && (i <= langkah || kurangPada(p.id) === 0);
           return (
-            <li key={p.id}>
-              <button
-                type="button"
-                className="lembar-langkah__titik"
-                data-keadaan={i === langkah ? "aktif" : selesai ? "selesai" : "belum"}
-                aria-current={i === langkah ? "step" : undefined}
-                disabled={!bisaDibuka || bisaDiisi.length === 0}
-                onClick={() => pindah(i)}
-                title={p.name}
-              >
-                {i + 1}
-              </button>
-            </li>
+            <button
+              key={p.id}
+              type="button"
+              role="tab"
+              aria-selected={i === langkah}
+              title={p.name}
+              className="category-tabs__tab"
+              disabled={!bisaDibuka}
+              onClick={() => pindah(i)}
+            >
+              <span className="category-tabs__name">{i + 1}</span>
+              {bisaDiisi.length > 0 && (
+                <span className="category-tabs__count">
+                  {sudah}/{bisaDiisi.length}
+                </span>
+              )}
+            </button>
           );
         })}
-        <li>
-          <button
-            type="button"
-            className="lembar-langkah__titik lembar-langkah__titik--ringkasan"
-            data-keadaan={diRingkasan ? "aktif" : "belum"}
-            aria-current={diRingkasan ? "step" : undefined}
-            disabled={bisaDiisi.some((b) => urut.some((p) => !terisi(b.assignmentId, p.id)))}
-            onClick={() => pindah(urut.length)}
-          >
-            Ringkasan
-          </button>
-        </li>
-      </ol>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={diRingkasan}
+          className="category-tabs__tab"
+          disabled={!semuaLengkap}
+          onClick={() => pindah(urut.length)}
+        >
+          <span className="category-tabs__name">Ringkasan</span>
+        </button>
+      </div>
 
       {!diRingkasan && pertanyaan && (
-        <section className="assessment-sheet lembar-pertanyaan" aria-labelledby="judul-pertanyaan">
-          <header className="lembar-pertanyaan__kepala">
-            <p className="eyebrow">
-              PERTANYAAN {langkah + 1} DARI {urut.length}
-            </p>
-            <div className="lembar-pertanyaan__judul">
+        <section className="app-panel" aria-labelledby="judul-pertanyaan">
+          <div className="app-panel__intro">
+            <div>
+              <p className="eyebrow">
+                Pertanyaan {langkah + 1} dari {urut.length} · bobot {pertanyaan.weight}%
+              </p>
               <h2 id="judul-pertanyaan">{pertanyaan.name}</h2>
-              <span className="lembar-instrumen__bobot">{pertanyaan.weight}%</span>
+              {pertanyaan.indicator && <p className="app-panel__text">{pertanyaan.indicator}</p>}
+              {guide && (
+                <details className="lembar-petunjuk">
+                  <summary>Petunjuk penilaian</summary>
+                  <p className="app-panel__text">{guide}</p>
+                </details>
+              )}
             </div>
-            {pertanyaan.indicator && <p className="lembar-pertanyaan__indikator">{pertanyaan.indicator}</p>}
-            {guide && langkah === 0 && (
-              <details className="lembar-pertanyaan__petunjuk">
-                <summary>Petunjuk penilaian</summary>
-                <p>{guide}</p>
-              </details>
-            )}
-          </header>
-
-          <div className="app-table-wrap">
-            <table className="lembar-tabel lembar-tabel--satu">
-              <thead>
-                <tr>
-                  <th scope="col">Objek yang dinilai</th>
-                  <th scope="col">
-                    Skor {displayNumber(scale.min)}–{displayNumber(scale.max)}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {bisaDiisi.map((b) => (
-                  <tr key={b.assignmentId}>
-                    <th scope="row">
-                      <span className="lembar-tabel__nama">{b.objectName}</span>
-                      {b.unitName && <small className="lembar-tabel__unit">{b.unitName}</small>}
-                    </th>
-                    <td className="lembar-tabel__skor">
-                      <ScoreField
-                        id={`skor-${b.assignmentId}-${pertanyaan.id}`}
-                        label={`${pertanyaan.name} untuk ${b.objectName}`}
-                        scale={scale}
-                        value={nilai[b.assignmentId]?.[pertanyaan.id] ?? ""}
-                        onChange={(v) => ubahNilai(b.assignmentId, pertanyaan.id, v)}
-                        disabled={false}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
 
+          <table className="lembar-soal">
+            <thead>
+              <tr>
+                <th scope="col">Objek yang dinilai</th>
+                <th scope="col">
+                  Skor {displayNumber(scale.min)}–{displayNumber(scale.max)}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {bisaDiisi.map((b) => (
+                <tr key={b.assignmentId}>
+                  <td>
+                    {b.objectName}
+                    {b.unitName && <small>{b.unitName}</small>}
+                  </td>
+                  <td className="lembar-soal__skor">
+                    <ScoreField
+                      id={`skor-${b.assignmentId}-${pertanyaan.id}`}
+                      label={`${pertanyaan.name} untuk ${b.objectName}`}
+                      scale={scale}
+                      value={nilai[b.assignmentId]?.[pertanyaan.id] ?? ""}
+                      onChange={(v) => ubahNilai(b.assignmentId, pertanyaan.id, v)}
+                      disabled={false}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
           {terkunci.length > 0 && (
-            <p className="lembar-pertanyaan__catatan">
+            <p className="lembar-catatan">
               {terkunci.length} objek lain sudah terkirim sebelumnya dan tidak ditanyakan lagi.
             </p>
           )}
 
-          <div className="lembar-navigasi">
-            <button
-              type="button"
-              className="assessment-actions__draft tap-target"
-              disabled={langkah === 0}
-              onClick={() => pindah(langkah - 1)}
-            >
-              ← Sebelumnya
-            </button>
-            <ThemeButton
-              type="button"
-              className="assessment-actions__submit"
-              disabled={kurang > 0}
-              onClick={() => pindah(langkah + 1)}
-            >
-              {langkah + 1 === urut.length ? "Lihat ringkasan →" : "Berikutnya →"}
-            </ThemeButton>
-            <p className="lembar-navigasi__keterangan" role="status" aria-live="polite">
-              {kurang > 0
-                ? `${kurang} objek belum diberi skor — lengkapi dulu untuk lanjut.`
-                : simpan === "menyimpan"
-                  ? "Menyimpan…"
-                  : simpan === "tersimpan"
-                    ? "Tersimpan otomatis sebagai draf."
-                    : simpan === "gagal"
-                      ? "Gagal menyimpan draf — isian masih ada di layar, coba lanjutkan lagi."
-                      : " "}
+          <div className="lembar-aksi">
+            <p className="lembar-aksi__keterangan" role="status" aria-live="polite">
+              {keterangan}
             </p>
+            <div className="lembar-aksi__tombol">
+              <button
+                type="button"
+                className="app-btn"
+                disabled={langkah === 0}
+                onClick={() => pindah(langkah - 1)}
+              >
+                ← Sebelumnya
+              </button>
+              <button
+                type="button"
+                className="app-btn app-btn--primary"
+                disabled={kurang > 0}
+                onClick={() => pindah(langkah + 1)}
+              >
+                {langkah + 1 === urut.length ? "Lihat ringkasan →" : "Berikutnya →"}
+              </button>
+            </div>
           </div>
         </section>
       )}
 
       {diRingkasan && (
-        <section className="assessment-sheet lembar-pertanyaan" aria-labelledby="judul-ringkasan">
-          <header className="lembar-pertanyaan__kepala">
-            <p className="eyebrow">RINGKASAN</p>
-            <h2 id="judul-ringkasan">
-              {bisaDiisi.length > 0 ? "Periksa sebelum mengirim" : "Seluruh objek sudah terkirim"}
-            </h2>
-            {bisaDiisi.length > 0 && (
-              <p className="lembar-pertanyaan__indikator">
-                Ketuk nomor pertanyaan di kepala kolom untuk mengubah jawabannya.
-              </p>
-            )}
-          </header>
+        <section className="app-panel" aria-labelledby="judul-ringkasan">
+          <div className="app-panel__intro">
+            <div>
+              <p className="eyebrow">Ringkasan</p>
+              <h2 id="judul-ringkasan">
+                {bisaDiisi.length > 0 ? "Periksa sebelum mengirim" : "Seluruh objek sudah terkirim"}
+              </h2>
+              {bisaDiisi.length > 0 && (
+                <p className="app-panel__text">
+                  Buka tab pertanyaannya di atas untuk mengubah sebuah jawaban.
+                </p>
+              )}
+            </div>
+          </div>
 
           <div className="app-table-wrap">
-            <table className="lembar-tabel">
+            <table className="lembar-ringkasan">
               <thead>
                 <tr>
                   <th scope="col">Objek</th>
                   {urut.map((p, i) => (
                     <th scope="col" key={p.id} title={`${p.name} · ${p.weight}%`}>
-                      {bisaDiisi.length > 0 ? (
-                        <button type="button" className="lembar-tabel__nomor" onClick={() => pindah(i)}>
-                          {i + 1}
-                        </button>
-                      ) : (
-                        <span className="lembar-tabel__nomor">{i + 1}</span>
-                      )}
-                      <small>{p.weight}%</small>
+                      {i + 1}
                     </th>
                   ))}
                   <th scope="col">Nilai</th>
@@ -381,29 +381,25 @@ export function LembarKategori({
                   const galat = galatBaris.get(b.assignmentId);
                   return (
                     <tr key={b.assignmentId} data-terkunci={b.bolehDiisi ? undefined : "true"}>
-                      <th scope="row">
-                        <span className="lembar-tabel__nama">{b.objectName}</span>
-                        {b.unitName && <small className="lembar-tabel__unit">{b.unitName}</small>}
+                      <td>
+                        {b.objectName}
+                        {b.unitName && <small>{b.unitName}</small>}
                         {!b.bolehDiisi && (
-                          <small className="lembar-tabel__status" data-status={b.displayStatus}>
+                          <small className="lembar-ringkasan__status">
                             {statusLabel[b.displayStatus] ?? b.displayStatus}
                           </small>
                         )}
                         {galat && (
-                          <small role="alert" className="lembar-tabel__galat">
+                          <small role="alert" className="lembar-ringkasan__galat">
                             {galat}
                           </small>
                         )}
-                      </th>
+                      </td>
                       {urut.map((p) => {
                         const v = nilai[b.assignmentId]?.[p.id] ?? "";
-                        return (
-                          <td key={p.id} className="lembar-tabel__angka">
-                            {v === "" ? "—" : displayNumber(Number(v))}
-                          </td>
-                        );
+                        return <td key={p.id}>{v === "" ? "—" : displayNumber(Number(v))}</td>;
                       })}
-                      <td className="lembar-tabel__nilai">{total(b)}</td>
+                      <td className="lembar-ringkasan__nilai">{total(b)}</td>
                     </tr>
                   );
                 })}
@@ -412,28 +408,28 @@ export function LembarKategori({
           </div>
 
           {bisaDiisi.length > 0 && (
-            <div className="lembar-navigasi">
-              <button
-                type="button"
-                className="assessment-actions__draft tap-target"
-                disabled={kirimPending}
-                onClick={() => pindah(urut.length - 1)}
-              >
-                ← Kembali
-              </button>
-              <ThemeButton
-                type="button"
-                className="assessment-actions__submit"
-                disabled={kirimPending}
-                onClick={kirimSemua}
-              >
-                {kirimPending ? "Mengirim…" : `Kirim jawaban (${bisaDiisi.length})`}
-              </ThemeButton>
-              {kirimState.error && (
-                <p role="alert" className="lembar-navigasi__keterangan lembar-navigasi__keterangan--galat">
-                  {kirimState.error}
-                </p>
-              )}
+            <div className="lembar-aksi">
+              <p className="lembar-aksi__keterangan" role="alert">
+                {kirimState.error ?? ""}
+              </p>
+              <div className="lembar-aksi__tombol">
+                <button
+                  type="button"
+                  className="app-btn"
+                  disabled={kirimPending}
+                  onClick={() => pindah(urut.length - 1)}
+                >
+                  ← Kembali
+                </button>
+                <button
+                  type="button"
+                  className="app-btn app-btn--primary"
+                  disabled={kirimPending}
+                  onClick={kirimSemua}
+                >
+                  {kirimPending ? "Mengirim…" : `Kirim jawaban (${bisaDiisi.length})`}
+                </button>
+              </div>
             </div>
           )}
         </section>

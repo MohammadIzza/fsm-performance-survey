@@ -3414,97 +3414,91 @@ input[type="range"]:disabled::-moz-range-thumb {
   .impor-kolom th:nth-child(2) {width:22%}
 }
 
-/* Lembar penilaian per kategori (tugas/kategori/[categoryId]).
-   Instrumennya ditulis sekali di atas sebagai daftar bernomor, lalu seluruh objek masuk ke SATU
-   tabel: baris = objek, kolom = parameter. Bentuk sebelumnya — tiap objek satu blok berisi deretan
-   kotak — pecah jadi dua baris begitu parameternya enam dan terbaca berantakan; sebagai tabel,
-   kolomnya tetap sejajar dari objek pertama sampai terakhir dan mata cukup menyusuri satu kolom
-   untuk membandingkan parameter yang sama antar objek.
+/* Lembar penilaian per kategori (tugas/kategori/[categoryId]), diisi per pertanyaan.
+   Sengaja hanya memakai bentuk yang sudah ada di panel admin — tab bergaris milik halaman
+   kategori (.category-tabs__*), kepala bagian .app-panel__intro, tabel standar dengan garis hitam
+   2px, kotak isian putih tanpa bingkai, dan tombol pil .app-btn. Versi pertamanya punya bentuk
+   sendiri (penanda bulat, tombol selebar setengah layar, tabel bergaris abu) dan terbaca seperti
+   aplikasi lain yang ditempelkan ke sini. Yang ditulis di bawah hanya penyesuaian ukuran. */
 
-   Nama parameter tidak ikut ke kepala kolom: enam nama tidak akan muat di layar ponsel dan pasti
-   terpenggal. Yang dipakai nomornya, dan daftar di atas yang menjelaskan nomor itu apa.
-
-   Sejak lembar diisi per pertanyaan, tabel lebar ini hanya dipakai di layar ringkasan; saat
-   mengisi, tabelnya dua kolom (.lembar-tabel--satu): objek dan skor untuk satu parameter. */
-.lembar-instrumen__bobot {
-  flex:none;padding:.1rem .4rem;border-radius:999em;background:var(--color-brand-2);
-  color:var(--color-black);font:600 .58rem/1.4 var(--font-family-text);
-}
-
-.survey-shell main .lembar-tabel {width:100%;table-layout:fixed;font-size:.62rem;line-height:1.35}
-.survey-shell main .lembar-tabel thead th {
-  padding:.3rem .1rem .35rem;border-bottom:2px solid var(--color-black);
-  color:var(--muted);font-size:.48rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
-  text-align:center;vertical-align:bottom;
-}
-.survey-shell main .lembar-tabel thead th:first-child {text-align:left}
-.lembar-tabel thead th small {
-  display:block;margin-top:.1rem;font-size:.46rem;font-weight:400;letter-spacing:0;text-transform:none;
-}
-.lembar-tabel__nomor {
-  display:inline-grid;place-items:center;width:1.05rem;height:1.05rem;border-radius:50%;
-  background:var(--color-brand-5);color:var(--color-white);
-  font:600 .55rem/1 var(--font-family-text);letter-spacing:0;
-}
-/* Kolom nama mengambil sepertiga baris; kolom parameter membagi sisanya rata supaya kotaknya
-   sama lebar, dan kolom nilai sedikit lebih lebar dari kotak skor karena memuat desimal. */
-.lembar-tabel :is(th,td):first-child {width:32%}
-.lembar-tabel :is(th,td):last-child {width:13%}
-.survey-shell main .lembar-tabel tbody th {
-  padding:.4rem .3rem .4rem 0;border-bottom:1px solid var(--color-grey-2);
-  text-align:left;font-weight:600;vertical-align:middle;
-}
-.lembar-tabel__nama {display:block;font-size:.62rem;line-height:1.3;overflow-wrap:anywhere}
-.lembar-tabel__unit {display:block;color:var(--muted);font-size:.5rem;font-weight:400;line-height:1.3}
-.lembar-tabel__status {
-  display:block;margin-top:.1rem;font-size:.48rem;font-weight:600;letter-spacing:.05em;
-  text-transform:uppercase;color:var(--muted);
-}
-.lembar-tabel__status[data-status="TERKIRIM"] {color:var(--color-brand-4)}
-.lembar-tabel__status[data-status="DRAF"] {color:var(--color-brand-3)}
-.lembar-tabel__status[data-status="DIBUKA_KEMBALI"] {color:var(--color-brand-6)}
-.lembar-tabel__status[data-status="LEWAT_TENGGAT"] {color:var(--color-brand-1)}
-.lembar-tabel__galat {display:block;margin-top:.15rem;color:var(--color-brand-1);font-size:.52rem;line-height:1.35}
-.survey-shell main .lembar-tabel tbody td {
-  padding:.3rem .1rem;border-bottom:1px solid var(--color-grey-2);
-  text-align:center;vertical-align:middle;
-}
-.lembar-tabel__angka,
-.lembar-tabel__nilai {font-variant-numeric:tabular-nums}
-.lembar-tabel__nilai {font-weight:600}
-.lembar-tabel tbody tr[data-terkunci="true"] :is(th,td) {color:var(--muted)}
-.lembar-tabel tbody tr[data-terkunci="true"] .lembar-tabel__nama {color:var(--color-black)}
-
-/* Kotak skor di dalam sel: sekecil selnya, tanpa label tersembunyi yang memakan tinggi baris.
-   Aturan isian umum di berkas ini punya spesifisitas yang sama dan ditulis lebih dulu, jadi
-   selektornya menyebut .lembar-tabel__skor supaya garis tepi 2px miliknya tidak berlaku. */
-.survey-shell main .lembar-tabel__skor .assessment-score-control {width:100%;gap:0}
-.survey-shell main .lembar-tabel__skor .assessment-score-control input[type="number"] {
-  width:100%;min-height:1.65rem;
-  padding:.2rem .1rem;border:1px solid var(--color-grey-2);border-radius:.25rem;
-  background:var(--color-white);text-align:center;font-size:.62rem!important;font-weight:600;
-}
-.survey-shell main .lembar-tabel__skor .assessment-score-control input[type="number"]:hover:not(:disabled) {
-  border-color:var(--color-beige-dark);
-}
-.survey-shell main .lembar-tabel__skor .assessment-score-control input[type="number"]:focus {
-  border-color:var(--color-brand-5);outline:none;
-}
-.survey-shell main .lembar-tabel__skor .assessment-score-control__batas {
-  font-size:.42rem;line-height:1.2;
+/* Tujuh tab (enam pertanyaan + ringkasan) harus muat selebar ponsel tanpa digeser. Strip tab
+   halaman kategori menggulir mendatar; di sini tidak perlu, dan guliran itu justru memotong garis
+   bawah tab yang aktif (garisnya sengaja menjorok 2px ke garis strip) — jadi dibiarkan terlihat,
+   dan bila parameternya sangat banyak tab membungkus ke baris kedua alih-alih digeser. */
+.survey-shell main .lembar-tab {flex-wrap:wrap;overflow:visible;margin-bottom:0}
+.survey-shell main .lembar-tab .category-tabs__tab:disabled {cursor:default;opacity:.4}
+@media only screen and (max-width: 640px) {
+  .survey-shell main .lembar-tab .category-tabs__tab {padding:.55rem .55rem}
+  /* Jumlah terisi per pertanyaan disembunyikan di ponsel: tanpa itu ketujuh tab tidak muat, dan
+     jumlah yang sama sudah tertulis di bawah tabel pertanyaan yang sedang dibuka. */
+  .survey-shell main .lembar-tab .category-tabs__count {display:none}
 }
 
-@media only screen and (min-width: 641px) {
-  /* Layar lebar punya ruang untuk angka yang lebih besar dan baris yang lebih lega. */
-  .survey-shell main .lembar-tabel {font-size:.7rem}
-  .survey-shell main .lembar-tabel thead th {font-size:.55rem}
-  .lembar-tabel__nama {font-size:.72rem}
-  .lembar-tabel__unit {font-size:.58rem}
-  .lembar-tabel__status {font-size:.52rem}
-  .survey-shell main .lembar-tabel tbody td {padding:.4rem .2rem}
-  .survey-shell main .lembar-tabel__skor .assessment-score-control input[type="number"] {
-    min-height:1.9rem;font-size:.72rem!important;
-  }
+.lembar-petunjuk {margin-top:.4rem}
+.survey-shell main .lembar-petunjuk summary {
+  cursor:pointer;color:var(--color-brand-3);font-size:.66rem;font-weight:600;
+}
+
+/* Tabel pertanyaan: dua kolom, nama di kiri dan kotak skor di kanan. Kepala kolom dirapatkan ke
+   tepi seperti isinya, supaya label dan nama di bawahnya berada di satu garis. */
+.survey-shell main .lembar-soal thead th:first-child {padding-left:0}
+.survey-shell main .lembar-soal thead th:last-child {padding-right:0;text-align:center}
+.survey-shell main .lembar-soal td small,
+.survey-shell main .lembar-ringkasan td small {
+  display:block;margin-top:.1rem;color:var(--color-text);font-size:.62rem;font-weight:400;
+}
+.survey-shell main .lembar-soal tbody td {padding:.6rem .5rem .6rem 0;vertical-align:middle}
+.survey-shell main .lembar-soal tbody td:first-child {font-weight:600}
+.survey-shell main .lembar-soal td.lembar-soal__skor {width:6rem;padding-right:0}
+/* Kotak skor mengikuti isian admin: latar putih, tanpa bingkai, garis bawah hanya saat
+   disentuh. Selektornya menyebut tabel ini supaya menang atas aturan isian umum. */
+.survey-shell main .lembar-soal .assessment-score-control {width:100%;gap:0}
+.survey-shell main .lembar-soal .assessment-score-control input[type="number"] {
+  width:100%;min-height:1.9rem;padding:.3rem .4rem;
+  border:0;border-bottom:1px solid transparent;border-radius:.3rem;
+  background:var(--color-white);color:var(--color-black);
+  text-align:center;font-size:.75rem!important;font-weight:600;
+}
+.survey-shell main .lembar-soal .assessment-score-control input[type="number"]:hover {
+  border-bottom-color:var(--color-beige-dark);
+}
+.survey-shell main .lembar-soal .assessment-score-control input[type="number"]:focus {
+  border-bottom-color:var(--color-brand-5);outline:none;
+}
+.survey-shell main .lembar-soal .assessment-score-control__batas {font-size:.5rem;line-height:1.2}
+
+.lembar-catatan {margin:.7rem 0 0;color:var(--color-text);font-size:.66rem}
+
+/* Baris aksi: keterangan di kiri, dua tombol pil di kanan — susunan yang sama dengan formulir
+   admin. Di ponsel keterangannya naik ke atas tombol. */
+.lembar-aksi {
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.6rem 1rem;
+  margin-top:1rem;
+}
+.lembar-aksi__keterangan {margin:0;flex:1 1 14rem;color:var(--color-text);font-size:.66rem;line-height:1.4}
+.lembar-aksi__tombol {display:flex;gap:.5rem;margin-left:auto}
+.survey-shell main .lembar-aksi .app-btn:disabled {cursor:default;opacity:.45}
+
+/* Ringkasan: tabel standar, dirapatkan supaya enam kolom skor muat di layar ponsel. */
+.survey-shell main .lembar-ringkasan {table-layout:fixed}
+.survey-shell main .lembar-ringkasan :is(th,td):first-child {width:34%}
+.survey-shell main .lembar-ringkasan :is(th,td):last-child {width:15%}
+.survey-shell main .lembar-ringkasan thead th {padding:.6rem .2rem;text-align:center}
+.survey-shell main .lembar-ringkasan thead th:first-child {text-align:left;padding-left:0}
+.survey-shell main .lembar-ringkasan tbody td {
+  padding:.6rem .2rem;text-align:center;vertical-align:middle;font-variant-numeric:tabular-nums;
+}
+.survey-shell main .lembar-ringkasan tbody td:first-child {
+  padding-left:0;text-align:left;font-weight:600;overflow-wrap:anywhere;
+}
+.survey-shell main .lembar-ringkasan tbody td:last-child {text-align:right;font-weight:600}
+.survey-shell main .lembar-ringkasan tr[data-terkunci="true"] td:not(:first-child) {color:var(--color-text)}
+.lembar-ringkasan__status {text-transform:uppercase;letter-spacing:.05em}
+.survey-shell main small.lembar-ringkasan__galat {color:var(--color-brand-1)}
+@media only screen and (max-width: 640px) {
+  .survey-shell main .lembar-ringkasan {font-size:.62rem}
+  .survey-shell main .lembar-ringkasan thead th {font-size:.5rem}
+  .survey-shell main .lembar-ringkasan td small {font-size:.52rem}
 }
 
 /* Tombol naik-turun bawaan input angka dihilangkan. Di kolom skor yang selebar tiga digit,
@@ -3517,51 +3511,3 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell main .assessment-score-control input[type="number"]::-webkit-inner-spin-button {
   margin:0;appearance:none;-webkit-appearance:none;
 }
-
-/* Lembar per pertanyaan: penanda kemajuan, kepala pertanyaan, tabel dua kolom, dan navigasi. */
-.lembar-langkah {
-  display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin:0 0 1rem;padding:0;list-style:none;
-}
-.lembar-langkah li {display:flex;align-items:center;gap:.35rem}
-.lembar-langkah li + li::before {content:"";width:.8rem;height:1px;background:var(--color-grey-2)}
-.survey-shell main .lembar-langkah__titik {
-  display:grid;place-items:center;min-width:1.5rem;height:1.5rem;padding:0 .35rem;border-radius:999em;
-  border:1px solid var(--color-grey-2);background:var(--color-white);color:var(--muted);
-  font:600 .6rem/1 var(--font-family-text);cursor:pointer;
-}
-.survey-shell main .lembar-langkah__titik[data-keadaan="selesai"] {
-  border-color:var(--color-brand-4);background:var(--color-brand-4);color:var(--color-white);
-}
-.survey-shell main .lembar-langkah__titik[data-keadaan="aktif"] {
-  border-color:var(--color-brand-5);background:var(--color-brand-5);color:var(--color-white);
-}
-.survey-shell main .lembar-langkah__titik:disabled {cursor:default;opacity:.55}
-.survey-shell main .lembar-langkah__titik--ringkasan {padding:0 .6rem;letter-spacing:.02em}
-
-.lembar-pertanyaan__kepala {display:flex;flex-direction:column;gap:.3rem;margin-bottom:.8rem}
-.lembar-pertanyaan__kepala .eyebrow {margin:0}
-.lembar-pertanyaan__judul {display:flex;align-items:baseline;justify-content:space-between;gap:.6rem}
-.lembar-pertanyaan__judul h2 {margin:0;font:600 1.05rem/1.2 var(--font-family-heading);letter-spacing:-.015em}
-.lembar-pertanyaan__indikator {margin:0;color:var(--muted);font-size:.66rem;line-height:1.45}
-.lembar-pertanyaan__petunjuk summary {cursor:pointer;color:var(--color-brand-3);font-size:.6rem;font-weight:600}
-.lembar-pertanyaan__petunjuk p {margin:.35rem 0 0;color:var(--muted);font-size:.6rem;line-height:1.5}
-.lembar-pertanyaan__catatan {margin:.6rem 0 0;color:var(--muted);font-size:.58rem}
-
-/* Tabel dua kolom saat mengisi: nama mengambil sisa baris, kotak skor selebar tiga digit. */
-.lembar-tabel--satu :is(th,td):first-child {width:auto}
-.lembar-tabel--satu :is(th,td):last-child {width:5.5rem}
-.survey-shell main .lembar-tabel--satu thead th:last-child {text-align:center}
-.survey-shell main .lembar-tabel--satu tbody td {padding:.35rem 0 .35rem .3rem}
-
-/* Nomor pertanyaan di kepala tabel ringkasan bisa diketuk untuk kembali ke pertanyaannya. */
-.survey-shell main button.lembar-tabel__nomor {border:0;padding:0;cursor:pointer}
-.survey-shell main button.lembar-tabel__nomor:hover {background:var(--color-brand-8)}
-
-.lembar-navigasi {
-  display:grid;grid-template-columns:1fr 1fr;gap:.5rem .7rem;margin-top:1rem;
-}
-.lembar-navigasi__keterangan {
-  grid-column:1/-1;margin:0;min-height:1.2em;color:var(--muted);font-size:.58rem;text-align:center;
-}
-.lembar-navigasi__keterangan--galat {color:var(--color-brand-1)}
-.survey-shell main .lembar-navigasi .assessment-actions__draft:disabled {opacity:.45}
