@@ -3,6 +3,7 @@
 import { startTransition, useEffect, useId, useRef, useState } from "react";
 import { useAksi } from "@/components/theme/notifikasi";
 import { useKonfirmasi } from "@/components/theme/confirm-dialog";
+import { StatusPill } from "@/components/theme/status-pill";
 import {
   ScoreField,
   displayNumber,
@@ -52,6 +53,14 @@ const statusLabel: Record<string, string> = {
   TERKIRIM: "Terkirim",
   DIBUKA_KEMBALI: "Dibuka kembali",
   LEWAT_TENGGAT: "Lewat tenggat",
+};
+
+const statusTone: Record<string, "netral" | "proses" | "selesai" | "perhatian" | "gagal"> = {
+  BELUM_MULAI: "netral",
+  DRAF: "proses",
+  TERKIRIM: "selesai",
+  DIBUKA_KEMBALI: "perhatian",
+  LEWAT_TENGGAT: "gagal",
 };
 
 const kirimAwal: KategoriFormState = {};
@@ -384,10 +393,17 @@ export function LembarKategori({
                       <td>
                         {b.objectName}
                         {b.unitName && <small>{b.unitName}</small>}
+                        {/* Objek yang tidak ikut dikirim dari halaman ini — sudah terkirim sebelumnya
+                            atau tidak bisa diisi lagi — ditandai lencana berwarna, supaya tidak
+                            dikira ikut terkirim bersama baris di atasnya. */}
                         {!b.bolehDiisi && (
-                          <small className="lembar-ringkasan__status">
-                            {statusLabel[b.displayStatus] ?? b.displayStatus}
-                          </small>
+                          <span className="lembar-ringkasan__status">
+                            <StatusPill tone={statusTone[b.displayStatus] ?? "netral"}>
+                              {b.displayStatus === "TERKIRIM"
+                                ? "Sudah terkirim"
+                                : (statusLabel[b.displayStatus] ?? b.displayStatus)}
+                            </StatusPill>
+                          </span>
                         )}
                         {galat && (
                           <small role="alert" className="lembar-ringkasan__galat">

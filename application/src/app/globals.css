@@ -3450,6 +3450,17 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 .survey-shell main .lembar-langkah__titik:disabled {cursor:default;opacity:.55}
 .survey-shell main .lembar-langkah__titik--ringkasan {padding:0 .6rem;letter-spacing:.02em}
+/* Di layar lebar titiknya diperbesar: ukuran ponsel terlalu kecil di samping judul pertanyaan dan
+   tabel selebar 1100px, sehingga penanda kemajuannya nyaris tidak terlihat. */
+@media only screen and (min-width: 641px) {
+  .lembar-langkah {gap:.5rem;margin-bottom:1.6rem}
+  .lembar-langkah li {gap:.5rem}
+  .lembar-langkah li + li::before {height:2px}
+  .survey-shell main .lembar-langkah__titik {
+    min-width:2.3rem;height:2.3rem;padding:0 .5rem;border-width:2px;font-size:.85rem;
+  }
+  .survey-shell main .lembar-langkah__titik--ringkasan {padding:0 1rem;font-size:.72rem}
+}
 
 .lembar-pertanyaan__kepala {display:flex;flex-direction:column;gap:.3rem;margin-bottom:.8rem}
 .lembar-pertanyaan__kepala .eyebrow {margin:0}
@@ -3511,6 +3522,8 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell main .lembar-ringkasan :is(th,td):last-child {width:15%}
 .survey-shell main .lembar-ringkasan thead th {padding:.6rem .2rem;text-align:center}
 .survey-shell main .lembar-ringkasan thead th:first-child {text-align:left;padding-left:0}
+/* Kepala kolom Nilai rata kanan, segaris dengan angka nilai di bawahnya. */
+.survey-shell main .lembar-ringkasan thead th:last-child {text-align:right}
 .survey-shell main .lembar-ringkasan tbody td {
   padding:.6rem .2rem;text-align:center;vertical-align:middle;font-variant-numeric:tabular-nums;
 }
@@ -3519,7 +3532,13 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 .survey-shell main .lembar-ringkasan tbody td:last-child {text-align:right;font-weight:600}
 .survey-shell main .lembar-ringkasan tr[data-terkunci="true"] td:not(:first-child) {color:var(--color-text)}
-.lembar-ringkasan__status {text-transform:uppercase;letter-spacing:.05em}
+.lembar-ringkasan__status {display:block;margin-top:.3rem}
+.survey-shell main .lembar-ringkasan__status .status-pill {padding:.25em .7em;font-size:.56rem}
+/* Baris yang tidak ikut dikirim diberi latar hijau pucat sepanjang baris, selaras dengan
+   lencananya, supaya terbaca terpisah dari baris yang akan dikirim. */
+.survey-shell main .lembar-ringkasan tr[data-terkunci="true"] td {
+  background:color-mix(in srgb, var(--color-brand-4) 12%, transparent);
+}
 .survey-shell main small.lembar-ringkasan__galat {color:var(--color-brand-1)}
 @media only screen and (max-width: 640px) {
   .survey-shell main .lembar-ringkasan {font-size:.62rem}
