@@ -3472,7 +3472,9 @@ input[type="range"]:disabled::-moz-range-thumb {
   font:500 .6rem/1.3 var(--font-family-text);text-align:center;overflow-wrap:anywhere;
 }
 .lembar-langkah li[data-keadaan="aktif"] .lembar-langkah__label {color:var(--color-black);font-weight:600}
-.survey-shell main .lembar-langkah__langkah:disabled .lembar-langkah__label {color:var(--color-grey-1)}
+.survey-shell main .lembar-langkah li[data-keadaan="belum"] .lembar-langkah__langkah:disabled .lembar-langkah__label {
+  color:var(--color-grey-1);
+}
 /* Di ponsel kolomnya hanya selebar ±45px — nama pertanyaan tidak mungkin terbaca di situ, dan
    namanya sudah menjadi judul tepat di bawah penanda. Yang tampil cukup titiknya. */
 @media only screen and (max-width: 640px) {

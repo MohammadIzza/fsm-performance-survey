@@ -234,7 +234,10 @@ export function LembarKategori({
           Berikutnya — urutannya tetap satu per satu. */}
       <ol className="lembar-langkah" aria-label="Kemajuan pengisian">
         {urut.map((p, i) => {
-          const selesai = bisaDiisi.length > 0 && kurangPada(p.id) === 0;
+          // Selesai = setiap objek, termasuk yang sudah terkirim sebelumnya, punya skor untuk
+          // pertanyaan ini. Dulu hanya objek yang masih bisa diisi yang dihitung, sehingga kategori
+          // yang seluruh objeknya sudah terkirim justru tampil seperti belum dikerjakan.
+          const selesai = baris.length > 0 && baris.every((b) => terisi(b.assignmentId, p.id));
           const bisaDibuka = bisaDiisi.length > 0 && (selesai || i <= langkah);
           const keadaan = i === langkah ? "aktif" : selesai ? "selesai" : "belum";
           return (
