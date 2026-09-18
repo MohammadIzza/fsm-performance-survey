@@ -254,20 +254,24 @@ export function LembarKategori({
             </li>
           );
         })}
-        <li data-keadaan={diRingkasan ? "aktif" : "belum"}>
+        <li className="lembar-langkah__ringkasan" data-keadaan={diRingkasan ? "aktif" : "belum"}>
           <button
             type="button"
             className="lembar-langkah__langkah"
             aria-current={diRingkasan ? "step" : undefined}
+            aria-label="Ringkasan"
             disabled={!semuaLengkap}
             onClick={() => pindah(urut.length)}
           >
-            <span
-              className="lembar-langkah__titik lembar-langkah__titik--ringkasan"
-              data-keadaan={diRingkasan ? "aktif" : "belum"}
-            >
-              Ringkasan
+            {/* Ringkasan berbentuk titik yang sama dengan pertanyaan — tanda centang di dalamnya,
+                namanya di bawah — supaya deretnya berirama rata dan tidak ada pil lebar yang
+                berdesakan dengan titik terakhir di layar ponsel. */}
+            <span className="lembar-langkah__titik" data-keadaan={diRingkasan ? "aktif" : "belum"}>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="lembar-langkah__centang">
+                <path d="M5 12.5l4.2 4.2L19 7" />
+              </svg>
             </span>
+            <span className="lembar-langkah__label">Ringkasan</span>
           </button>
         </li>
       </ol>
