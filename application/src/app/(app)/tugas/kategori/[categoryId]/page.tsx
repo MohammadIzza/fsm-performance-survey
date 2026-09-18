@@ -89,8 +89,7 @@ export default async function LembarKategoriPage({
 
       {period.status !== "AKTIF" && (
         <div className="assignment-detail__notice app-note">
-          Periode {period.name} tidak sedang aktif, jadi isian di bawah hanya dapat dibaca kecuali
-          tugasnya sedang dibuka kembali oleh admin.
+          Periode {period.name} tidak sedang aktif, jadi isian di bawah hanya dapat dibaca.
         </div>
       )}
 

@@ -56,7 +56,7 @@ function assertFillable(assignment: AssignmentContext) {
     if (period.status === "FINAL") throw new ServiceError("Buka revisi periode sebelum mengoreksi hasil final.");
     if (period.status === "REVISI" && assignment.correctionEndsAt && new Date() < assignment.correctionEndsAt) return;
     if (period.status === "AKTIF" && new Date() < period.endsAt) return;
-    throw new ServiceError("Jendela koreksi telah ditutup. Hubungi admin.");
+    throw new ServiceError("Jendela koreksi telah ditutup.");
   }
 
   const period = assignment.categoryObject.category.period;

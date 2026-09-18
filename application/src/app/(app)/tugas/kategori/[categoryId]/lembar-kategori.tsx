@@ -193,7 +193,8 @@ export function LembarKategori({
       pesan: (
         <p>
           Seluruh {urut.length} pertanyaan sudah dijawab untuk {bisaDiisi.length} objek. Setelah
-          dikirim, jawabannya terkunci dan hanya bisa diubah lewat admin.
+          dikirim, jawabannya terkunci dan tidak dapat diubah lagi, jadi pastikan setiap skor sudah
+          sesuai penilaian Anda.
         </p>
       ),
       tombolYa: "Kirim sekarang",
