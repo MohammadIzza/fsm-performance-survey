@@ -3424,42 +3424,64 @@ input[type="range"]:disabled::-moz-range-thumb {
    judul pertanyaan dengan pil bobot di kanannya. Pengecualian ini diminta: bagian lain lembar ini
    mengikuti bentuk admin, tetapi untuk urutan pertanyaan titik bulat lebih cepat dibaca daripada
    tab bergaris. */
-/* Jarak bawahnya disebut sendiri: `margin:0` di sini mengalahkan jarak space-y pembungkusnya
-   (aturan itu tanpa spesifisitas), dan tanpa jarak titik-titiknya menempel pada judul pertanyaan. */
+/* Tiap langkah satu kolom selebar sama: titik di tengah, nama pertanyaannya di bawah. Garis
+   penyambung ditarik dari tengah satu titik ke tengah titik berikutnya dan berada di belakang
+   titik (yang berlatar penuh), jadi ujungnya tertutup rapi berapa pun lebar titiknya. Garis yang
+   keluar dari pertanyaan yang sudah selesai ikut hijau.
+
+   Jarak bawah disebut sendiri: `margin` di sini mengalahkan jarak space-y pembungkusnya (aturan itu
+   tanpa spesifisitas), dan tanpa jarak titik-titiknya menempel pada judul pertanyaan. */
 .lembar-langkah {
-  display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;margin:0 0 1.2rem;padding:0;list-style:none;
+  --titik:1.5rem;
+  display:flex;align-items:flex-start;margin:0 0 1.2rem;padding:0;list-style:none;
 }
-/* Garis penyambung ikut merentang mengisi lebar baris, dengan batas bawah yang pendek. Dengan
-   garis selebar tetap, enam pertanyaan + ringkasan tidak muat di ponsel dan "Ringkasan" turun
-   sendirian ke baris kedua, diawali sepotong garis yang menggantung. */
-.lembar-langkah li {display:flex;align-items:center;gap:.3rem;flex:1 1 auto}
-.lembar-langkah li:first-child {flex:0 0 auto}
-.lembar-langkah li + li::before {
-  content:"";flex:1 1 auto;min-width:.3rem;height:1px;background:var(--color-grey-2);
+.lembar-langkah li {position:relative;display:flex;justify-content:center;flex:1 1 0;min-width:0}
+/* Kolom Ringkasan lebih lebar: pilnya lebih panjang daripada titik bernomor. */
+.lembar-langkah li:last-child {flex-grow:1.6}
+.lembar-langkah li:not(:last-child)::after {
+  content:"";position:absolute;z-index:0;top:calc(var(--titik) / 2 - 1px);left:50%;width:100%;height:2px;
+  background:var(--color-grey-2);
 }
-.survey-shell main .lembar-langkah__titik {
-  display:grid;place-items:center;min-width:1.5rem;height:1.5rem;padding:0 .35rem;border-radius:999em;
-  border:1px solid var(--color-grey-2);background:var(--color-white);color:var(--color-text);
-  font:600 .6rem/1 var(--font-family-text);cursor:pointer;
+.lembar-langkah li[data-keadaan="selesai"]::after {background:var(--color-brand-4)}
+.survey-shell main .lembar-langkah__langkah {
+  position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:.4rem;
+  max-width:100%;padding:0;border:0;background:none;cursor:pointer;
 }
-.survey-shell main .lembar-langkah__titik[data-keadaan="selesai"] {
+.survey-shell main .lembar-langkah__langkah:disabled {cursor:default}
+.survey-shell main .lembar-langkah__langkah:disabled .lembar-langkah__titik {opacity:.55}
+.lembar-langkah__titik {
+  display:grid;place-items:center;min-width:var(--titik);height:var(--titik);padding:0 .35rem;
+  border-radius:999em;border:1px solid var(--color-grey-2);background:var(--color-white);
+  color:var(--color-text);font:600 .6rem/1 var(--font-family-text);
+}
+.lembar-langkah__titik[data-keadaan="selesai"] {
   border-color:var(--color-brand-4);background:var(--color-brand-4);color:var(--color-white);
 }
-.survey-shell main .lembar-langkah__titik[data-keadaan="aktif"] {
+.lembar-langkah__titik[data-keadaan="aktif"] {
   border-color:var(--color-brand-5);background:var(--color-brand-5);color:var(--color-white);
 }
-.survey-shell main .lembar-langkah__titik:disabled {cursor:default;opacity:.55}
-.survey-shell main .lembar-langkah__titik--ringkasan {padding:0 .6rem;letter-spacing:.02em}
+.lembar-langkah__titik--ringkasan {padding:0 .6rem;letter-spacing:.02em;white-space:nowrap}
+/* Nama pertanyaan: paling banyak dua baris, supaya satu nama panjang tidak membuat seluruh
+   penanda setinggi paragraf. Nama lengkapnya tetap tertulis sebagai judul tepat di bawahnya. */
+.lembar-langkah__label {
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  max-width:100%;padding:0 .3rem;color:var(--color-text);
+  font:500 .6rem/1.3 var(--font-family-text);text-align:center;overflow-wrap:anywhere;
+}
+.lembar-langkah li[data-keadaan="aktif"] .lembar-langkah__label {color:var(--color-black);font-weight:600}
+.survey-shell main .lembar-langkah__langkah:disabled .lembar-langkah__label {opacity:.55}
+/* Di ponsel kolomnya hanya selebar ±45px — nama pertanyaan tidak mungkin terbaca di situ, dan
+   namanya sudah menjadi judul tepat di bawah penanda. Yang tampil cukup titiknya. */
+@media only screen and (max-width: 640px) {
+  .lembar-langkah__label {display:none}
+}
 /* Di layar lebar titiknya diperbesar: ukuran ponsel terlalu kecil di samping judul pertanyaan dan
    tabel selebar 1100px, sehingga penanda kemajuannya nyaris tidak terlihat. */
 @media only screen and (min-width: 641px) {
-  .lembar-langkah {gap:.5rem;margin-bottom:1.6rem}
-  .lembar-langkah li {gap:.5rem}
-  .lembar-langkah li + li::before {height:2px}
-  .survey-shell main .lembar-langkah__titik {
-    min-width:2.3rem;height:2.3rem;padding:0 .5rem;border-width:2px;font-size:.85rem;
-  }
-  .survey-shell main .lembar-langkah__titik--ringkasan {padding:0 1rem;font-size:.72rem}
+  .lembar-langkah {--titik:2.3rem;margin-bottom:1.6rem}
+  .lembar-langkah__titik {padding:0 .5rem;border-width:2px;font-size:.85rem}
+  .lembar-langkah__titik--ringkasan {padding:0 1rem;font-size:.72rem}
+  .lembar-langkah__label {font-size:.64rem}
 }
 
 .lembar-pertanyaan__kepala {display:flex;flex-direction:column;gap:.3rem;margin-bottom:.8rem}

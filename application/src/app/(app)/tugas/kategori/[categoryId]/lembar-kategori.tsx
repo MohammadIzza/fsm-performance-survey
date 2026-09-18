@@ -235,33 +235,39 @@ export function LembarKategori({
         {urut.map((p, i) => {
           const selesai = bisaDiisi.length > 0 && kurangPada(p.id) === 0;
           const bisaDibuka = bisaDiisi.length > 0 && (selesai || i <= langkah);
+          const keadaan = i === langkah ? "aktif" : selesai ? "selesai" : "belum";
           return (
-            <li key={p.id}>
+            <li key={p.id} data-keadaan={keadaan}>
               <button
                 type="button"
-                className="lembar-langkah__titik"
-                data-keadaan={i === langkah ? "aktif" : selesai ? "selesai" : "belum"}
+                className="lembar-langkah__langkah"
                 aria-current={i === langkah ? "step" : undefined}
                 aria-label={`Pertanyaan ${i + 1}: ${p.name}`}
-                title={p.name}
                 disabled={!bisaDibuka}
                 onClick={() => pindah(i)}
               >
-                {i + 1}
+                <span className="lembar-langkah__titik" data-keadaan={keadaan}>
+                  {i + 1}
+                </span>
+                <span className="lembar-langkah__label">{p.name}</span>
               </button>
             </li>
           );
         })}
-        <li>
+        <li data-keadaan={diRingkasan ? "aktif" : "belum"}>
           <button
             type="button"
-            className="lembar-langkah__titik lembar-langkah__titik--ringkasan"
-            data-keadaan={diRingkasan ? "aktif" : "belum"}
+            className="lembar-langkah__langkah"
             aria-current={diRingkasan ? "step" : undefined}
             disabled={!semuaLengkap}
             onClick={() => pindah(urut.length)}
           >
-            Ringkasan
+            <span
+              className="lembar-langkah__titik lembar-langkah__titik--ringkasan"
+              data-keadaan={diRingkasan ? "aktif" : "belum"}
+            >
+              Ringkasan
+            </span>
           </button>
         </li>
       </ol>
