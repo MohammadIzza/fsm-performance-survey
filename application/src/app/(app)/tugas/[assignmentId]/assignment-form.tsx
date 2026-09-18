@@ -499,7 +499,8 @@ export function AssignmentForm({
                 pesan: (
                   <p>
                     Seluruh {sortedParameters.length} parameter sudah terisi. Setelah dikirim,
-                    jawaban terkunci dan tidak dapat diubah sendiri — perubahan hanya lewat admin.
+                    jawaban terkunci dan tidak dapat diubah lagi, jadi pastikan setiap skor sudah
+                    sesuai penilaian Anda.
                   </p>
                 ),
                 tombolYa: "Kirim jawaban",
