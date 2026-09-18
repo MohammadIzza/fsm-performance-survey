@@ -6,7 +6,7 @@ import { RevealOnScroll } from "@/components/reveal-on-scroll";
 import { withBase } from "@/lib/base-path";
 
 export const metadata: Metadata = {
-  title: "Survei Penilaian FSM UNDIP",
+  title: "Survei Penilaian FSM UNDIP (v2)",
   description: "Sistem penilaian end-to-end Fakultas Sains dan Matematika UNDIP",
   // Berkas yang sama dipakai halaman publik (disalin ke public/assets oleh
   // scripts/prepare-application.mjs), jadi ikon tabnya tidak berubah saat berpindah dari situs ke

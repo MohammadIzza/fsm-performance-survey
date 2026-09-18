@@ -12,14 +12,17 @@
 # tab peramban yang masih memuat versi lama tidak gagal memuat potongan skrip.
 #
 # Pemakaian (sebagai root): application/deploy/terbitkan.sh
+#
+# Salinan v2: repo, layanan, dan portnya sendiri — menerbitkan di sini tidak menyentuh aplikasi
+# yang dipakai FSM (port 3930, fsm-survei.service).
 set -euo pipefail
 
-REPO=/home/restart/survey-fsm
+REPO=/home/restart/survey-fsm-v2
 APP=$REPO/application
 NODE22=/opt/node22/bin
 BERKAS_AKTIF=$APP/.dist-aktif
-LAYANAN=fsm-survei.service
-URL_CEK=http://127.0.0.1:3930/survey/login
+LAYANAN=fsm-survei-v2.service
+URL_CEK=http://127.0.0.1:3931/survey/login
 
 sebagai_restart() {
   # runuser tidak membuka sesi login (tidak memicu pembersihan IPC systemd-logind).

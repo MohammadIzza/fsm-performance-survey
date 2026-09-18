@@ -68,7 +68,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       />
       <div className="flex min-h-screen flex-1 flex-col lg:min-w-0">
         <div className="border-b border-[var(--warm)]/25 bg-[var(--warm-tint)] px-4 py-2 text-center app-text-xs text-[var(--warm)] sm:px-6">
-          Lingkungan demonstrasi — data dan login bersifat fiktif (data dummy), bukan sistem produksi.
+          <b>V2 — salinan uji coba.</b> Perubahan di sini tidak menyentuh aplikasi yang dipakai
+          FSM. Data dan login bersifat fiktif (data dummy), bukan sistem produksi.
         </div>
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 pt-5 pb-10 sm:px-6 sm:pt-6">{children}</main>
       </div>
