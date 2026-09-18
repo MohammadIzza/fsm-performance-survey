@@ -216,8 +216,10 @@ export function LembarKategori({
   const kurang = pertanyaan ? kurangPada(pertanyaan.id) : 0;
   const semuaLengkap = bisaDiisi.every((b) => urut.every((p) => terisi(b.assignmentId, p.id)));
 
-  const keterangan =
-    kurang > 0
+  const hanyaBaca = bisaDiisi.length === 0;
+  const keterangan = hanyaBaca
+    ? "Seluruh jawaban sudah terkirim — halaman ini hanya untuk dilihat."
+    : kurang > 0
       ? `${kurang} objek belum diberi skor — lengkapi dulu untuk lanjut.`
       : simpan === "menyimpan"
         ? "Menyimpan…"
@@ -238,10 +240,13 @@ export function LembarKategori({
           // pertanyaan ini. Dulu hanya objek yang masih bisa diisi yang dihitung, sehingga kategori
           // yang seluruh objeknya sudah terkirim justru tampil seperti belum dikerjakan.
           const selesai = baris.length > 0 && baris.every((b) => terisi(b.assignmentId, p.id));
-          const bisaDibuka = bisaDiisi.length > 0 && (selesai || i <= langkah);
+          // Pertanyaan yang sudah selesai selalu bisa dibuka — juga setelah semua objeknya terkirim,
+          // untuk melihat kembali skor yang pernah diberikan (hanya dibaca). Yang belum selesai
+          // hanya bisa dijangkau berurutan lewat Berikutnya.
+          const bisaDibuka = selesai || (bisaDiisi.length > 0 && i <= langkah);
           const keadaan = i === langkah ? "aktif" : selesai ? "selesai" : "belum";
           return (
-            <li key={p.id} data-keadaan={keadaan}>
+            <li key={p.id} data-keadaan={keadaan} data-selesai={selesai ? "true" : undefined}>
               <button
                 type="button"
                 className="lembar-langkah__langkah"
@@ -270,7 +275,10 @@ export function LembarKategori({
             {/* Ringkasan berbentuk titik yang sama dengan pertanyaan — tanda centang di dalamnya,
                 namanya di bawah — supaya deretnya berirama rata dan tidak ada pil lebar yang
                 berdesakan dengan titik terakhir di layar ponsel. */}
-            <span className="lembar-langkah__titik" data-keadaan={diRingkasan ? "aktif" : "belum"}>
+            <span
+              className="lembar-langkah__titik"
+              data-keadaan={diRingkasan ? "aktif" : bisaDiisi.length === 0 ? "selesai" : "belum"}
+            >
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="lembar-langkah__centang">
                 <path d="M5 12.5l4.2 4.2L19 7" />
               </svg>
@@ -327,14 +335,29 @@ export function LembarKategori({
                   </td>
                 </tr>
               ))}
+              {/* Objek yang sudah terkirim: skornya ditampilkan sebagai angka biasa, bukan kotak
+                  isian — bisa dilihat kembali, tidak bisa diubah. */}
+              {terkunci.map((b) => {
+                const v = nilai[b.assignmentId]?.[pertanyaan.id] ?? "";
+                return (
+                  <tr key={b.assignmentId} data-terkunci="true">
+                    <td>
+                      {b.objectName}
+                      {b.unitName && <small>{b.unitName}</small>}
+                      <small className="lembar-ringkasan__status" data-status={b.displayStatus}>
+                        {b.displayStatus === "TERKIRIM"
+                          ? "Sudah terkirim"
+                          : (statusLabel[b.displayStatus] ?? b.displayStatus)}
+                      </small>
+                    </td>
+                    <td className="lembar-soal__skor lembar-soal__skor--baca">
+                      {v === "" ? "—" : displayNumber(Number(v))}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
-
-          {terkunci.length > 0 && (
-            <p className="lembar-catatan">
-              {terkunci.length} objek lain sudah terkirim sebelumnya dan tidak ditanyakan lagi.
-            </p>
-          )}
 
           <div className="lembar-aksi">
             <p className="lembar-aksi__keterangan" role="status" aria-live="polite">
