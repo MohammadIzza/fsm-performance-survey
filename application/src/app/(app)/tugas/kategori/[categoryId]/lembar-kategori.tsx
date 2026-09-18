@@ -227,62 +227,62 @@ export function LembarKategori({
 
   return (
     <div className="lembar-kategori space-y-6" id={idLembar}>
-      {/* Pertanyaan sebagai tab, bentuknya sama dengan tab di halaman kategori admin: nama pendek
-          di atas satu garis tebal, jumlah objek yang sudah diberi skor di sebelahnya. Pertanyaan
-          yang belum dijangkau tidak bisa dibuka — urutannya tetap satu per satu. */}
-      <div role="tablist" aria-label="Pertanyaan" className="category-tabs__strip lembar-tab">
+      {/* Penanda kemajuan: satu titik per pertanyaan, ditambah ringkasan di ujungnya. Pertanyaan
+          yang sudah selesai boleh dibuka lagi lewat titiknya; yang belum dijangkau hanya lewat
+          Berikutnya — urutannya tetap satu per satu. */}
+      <ol className="lembar-langkah" aria-label="Kemajuan pengisian">
         {urut.map((p, i) => {
-          const sudah = bisaDiisi.length - kurangPada(p.id);
-          const bisaDibuka = bisaDiisi.length > 0 && (i <= langkah || kurangPada(p.id) === 0);
+          const selesai = bisaDiisi.length > 0 && kurangPada(p.id) === 0;
+          const bisaDibuka = bisaDiisi.length > 0 && (selesai || i <= langkah);
           return (
-            <button
-              key={p.id}
-              type="button"
-              role="tab"
-              aria-selected={i === langkah}
-              title={p.name}
-              className="category-tabs__tab"
-              disabled={!bisaDibuka}
-              onClick={() => pindah(i)}
-            >
-              <span className="category-tabs__name">{i + 1}</span>
-              {bisaDiisi.length > 0 && (
-                <span className="category-tabs__count">
-                  {sudah}/{bisaDiisi.length}
-                </span>
-              )}
-            </button>
+            <li key={p.id}>
+              <button
+                type="button"
+                className="lembar-langkah__titik"
+                data-keadaan={i === langkah ? "aktif" : selesai ? "selesai" : "belum"}
+                aria-current={i === langkah ? "step" : undefined}
+                aria-label={`Pertanyaan ${i + 1}: ${p.name}`}
+                title={p.name}
+                disabled={!bisaDibuka}
+                onClick={() => pindah(i)}
+              >
+                {i + 1}
+              </button>
+            </li>
           );
         })}
-        <button
-          type="button"
-          role="tab"
-          aria-selected={diRingkasan}
-          className="category-tabs__tab"
-          disabled={!semuaLengkap}
-          onClick={() => pindah(urut.length)}
-        >
-          <span className="category-tabs__name">Ringkasan</span>
-        </button>
-      </div>
+        <li>
+          <button
+            type="button"
+            className="lembar-langkah__titik lembar-langkah__titik--ringkasan"
+            data-keadaan={diRingkasan ? "aktif" : "belum"}
+            aria-current={diRingkasan ? "step" : undefined}
+            disabled={!semuaLengkap}
+            onClick={() => pindah(urut.length)}
+          >
+            Ringkasan
+          </button>
+        </li>
+      </ol>
 
       {!diRingkasan && pertanyaan && (
         <section className="app-panel" aria-labelledby="judul-pertanyaan">
-          <div className="app-panel__intro">
-            <div>
-              <p className="eyebrow">
-                Pertanyaan {langkah + 1} dari {urut.length} · bobot {pertanyaan.weight}%
-              </p>
+          <header className="lembar-pertanyaan__kepala">
+            <p className="eyebrow">
+              PERTANYAAN {langkah + 1} DARI {urut.length}
+            </p>
+            <div className="lembar-pertanyaan__judul">
               <h2 id="judul-pertanyaan">{pertanyaan.name}</h2>
-              {pertanyaan.indicator && <p className="app-panel__text">{pertanyaan.indicator}</p>}
-              {guide && (
-                <details className="lembar-petunjuk">
-                  <summary>Petunjuk penilaian</summary>
-                  <p className="app-panel__text">{guide}</p>
-                </details>
-              )}
+              <span className="lembar-pertanyaan__bobot">{pertanyaan.weight}%</span>
             </div>
-          </div>
+            {pertanyaan.indicator && <p className="lembar-pertanyaan__indikator">{pertanyaan.indicator}</p>}
+            {guide && (
+              <details className="lembar-pertanyaan__petunjuk">
+                <summary>Petunjuk penilaian</summary>
+                <p>{guide}</p>
+              </details>
+            )}
+          </header>
 
           <table className="lembar-soal">
             <thead>
@@ -349,19 +349,19 @@ export function LembarKategori({
 
       {diRingkasan && (
         <section className="app-panel" aria-labelledby="judul-ringkasan">
-          <div className="app-panel__intro">
-            <div>
-              <p className="eyebrow">Ringkasan</p>
+          <header className="lembar-pertanyaan__kepala">
+            <p className="eyebrow">RINGKASAN</p>
+            <div className="lembar-pertanyaan__judul">
               <h2 id="judul-ringkasan">
                 {bisaDiisi.length > 0 ? "Periksa sebelum mengirim" : "Seluruh objek sudah terkirim"}
               </h2>
-              {bisaDiisi.length > 0 && (
-                <p className="app-panel__text">
-                  Buka tab pertanyaannya di atas untuk mengubah sebuah jawaban.
-                </p>
-              )}
             </div>
-          </div>
+            {bisaDiisi.length > 0 && (
+              <p className="lembar-pertanyaan__indikator">
+                Ketuk titik pertanyaannya di atas untuk mengubah sebuah jawaban.
+              </p>
+            )}
+          </header>
 
           <div className="app-table-wrap">
             <table className="lembar-ringkasan">

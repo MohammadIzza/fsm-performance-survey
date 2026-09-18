@@ -3415,29 +3415,55 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 
 /* Lembar penilaian per kategori (tugas/kategori/[categoryId]), diisi per pertanyaan.
-   Sengaja hanya memakai bentuk yang sudah ada di panel admin — tab bergaris milik halaman
-   kategori (.category-tabs__*), kepala bagian .app-panel__intro, tabel standar dengan garis hitam
-   2px, kotak isian putih tanpa bingkai, dan tombol pil .app-btn. Versi pertamanya punya bentuk
+   Tabel dan tombolnya memakai bentuk yang sudah ada di panel admin — tabel standar dengan garis
+   hitam 2px, kotak isian putih tanpa bingkai, dan tombol pil .app-btn. Versi pertamanya punya bentuk
    sendiri (penanda bulat, tombol selebar setengah layar, tabel bergaris abu) dan terbaca seperti
-   aplikasi lain yang ditempelkan ke sini. Yang ditulis di bawah hanya penyesuaian ukuran. */
+   aplikasi lain yang ditempelkan ke sini. */
 
-/* Tujuh tab (enam pertanyaan + ringkasan) harus muat selebar ponsel tanpa digeser. Strip tab
-   halaman kategori menggulir mendatar; di sini tidak perlu, dan guliran itu justru memotong garis
-   bawah tab yang aktif (garisnya sengaja menjorok 2px ke garis strip) — jadi dibiarkan terlihat,
-   dan bila parameternya sangat banyak tab membungkus ke baris kedua alih-alih digeser. */
-.survey-shell main .lembar-tab {flex-wrap:wrap;overflow:visible;margin-bottom:0}
-.survey-shell main .lembar-tab .category-tabs__tab:disabled {cursor:default;opacity:.4}
-@media only screen and (max-width: 640px) {
-  .survey-shell main .lembar-tab .category-tabs__tab {padding:.55rem .55rem}
-  /* Jumlah terisi per pertanyaan disembunyikan di ponsel: tanpa itu ketujuh tab tidak muat, dan
-     jumlah yang sama sudah tertulis di bawah tabel pertanyaan yang sedang dibuka. */
-  .survey-shell main .lembar-tab .category-tabs__count {display:none}
+/* Penanda kemajuan dan kepala pertanyaan tetap berbentuk sendiri — titik bulat bersambung garis,
+   judul pertanyaan dengan pil bobot di kanannya. Pengecualian ini diminta: bagian lain lembar ini
+   mengikuti bentuk admin, tetapi untuk urutan pertanyaan titik bulat lebih cepat dibaca daripada
+   tab bergaris. */
+/* Jarak bawahnya disebut sendiri: `margin:0` di sini mengalahkan jarak space-y pembungkusnya
+   (aturan itu tanpa spesifisitas), dan tanpa jarak titik-titiknya menempel pada judul pertanyaan. */
+.lembar-langkah {
+  display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;margin:0 0 1.2rem;padding:0;list-style:none;
 }
+/* Garis penyambung ikut merentang mengisi lebar baris, dengan batas bawah yang pendek. Dengan
+   garis selebar tetap, enam pertanyaan + ringkasan tidak muat di ponsel dan "Ringkasan" turun
+   sendirian ke baris kedua, diawali sepotong garis yang menggantung. */
+.lembar-langkah li {display:flex;align-items:center;gap:.3rem;flex:1 1 auto}
+.lembar-langkah li:first-child {flex:0 0 auto}
+.lembar-langkah li + li::before {
+  content:"";flex:1 1 auto;min-width:.3rem;height:1px;background:var(--color-grey-2);
+}
+.survey-shell main .lembar-langkah__titik {
+  display:grid;place-items:center;min-width:1.5rem;height:1.5rem;padding:0 .35rem;border-radius:999em;
+  border:1px solid var(--color-grey-2);background:var(--color-white);color:var(--color-text);
+  font:600 .6rem/1 var(--font-family-text);cursor:pointer;
+}
+.survey-shell main .lembar-langkah__titik[data-keadaan="selesai"] {
+  border-color:var(--color-brand-4);background:var(--color-brand-4);color:var(--color-white);
+}
+.survey-shell main .lembar-langkah__titik[data-keadaan="aktif"] {
+  border-color:var(--color-brand-5);background:var(--color-brand-5);color:var(--color-white);
+}
+.survey-shell main .lembar-langkah__titik:disabled {cursor:default;opacity:.55}
+.survey-shell main .lembar-langkah__titik--ringkasan {padding:0 .6rem;letter-spacing:.02em}
 
-.lembar-petunjuk {margin-top:.4rem}
-.survey-shell main .lembar-petunjuk summary {
-  cursor:pointer;color:var(--color-brand-3);font-size:.66rem;font-weight:600;
+.lembar-pertanyaan__kepala {display:flex;flex-direction:column;gap:.3rem;margin-bottom:.8rem}
+.lembar-pertanyaan__kepala .eyebrow {margin:0}
+.lembar-pertanyaan__judul {display:flex;align-items:baseline;justify-content:space-between;gap:.6rem}
+.lembar-pertanyaan__judul h2 {margin:0;font:600 1.05rem/1.2 var(--font-family-heading);letter-spacing:-.015em}
+.lembar-pertanyaan__bobot {
+  flex:none;padding:.1rem .4rem;border-radius:999em;background:var(--color-brand-2);
+  color:var(--color-black);font:600 .58rem/1.4 var(--font-family-text);
 }
+.lembar-pertanyaan__indikator {margin:0;color:var(--color-text);font-size:.66rem;line-height:1.45}
+.survey-shell main .lembar-pertanyaan__petunjuk summary {
+  cursor:pointer;color:var(--color-brand-3);font-size:.6rem;font-weight:600;
+}
+.lembar-pertanyaan__petunjuk p {margin:.35rem 0 0;color:var(--color-text);font-size:.6rem;line-height:1.5}
 
 /* Tabel pertanyaan: dua kolom, nama di kiri dan kotak skor di kanan. Kepala kolom dirapatkan ke
    tepi seperti isinya, supaya label dan nama di bawahnya berada di satu garis. */
