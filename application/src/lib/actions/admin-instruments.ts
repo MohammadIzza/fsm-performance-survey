@@ -10,7 +10,7 @@ import {
   updateInstrumentScale,
   duplicateInstrumentFrom,
 } from "@/lib/services/instruments";
-import { updateGroupRule } from "@/lib/services/groupRules";
+import { updateCombinedWeight, updateGroupRule } from "@/lib/services/groupRules";
 import { ServiceError } from "@/lib/services/units";
 import type { AggregationMethod } from "@/generated/prisma/enums";
 
@@ -35,6 +35,7 @@ export async function addParameterAction(_prev: FormState, formData: FormData): 
         name: String(formData.get("name") ?? ""),
         indicator: (formData.get("indicator") as string) || null,
         weight: Number(formData.get("weight") ?? 0),
+        normalized: formData.get("normalized") === "on",
       },
       actor
     );
@@ -61,6 +62,7 @@ export async function updateParameterAction(
         name: String(formData.get("name") ?? ""),
         indicator: (formData.get("indicator") as string) || null,
         weight: Number(formData.get("weight") ?? 0),
+        normalized: formData.get("normalized") === "on",
       },
       actor
     );
@@ -148,6 +150,25 @@ export async function updateGroupRuleAction(
       },
       actor
     );
+  } catch (e) {
+    if (e instanceof ServiceError) return { error: e.message };
+    throw e;
+  }
+  revalidateCategory(periodId, categoryId);
+  return {};
+}
+
+export async function updateCombinedWeightAction(
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const actor = await requireAdminActor();
+  const periodId = String(formData.get("periodId") ?? "");
+  const categoryId = String(formData.get("categoryId") ?? "");
+  const aktif = formData.get("gabung") === "on";
+  const bobot = Number(formData.get("pimpinanWeight") ?? "");
+  try {
+    await updateCombinedWeight(categoryId, aktif ? bobot : null, actor);
   } catch (e) {
     if (e instanceof ServiceError) return { error: e.message };
     throw e;

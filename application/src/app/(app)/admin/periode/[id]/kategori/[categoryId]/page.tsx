@@ -15,6 +15,7 @@ import { ScaleForm } from "./scale-form";
 import { ParameterManager } from "./parameter-manager";
 import { DuplicateInstrumentForm } from "./duplicate-instrument-form";
 import { GroupRuleForm } from "./group-rule-form";
+import { CombinedWeightForm } from "./combined-weight-form";
 import { ParticipantManager } from "./participant-manager";
 import { AssignmentRuleForm } from "./assignment-rule-form";
 import { AssignmentPlanner } from "./assignment-planner";
@@ -228,6 +229,18 @@ async function CategoryDetailPage({
                           />
                         </div>
                       ))}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="eyebrow mb-3">Nilai gabungan</p>
+                  <div className="app-panel app-panel--ruled">
+                    <CombinedWeightForm
+                      periodId={periodId}
+                      categoryId={categoryId}
+                      pimpinanWeight={category.pimpinanWeight}
+                      editable={["DRAF", "SIAP", "AKTIF"].includes(category.period.status)}
+                    />
                   </div>
                 </div>
 

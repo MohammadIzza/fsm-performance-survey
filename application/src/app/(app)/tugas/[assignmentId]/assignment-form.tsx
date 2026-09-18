@@ -19,6 +19,13 @@ export interface ParameterView {
   indicator: string | null;
   weight: number;
   order: number;
+  /** Nilai mentah: tanpa batas atas, dibandingkan dengan objek lain saat perhitungan. */
+  normalized?: boolean;
+}
+
+/** Skala untuk satu parameter: parameter bernilai mentah tidak dibatasi maksimum instrumen. */
+export function skalaParameter(scale: Scale, p: ParameterView): Scale {
+  return p.normalized ? { ...scale, max: Number.POSITIVE_INFINITY } : scale;
 }
 
 export interface Scale {
@@ -93,7 +100,8 @@ export function ScoreField({
         type="number"
         inputMode={bilanganBulat && !bolehNegatif ? "numeric" : "decimal"}
         min={scale.min}
-        max={scale.max}
+        // Parameter bernilai mentah tidak punya batas atas (max = Infinity).
+        max={Number.isFinite(scale.max) ? scale.max : undefined}
         step={scale.step || "any"}
         value={value}
         disabled={disabled}
@@ -115,7 +123,9 @@ export function ScoreField({
             ingatkan(
               e.key === "." || e.key === ","
                 ? "Bilangan bulat"
-                : `Skor ${displayNumber(scale.min)}–${displayNumber(scale.max)}`
+                : Number.isFinite(scale.max)
+                  ? `Skor ${displayNumber(scale.min)}–${displayNumber(scale.max)}`
+                  : `Minimal ${displayNumber(scale.min)}`
             );
           }
         }}
@@ -153,6 +163,9 @@ function AssessmentSheet({
   adminEditing?: boolean;
 }) {
   const filledCount = parameters.filter((p) => scores[p.id] !== "").length;
+  // Parameter bernilai mentah baru punya nilai setelah dibandingkan dengan objek lain, jadi nilai
+  // berbobot dan totalnya tidak bisa dihitung di sini.
+  const adaMentah = parameters.some((p) => p.normalized);
   const totalWeight = parameters.reduce((sum, p) => sum + p.weight, 0);
   const totalScore = parameters.reduce((sum, p) => {
     const score = Number(scores[p.id]);
@@ -198,7 +211,7 @@ function AssessmentSheet({
             const rawValue = scores[p.id] ?? "";
             const numericValue = Number(rawValue);
             const weightedValue =
-              rawValue !== "" && Number.isFinite(numericValue)
+              !p.normalized && rawValue !== "" && Number.isFinite(numericValue)
                 ? displayNumber(numericValue * p.weight / 100)
                 : "—";
 
@@ -214,6 +227,7 @@ function AssessmentSheet({
                 <div className="assessment-question__parameter">
                   <span className="assessment-cell-label">Parameter</span>
                   <strong>{p.name}</strong>
+                  {p.normalized && <span className="parameter-mentah">Angka mentah</span>}
                 </div>
                 <div className="assessment-question__indicator">
                   <span className="assessment-cell-label">Indikator operasional</span>
@@ -228,7 +242,7 @@ function AssessmentSheet({
                   <ScoreField
                     id={`score-${p.id}`}
                     label={`Skor untuk ${p.name}`}
-                    scale={scale}
+                    scale={skalaParameter(scale, p)}
                     value={rawValue}
                     onChange={(value) => onScoreChange?.(p.id, value)}
                     disabled={!editable}
@@ -246,7 +260,7 @@ function AssessmentSheet({
         <footer className="assessment-grid__total">
           <strong>Total nilai saat ini</strong>
           <span>{displayNumber(totalWeight)}%</span>
-          <output>{filledCount ? displayNumber(totalScore) : "—"}</output>
+          <output>{filledCount && !adaMentah ? displayNumber(totalScore) : "—"}</output>
         </footer>
       </div>
     </section>

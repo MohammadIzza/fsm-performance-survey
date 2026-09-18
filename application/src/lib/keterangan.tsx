@@ -31,6 +31,20 @@ export const KET: Record<string, ReactNode> = {
       “Belum memenuhi minimum”. Tidak boleh lebih besar dari target.
     </>
   ),
+  nilaiGabungan: (
+    <>
+      Nilai Pimpinan dan nilai Selain Pimpinan dijumlahkan dengan bobot ini menjadi satu peringkat
+      tambahan (mis. atasan 60% + sejawat 40%). Objek baru masuk peringkat gabungan bila kedua
+      kelompoknya memenuhi syarat. Dua peringkat per kelompok tetap ditampilkan.
+    </>
+  ),
+  nilaiMentah: (
+    <>
+      Penilai menulis angka apa adanya, mis. jumlah publikasi, tanpa batas atas skala. Saat
+      perhitungan, angka tiap objek dibagi angka tertinggi di kategori yang sama lalu dikali 100 —
+      objek tertinggi mendapat 100, yang lain sebanding.
+    </>
+  ),
   pembeda: (
     <>Bila nilai akhir dua objek sama persis, peringkatnya ditentukan skor parameter yang dipilih di sini, sesuai urutan.</>
   ),

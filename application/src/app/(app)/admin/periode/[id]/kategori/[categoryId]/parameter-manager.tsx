@@ -8,6 +8,8 @@ import {
   deleteParameterAction,
 } from "@/lib/actions/admin-instruments";
 import type { getCategoryDetail } from "@/lib/services/categories";
+import { Info } from "@/components/theme/info";
+import { KET } from "@/lib/keterangan";
 
 type Parameter = NonNullable<Awaited<ReturnType<typeof getCategoryDetail>>>["instrumentVersions"][number]["parameters"][number];
 
@@ -77,6 +79,7 @@ export function ParameterManager({
                       placeholder="Indikator (opsional)"
                       className={fieldClass}
                     />
+                    <NilaiMentahCheckbox formId={addFormId} />
                   </td>
                   <td data-label="Bobot" className="px-3 py-2">
                     <input
@@ -154,6 +157,7 @@ function ParameterRow({
             defaultValue={parameter.indicator ?? ""}
             className={fieldClass}
           />
+          <NilaiMentahCheckbox formId={editFormId} defaultChecked={parameter.normalized} />
         </td>
         <td data-label="Bobot" className="px-3 py-2">
           <input
@@ -188,7 +192,10 @@ function ParameterRow({
 
   return (
     <tr className="parameter-row">
-      <td data-label="Nama" className="px-3 py-2 font-medium text-[var(--foreground)]">{parameter.name}</td>
+      <td data-label="Nama" className="px-3 py-2 font-medium text-[var(--foreground)]">
+        {parameter.name}
+        {parameter.normalized && <span className="parameter-mentah">Nilai mentah</span>}
+      </td>
       <td data-label="Indikator" className="px-3 py-2 text-[var(--muted)]">{parameter.indicator || "—"}</td>
       <td data-label="Bobot" className="px-3 py-2 text-[var(--foreground)]">{parameter.weight}%</td>
       {editable && (
@@ -220,5 +227,20 @@ function ParameterRow({
         </td>
       )}
     </tr>
+  );
+}
+
+/**
+ * Pilihan "nilai mentah" ditaruh di sel indikator, bukan kolom baru: tabel parameter sudah diatur
+ * lebarnya untuk layar ponsel, dan pilihan ini jarang dipakai — hanya untuk parameter hitungan
+ * seperti jumlah publikasi.
+ */
+function NilaiMentahCheckbox({ formId, defaultChecked = false }: { formId: string; defaultChecked?: boolean }) {
+  return (
+    <label className="parameter-mentah-pilihan">
+      <input form={formId} type="checkbox" name="normalized" defaultChecked={defaultChecked} />
+      Nilai mentah
+      <Info>{KET.nilaiMentah}</Info>
+    </label>
   );
 }

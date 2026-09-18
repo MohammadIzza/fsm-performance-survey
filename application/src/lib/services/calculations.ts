@@ -61,19 +61,17 @@ interface ParameterAggregate {
   weight: number;
   aggregate: number;
   contribution: number;
+  /** Agregat sebelum dinormalisasi; null untuk parameter biasa. */
+  rawAggregate: number | null;
 }
 
-// Bab 12.2: rumus rata-rata/total. n=0 ditangani oleh pemanggil (tidak pernah sampai ke sini
-// dengan responses kosong) — di sini n selalu >= 1.
-function aggregateParameter(
-  scores: number[],
-  weight: number,
-  method: AggregationMethod
-): { aggregate: number; contribution: number } {
+// Bab 12.2: rumus rata-rata/total, sebelum diberi bobot. n=0 ditangani pemanggil (tidak pernah
+// sampai ke sini dengan responses kosong). Bobot baru diberikan di computeAndPersist, karena
+// parameter bernilai mentah harus lebih dulu dibagi agregat tertinggi semua objek.
+function rawAggregate(scores: number[], method: AggregationMethod): Decimal {
   if (!scores.length) throw new ServiceError("Versi instrumen tidak sebanding. Selesaikan pengisian ulang sebelum perhitungan.");
-  const sum = scores.reduce((s,v)=>s.plus(v),new Decimal(0));
-  const aggregate = method === "TOTAL" ? sum : sum.div(scores.length);
-  return { aggregate: aggregate.toNumber(), contribution: aggregate.mul(weight).div(100).toNumber() };
+  const sum = scores.reduce((s, v) => s.plus(v), new Decimal(0));
+  return method === "TOTAL" ? sum : sum.div(scores.length);
 }
 
 function computeEligibility(responseCount: number, minimum: number): "BELUM_ADA_PENILAIAN" | "BELUM_MEMENUHI_MINIMUM" | "MEMENUHI_SYARAT" {
@@ -107,35 +105,68 @@ async function computeAndPersist(
 ) {
   const responseSnapshot: Record<string, {revisionId:string;evaluatorName:string;evaluatorLogin:string;submittedAt:string|null;scores:{parameterName:string;score:number}[]}[]> = {};
   await prisma.$transaction(async (tx) => {
-    for (const co of category.categoryObjects) {
-      for (const rule of category.groupRules) {
+    for (const rule of category.groupRules) {
+      // Tahap 1 — agregat mentah tiap objek pada kelompok ini.
+      const perObjek: { categoryObjectId: string; n: number; mentah: Map<string, Decimal> }[] = [];
+      for (const co of category.categoryObjects) {
         const responses = await loadEffectiveResponses(co.id, rule.group);
         const n = responses.length;
         responseSnapshot[`${co.id}|${rule.group}`] = responses.map(r=>({revisionId:r.revisionId,evaluatorName:r.evaluatorName,evaluatorLogin:r.evaluatorLogin,submittedAt:r.submittedAt,scores:instrument.parameters.map(p=>({parameterName:p.name,score:r.scores.get(p.id)!}))}));
-
-        let score: number | null = null;
-        const paramAggregates: ParameterAggregate[] = [];
-
+        const mentah = new Map<string, Decimal>();
         if (n > 0) {
           for (const param of instrument.parameters) {
             // Bab 11: parameter wajib terisi saat kirim, jadi setiap respons berlaku dijamin
             // punya skor untuk setiap parameter instrumen — tidak ada nilai hilang di sini.
             const scores = responses.map((r) => r.scores.get(param.id)).filter((s): s is number => s !== undefined);
             if (scores.length !== n) throw new ServiceError("Respons menggunakan instrumen tidak sebanding. Lakukan pengisian ulang sebelum menghitung/finalisasi.");
-            const { aggregate, contribution } = aggregateParameter(scores, param.weight, rule.aggregation);
-            paramAggregates.push({ parameterId: param.id, weight: param.weight, aggregate, contribution });
+            mentah.set(param.id, rawAggregate(scores, rule.aggregation));
           }
-          score = paramAggregates.reduce((s,p)=>s.plus(p.contribution),new Decimal(0)).toDecimalPlaces(6).toNumber();
+        }
+        perObjek.push({ categoryObjectId: co.id, n, mentah });
+      }
+
+      // Tahap 2 — untuk parameter bernilai mentah, agregat tertinggi di antara objek yang punya
+      // respons dalam kelompok yang sama. Objek dengan agregat itu mendapat 100.
+      const tertinggi = new Map<string, Decimal>();
+      for (const param of instrument.parameters) {
+        if (!param.normalized) continue;
+        let maks = new Decimal(0);
+        for (const o of perObjek) {
+          const v = o.mentah.get(param.id);
+          if (v && v.gt(maks)) maks = v;
+        }
+        tertinggi.set(param.id, maks);
+      }
+
+      // Tahap 3 — normalisasi, sumbangan berbobot, lalu simpan.
+      for (const o of perObjek) {
+        let score: number | null = null;
+        const paramAggregates: ParameterAggregate[] = [];
+        if (o.n > 0) {
+          for (const param of instrument.parameters) {
+            const raw = o.mentah.get(param.id)!;
+            const maks = tertinggi.get(param.id);
+            // Semua objek bernilai 0 → tidak ada pembanding; semuanya 0, bukan pembagian nol.
+            const agregat = param.normalized ? (maks && maks.gt(0) ? raw.div(maks).mul(100) : new Decimal(0)) : raw;
+            paramAggregates.push({
+              parameterId: param.id,
+              weight: param.weight,
+              aggregate: agregat.toNumber(),
+              contribution: agregat.mul(param.weight).div(100).toNumber(),
+              rawAggregate: param.normalized ? raw.toNumber() : null,
+            });
+          }
+          score = paramAggregates.reduce((sum,p)=>sum.plus(p.contribution),new Decimal(0)).toDecimalPlaces(6).toNumber();
         }
 
         const result = await tx.objectGroupResult.create({
           data: {
             runId,
-            categoryObjectId: co.id,
+            categoryObjectId: o.categoryObjectId,
             group: rule.group,
-            responseCount: n,
+            responseCount: o.n,
             score,
-            eligibility: computeEligibility(n, rule.minimum),
+            eligibility: computeEligibility(o.n, rule.minimum),
           },
         });
 
@@ -146,6 +177,7 @@ async function computeAndPersist(
               parameterId: p.parameterId,
               aggregate: round6(p.aggregate),
               contribution: round6(p.contribution),
+              rawAggregate: p.rawAggregate === null ? null : round6(p.rawAggregate),
             })),
           });
         }
@@ -277,12 +309,17 @@ export async function calculateResults(categoryId: string, actor: AuthContext) {
     throw new ServiceError("Kategori belum memiliki parameter instrumen untuk dihitung.");
   }
 
-  const groupRuleSnapshot = Object.fromEntries(
-    category.groupRules.map((g) => [
-      g.group,
-      { aggregation: g.aggregation, target: g.target, minimum: g.minimum, revision:g.revision, tieBreakParameterIds:g.tieBreakParameterIds },
-    ])
-  );
+  // Bobot nilai gabungan ikut dipatri, supaya peringkat gabungan dari run lama (mis. yang sudah
+  // difinalkan) tidak berubah bila bobot kategori diganti kemudian.
+  const groupRuleSnapshot = {
+    ...Object.fromEntries(
+      category.groupRules.map((g) => [
+        g.group,
+        { aggregation: g.aggregation, target: g.target, minimum: g.minimum, revision:g.revision, tieBreakParameterIds:g.tieBreakParameterIds },
+      ])
+    ),
+    GABUNGAN: { pimpinanWeight: category.pimpinanWeight },
+  };
   const runData = { categoryId, instrumentVersionId: instrument.id, groupRuleSnapshot, status: "BERJALAN" as const, triggeredById: actor.userId };
 
   if (isNested()) {

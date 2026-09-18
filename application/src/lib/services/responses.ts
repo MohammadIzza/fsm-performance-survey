@@ -75,9 +75,20 @@ function validateScores(assignment: AssignmentContext, scores: ScoreInput[], req
   const provided = new Map(scores.map((s) => [s.parameterId, s.score]));
   if (provided.size !== scores.length) throw new ServiceError("Parameter duplikat tidak diizinkan.");
 
+  const mentah = new Set(parameters.filter((p) => p.normalized).map((p) => p.id));
   for (const s of scores) {
     if (!validIds.has(s.parameterId)) {
       throw new ServiceError("Salah satu parameter tidak dikenal pada instrumen tugas ini.");
+    }
+    // Parameter bernilai mentah (mis. jumlah publikasi) tidak dibatasi maksimum skala: angkanya
+    // baru dibandingkan dengan objek lain saat perhitungan.
+    if (mentah.has(s.parameterId)) {
+      if (!isValidScore(s.score, scaleMin, Number.POSITIVE_INFINITY, scaleStep)) {
+        throw new ServiceError(
+          `Angka mentah minimal ${scaleMin}${scaleStep ? `, kelipatan ${scaleStep}` : ""}.`
+        );
+      }
+      continue;
     }
     if (!isValidScore(s.score, scaleMin, scaleMax, scaleStep)) {
       throw new ServiceError(

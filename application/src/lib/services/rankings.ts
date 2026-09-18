@@ -14,6 +14,8 @@ export interface RankedEntry {
   responseCount: number;
   eligibility: "BELUM_ADA_PENILAIAN" | "BELUM_MEMENUHI_MINIMUM" | "MEMENUHI_SYARAT";
   rank: number | null; // null bila tidak layak peringkat
+  /** Masih berbagi peringkat dengan objek lain setelah parameter pembeda dipakai. */
+  tied: boolean;
 }
 
 // Bab 13.3: peringkat kompetisi (1,2,2,4) — dua nilai sama mendapat peringkat sama, dan
@@ -38,6 +40,13 @@ function assignCompetitionRanks(
       }
     }
     sorted[i].rank = rank;
+  }
+  // Nilai yang tetap sama setelah dibedakan ditandai seri, supaya terbaca sebagai keputusan yang
+  // masih terbuka — bukan urutan nama yang kebetulan menaruh satu objek di atas yang lain.
+  for (let i = 0; i < sorted.length; i++) {
+    sorted[i].tied =
+      (i > 0 && sorted[i - 1].rank === sorted[i].rank) ||
+      (i < sorted.length - 1 && sorted[i + 1].rank === sorted[i].rank);
   }
 }
 
@@ -78,6 +87,7 @@ export async function getRanking(options: RankingOptions): Promise<RankedEntry[]
     responseCount: r.responseCount,
     eligibility: r.eligibility,
     rank: null,
+    tied: false,
   }));
 
   const tieBreakByObject = new Map<string, number[]>();
@@ -111,6 +121,115 @@ export async function getRanking(options: RankingOptions): Promise<RankedEntry[]
   notEligible.sort((a, b) => a.objectName.localeCompare(b.objectName));
 
   return [...eligible, ...notEligible];
+}
+
+export interface CombinedRanking {
+  pimpinanWeight: number;
+  entries: RankedEntry[];
+}
+
+/**
+ * Peringkat gabungan kedua kelompok: nilai Pimpinan × bobot + nilai Selain Pimpinan × sisanya
+ * (mis. atasan 60% + sejawat 40% pada kategori tendik). Hanya ada bila kategori menetapkan bobot
+ * gabungan; bobotnya dibaca dari snapshot run, bukan dari kategori saat ini, supaya peringkat dari
+ * run yang sudah difinalkan tidak ikut berubah.
+ *
+ * Sebuah objek baru layak peringkat gabungan bila KEDUA kelompoknya memenuhi syarat — nilai yang
+ * separuhnya belum ada tidak boleh dibandingkan dengan nilai yang lengkap. Parameter pembeda
+ * memakai urutan milik aturan kelompok Pimpinan (bila kosong, milik Selain Pimpinan), dengan nilai
+ * per parameter yang digabung memakai bobot yang sama.
+ */
+export async function getCombinedRanking(options: {
+  categoryId: string;
+  unitIds?: string[] | null;
+}): Promise<CombinedRanking | null> {
+  const run = await getLatestRun(options.categoryId);
+  if (!run) return null;
+  const snapshot = run.groupRuleSnapshot as Record<
+    string,
+    { tieBreakParameterIds?: string[] | null; pimpinanWeight?: number | null } | undefined
+  >;
+  const bobot = snapshot.GABUNGAN?.pimpinanWeight;
+  if (bobot == null) return null;
+  const wP = bobot / 100;
+  const wS = 1 - wP;
+
+  const tieBreakParameterIds =
+    (snapshot.PIMPINAN?.tieBreakParameterIds?.length
+      ? snapshot.PIMPINAN.tieBreakParameterIds
+      : snapshot.SELAIN_PIMPINAN?.tieBreakParameterIds) ?? [];
+
+  const results = await prisma.objectGroupResult.findMany({
+    where: { runId: run.id },
+    include: {
+      categoryObject: { include: { object: true } },
+      parameterResults: true,
+    },
+  });
+
+  const perObjek = new Map<string, { pimpinan?: (typeof results)[number]; selain?: (typeof results)[number] }>();
+  for (const r of results) {
+    const e = perObjek.get(r.categoryObjectId) ?? {};
+    if (r.group === "PIMPINAN") e.pimpinan = r;
+    else e.selain = r;
+    perObjek.set(r.categoryObjectId, e);
+  }
+
+  const entries: RankedEntry[] = [];
+  const tieBreakByObject = new Map<string, number[]>();
+  for (const [categoryObjectId, { pimpinan, selain }] of perObjek) {
+    const contoh = pimpinan ?? selain!;
+    const ownerUnitId = contoh.categoryObject.ownerUnitIdSnapshot ?? contoh.categoryObject.object.ownerUnitId;
+    if (options.unitIds && !options.unitIds.includes(ownerUnitId)) continue;
+
+    const layak = pimpinan?.eligibility === "MEMENUHI_SYARAT" && selain?.eligibility === "MEMENUHI_SYARAT";
+    const kosong = (pimpinan?.responseCount ?? 0) + (selain?.responseCount ?? 0) === 0;
+    const score =
+      pimpinan?.score != null && selain?.score != null
+        ? Math.round((pimpinan.score * wP + selain.score * wS) * 1e6) / 1e6
+        : null;
+
+    entries.push({
+      categoryObjectId,
+      objectName: contoh.categoryObject.nameSnapshot,
+      unitName: contoh.categoryObject.unitSnapshot,
+      ownerUnitId,
+      group: "PIMPINAN",
+      score,
+      responseCount: (pimpinan?.responseCount ?? 0) + (selain?.responseCount ?? 0),
+      eligibility: layak ? "MEMENUHI_SYARAT" : kosong ? "BELUM_ADA_PENILAIAN" : "BELUM_MEMENUHI_MINIMUM",
+      rank: null,
+      tied: false,
+    });
+
+    if (tieBreakParameterIds.length > 0) {
+      tieBreakByObject.set(
+        categoryObjectId,
+        tieBreakParameterIds.map((pid) => {
+          const p = pimpinan?.parameterResults.find((x) => x.parameterId === pid)?.aggregate;
+          const s = selain?.parameterResults.find((x) => x.parameterId === pid)?.aggregate;
+          return p == null || s == null ? -Infinity : Math.round((p * wP + s * wS) * 1e6) / 1e6;
+        })
+      );
+    }
+  }
+
+  const eligible = entries.filter((e) => e.eligibility === "MEMENUHI_SYARAT");
+  const notEligible = entries.filter((e) => e.eligibility !== "MEMENUHI_SYARAT");
+  eligible.sort((a, b) => {
+    if (b.score !== a.score) return (b.score ?? 0) - (a.score ?? 0);
+    const aTie = tieBreakByObject.get(a.categoryObjectId) ?? [];
+    const bTie = tieBreakByObject.get(b.categoryObjectId) ?? [];
+    for (let i = 0; i < Math.max(aTie.length, bTie.length); i++) {
+      const diff = (bTie[i] ?? -Infinity) - (aTie[i] ?? -Infinity);
+      if (diff !== 0) return diff;
+    }
+    return a.objectName.localeCompare(b.objectName);
+  });
+  assignCompetitionRanks(eligible, tieBreakByObject);
+  notEligible.sort((a, b) => a.objectName.localeCompare(b.objectName));
+
+  return { pimpinanWeight: bobot, entries: [...eligible, ...notEligible] };
 }
 
 // Bab 13.5/EDGE-19: memangkas hasil ke unit yang boleh dilihat aktor, berdasarkan unit OBJEK

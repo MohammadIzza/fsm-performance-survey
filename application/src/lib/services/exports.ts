@@ -1,5 +1,5 @@
 import { getPeriodScope } from "@/lib/authz";
-import { getRanking } from "@/lib/services/rankings";
+import { getCombinedRanking, getRanking } from "@/lib/services/rankings";
 import { ServiceError } from "@/lib/services/units";
 import { isResultAccessOpenForNonAdmin } from "@/lib/services/resultAccess";
 import ExcelJS from "exceljs";
@@ -45,6 +45,7 @@ export async function buildResultsExport(categoryId: string, scopedEntries: {
   if(!actor.isAdmin&&(!policy||!isResultAccessOpenForNonAdmin({mode:policy.mode,availableAt:policy.availableAt,periodStatus:category.period.status}))) throw new ServiceError("Hasil belum dapat diakses.");
   const unitIds=await getPeriodScope(actor,category.periodId);
   scopedEntries={pimpinan:await getRanking({categoryId,group:"PIMPINAN",unitIds}),selain:await getRanking({categoryId,group:"SELAIN_PIMPINAN",unitIds})};
+  const gabungan = await getCombinedRanking({ categoryId, unitIds });
   const visibleIds = new Set(
     [...scopedEntries.pimpinan, ...scopedEntries.selain].map((e) => e.categoryObjectId)
   );
@@ -68,6 +69,7 @@ export async function buildResultsExport(categoryId: string, scopedEntries: {
       { header: "Minimum", key: "minimum", width: 10 },
       { header: "Nilai", key: "score", width: 12 },
       { header: "Status", key: "status", width: 22 },
+      { header: "Seri", key: "seri", width: 8 },
     ];
     sheet.getRow(1).font = { bold: true };
     for (const e of entries) {
@@ -79,6 +81,7 @@ export async function buildResultsExport(categoryId: string, scopedEntries: {
         minimum,
         score: e.score, // tetap numerik (bukan string) sesuai Bab 15.2
         status: eligibilityLabel[e.eligibility],
+        seri: e.tied ? "Ya" : "",
       });
     }
   }
@@ -87,6 +90,13 @@ export async function buildResultsExport(categoryId: string, scopedEntries: {
   const selainRule = category.groupRules.find((r) => r.group === "SELAIN_PIMPINAN");
   addRekapSheet("Rekap Pimpinan", scopedEntries.pimpinan, pimpinanRule?.minimum ?? 0);
   addRekapSheet("Rekap Selain Pimpinan", scopedEntries.selain, selainRule?.minimum ?? 0);
+  if (gabungan) {
+    addRekapSheet(
+      `Rekap Gabungan ${gabungan.pimpinanWeight}-${100 - gabungan.pimpinanWeight}`,
+      gabungan.entries,
+      (pimpinanRule?.minimum ?? 0) + (selainRule?.minimum ?? 0)
+    );
+  }
 
   // Rincian per parameter (kedua kelompok digabung, dibedakan kolom Kelompok).
   const detailSheet = workbook.addWorksheet("Rincian Parameter");
@@ -95,6 +105,7 @@ export async function buildResultsExport(categoryId: string, scopedEntries: {
     { header: "Kelompok", key: "kelompok", width: 16 },
     { header: "Parameter", key: "parameter", width: 22 },
     { header: "Bobot (%)", key: "bobot", width: 10 },
+    { header: "Angka mentah", key: "raw", width: 14 },
     { header: "Rata-rata/Total", key: "aggregate", width: 16 },
     { header: "Kontribusi", key: "contribution", width: 12 },
   ];
@@ -109,6 +120,7 @@ export async function buildResultsExport(categoryId: string, scopedEntries: {
           kelompok: groupLabel[group],
           parameter: safeCell(pr.parameter.name),
           bobot: pr.parameter.weight,
+          raw: pr.rawAggregate ?? "",
           aggregate: pr.aggregate,
           contribution: pr.contribution,
         });

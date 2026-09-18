@@ -3556,7 +3556,9 @@ input[type="range"]:disabled::-moz-range-thumb {
 /* Ringkasan: tabel standar, dirapatkan supaya enam kolom skor muat di layar ponsel. */
 .survey-shell main .lembar-ringkasan {table-layout:fixed}
 .survey-shell main .lembar-ringkasan :is(th,td):first-child {width:34%}
-.survey-shell main .lembar-ringkasan :is(th,td):last-child {width:15%}
+/* Kolom Nilai disebut lewat kelasnya, bukan :last-child — pada instrumen bernilai mentah kolom itu
+   tidak ada, dan kolom parameter terakhir tidak boleh ikut rata kanan. */
+.survey-shell main .lembar-ringkasan :is(th,td).lembar-ringkasan__nilai {width:15%}
 .survey-shell main .lembar-ringkasan thead th {
   padding:.6rem .3rem;text-align:center;vertical-align:bottom;white-space:normal;
 }
@@ -3576,14 +3578,14 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 .survey-shell main .lembar-ringkasan thead th:first-child {text-align:left;padding-left:0}
 /* Kepala kolom Nilai rata kanan, segaris dengan angka nilai di bawahnya. */
-.survey-shell main .lembar-ringkasan thead th:last-child {text-align:right}
+.survey-shell main .lembar-ringkasan thead th.lembar-ringkasan__nilai {text-align:right}
 .survey-shell main .lembar-ringkasan tbody td {
   padding:.6rem .2rem;text-align:center;vertical-align:middle;font-variant-numeric:tabular-nums;
 }
 .survey-shell main .lembar-ringkasan tbody td:first-child {
   padding-left:0;text-align:left;font-weight:600;overflow-wrap:anywhere;
 }
-.survey-shell main .lembar-ringkasan tbody td:last-child {text-align:right;font-weight:600}
+.survey-shell main .lembar-ringkasan tbody td.lembar-ringkasan__nilai {text-align:right;font-weight:600}
 .survey-shell main .lembar-ringkasan tr[data-terkunci="true"] td:not(:first-child) {color:var(--color-text)}
 /* Status baris yang tidak ikut dikirim: teks berwarna saja, tanpa lencana dan tanpa mewarnai
    barisnya. Hijau tosca tema digelapkan sedikit supaya tetap terbaca di atas latar krem. */
@@ -3613,4 +3615,36 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell main .assessment-score-control input[type="number"]::-webkit-outer-spin-button,
 .survey-shell main .assessment-score-control input[type="number"]::-webkit-inner-spin-button {
   margin:0;appearance:none;-webkit-appearance:none;
+}
+
+/* Sisa bobot nilai gabungan: angka hasil hitung, bukan isian — tampil setinggi kolom isian di
+   sebelahnya supaya kedua kolom sejajar. */
+.gabungan-sisa {
+  display:flex;align-items:center;min-height:1.9rem;margin:0;
+  color:var(--color-black);font-size:.75rem;font-weight:600;
+}
+
+/* Parameter bernilai mentah: penanda kecil di bawah namanya, dan pilihannya di bawah kolom
+   indikator saat parameter ditambah atau diubah. */
+.parameter-mentah {
+  display:block;margin-top:.15rem;color:var(--color-brand-3);
+  font-size:.52rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;
+}
+.parameter-mentah-pilihan {
+  display:flex;align-items:center;gap:.35rem;margin-top:.35rem;
+  color:var(--color-text);font-size:.6rem;font-weight:500;
+}
+.parameter-mentah-pilihan input {width:.85rem;height:.85rem}
+
+.lembar-pertanyaan__mentah {
+  margin:0;padding:.45rem .6rem;border-left:3px solid var(--color-brand-5);
+  background:var(--color-white);color:var(--color-black);font-size:.64rem;line-height:1.45;
+}
+.lembar-ringkasan-catatan {margin:.7rem 0 0;color:var(--color-text);font-size:.64rem;line-height:1.45}
+
+/* Penanda seri di samping nomor peringkat: nilainya tetap sama setelah parameter pembeda dipakai,
+   jadi peringkat itu dibagi dan keputusannya masih terbuka. */
+.leaderboard-rank__seri {
+  margin-left:.3rem;color:var(--color-brand-1);
+  font-size:.55em;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
 }

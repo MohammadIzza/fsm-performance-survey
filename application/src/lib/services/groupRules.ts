@@ -70,3 +70,39 @@ async function updateGroupRuleImpl(
 export async function updateGroupRule(...args: Parameters<typeof updateGroupRuleImpl>): Promise<Awaited<ReturnType<typeof updateGroupRuleImpl>>> {
   return atomic(() => updateGroupRuleImpl(...args));
 }
+
+/**
+ * Bobot nilai gabungan antar-kelompok: Pimpinan mendapat `pimpinanWeight`%, Selain Pimpinan
+ * sisanya; null = kedua kelompok diperingkat terpisah tanpa nilai gabungan.
+ *
+ * Berbeda dari aturan kelompok, bobot ini boleh diubah sampai periode ditutup: ia tidak
+ * menyentuh jawaban maupun siapa yang menilai, hanya cara kedua nilai kelompok digabung. Setelah
+ * ditutup bobot dikunci, karena hasil sedang diperiksa dan difinalkan. Perhitungan berikutnya
+ * memakai bobot baru (kategori yang berubah memicu hitung ulang otomatis), sedangkan run lama
+ * tetap memakai bobot yang dipatri di snapshot-nya.
+ */
+async function updateCombinedWeightImpl(categoryId: string, pimpinanWeight: number | null, actor: AuthContext) {
+  const before = await prisma.category.findUnique({ where: { id: categoryId }, include: { period: true } });
+  if (!before) throw new ServiceError("Kategori tidak ditemukan.");
+  if (!["DRAF", "SIAP", "AKTIF"].includes(before.period.status)) {
+    throw new ServiceError("Bobot nilai gabungan hanya dapat diubah sebelum periode ditutup.");
+  }
+  if (pimpinanWeight !== null && (!Number.isInteger(pimpinanWeight) || pimpinanWeight < 1 || pimpinanWeight > 99)) {
+    throw new ServiceError("Bobot Pimpinan harus bilangan bulat antara 1 dan 99 persen.");
+  }
+  const category = await prisma.category.update({ where: { id: categoryId }, data: { pimpinanWeight } });
+  await writeAudit({
+    actorId: actor.userId,
+    actorRole: "ADMIN",
+    action: "CATEGORY_COMBINED_WEIGHT_UPDATE",
+    entity: "Category",
+    entityId: categoryId,
+    before: { pimpinanWeight: before.pimpinanWeight },
+    after: { pimpinanWeight: category.pimpinanWeight },
+  });
+  return category;
+}
+
+export async function updateCombinedWeight(...args: Parameters<typeof updateCombinedWeightImpl>): Promise<Awaited<ReturnType<typeof updateCombinedWeightImpl>>> {
+  return atomic(() => updateCombinedWeightImpl(...args));
+}

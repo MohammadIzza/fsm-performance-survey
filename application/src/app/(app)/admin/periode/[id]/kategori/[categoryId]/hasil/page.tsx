@@ -6,7 +6,7 @@ import { PageIntro, SummaryCard } from "@/components/theme/summary";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getLatestRun, getGroupDetailBulk, listRunsForCategory } from "@/lib/services/calculations";
-import { getRanking } from "@/lib/services/rankings";
+import { getCombinedRanking, getRanking } from "@/lib/services/rankings";
 import { LeaderboardGroups, type DetailData } from "@/components/leaderboard-table";
 import { CalculateButton } from "./calculate-button";
 import { withBase } from "@/lib/base-path";
@@ -41,6 +41,7 @@ async function HasilPage({
 
   let pimpinanEntries: Awaited<ReturnType<typeof getRanking>> = [];
   let selainEntries: Awaited<ReturnType<typeof getRanking>> = [];
+  let gabungan: Awaited<ReturnType<typeof getCombinedRanking>> = null;
   let pimpinanDetail: Map<string, DetailData> | undefined;
   let selainDetail: Map<string, DetailData> | undefined;
 
@@ -49,6 +50,8 @@ async function HasilPage({
       getRanking({ categoryId, group: "PIMPINAN" }),
       getRanking({ categoryId, group: "SELAIN_PIMPINAN" }),
     ]);
+
+    gabungan = await getCombinedRanking({ categoryId });
 
     const [pimpinanBulk, selainBulk] = await Promise.all([
       getGroupDetailBulk(categoryId, "PIMPINAN"),
@@ -65,6 +68,7 @@ async function HasilPage({
             aggregate: pr.aggregate,
             contribution: pr.contribution,
             weight: pr.parameter.weight,
+            rawAggregate: pr.rawAggregate,
           })),
           respondents: data.respondents.map((r) => ({
             ...r,
@@ -140,6 +144,7 @@ async function HasilPage({
           selainEntries={selainEntries}
           selainMinimum={selainRule?.minimum ?? 0}
           selainDetail={selainDetail}
+          gabungan={gabungan}
         />
       ) : (
         <p className="app-empty">Jalankan perhitungan untuk melihat hasil.</p>

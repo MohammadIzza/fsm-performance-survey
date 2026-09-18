@@ -20,7 +20,14 @@ import { TextInput } from "@/components/theme/form-field";
 import { withBase } from "@/lib/base-path";
 
 export interface DetailData {
-  parameterResults: { parameterName: string; aggregate: number; contribution: number; weight: number }[];
+  parameterResults: {
+    parameterName: string;
+    aggregate: number;
+    contribution: number;
+    weight: number;
+    /** Agregat sebelum dinormalisasi; hanya ada pada parameter bernilai mentah. */
+    rawAggregate?: number | null;
+  }[];
   respondents: { evaluatorName: string; evaluatorLogin: string; submittedAt: string | null; scores: { parameterName: string; score: number }[] }[];
 }
 
@@ -48,12 +55,15 @@ const eligibilityTone: Record<RankedEntry["eligibility"], "selesai" | "perhatian
 export function LeaderboardTable({
   entries,
   minimum,
+  minimumText,
   showDetail,
   detailByObject,
   searchTerm,
 }: {
   entries: RankedEntry[];
   minimum: number;
+  /** Pengganti "min. N" pada kolom Respons, mis. untuk papan gabungan dua kelompok. */
+  minimumText?: string;
   showDetail: boolean;
   detailByObject?: Map<string, DetailData>;
   /** Bab 13.2: pencarian hanya menyaring tampilan, peringkat yang sudah dihitung tidak berubah. */
@@ -95,6 +105,7 @@ export function LeaderboardTable({
             key={e.categoryObjectId}
             entry={e}
             minimum={minimum}
+            minimumText={minimumText}
             detail={showDetail ? detailByObject?.get(e.categoryObjectId) : undefined}
           />
         ))}
@@ -108,10 +119,13 @@ export function LeaderboardTable({
  * aset yang sama dipakai seksi peringkat di beranda — supaya papan ini tetap terbaca sebagai
  * papan peringkat tanpa perlu lencana buatan sendiri.
  */
-function Peringkat({ rank }: { rank: number | null }) {
+function Peringkat({ rank, tied }: { rank: number | null; tied?: boolean }) {
   const mahkota = rank === 1 ? "gold" : rank === 2 ? "silver" : rank === 3 ? "bronze" : null;
   return (
-    <span className="leaderboard-rank" aria-label={rank ? `Peringkat ${rank}` : "Belum berperingkat"}>
+    <span
+      className="leaderboard-rank"
+      aria-label={rank ? `Peringkat ${rank}${tied ? ", seri" : ""}` : "Belum berperingkat"}
+    >
       {mahkota && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -123,6 +137,9 @@ function Peringkat({ rank }: { rank: number | null }) {
         />
       )}
       <span className="leaderboard-rank__number">{rank ?? "—"}</span>
+      {/* Nilai yang tetap sama setelah parameter pembeda dipakai: peringkatnya dibagi, dan
+          keputusannya masih terbuka — ditandai supaya tidak dibaca sebagai urutan pasti. */}
+      {tied && <span className="leaderboard-rank__seri" title="Nilai sama persis dengan objek lain">seri</span>}
     </span>
   );
 }
@@ -130,15 +147,17 @@ function Peringkat({ rank }: { rank: number | null }) {
 function EntryRow({
   entry,
   minimum,
+  minimumText,
   detail,
 }: {
   entry: RankedEntry;
   minimum: number;
+  minimumText?: string;
   detail?: DetailData;
 }) {
   const bisaDibuka = !!detail;
   const respons = `${entry.responseCount}${
-    entry.eligibility !== "MEMENUHI_SYARAT" ? ` / min. ${minimum}` : ""
+    entry.eligibility !== "MEMENUHI_SYARAT" ? ` / ${minimumText ?? `min. ${minimum}`}` : ""
   }`;
   const nilai = entry.score !== null ? entry.score.toFixed(2) : "—";
 
@@ -166,7 +185,7 @@ function EntryRow({
       }
     >
       <RowTitle>
-        <Peringkat rank={entry.rank} />
+        <Peringkat rank={entry.rank} tied={entry.tied} />
         {entry.objectName}
       </RowTitle>
       <RowField kind="duration" icon={false} detail>
@@ -203,6 +222,7 @@ function DetailPanel({ detail }: { detail: DetailData }) {
                   {p.parameterName} <span className="leaderboard-detail__muted">({p.weight}%)</span>
                 </span>
                 <span className="leaderboard-detail__muted">
+                  {p.rawAggregate != null && <>mentah {p.rawAggregate.toFixed(2)} → </>}
                   {p.aggregate.toFixed(2)} → {p.contribution.toFixed(2)}
                 </span>
               </li>
@@ -245,8 +265,11 @@ export function LeaderboardGroups({
   selainEntries,
   selainMinimum,
   selainDetail,
+  gabungan,
   action,
 }: {
+  /** Peringkat gabungan kedua kelompok; hanya ada bila kategori menetapkan bobot gabungan. */
+  gabungan?: { entries: RankedEntry[]; pimpinanWeight: number } | null;
   /** Tindakan di ujung bilah penyaring, sejajar dengan kolom cari — mis. tombol Unduh Excel. */
   action?: ReactNode;
   pimpinanEntries: RankedEntry[];
@@ -280,6 +303,21 @@ export function LeaderboardGroups({
         {action && <div className="filter-bar__action">{action}</div>}
       </FilterBar>
 
+      {gabungan && (
+        <div>
+          <h2 className="app-panel__label">
+            Leaderboard Gabungan · Pimpinan {gabungan.pimpinanWeight}% + Selain Pimpinan{" "}
+            {100 - gabungan.pimpinanWeight}%<Info>{KET.nilaiGabungan}</Info>
+          </h2>
+          <LeaderboardTable
+            entries={gabungan.entries}
+            minimum={pimpinanMinimum + selainMinimum}
+            minimumText={`min. ${pimpinanMinimum} + ${selainMinimum}`}
+            showDetail={false}
+            searchTerm={search}
+          />
+        </div>
+      )}
       <div>
         <h2 className="app-panel__label">Leaderboard Pimpinan<Info>{KET.kelompok}</Info></h2>
         <LeaderboardTable

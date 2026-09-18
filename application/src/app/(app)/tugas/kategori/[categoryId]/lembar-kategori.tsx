@@ -6,6 +6,7 @@ import { useKonfirmasi } from "@/components/theme/confirm-dialog";
 import {
   ScoreField,
   displayNumber,
+  skalaParameter,
   type ParameterView,
   type Scale,
 } from "../../[assignmentId]/assignment-form";
@@ -212,6 +213,9 @@ export function LembarKategori({
   const dialogBuka = !!kirimState.submittedAt && dialogDitutup !== kirimState.submittedAt;
   const galatBaris = new Map((ringkasan?.gagal ?? []).map((g) => [g.assignmentId, g.pesan]));
 
+  // Instrumen dengan parameter bernilai mentah tidak punya nilai akhir sebelum semua objek
+  // dibandingkan saat perhitungan — kolom Nilai di ringkasan disembunyikan, diganti keterangan.
+  const adaMentah = urut.some((p) => p.normalized);
   const pertanyaan = urut[langkah];
   const kurang = pertanyaan ? kurangPada(pertanyaan.id) : 0;
   const semuaLengkap = bisaDiisi.every((b) => urut.every((p) => terisi(b.assignmentId, p.id)));
@@ -299,6 +303,12 @@ export function LembarKategori({
               <span className="lembar-pertanyaan__bobot">{pertanyaan.weight}%</span>
             </div>
             {pertanyaan.indicator && <p className="lembar-pertanyaan__indikator">{pertanyaan.indicator}</p>}
+            {pertanyaan.normalized && (
+              <p className="lembar-pertanyaan__mentah">
+                Tulis angkanya apa adanya, tanpa batas atas. Objek dengan angka tertinggi mendapat
+                nilai 100, objek lain sebanding dengannya.
+              </p>
+            )}
             {guide && (
               <details className="lembar-pertanyaan__petunjuk">
                 <summary>Petunjuk penilaian</summary>
@@ -312,7 +322,9 @@ export function LembarKategori({
               <tr>
                 <th scope="col">Objek yang dinilai</th>
                 <th scope="col">
-                  Skor {displayNumber(scale.min)}–{displayNumber(scale.max)}
+                  {pertanyaan.normalized
+                    ? "Angka mentah"
+                    : `Skor ${displayNumber(scale.min)}–${displayNumber(scale.max)}`}
                 </th>
               </tr>
             </thead>
@@ -327,7 +339,7 @@ export function LembarKategori({
                     <ScoreField
                       id={`skor-${b.assignmentId}-${pertanyaan.id}`}
                       label={`${pertanyaan.name} untuk ${b.objectName}`}
-                      scale={scale}
+                      scale={skalaParameter(scale, pertanyaan)}
                       value={nilai[b.assignmentId]?.[pertanyaan.id] ?? ""}
                       onChange={(v) => ubahNilai(b.assignmentId, pertanyaan.id, v)}
                       disabled={false}
@@ -416,7 +428,11 @@ export function LembarKategori({
                       <small className="lembar-ringkasan__bobot">{p.weight}%</small>
                     </th>
                   ))}
-                  <th scope="col">Nilai</th>
+                  {!adaMentah && (
+                    <th scope="col" className="lembar-ringkasan__nilai">
+                      Nilai
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -447,13 +463,19 @@ export function LembarKategori({
                         const v = nilai[b.assignmentId]?.[p.id] ?? "";
                         return <td key={p.id}>{v === "" ? "—" : displayNumber(Number(v))}</td>;
                       })}
-                      <td className="lembar-ringkasan__nilai">{total(b)}</td>
+                      {!adaMentah && <td className="lembar-ringkasan__nilai">{total(b)}</td>}
                     </tr>
                   );
                 })}
               </tbody>
             </table>
           </div>
+          {adaMentah && (
+            <p className="lembar-ringkasan-catatan">
+              Nilai akhir belum ditampilkan: angka mentah baru diubah menjadi nilai setelah
+              dibandingkan dengan semua objek pada kategori ini.
+            </p>
+          )}
 
           {bisaDiisi.length > 0 && (
             <div className="lembar-aksi">

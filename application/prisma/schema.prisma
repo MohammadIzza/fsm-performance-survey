@@ -297,6 +297,9 @@ model Category {
   // Bab 8.4: bila true, anggota ObjectContributor otomatis dikecualikan sebagai penilai objeknya sendiri.
   excludeContributors Boolean @default(true) @map("exclude_contributors")
   active              Boolean @default(true)
+  // Bobot kelompok Pimpinan (1–99) untuk nilai gabungan; Selain Pimpinan mendapat sisanya.
+  // null = kedua kelompok diperingkat terpisah tanpa nilai gabungan.
+  pimpinanWeight      Int?    @map("pimpinan_weight")
 
   categoryObjects    CategoryObject[]
   instrumentVersions InstrumentVersion[]
@@ -365,6 +368,10 @@ model Parameter {
   indicator           String?
   weight              Float
   order               Int
+  // Nilai mentah yang dinormalisasi: penilai mengisi angka apa adanya (mis. jumlah publikasi),
+  // lalu saat perhitungan agregatnya dibagi agregat tertinggi dalam kategori+kelompok × 100.
+  // Batas atas skala instrumen tidak berlaku untuk parameter ini.
+  normalized          Boolean @default(false)
 
   responseScores   ResponseScore[]
   parameterResults ParameterResult[]
@@ -628,6 +635,8 @@ model ParameterResult {
   parameter   Parameter         @relation(fields: [parameterId], references: [id])
   aggregate   Float             @map("aggregate")
   contribution Float            @map("contribution")
+  // Agregat sebelum dinormalisasi; hanya terisi untuk parameter bernilai mentah (normalized).
+  rawAggregate Float?           @map("raw_aggregate")
 
   @@unique([resultId, parameterId])
   @@map("parameter_results")

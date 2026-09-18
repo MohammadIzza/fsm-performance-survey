@@ -26,6 +26,8 @@ export interface ParameterInput {
   weight: number;
   /** Dipertahankan opsional untuk pemanggil lama; urutan baru selalu ditentukan oleh server. */
   order?: number;
+  /** Nilai mentah yang dinormalisasi terhadap nilai tertinggi (lihat Parameter.normalized). */
+  normalized?: boolean;
 }
 
 // INS-02: bobot parameter persentase nonnegatif.
@@ -81,6 +83,7 @@ async function addParameterImpl(
       indicator: input.indicator?.trim() || null,
       weight: input.weight,
       order: (lastParameter?.order ?? 0) + 1,
+      normalized: input.normalized ?? false,
     },
   });
 
@@ -116,6 +119,7 @@ async function updateParameterImpl(
       name,
       indicator: input.indicator?.trim() || null,
       weight: input.weight,
+      ...(input.normalized === undefined ? {} : { normalized: input.normalized }),
     },
   });
 
@@ -200,6 +204,7 @@ async function duplicateInstrumentFromImpl(
           indicator: p.indicator,
           weight: p.weight,
           order: p.order,
+          normalized: p.normalized,
         })),
       });
     }
@@ -294,7 +299,7 @@ export async function beginInstrumentRevision(categoryId:string,reason:string,co
   if(!previous) throw new ServiceError("Instrumen tidak ditemukan.");
   const version=await prisma.instrumentVersion.create({data:{categoryId,revision:previous.revision+1,scaleMin:previous.scaleMin,scaleMax:previous.scaleMax,scaleStep:previous.scaleStep,guide:previous.guide}});
   const idMap=new Map<string,string>();
-  for(const param of previous.parameters){const next=await prisma.parameter.create({data:{instrumentVersionId:version.id,name:param.name,indicator:param.indicator,weight:param.weight,order:param.order}});idMap.set(param.id,next.id)}
+  for(const param of previous.parameters){const next=await prisma.parameter.create({data:{instrumentVersionId:version.id,name:param.name,indicator:param.indicator,weight:param.weight,order:param.order,normalized:param.normalized}});idMap.set(param.id,next.id)}
   const rules=await prisma.groupRule.findMany({where:{categoryId}});
   for(const rule of rules) await prisma.groupRule.update({where:{id:rule.id},data:{revision:{increment:1},tieBreakParameterIds:((rule.tieBreakParameterIds as string[]|null)??[]).map(id=>idMap.get(id)).filter((id):id is string=>!!id)}});
   for(const co of category.categoryObjects) for(const a of co.assignments){

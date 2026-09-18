@@ -409,6 +409,7 @@ async function copyPeriodImpl(
           description: cat.description,
           objectTypeId: cat.objectTypeId,
           excludeContributors: cat.excludeContributors,
+          pimpinanWeight: cat.pimpinanWeight,
         },
       });
 
@@ -432,6 +433,7 @@ async function copyPeriodImpl(
               indicator: param.indicator,
               weight: param.weight,
               order: param.order,
+              normalized: param.normalized,
             },
           });
           parameterIdMap.set(param.id,copiedParameter.id);

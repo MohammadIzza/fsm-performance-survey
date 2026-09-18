@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getCurrentAuthContext } from "@/lib/authz";
 import { getLatestRun, getGroupDetailBulk } from "@/lib/services/calculations";
-import { getRanking } from "@/lib/services/rankings";
+import { getCombinedRanking, getRanking } from "@/lib/services/rankings";
 import { isResultAccessOpenForNonAdmin, describeAccessCondition } from "@/lib/services/resultAccess";
 import { LeaderboardGroups, type DetailData } from "@/components/leaderboard-table";
 import { withBase } from "@/lib/base-path";
@@ -71,6 +71,7 @@ export default async function HasilDetailPage({
 
   let pimpinanEntries: Awaited<ReturnType<typeof getRanking>> = [];
   let selainEntries: Awaited<ReturnType<typeof getRanking>> = [];
+  let gabungan: Awaited<ReturnType<typeof getCombinedRanking>> = null;
   let pimpinanDetail: Map<string, DetailData> | undefined;
   let selainDetail: Map<string, DetailData> | undefined;
 
@@ -84,6 +85,7 @@ export default async function HasilDetailPage({
     // ditampilkan sebagai subset — bukan diranking ulang dari subset yang terlihat.
     pimpinanEntries = pAll;
     selainEntries = sAll;
+    gabungan = await getCombinedRanking({ categoryId, unitIds: await getPeriodScope(ctx, category.periodId) });
 
     const visibleIds = new Set([...pimpinanEntries, ...selainEntries].map((e) => e.categoryObjectId));
 
@@ -103,6 +105,7 @@ export default async function HasilDetailPage({
             aggregate: pr.aggregate,
             contribution: pr.contribution,
             weight: pr.parameter.weight,
+            rawAggregate: pr.rawAggregate,
           })),
           respondents: data.respondents.map((r) => ({
             ...r,
@@ -153,6 +156,7 @@ export default async function HasilDetailPage({
           selainEntries={selainEntries}
           selainMinimum={selainRule?.minimum ?? 0}
           selainDetail={selainDetail}
+          gabungan={gabungan}
           action={
             <a href={withBase(`/hasil/${categoryId}/export`)} className="app-btn">
               Unduh Excel
