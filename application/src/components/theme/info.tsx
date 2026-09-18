@@ -86,7 +86,13 @@ export function Info({ children, label = "Keterangan" }: { children: ReactNode; 
           setKunci((k) => !k);
         }}
       >
-        <span aria-hidden="true">i</span>
+        {/* Lambang gambar, bukan huruf "i": pada ukuran sekecil ini huruf tunggal terbaca sebagai
+            noda tinta, sedangkan lingkaran bertitik dikenali sebagai tanda keterangan. */}
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="info__ikon">
+          <circle cx="12" cy="12" r="9.25" />
+          <path d="M12 11.1v5.4" />
+          <circle cx="12" cy="7.6" r="1.15" fill="currentColor" stroke="none" />
+        </svg>
       </button>
       {buka &&
         createPortal(

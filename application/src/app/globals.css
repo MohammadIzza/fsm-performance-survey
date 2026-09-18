@@ -3105,16 +3105,30 @@ input[type="range"]:disabled::-moz-range-thumb {
    sama gelapnya dengan notifikasi supaya terbaca sebagai lapisan sementara. */
 .survey-shell .info,
 .info {
-  display:inline-grid;place-items:center;flex:none;width:.95rem;height:.95rem;min-height:0;
-  margin:0 0 0 .3rem;padding:0;border:1px solid currentColor;border-radius:50%;
+  /* Ukurannya mengikuti tulisan di sebelahnya, bukan angka tetap: label di aplikasi ini berkisar
+     dari .5rem (nama kolom) sampai 1rem (judul), dan ikon berukuran tetap tampak jauh lebih besar
+     daripada hurufnya pada label kecil. Dengan em, lambangnya selalu sekitar setinggi huruf
+     kapital labelnya. */
+  position:relative;
+  display:inline-grid;place-items:center;flex:none;width:1.08em;height:1.08em;min-height:0;
+  margin:0 0 0 .3em;padding:0;border:0;border-radius:50%;
   background:transparent;color:var(--muted);box-shadow:none;
-  /* Huruf teks tema, bukan serif miring: pada ukuran sekecil ini "i" miring terbaca seperti "I". */
-  font:700 .52rem/1 var(--font-family-text);text-transform:none;letter-spacing:0;vertical-align:.06em;cursor:help;
-  transition:color .12s linear,background-color .12s linear;
+  vertical-align:-.12em;cursor:help;
+  transition:color .12s linear;
+}
+/* Lambangnya digambar, bukan huruf: goresan tipis mengikuti warna teksnya. */
+.info__ikon {
+  width:100%;height:100%;
+  stroke:currentColor;stroke-width:1.9;stroke-linecap:round;
+}
+/* Lingkarannya kecil, tetapi bidang sentuhnya tidak: kotak tembus pandang di sekelilingnya membuat
+   ikon tetap mudah diketuk di layar sentuh tanpa menggambar lingkaran yang lebih besar. */
+.survey-shell .info::after {
+  content:"";position:absolute;inset:-.4rem;border-radius:50%;
 }
 .survey-shell .info:hover,
 .survey-shell .info:focus-visible,
-.survey-shell .info[aria-expanded="true"] {background:var(--color-black);border-color:var(--color-black);color:var(--color-white)}
+.survey-shell .info[aria-expanded="true"] {background:transparent;color:var(--color-black)}
 .info:focus-visible {outline:2px solid var(--color-brand-5);outline-offset:2px}
 /* Nama kolom yang membawa ikon keterangan tetap satu baris bersama ikonnya. Tanpa ini ikon dianggap
    kata terakhir dan turun sendiri ke baris berikutnya saat kolomnya menyempit; dengan flex, teksnya
@@ -3131,8 +3145,6 @@ input[type="range"]:disabled::-moz-range-thumb {
 .info__gelembung strong {font-weight:700}
 @keyframes info-muncul {from {opacity:0;transform:translateY(3px)}}
 @media only screen and (max-width: 640px) {
-  .survey-shell .info,
-  .info {width:1.15rem;height:1.15rem;font-size:.62rem}
   .info__gelembung {font-size:.74rem}
 }
 @media (prefers-reduced-motion: reduce) {
@@ -3364,17 +3376,15 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell main .admin-area .s-courses-list .sb-course .sb__link > .sb__location {margin-left:0}
 /* Ikon keterangan pada label kartu ringkasan. Ikon mengikuti kata terakhir labelnya seperti tanda
    baca: dengan flex ia terdorong ke tepi kanan kartu dan berdiri sendiri jauh dari tulisannya, yang
-   justru terlihat lebih berantakan daripada sebelumnya. Ukurannya dinyatakan dalam em supaya ikut
-   mengecil bersama label di layar ponsel dan tetap sepadan dengan tinggi hurufnya. */
+   justru terlihat lebih berantakan daripada sebelumnya. Ukuran ikonnya sendiri diatur aturan .info
+   umum, yang sudah mengikuti besar hurufnya. */
 .survey-shell .summary__label:has(.info) {display:block}
 /* Kartu ringkasan memaksa setiap <span> di dalamnya membungkus (white-space:normal) supaya nama
    panjang tidak keluar kartu; potongan ekor ini perlu menang atas aturan itu, jadi selektornya
    disebut lengkap sampai kartunya. */
 .survey-shell .info-ekor,
 .survey-shell .summary__card .info-ekor {white-space:nowrap}
-.survey-shell .summary__label .info {
-  font-size:.72em;width:1.5em;height:1.5em;margin:0 0 0 .35em;vertical-align:.04em;
-}
+
 
 /* Menu Impor: panduan format berkas.
    Templatenya sebelumnya hanya tautan teks kecil di atas formulir, dan bentuk berkasnya baru
