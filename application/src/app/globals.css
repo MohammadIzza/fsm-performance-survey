@@ -3415,10 +3415,14 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 
 /* Lembar penilaian per kategori (tugas/kategori/[categoryId]).
-   Instrumennya ditulis sekali di bagian atas sebagai daftar bernomor, lalu tiap objek cukup
-   sebaris: nama dan statusnya di baris pertama, deretan kotak skor bernomor di baris kedua.
-   Nomornya yang menghubungkan kotak dengan parameternya, jadi nama parameter tidak perlu diulang
-   untuk tiap objek — itulah pengulangan yang dulu membuat satu kategori jadi enam halaman. */
+   Instrumennya ditulis sekali di atas sebagai daftar bernomor, lalu seluruh objek masuk ke SATU
+   tabel: baris = objek, kolom = parameter. Bentuk sebelumnya — tiap objek satu blok berisi deretan
+   kotak — pecah jadi dua baris begitu parameternya enam dan terbaca berantakan; sebagai tabel,
+   kolomnya tetap sejajar dari objek pertama sampai terakhir dan mata cukup menyusuri satu kolom
+   untuk membandingkan parameter yang sama antar objek.
+
+   Nama parameter tidak ikut ke kepala kolom: enam nama tidak akan muat di layar ponsel dan pasti
+   terpenggal. Yang dipakai nomornya, dan daftar di atas yang menjelaskan nomor itu apa. */
 .lembar-instrumen {
   margin:0;padding:0;list-style:none;
   border-top:1px solid var(--color-grey-2);
@@ -3440,60 +3444,89 @@ input[type="range"]:disabled::-moz-range-thumb {
   color:var(--color-black);font:600 .58rem/1.4 var(--font-family-text);
 }
 
-.lembar-objek__body {border-top:1px solid var(--color-grey-2)}
-.lembar-objek {
-  display:flex;flex-direction:column;gap:.35rem;
-  padding:.6rem .1rem;border-bottom:1px solid var(--color-grey-2);
+.survey-shell main .lembar-tabel {width:100%;table-layout:fixed;font-size:.62rem;line-height:1.35}
+.survey-shell main .lembar-tabel thead th {
+  padding:.3rem .1rem .35rem;border-bottom:2px solid var(--color-black);
+  color:var(--muted);font-size:.48rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  text-align:center;vertical-align:bottom;
 }
-.lembar-objek[data-terkunci="true"] {opacity:.72}
-.lembar-objek__kepala {display:flex;align-items:baseline;justify-content:space-between;gap:.6rem}
-.lembar-objek__nama {display:flex;flex-direction:column;gap:.05rem;min-width:0}
-.lembar-objek__nama strong {font-size:.72rem;font-weight:600;line-height:1.3;overflow-wrap:anywhere}
-.lembar-objek__nama small {color:var(--muted);font-size:.6rem;line-height:1.3}
-/* Deretan kotak skor: melebar mengikuti jumlah parameter, membungkus ke baris berikutnya di layar
-   sempit alih-alih memaksa tabel digeser mendatar. */
-.lembar-objek__skor {display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .5rem}
-.lembar-skor {display:flex;align-items:center;gap:.25rem}
-.lembar-skor__nomor {
-  display:grid;place-items:center;width:1.1rem;height:1.1rem;border-radius:50%;
-  border:1px solid var(--color-grey-2);color:var(--muted);
-  font:600 .54rem/1 var(--font-family-text);
+.survey-shell main .lembar-tabel thead th:first-child {text-align:left}
+.lembar-tabel thead th small {
+  display:block;margin-top:.1rem;font-size:.46rem;font-weight:400;letter-spacing:0;text-transform:none;
 }
-.lembar-objek__skor .assessment-score-control {width:3.4rem}
-.lembar-objek__total {
-  display:flex;align-items:baseline;gap:.3rem;margin-left:auto;
-  font-variant-numeric:tabular-nums;
+.lembar-tabel__nomor {
+  display:inline-grid;place-items:center;width:1.05rem;height:1.05rem;border-radius:50%;
+  background:var(--color-brand-5);color:var(--color-white);
+  font:600 .55rem/1 var(--font-family-text);letter-spacing:0;
 }
-.lembar-objek__total-label {
-  color:var(--muted);font-size:.52rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+/* Kolom nama mengambil sepertiga baris; kolom parameter membagi sisanya rata supaya kotaknya
+   sama lebar, dan kolom nilai sedikit lebih lebar dari kotak skor karena memuat desimal. */
+.lembar-tabel :is(th,td):first-child {width:32%}
+.lembar-tabel :is(th,td):last-child {width:13%}
+.survey-shell main .lembar-tabel tbody th {
+  padding:.4rem .3rem .4rem 0;border-bottom:1px solid var(--color-grey-2);
+  text-align:left;font-weight:600;vertical-align:middle;
 }
-.lembar-objek__total output {font:600 .78rem/1.2 var(--font-family-heading)}
-.lembar-objek__galat {margin:0;color:var(--color-brand-1);font-size:.6rem;line-height:1.4}
+.lembar-tabel__nama {display:block;font-size:.62rem;line-height:1.3;overflow-wrap:anywhere}
+.lembar-tabel__unit {display:block;color:var(--muted);font-size:.5rem;font-weight:400;line-height:1.3}
+.lembar-tabel__status {
+  display:block;margin-top:.1rem;font-size:.48rem;font-weight:600;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--muted);
+}
+.lembar-tabel__status[data-status="TERKIRIM"] {color:var(--color-brand-4)}
+.lembar-tabel__status[data-status="DRAF"] {color:var(--color-brand-3)}
+.lembar-tabel__status[data-status="DIBUKA_KEMBALI"] {color:var(--color-brand-6)}
+.lembar-tabel__status[data-status="LEWAT_TENGGAT"] {color:var(--color-brand-1)}
+.lembar-tabel__galat {display:block;margin-top:.15rem;color:var(--color-brand-1);font-size:.52rem;line-height:1.35}
+.survey-shell main .lembar-tabel tbody td {
+  padding:.3rem .1rem;border-bottom:1px solid var(--color-grey-2);
+  text-align:center;vertical-align:middle;
+}
+.lembar-tabel__angka,
+.lembar-tabel__nilai {font-variant-numeric:tabular-nums}
+.lembar-tabel__nilai {font-weight:600}
+.lembar-tabel tbody tr[data-terkunci="true"] :is(th,td) {color:var(--muted)}
+.lembar-tabel tbody tr[data-terkunci="true"] .lembar-tabel__nama {color:var(--color-black)}
 
-@media only screen and (max-width: 640px) {
-  /* Di layar ponsel kotak skor mengisi barisnya sendiri dalam petak yang rata, supaya lebarnya
-     sama untuk semua objek dan tidak ada yang terpotong. */
-  .lembar-objek__skor {display:grid;grid-template-columns:repeat(auto-fit,minmax(3.6rem,1fr));gap:.4rem}
-  .lembar-objek__skor .assessment-score-control {width:100%}
-  .lembar-objek__total {grid-column:1/-1;justify-content:flex-end;margin-left:0}
+/* Kotak skor di dalam sel: sekecil selnya, tanpa label tersembunyi yang memakan tinggi baris.
+   Aturan isian umum di berkas ini punya spesifisitas yang sama dan ditulis lebih dulu, jadi
+   selektornya menyebut .lembar-tabel__skor supaya garis tepi 2px miliknya tidak berlaku. */
+.survey-shell main .lembar-tabel__skor .assessment-score-control {width:100%;gap:0}
+.survey-shell main .lembar-tabel__skor .assessment-score-control input[type="number"] {
+  width:100%;min-height:1.65rem;
+  padding:.2rem .1rem;border:1px solid var(--color-grey-2);border-radius:.25rem;
+  background:var(--color-white);text-align:center;font-size:.62rem!important;font-weight:600;
 }
-
-/* Kotak skor di lembar kategori memakai bentuk yang sama dengan kolom skor di lembar per objek.
-   Aturan di atas menyebut .assessment-question__score karena harus menang atas aturan isian umum;
-   di sini pembungkusnya .lembar-skor, jadi bentuknya disebut ulang dengan kaitan yang sama, bukan
-   diwarisi. Bedanya satu: kotak di sini bergaris tepi tipis, karena berdiri sendiri tanpa kolom
-   tabel yang memberinya batas. */
-.survey-shell main .lembar-skor .assessment-score-control input[type="number"] {
-  width:100%;min-height:1.9rem;
-  padding:.25rem .2rem;border:1px solid var(--color-grey-2);border-radius:.3rem;
-  background:var(--color-white);text-align:center;font-size:.76rem!important;font-weight:600;
-}
-.survey-shell main .lembar-skor .assessment-score-control input[type="number"]:hover:not(:disabled) {
+.survey-shell main .lembar-tabel__skor .assessment-score-control input[type="number"]:hover:not(:disabled) {
   border-color:var(--color-beige-dark);
 }
-.survey-shell main .lembar-skor .assessment-score-control input[type="number"]:focus {
+.survey-shell main .lembar-tabel__skor .assessment-score-control input[type="number"]:focus {
   border-color:var(--color-brand-5);outline:none;
 }
-.survey-shell main .lembar-skor .assessment-score-control input[type="number"]:disabled {
-  border-color:transparent;background:var(--color-white);color:var(--color-black);
+.survey-shell main .lembar-tabel__skor .assessment-score-control__batas {
+  font-size:.42rem;line-height:1.2;
+}
+
+@media only screen and (min-width: 641px) {
+  /* Layar lebar punya ruang untuk angka yang lebih besar dan baris yang lebih lega. */
+  .survey-shell main .lembar-tabel {font-size:.7rem}
+  .survey-shell main .lembar-tabel thead th {font-size:.55rem}
+  .lembar-tabel__nama {font-size:.72rem}
+  .lembar-tabel__unit {font-size:.58rem}
+  .lembar-tabel__status {font-size:.52rem}
+  .survey-shell main .lembar-tabel tbody td {padding:.4rem .2rem}
+  .survey-shell main .lembar-tabel__skor .assessment-score-control input[type="number"] {
+    min-height:1.9rem;font-size:.72rem!important;
+  }
+}
+
+/* Tombol naik-turun bawaan input angka dihilangkan. Di kolom skor yang selebar tiga digit,
+   tombol itu memakan hampir separuh lebarnya sehingga angka dua digit pun terpotong — sementara
+   gunanya nyaris nol di sini: skor diketik, dan roda tetikus sengaja dimatikan pada isian ini. */
+.survey-shell main .assessment-score-control input[type="number"] {
+  appearance:textfield;-moz-appearance:textfield;
+}
+.survey-shell main .assessment-score-control input[type="number"]::-webkit-outer-spin-button,
+.survey-shell main .assessment-score-control input[type="number"]::-webkit-inner-spin-button {
+  margin:0;appearance:none;-webkit-appearance:none;
 }

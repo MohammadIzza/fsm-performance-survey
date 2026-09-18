@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useAksi } from "@/components/theme/notifikasi";
 import { ThemeButton } from "@/components/theme-button";
 import { useKonfirmasi } from "@/components/theme/confirm-dialog";
-import { StatusPill } from "@/components/theme/status-pill";
 import {
   ScoreField,
   displayNumber,
@@ -19,8 +18,8 @@ import {
 import { DialogLembar } from "./dialog-lembar";
 
 /**
- * Lembar penilaian satu kategori: instrumennya dibaca sekali di atas, lalu tiap objek cukup
- * sebaris isian. Sebelumnya tiap objek berdiri sebagai halaman sendiri, sehingga penilai yang
+ * Lembar penilaian satu kategori: instrumennya dibaca sekali di atas, lalu seluruh objek masuk ke
+ * satu tabel — baris objek, kolom parameter. Sebelumnya tiap objek berdiri sebagai halaman sendiri, sehingga penilai yang
  * kebagian enam objek dalam satu kategori membaca instrumen yang sama enam kali.
  *
  * Yang dikirim ke server tetap per tugas: satu baris yang gagal (mis. bentrok versi karena diubah
@@ -46,13 +45,6 @@ const statusLabel: Record<string, string> = {
   LEWAT_TENGGAT: "Lewat tenggat",
 };
 
-const statusTone: Record<string, "netral" | "proses" | "selesai" | "perhatian" | "gagal"> = {
-  BELUM_MULAI: "netral",
-  DRAF: "proses",
-  TERKIRIM: "selesai",
-  DIBUKA_KEMBALI: "perhatian",
-  LEWAT_TENGGAT: "gagal",
-};
 
 const drafAwal: KategoriFormState = {};
 const kirimAwal: KategoriFormState = {};
@@ -172,82 +164,88 @@ export function LembarKategori({
           </div>
         </header>
 
-        <div className="lembar-objek__body">
-          {baris.map((b) => {
-            const isi = nilai[b.assignmentId] ?? {};
-            const galat = galatBaris.get(b.assignmentId);
-            return (
-              <article
-                key={b.assignmentId}
-                className="lembar-objek"
-                data-terkunci={b.bolehDiisi ? undefined : "true"}
-              >
-                {b.bolehDiisi && (
-                  <>
-                    <input type="hidden" name="tugas" value={b.assignmentId} />
-                    <input type="hidden" name={`nama.${b.assignmentId}`} value={b.objectName} />
-                    <input type="hidden" name={`kunci.${b.assignmentId}`} value={kunci[b.assignmentId]} />
-                    <input
-                      type="hidden"
-                      name={`versi.${b.assignmentId}`}
-                      value={versiTerbaru(b) ?? ""}
-                    />
-                    {urut.map((p) => (
-                      <input
-                        key={p.id}
-                        type="hidden"
-                        name={`skor.${b.assignmentId}.${p.id}`}
-                        value={isi[p.id] ?? ""}
-                      />
+        {/* Satu tabel: baris = objek, kolom = parameter. Nama parameter tidak ikut ke kepala
+            kolom — di layar ponsel enam nama tidak akan muat dan pasti terpenggal; yang dipakai
+            nomornya, dan daftar bernomor di atas yang menjelaskan nomor itu apa. */}
+        <div className="app-table-wrap">
+          <table className="lembar-tabel">
+            <thead>
+              <tr>
+                <th scope="col">Objek</th>
+                {urut.map((p, i) => (
+                  <th scope="col" key={p.id} title={`${p.name} · ${p.weight}%`}>
+                    <span className="lembar-tabel__nomor">{i + 1}</span>
+                    <small>{p.weight}%</small>
+                  </th>
+                ))}
+                <th scope="col">Nilai</th>
+              </tr>
+            </thead>
+            <tbody>
+              {baris.map((b) => {
+                const isi = nilai[b.assignmentId] ?? {};
+                const galat = galatBaris.get(b.assignmentId);
+                return (
+                  <tr key={b.assignmentId} data-terkunci={b.bolehDiisi ? undefined : "true"}>
+                    <th scope="row">
+                      {b.bolehDiisi && (
+                        <>
+                          <input type="hidden" name="tugas" value={b.assignmentId} />
+                          <input type="hidden" name={`nama.${b.assignmentId}`} value={b.objectName} />
+                          <input type="hidden" name={`kunci.${b.assignmentId}`} value={kunci[b.assignmentId]} />
+                          <input type="hidden" name={`versi.${b.assignmentId}`} value={versiTerbaru(b) ?? ""} />
+                          {urut.map((p) => (
+                            <input
+                              key={p.id}
+                              type="hidden"
+                              name={`skor.${b.assignmentId}.${p.id}`}
+                              value={isi[p.id] ?? ""}
+                            />
+                          ))}
+                        </>
+                      )}
+                      <span className="lembar-tabel__nama">{b.objectName}</span>
+                      {b.unitName && <small className="lembar-tabel__unit">{b.unitName}</small>}
+                      <small className="lembar-tabel__status" data-status={b.displayStatus}>
+                        {statusLabel[b.displayStatus] ?? b.displayStatus}
+                      </small>
+                      {galat && (
+                        <small role="alert" className="lembar-tabel__galat">
+                          {galat}
+                        </small>
+                      )}
+                    </th>
+                    {urut.map((p, i) => (
+                      <td key={p.id} className="lembar-tabel__skor">
+                        {b.bolehDiisi ? (
+                          <ScoreField
+                            id={`skor-${b.assignmentId}-${p.id}`}
+                            label={`Parameter ${i + 1} (${p.name}) untuk ${b.objectName}`}
+                            scale={scale}
+                            value={isi[p.id] ?? ""}
+                            onChange={(v) =>
+                              setNilai((s) => ({
+                                ...s,
+                                [b.assignmentId]: { ...s[b.assignmentId], [p.id]: v },
+                              }))
+                            }
+                            disabled={false}
+                          />
+                        ) : (
+                          <span className="lembar-tabel__angka">
+                            {isi[p.id] === "" || isi[p.id] === undefined
+                              ? "—"
+                              : displayNumber(Number(isi[p.id]))}
+                          </span>
+                        )}
+                      </td>
                     ))}
-                  </>
-                )}
-
-                <header className="lembar-objek__kepala">
-                  <span className="lembar-objek__nama">
-                    <strong>{b.objectName}</strong>
-                    {b.unitName && <small>{b.unitName}</small>}
-                  </span>
-                  <StatusPill tone={statusTone[b.displayStatus] ?? "netral"}>
-                    {statusLabel[b.displayStatus] ?? b.displayStatus}
-                  </StatusPill>
-                </header>
-
-                <div className="lembar-objek__skor">
-                  {urut.map((p, i) => (
-                    <span className="lembar-skor" key={p.id}>
-                      <span className="lembar-skor__nomor" aria-hidden="true">
-                        {i + 1}
-                      </span>
-                      <ScoreField
-                        id={`skor-${b.assignmentId}-${p.id}`}
-                        label={`${p.name} untuk ${b.objectName}`}
-                        scale={scale}
-                        value={isi[p.id] ?? ""}
-                        onChange={(v) =>
-                          setNilai((s) => ({
-                            ...s,
-                            [b.assignmentId]: { ...s[b.assignmentId], [p.id]: v },
-                          }))
-                        }
-                        disabled={!b.bolehDiisi}
-                      />
-                    </span>
-                  ))}
-                  <span className="lembar-objek__total">
-                    <span className="lembar-objek__total-label">Nilai</span>
-                    <output>{total(b)}</output>
-                  </span>
-                </div>
-
-                {galat && (
-                  <p role="alert" className="lembar-objek__galat">
-                    {galat}
-                  </p>
-                )}
-              </article>
-            );
-          })}
+                    <td className="lembar-tabel__nilai">{total(b)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </section>
 
