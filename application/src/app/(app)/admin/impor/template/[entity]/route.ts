@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminActor } from "@/lib/authz";
-import { buildTemplateWorkbook } from "@/lib/services/imports";
+import { buildTemplateWorkbook, rujukanTemplate } from "@/lib/services/imports";
 import type { ImportEntity } from "@/generated/prisma/enums";
 
 const VALID_ENTITIES: ImportEntity[] = ["UNIT", "PENGGUNA", "PIMPINAN"];
@@ -23,7 +23,9 @@ export async function GET(
     return NextResponse.json({ error: "Jenis template tidak dikenal." }, { status: 404 });
   }
 
-  const workbook = buildTemplateWorkbook(upper);
+  // Daftar unit dan jenis pengguna yang ada sekarang ikut ke dalam berkas: keduanya harus ditulis
+  // persis sama saat diimpor, jadi templatenya membawa daftarnya sendiri, bukan menyuruh menebak.
+  const workbook = buildTemplateWorkbook(upper, await rujukanTemplate());
   const buffer = await workbook.xlsx.writeBuffer();
 
   return new NextResponse(buffer as unknown as BodyInit, {

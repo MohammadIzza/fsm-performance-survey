@@ -5,12 +5,9 @@ import { AdminActionList, AdminAction } from "@/components/theme/admin-actions";
 import { useState } from "react";
 import { previewImportAction, applyImportAction } from "@/lib/actions/imports";
 import { withBase } from "@/lib/base-path";
+import { FORMAT_IMPOR, URUTAN_IMPOR } from "@/lib/impor-format";
 
-const entityOptions = [
-  { value: "UNIT", label: "Unit" },
-  { value: "PENGGUNA", label: "Pengguna" },
-  { value: "PIMPINAN", label: "Pimpinan" },
-];
+const entityOptions = URUTAN_IMPOR.map((value) => ({ value, label: FORMAT_IMPOR[value].label }));
 
 const fieldClass =
   "form__control";
@@ -20,6 +17,7 @@ export function ImportForm() {
   const [previewState, previewAction, previewPending] = useAksi(previewImportAction, {}, null);
   const [applyState, applyAction, applyPending] = useAksi(applyImportAction, {}, (h) => (h.summary ? `Impor selesai: ${h.summary.toCreate} baru, ${h.summary.toUpdate} diperbarui.` : "Impor selesai."));
 
+  const format = FORMAT_IMPOR[entity as keyof typeof FORMAT_IMPOR];
   const preview = previewState.preview;
   const canApply = preview && preview.errors.length === 0 && preview.totalRows > 0 && !applyState.success;
 
@@ -30,11 +28,46 @@ export function ImportForm() {
         description="Berkas dibaca sebagai pratinjau dulu; tidak ada yang masuk sebelum diterapkan."
         defaultOpen
       >
-      <p className="mb-3">
-        <a href={withBase(`/admin/impor/template/${entity.toLowerCase()}`)} className="app-text-sm">
-          Unduh template {entityOptions.find((e) => e.value === entity)?.label}
+      <div className="impor-panduan">
+        <a href={withBase(`/admin/impor/template/${entity.toLowerCase()}`)} className="app-btn app-btn--primary">
+          Unduh template {format.label} (.xlsx)
         </a>
-      </p>
+        <p className="impor-panduan__langkah">
+          Unduh template → isi di Excel → unggah di bawah untuk pratinjau → tekan Terapkan. Berkasnya sudah berisi
+          judul kolom, petunjuk pengisian, contoh terisi, dan daftar nama unit serta jenis pengguna yang ada
+          sekarang.
+        </p>
+      </div>
+
+      <details className="impor-format">
+        <summary>Kolom berkas {format.label}</summary>
+        <p className="impor-format__ringkas">{format.ringkas}</p>
+        <table className="parameter-table impor-kolom w-full text-left app-text-sm">
+          <thead>
+            <tr>
+              <th>Kolom</th>
+              <th>Wajib</th>
+              <th>Isi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {format.kolom.map((k) => (
+              <tr key={k.nama}>
+                <td data-label="Kolom">
+                  <code>{k.nama}</code>
+                </td>
+                <td data-label="Wajib">{k.wajib ? "Wajib" : "Opsional"}</td>
+                <td data-label="Isi">{k.ket}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <ul className="impor-format__catatan">
+          {format.catatan.map((c) => (
+            <li key={c}>{c}</li>
+          ))}
+        </ul>
+      </details>
 
       <form action={previewAction} className="grid gap-3 sm:grid-cols-3">
         <label className="admin-tools__field">

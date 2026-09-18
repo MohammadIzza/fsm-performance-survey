@@ -3375,3 +3375,41 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell .summary__label .info {
   font-size:.72em;width:1.5em;height:1.5em;margin:0 0 0 .35em;vertical-align:.04em;
 }
+
+/* Menu Impor: panduan format berkas.
+   Templatenya sebelumnya hanya tautan teks kecil di atas formulir, dan bentuk berkasnya baru
+   terlihat setelah diunduh dan dibuka di Excel. Sekarang tombol unduhnya sebentuk dengan tombol
+   formulir di bawahnya, dan daftar kolomnya bisa dibaca langsung di halaman — kolom, wajib atau
+   tidak, dan apa isinya — tanpa mengunduh apa pun dulu. */
+.impor-panduan {display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .75rem;margin-bottom:.7rem}
+.impor-panduan__langkah {flex:1 1 15rem;margin:0;color:var(--muted);font-size:.6rem;line-height:1.45}
+.impor-format {margin:0 0 .9rem}
+.impor-format > summary {cursor:pointer;color:var(--color-brand-5);font-size:.6rem;font-weight:600}
+.impor-format > summary:hover {color:var(--color-black)}
+.impor-format__ringkas {margin:.45rem 0 .35rem;color:var(--muted);font-size:.6rem;line-height:1.45}
+.survey-shell main .impor-kolom code {
+  padding:0;background:transparent;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.58rem;
+}
+.impor-kolom th:nth-child(1) {width:18%}
+.impor-kolom th:nth-child(2) {width:11%}
+.impor-kolom th:nth-child(3) {width:auto}
+/* Kolom ketiga tabel parameter berisi angka dan dirata-kanan; di sini isinya kalimat. */
+.survey-shell main .impor-kolom :is(th,td):nth-child(2) {white-space:nowrap}
+.survey-shell main .impor-kolom :is(th,td):nth-child(3) {text-align:left}
+.impor-format__catatan {
+  margin:.55rem 0 0;padding-left:.9rem;list-style:disc;color:var(--muted);font-size:.6rem;line-height:1.5;
+}
+.impor-format__catatan li {margin-top:.2rem}
+
+/* Kolom terakhir daftar Impor memuat lencana status, bukan tautan aksi. Lebar tetap 3,6rem itu
+   ukuran untuk tautan pendek, sedangkan lencana "Diterapkan" lebih lebar dan ujungnya terpotong di
+   tepi baris pada layar 1280px ke atas. Yang disetel hanya lebar minimumnya, jadi daftar lain yang
+   kolom statusnya sudah lebih lebar (mis. Periode di layar sempit) tidak ikut berubah. */
+.survey-shell main .admin-area .s-courses-list:has(.sb__price .status-pill)
+  .sb-course .sb__link > .sb__price {min-width:6.6rem}
+
+/* Di layar ponsel kolom "Wajib" perlu jatah lebih besar: "Opsional" tidak boleh pecah dua baris. */
+@media only screen and (max-width: 640px) {
+  .impor-kolom th:nth-child(1) {width:27%}
+  .impor-kolom th:nth-child(2) {width:22%}
+}

@@ -6,6 +6,8 @@ import { ServiceError } from "@/lib/services/units";
 import type { AuthContext } from "@/lib/authz";
 import type { ImportEntity } from "@/generated/prisma/enums";
 import { kodeUnikDariNama, samakanNama } from "@/lib/kode-otomatis";
+import { FORMAT_IMPOR } from "@/lib/impor-format";
+import { safeCell } from "@/lib/services/exports";
 
 export interface RowError {
   row: number;
@@ -67,12 +69,11 @@ async function readSheetRows(buffer: ArrayBuffer): Promise<{ headers: string[]; 
   return { headers, rows };
 }
 
-// Template memakai NAMA unit dan jenis, karena kode tidak ditampilkan di aplikasi. Berkas lama yang
-// masih memakai kolom kode (kode_unit, kode_induk, kode_jenis) tetap diterima: kolom kode diutamakan
-// bila terisi, lalu nama dicocokkan ke kodenya sebelum validasi dan penerapan berjalan seperti biasa.
-const UNIT_TEMPLATE = ["nama_unit", "nama_induk", "status"];
-const USER_TEMPLATE = ["id_login", "nama", "jenis", "unit", "status"];
-const LEADERSHIP_TEMPLATE = ["id_login", "unit", "nama_jabatan", "mulai_aktif", "akhir_aktif"];
+// Nama kolom template ada di lib/impor-format.ts, satu tempat dengan keterangannya, karena daftar
+// yang sama juga ditampilkan di halaman Impor. Template memakai NAMA unit dan jenis, karena kode
+// tidak ditampilkan di aplikasi. Berkas lama yang masih memakai kolom kode (kode_unit, kode_induk,
+// kode_jenis) tetap diterima: kolom kode diutamakan bila terisi, lalu nama dicocokkan ke kodenya
+// sebelum validasi dan penerapan berjalan seperti biasa.
 
 type RujukanNama = { code: string; name: string };
 
@@ -115,13 +116,129 @@ function isiKodeDariNama(
   });
 }
 
-export function buildTemplateWorkbook(entity: ImportEntity): ExcelJS.Workbook {
+export interface RujukanTemplate {
+  unit: string[];
+  jenis: string[];
+}
+
+/** Nama unit dan jenis pengguna yang sedang terdaftar, untuk daftar pilihan di berkas template. */
+export async function rujukanTemplate(): Promise<RujukanTemplate> {
+  const [units, types] = await Promise.all([
+    prisma.unit.findMany({ where: { active: true }, select: { name: true }, orderBy: { name: "asc" } }),
+    prisma.userType.findMany({ select: { name: true }, orderBy: { name: "asc" } }),
+  ]);
+  return { unit: units.map((u) => u.name), jenis: types.map((t) => t.name) };
+}
+
+const HEAD_FILL: ExcelJS.Fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFEDE7DC" } };
+
+function barisJudul(sheet: ExcelJS.Worksheet, judul: string[]) {
+  const row = sheet.addRow(judul);
+  row.font = { bold: true };
+  row.eachCell((cell) => {
+    cell.fill = HEAD_FILL;
+    cell.border = { bottom: { style: "thin", color: { argb: "FFBDB5A6" } } };
+  });
+  return row;
+}
+
+/**
+ * Berkas template yang diunduh dari menu Impor. Sebelumnya isinya hanya satu baris judul kolom,
+ * sehingga orang masih harus menebak mana kolom wajib, nilai apa yang boleh diisi, dan tanggal
+ * ditulis bagaimana. Sekarang berkasnya membawa keterangannya sendiri:
+ *
+ *   1. "Template"  — lembar yang diisi dan diunggah kembali (hanya lembar pertama yang dibaca),
+ *                    lengkap dengan catatan di tiap judul kolom dan daftar pilihan untuk kolom
+ *                    yang nilainya terbatas;
+ *   2. "Petunjuk"  — arti tiap kolom, wajib atau tidak, beserta contohnya;
+ *   3. "Contoh"    — dua baris terisi sebagai perbandingan, terpisah supaya tidak ikut terimpor;
+ *   4. "Referensi" — nama unit dan jenis pengguna yang ada sekarang, karena keduanya harus ditulis
+ *                    persis sama.
+ */
+export function buildTemplateWorkbook(entity: ImportEntity, rujukan: RujukanTemplate = { unit: [], jenis: [] }): ExcelJS.Workbook {
+  const format = FORMAT_IMPOR[entity];
+  const kolom = format.kolom;
   const workbook = new ExcelJS.Workbook();
-  const columns = entity === "UNIT" ? UNIT_TEMPLATE : entity === "PENGGUNA" ? USER_TEMPLATE : LEADERSHIP_TEMPLATE;
-  const sheet = workbook.addWorksheet("Template");
-  sheet.addRow(columns);
-  sheet.getRow(1).font = { bold: true };
-  for (const col of sheet.columns) col.width = 20;
+  workbook.creator = "Survei Penilaian FSM UNDIP";
+  workbook.created = new Date();
+
+  const isian = workbook.addWorksheet("Template");
+  barisJudul(isian, kolom.map((k) => k.nama)).eachCell((cell, i) => {
+    cell.note = `${kolom[i - 1].wajib ? "Wajib diisi" : "Boleh dikosongkan"}. ${kolom[i - 1].ket}`;
+  });
+  isian.columns.forEach((col, i) => (col.width = kolom[i].lebar));
+  isian.views = [{ state: "frozen", ySplit: 1 }];
+
+  // Daftar pilihan dipasang untuk 200 baris pertama: cukup untuk satu berkas impor, dan tidak
+  // membuat berkasnya besar. Nama unit/jenis diambil dari lembar Referensi karena daftar yang
+  // ditulis langsung di dalam aturan validasi dibatasi 255 karakter oleh Excel.
+  const BARIS_VALIDASI = 200;
+  kolom.forEach((k, i) => {
+    const daftar =
+      k.pilihan === "status"
+        ? '"aktif,nonaktif"'
+        : k.pilihan === "unit" && rujukan.unit.length > 0
+          ? `=Referensi!$A$2:$A$${rujukan.unit.length + 1}`
+          : k.pilihan === "jenis" && rujukan.jenis.length > 0
+            ? `=Referensi!$B$2:$B$${rujukan.jenis.length + 1}`
+            : null;
+    if (!daftar) return;
+    for (let r = 2; r <= BARIS_VALIDASI; r++) {
+      isian.getCell(r, i + 1).dataValidation = {
+        type: "list",
+        allowBlank: true,
+        // Nama unit baru memang boleh belum ada di daftar, jadi isian di luar daftar tidak ditolak.
+        showErrorMessage: false,
+        formulae: [daftar],
+      };
+    }
+  });
+
+  const petunjuk = workbook.addWorksheet("Petunjuk");
+  petunjuk.addRow([`Cara mengisi berkas impor ${format.label}`]).font = { bold: true, size: 13 };
+  petunjuk.addRow([format.ringkas]);
+  petunjuk.addRow([]);
+  for (const c of format.catatan) petunjuk.addRow([`• ${safeCell(c)}`]);
+  petunjuk.addRow([]);
+  barisJudul(petunjuk, ["Kolom", "Wajib", "Isi", "Contoh"]);
+  for (const k of kolom) {
+    petunjuk.addRow([k.nama, k.wajib ? "Wajib" : "Opsional", safeCell(k.ket), safeCell(k.contoh)]);
+  }
+  petunjuk.columns[0].width = 18;
+  petunjuk.columns[1].width = 10;
+  petunjuk.columns[2].width = 74;
+  petunjuk.columns[3].width = 28;
+  petunjuk.eachRow((row) => row.eachCell((cell) => (cell.alignment = { vertical: "top", wrapText: true })));
+
+  const contoh = workbook.addWorksheet("Contoh");
+  barisJudul(contoh, kolom.map((k) => k.nama));
+  contoh.addRow(kolom.map((k) => safeCell(k.contoh)));
+  contoh.addRow(kolom.map((k) => safeCell(k.contoh2 ?? k.contoh)));
+  contoh.columns.forEach((col, i) => (col.width = kolom[i].lebar));
+  contoh.addRow([]);
+  contoh.addRow([
+    'Baris di atas hanya contoh: isinya karangan dan tidak ikut terbaca. Isilah lembar "Template", ' +
+      "karena yang dibaca saat diunggah hanya lembar pertama.",
+  ]);
+
+  const perluUnit = kolom.some((k) => k.pilihan === "unit") && rujukan.unit.length > 0;
+  const perluJenis = kolom.some((k) => k.pilihan === "jenis") && rujukan.jenis.length > 0;
+  if (perluUnit || perluJenis) {
+    const referensi = workbook.addWorksheet("Referensi");
+    // Kolom A selalu unit dan kolom B selalu jenis, supaya rumus daftar pilihan di atas tetap sama
+    // walau salah satunya tidak dipakai oleh jenis impor ini.
+    barisJudul(referensi, [perluUnit ? "Nama unit" : "", perluJenis ? "Jenis pengguna" : ""]);
+    const tinggi = Math.max(perluUnit ? rujukan.unit.length : 0, perluJenis ? rujukan.jenis.length : 0);
+    for (let i = 0; i < tinggi; i++) {
+      referensi.addRow([
+        perluUnit ? safeCell(rujukan.unit[i] ?? "") : "",
+        perluJenis ? safeCell(rujukan.jenis[i] ?? "") : "",
+      ]);
+    }
+    referensi.columns[0].width = 40;
+    referensi.columns[1].width = 26;
+  }
+
   return workbook;
 }
 

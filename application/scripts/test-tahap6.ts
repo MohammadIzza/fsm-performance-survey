@@ -14,7 +14,8 @@ import {
   openRevision,
   listFinalizationHistory,
 } from "../src/lib/services/finalization";
-import { previewUnitImport, previewUserImport, previewLeadershipImport, applyImport } from "../src/lib/services/imports";
+import { previewUnitImport, previewUserImport, previewLeadershipImport, applyImport, buildTemplateWorkbook, rujukanTemplate } from "../src/lib/services/imports";
+import { FORMAT_IMPOR, URUTAN_IMPOR } from "../src/lib/impor-format";
 import { safeCell, buildResultsExport } from "../src/lib/services/exports";
 import { listAuditEvents } from "../src/lib/services/audit";
 import { getMonitoringSummary } from "../src/lib/services/monitoring";
@@ -366,6 +367,32 @@ async function main() {
   );
   const inactiveLeaderPreview = await previewLeadershipImport(inactiveLeaderBuf);
   ok("Pengguna nonaktif ditolak sebagai pimpinan lewat impor", inactiveLeaderPreview.errors.some((e) => e.message.includes("nonaktif")));
+
+  console.log("== Berkas template impor ==");
+  // Template yang diunduh harus persis sebentuk dengan yang dibaca pengimpor: judul kolomnya sama,
+  // dan berkas yang diisi menurut templatenya lolos pratinjau tanpa penyesuaian apa pun.
+  const rujukan = await rujukanTemplate();
+  ok("Referensi template memuat nama unit dan jenis pengguna yang ada", rujukan.unit.length > 0 && rujukan.jenis.length > 0);
+  for (const entity of URUTAN_IMPOR) {
+    const wb = buildTemplateWorkbook(entity, rujukan);
+    const judul = (wb.worksheets[0].getRow(1).values as unknown[]).slice(1).map(String);
+    ok(
+      `Template ${entity}: judul kolom sama dengan format yang didokumentasikan`,
+      judul.join(",") === FORMAT_IMPOR[entity].kolom.map((k) => k.nama).join(",")
+    );
+    ok(
+      `Template ${entity}: membawa lembar Petunjuk, Contoh, dan Referensi`,
+      ["Template", "Petunjuk", "Contoh", "Referensi"].every((n) => wb.worksheets.some((w) => w.name === n))
+    );
+  }
+  const templateUnit = buildTemplateWorkbook("UNIT", rujukan);
+  templateUnit.worksheets[0].addRow(["Unit Dari Template T6", rujukan.unit[0], "aktif"]);
+  const templateUnitBuf = (await templateUnit.xlsx.writeBuffer()) as ArrayBuffer;
+  const templatePreview = await previewUnitImport(templateUnitBuf);
+  ok(
+    "Berkas yang diisi langsung di atas template lolos pratinjau",
+    templatePreview.errors.length === 0 && templatePreview.totalRows === 1 && templatePreview.toCreate === 1
+  );
 
   console.log("== Audit trail (Bab 16.1/21.1) ==");
   const auditResult = await listAuditEvents({ entity: "Finalization" });
