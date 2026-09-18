@@ -3532,13 +3532,15 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 .survey-shell main .lembar-ringkasan tbody td:last-child {text-align:right;font-weight:600}
 .survey-shell main .lembar-ringkasan tr[data-terkunci="true"] td:not(:first-child) {color:var(--color-text)}
-.lembar-ringkasan__status {display:block;margin-top:.3rem}
-.survey-shell main .lembar-ringkasan__status .status-pill {padding:.25em .7em;font-size:.56rem}
-/* Baris yang tidak ikut dikirim diberi latar hijau pucat sepanjang baris, selaras dengan
-   lencananya, supaya terbaca terpisah dari baris yang akan dikirim. */
-.survey-shell main .lembar-ringkasan tr[data-terkunci="true"] td {
-  background:color-mix(in srgb, var(--color-brand-4) 12%, transparent);
+/* Status baris yang tidak ikut dikirim: teks berwarna saja, tanpa lencana dan tanpa mewarnai
+   barisnya. Hijau tosca tema digelapkan sedikit supaya tetap terbaca di atas latar krem. */
+.survey-shell main small.lembar-ringkasan__status {
+  margin-top:.2rem;font-weight:600;color:var(--color-text);
 }
+.survey-shell main small.lembar-ringkasan__status[data-status="TERKIRIM"] {
+  color:color-mix(in srgb, var(--color-brand-4) 60%, var(--color-black));
+}
+.survey-shell main small.lembar-ringkasan__status[data-status="LEWAT_TENGGAT"] {color:var(--color-brand-1)}
 .survey-shell main small.lembar-ringkasan__galat {color:var(--color-brand-1)}
 @media only screen and (max-width: 640px) {
   .survey-shell main .lembar-ringkasan {font-size:.62rem}

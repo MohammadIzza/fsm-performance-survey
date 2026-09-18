@@ -3,7 +3,6 @@
 import { startTransition, useEffect, useId, useRef, useState } from "react";
 import { useAksi } from "@/components/theme/notifikasi";
 import { useKonfirmasi } from "@/components/theme/confirm-dialog";
-import { StatusPill } from "@/components/theme/status-pill";
 import {
   ScoreField,
   displayNumber,
@@ -55,13 +54,6 @@ const statusLabel: Record<string, string> = {
   LEWAT_TENGGAT: "Lewat tenggat",
 };
 
-const statusTone: Record<string, "netral" | "proses" | "selesai" | "perhatian" | "gagal"> = {
-  BELUM_MULAI: "netral",
-  DRAF: "proses",
-  TERKIRIM: "selesai",
-  DIBUKA_KEMBALI: "perhatian",
-  LEWAT_TENGGAT: "gagal",
-};
 
 const kirimAwal: KategoriFormState = {};
 
@@ -394,16 +386,14 @@ export function LembarKategori({
                         {b.objectName}
                         {b.unitName && <small>{b.unitName}</small>}
                         {/* Objek yang tidak ikut dikirim dari halaman ini — sudah terkirim sebelumnya
-                            atau tidak bisa diisi lagi — ditandai lencana berwarna, supaya tidak
-                            dikira ikut terkirim bersama baris di atasnya. */}
+                            atau tidak bisa diisi lagi — ditandai teks berwarna, supaya tidak dikira
+                            ikut terkirim bersama baris di atasnya. */}
                         {!b.bolehDiisi && (
-                          <span className="lembar-ringkasan__status">
-                            <StatusPill tone={statusTone[b.displayStatus] ?? "netral"}>
-                              {b.displayStatus === "TERKIRIM"
-                                ? "Sudah terkirim"
-                                : (statusLabel[b.displayStatus] ?? b.displayStatus)}
-                            </StatusPill>
-                          </span>
+                          <small className="lembar-ringkasan__status" data-status={b.displayStatus}>
+                            {b.displayStatus === "TERKIRIM"
+                              ? "Sudah terkirim"
+                              : (statusLabel[b.displayStatus] ?? b.displayStatus)}
+                          </small>
                         )}
                         {galat && (
                           <small role="alert" className="lembar-ringkasan__galat">
