@@ -3413,3 +3413,87 @@ input[type="range"]:disabled::-moz-range-thumb {
   .impor-kolom th:nth-child(1) {width:27%}
   .impor-kolom th:nth-child(2) {width:22%}
 }
+
+/* Lembar penilaian per kategori (tugas/kategori/[categoryId]).
+   Instrumennya ditulis sekali di bagian atas sebagai daftar bernomor, lalu tiap objek cukup
+   sebaris: nama dan statusnya di baris pertama, deretan kotak skor bernomor di baris kedua.
+   Nomornya yang menghubungkan kotak dengan parameternya, jadi nama parameter tidak perlu diulang
+   untuk tiap objek — itulah pengulangan yang dulu membuat satu kategori jadi enam halaman. */
+.lembar-instrumen {
+  margin:0;padding:0;list-style:none;
+  border-top:1px solid var(--color-grey-2);
+}
+.lembar-instrumen li {
+  display:grid;grid-template-columns:1.4rem minmax(0,1fr) auto;align-items:baseline;gap:.5rem;
+  padding:.45rem .1rem;border-bottom:1px solid var(--color-grey-2);
+}
+.lembar-instrumen__nomor {
+  display:grid;place-items:center;width:1.25rem;height:1.25rem;border-radius:50%;
+  background:var(--color-brand-5);color:var(--color-white);
+  font:600 .58rem/1 var(--font-family-text);
+}
+.lembar-instrumen__nama {display:flex;flex-direction:column;gap:.1rem;min-width:0}
+.lembar-instrumen__nama strong {font-size:.68rem;font-weight:600;line-height:1.3}
+.lembar-instrumen__nama small {color:var(--muted);font-size:.6rem;line-height:1.35}
+.lembar-instrumen__bobot {
+  flex:none;padding:.1rem .4rem;border-radius:999em;background:var(--color-brand-2);
+  color:var(--color-black);font:600 .58rem/1.4 var(--font-family-text);
+}
+
+.lembar-objek__body {border-top:1px solid var(--color-grey-2)}
+.lembar-objek {
+  display:flex;flex-direction:column;gap:.35rem;
+  padding:.6rem .1rem;border-bottom:1px solid var(--color-grey-2);
+}
+.lembar-objek[data-terkunci="true"] {opacity:.72}
+.lembar-objek__kepala {display:flex;align-items:baseline;justify-content:space-between;gap:.6rem}
+.lembar-objek__nama {display:flex;flex-direction:column;gap:.05rem;min-width:0}
+.lembar-objek__nama strong {font-size:.72rem;font-weight:600;line-height:1.3;overflow-wrap:anywhere}
+.lembar-objek__nama small {color:var(--muted);font-size:.6rem;line-height:1.3}
+/* Deretan kotak skor: melebar mengikuti jumlah parameter, membungkus ke baris berikutnya di layar
+   sempit alih-alih memaksa tabel digeser mendatar. */
+.lembar-objek__skor {display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .5rem}
+.lembar-skor {display:flex;align-items:center;gap:.25rem}
+.lembar-skor__nomor {
+  display:grid;place-items:center;width:1.1rem;height:1.1rem;border-radius:50%;
+  border:1px solid var(--color-grey-2);color:var(--muted);
+  font:600 .54rem/1 var(--font-family-text);
+}
+.lembar-objek__skor .assessment-score-control {width:3.4rem}
+.lembar-objek__total {
+  display:flex;align-items:baseline;gap:.3rem;margin-left:auto;
+  font-variant-numeric:tabular-nums;
+}
+.lembar-objek__total-label {
+  color:var(--muted);font-size:.52rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+}
+.lembar-objek__total output {font:600 .78rem/1.2 var(--font-family-heading)}
+.lembar-objek__galat {margin:0;color:var(--color-brand-1);font-size:.6rem;line-height:1.4}
+
+@media only screen and (max-width: 640px) {
+  /* Di layar ponsel kotak skor mengisi barisnya sendiri dalam petak yang rata, supaya lebarnya
+     sama untuk semua objek dan tidak ada yang terpotong. */
+  .lembar-objek__skor {display:grid;grid-template-columns:repeat(auto-fit,minmax(3.6rem,1fr));gap:.4rem}
+  .lembar-objek__skor .assessment-score-control {width:100%}
+  .lembar-objek__total {grid-column:1/-1;justify-content:flex-end;margin-left:0}
+}
+
+/* Kotak skor di lembar kategori memakai bentuk yang sama dengan kolom skor di lembar per objek.
+   Aturan di atas menyebut .assessment-question__score karena harus menang atas aturan isian umum;
+   di sini pembungkusnya .lembar-skor, jadi bentuknya disebut ulang dengan kaitan yang sama, bukan
+   diwarisi. Bedanya satu: kotak di sini bergaris tepi tipis, karena berdiri sendiri tanpa kolom
+   tabel yang memberinya batas. */
+.survey-shell main .lembar-skor .assessment-score-control input[type="number"] {
+  width:100%;min-height:1.9rem;
+  padding:.25rem .2rem;border:1px solid var(--color-grey-2);border-radius:.3rem;
+  background:var(--color-white);text-align:center;font-size:.76rem!important;font-weight:600;
+}
+.survey-shell main .lembar-skor .assessment-score-control input[type="number"]:hover:not(:disabled) {
+  border-color:var(--color-beige-dark);
+}
+.survey-shell main .lembar-skor .assessment-score-control input[type="number"]:focus {
+  border-color:var(--color-brand-5);outline:none;
+}
+.survey-shell main .lembar-skor .assessment-score-control input[type="number"]:disabled {
+  border-color:transparent;background:var(--color-white);color:var(--color-black);
+}

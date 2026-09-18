@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { writeAudit } from "@/lib/services/audit";
 import { ServiceError } from "@/lib/services/units";
 import type { AuthContext } from "@/lib/authz";
-import type { AssignmentStatus } from "@/generated/prisma/enums";
+import type { AssignmentStatus, AssessmentGroup } from "@/generated/prisma/enums";
 
 export interface ScoreInput {
   parameterId: string;
@@ -485,4 +485,175 @@ export async function adminEditResponse(...args: Parameters<typeof adminEditResp
 
 export async function voidResponse(...args: Parameters<typeof voidResponseImpl>): Promise<Awaited<ReturnType<typeof voidResponseImpl>>> {
   return atomic(() => voidResponseImpl(...args));
+}
+
+/**
+ * Satu lembar penilaian untuk SATU kategori: seluruh objek yang ditugaskan kepada penilai ini di
+ * kategori tersebut, bukan satu objek per halaman.
+ *
+ * Sebelumnya tiap objek berdiri sebagai halaman sendiri, sehingga penilai yang kebagian enam orang
+ * dalam satu kategori membuka enam halaman yang instrumennya sama persis — yang berulang justru
+ * bagian yang seragam, sedangkan yang berbeda hanya nama objeknya. Di sini instrumen dibaca sekali,
+ * lalu tiap objek cukup sebaris isian.
+ *
+ * Tugasnya sendiri TIDAK digabung: status, draf, riwayat revisi, dan pembatalan tetap melekat pada
+ * masing-masing tugas, karena perhitungan dan syarat minimum penilai dihitung per objek.
+ *
+ * Baris dikelompokkan per versi instrumen. Biasanya hanya ada satu; dua versi baru muncul bila
+ * penugasan diterbitkan ulang setelah instrumennya direvisi, dan kolom kedua kelompok itu memang
+ * berbeda sehingga tidak boleh disatukan dalam satu tabel.
+ */
+export async function getCategorySheetData(
+  categoryId: string,
+  group: AssessmentGroup,
+  actor: AuthContext
+) {
+  const assignments = await prisma.assignment.findMany({
+    where: {
+      evaluatorId: actor.userId,
+      group,
+      status: { not: "DIBATALKAN" },
+      categoryObject: { categoryId },
+    },
+    include: {
+      categoryObject: { include: { object: { select: { id: true } } } },
+      instrumentVersion: { include: { parameters: { orderBy: { order: "asc" } } } },
+      responseRevisions: { orderBy: { revision: "desc" }, include: { scores: true } },
+    },
+  });
+  if (assignments.length === 0) throw new ServiceError("Tidak ada tugas Anda pada kategori ini.");
+
+  const category = await prisma.category.findUnique({
+    where: { id: categoryId },
+    include: { period: true, objectType: true },
+  });
+  if (!category) throw new ServiceError("Kategori tidak ditemukan.");
+
+  const period = category.period;
+  const baris = assignments
+    .map((a) => {
+      const latest = a.responseRevisions[0] ?? null;
+      const berlaku = a.responseRevisions.find((r) => r.state === "SUBMITTED" && !r.voided) ?? null;
+      const draf = latest && latest.state === "DRAFT" ? latest : null;
+      const displayStatus = computeDisplayStatus(a.status, period.status, period.endsAt);
+      // Cerminan assertFillable() di atas — sumber kebenarannya tetap di sana, diperiksa ulang
+      // saat menyimpan. Di sini hanya untuk menentukan baris mana yang boleh diketik.
+      const statusBolehDiisi =
+        a.status === "BELUM_MULAI" || a.status === "DRAF" || a.status === "DIBUKA_KEMBALI";
+      return {
+        assignmentId: a.id,
+        instrumentVersionId: a.instrumentVersionId,
+        objectName: a.categoryObject.nameSnapshot,
+        unitName: a.categoryObject.unitSnapshot,
+        status: a.status,
+        displayStatus,
+        bolehDiisi:
+          statusBolehDiisi && (a.status === "DIBUKA_KEMBALI" || displayStatus !== "LEWAT_TENGGAT"),
+        scores: Object.fromEntries(
+          ((draf ?? berlaku)?.scores ?? []).map((s) => [s.parameterId, s.score])
+        ) as Record<string, number>,
+        version: draf?.version ?? null,
+        submittedAt: berlaku?.submittedAt ?? null,
+        revision: berlaku?.revision ?? null,
+      };
+    })
+    .sort((a, b) => a.objectName.localeCompare(b.objectName, "id"));
+
+  // Satu lembar per versi instrumen, versi terbaru (yang dipakai terbanyak) lebih dulu.
+  const lembar = [...new Set(baris.map((b) => b.instrumentVersionId))]
+    .map((id) => {
+      const instrumen = assignments.find((a) => a.instrumentVersionId === id)!.instrumentVersion;
+      return { instrumen, baris: baris.filter((b) => b.instrumentVersionId === id) };
+    })
+    .sort((a, b) => b.baris.length - a.baris.length);
+
+  return { category, period, group, lembar, jumlahObjek: baris.length };
+}
+
+/** Kategori yang ditugaskan kepada satu penilai, satu baris per kategori+kelompok. */
+export async function listMyCategories(userId: string) {
+  const assignments = await listMyAssignments(userId);
+  const peta = new Map<
+    string,
+    {
+      categoryId: string;
+      categoryName: string;
+      group: AssessmentGroup;
+      periodId: string;
+      periodName: string;
+      periodStatus: string;
+      deadline: Date;
+      objectTypeName: string;
+      total: number;
+      terkirim: number;
+      draf: number;
+      belum: number;
+      lewat: number;
+    }
+  >();
+  for (const a of assignments) {
+    const kategori = a.categoryObject.category;
+    const kunci = `${kategori.id}|${a.group}`;
+    const status = computeDisplayStatus(a.status, kategori.period.status, kategori.period.endsAt);
+    const baris =
+      peta.get(kunci) ??
+      {
+        categoryId: kategori.id,
+        categoryName: kategori.name,
+        group: a.group,
+        periodId: kategori.period.id,
+        periodName: kategori.period.name,
+        periodStatus: kategori.period.status,
+        deadline: kategori.period.endsAt,
+        objectTypeName: "",
+        total: 0,
+        terkirim: 0,
+        draf: 0,
+        belum: 0,
+        lewat: 0,
+      };
+    baris.total += 1;
+    if (status === "TERKIRIM") baris.terkirim += 1;
+    else if (status === "DRAF" || status === "DIBUKA_KEMBALI") baris.draf += 1;
+    else if (status === "LEWAT_TENGGAT") baris.lewat += 1;
+    else baris.belum += 1;
+    peta.set(kunci, baris);
+  }
+  const hasil = [...peta.values()];
+  // Jenis objek dipakai untuk menyebut isinya dengan kata yang tepat ("13 orang", "7 karya"),
+  // dan tidak ikut terbawa listMyAssignments — diambil sekali di sini untuk seluruh kategori.
+  const jenis = await prisma.category.findMany({
+    where: { id: { in: [...new Set(hasil.map((h) => h.categoryId))] } },
+    select: { id: true, objectType: { select: { name: true } } },
+  });
+  const namaJenis = new Map(jenis.map((j) => [j.id, j.objectType.name]));
+  for (const h of hasil) h.objectTypeName = namaJenis.get(h.categoryId) ?? "objek";
+  return hasil.sort((a, b) => a.deadline.getTime() - b.deadline.getTime());
+}
+
+/**
+ * Satu baris lembar kategori: dikirim bila seluruh parameternya terisi, selebihnya disimpan
+ * sebagai draf. Kelengkapan diputuskan di sini, bukan dari penanda yang dikirim peramban —
+ * halaman boleh saja keliru, tetapi yang menentukan terkunci atau tidaknya sebuah jawaban harus
+ * tetap server.
+ */
+export async function submitOrSaveDraft(
+  assignmentId: string,
+  scores: ScoreInput[],
+  idempotencyKey: string,
+  expectedVersion: number | null,
+  actor: AuthContext
+): Promise<{ hasil: "terkirim" | "draf"; version: number | null }> {
+  const parameters = await prisma.parameter.findMany({
+    where: { instrumentVersion: { assignments: { some: { id: assignmentId } } } },
+    select: { id: true },
+  });
+  const terisi = new Set(scores.map((s) => s.parameterId));
+  const lengkap = parameters.length > 0 && parameters.every((p) => terisi.has(p.id));
+  if (lengkap) {
+    await submitResponse(assignmentId, scores, idempotencyKey, expectedVersion, actor);
+    return { hasil: "terkirim", version: null };
+  }
+  const draf = await saveDraft(assignmentId, scores, expectedVersion, actor);
+  return { hasil: "draf", version: draf.version };
 }

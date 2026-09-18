@@ -13,7 +13,7 @@ import { useKonfirmasi } from "@/components/theme/confirm-dialog";
 import { DialogTerkirim } from "./dialog-terkirim";
 import { SHEET_ID, useAdminEdit } from "./admin-edit-context";
 
-interface ParameterView {
+export interface ParameterView {
   id: string;
   name: string;
   indicator: string | null;
@@ -21,7 +21,7 @@ interface ParameterView {
   order: number;
 }
 
-interface Scale {
+export interface Scale {
   min: number;
   max: number;
   step: number;
@@ -31,7 +31,7 @@ const draftInitial: FormState = {};
 const submitInitial: FormState = {};
 const adminEditInitial: FormState = {};
 
-function ScoreField({
+export function ScoreField({
   id,
   label,
   scale,
@@ -131,7 +131,7 @@ function ScoreField({
   );
 }
 
-function displayNumber(value: number) {
+export function displayNumber(value: number) {
   return new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(value);
 }
 

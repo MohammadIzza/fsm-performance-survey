@@ -7,115 +7,139 @@ import { Select } from "@/components/theme/form-field";
 import { DateValue } from "@/components/theme/date-range";
 import { PilihanCari } from "@/components/theme/pilihan-cari";
 
-export interface AssignmentRow {
-  id: string;
-  objectName: string;
+/**
+ * Daftar tugas penilaian, satu baris per KATEGORI — bukan per objek.
+ *
+ * Sebelumnya satu objek satu baris, sehingga penilai yang kebagian enam objek dalam satu kategori
+ * melihat enam baris yang kategori, periode, dan tenggatnya sama persis, lalu membuka enam halaman
+ * yang instrumennya juga sama. Sekarang barisnya menyebut kategori beserta kemajuannya, dan
+ * pengisiannya terjadi di satu lembar (/tugas/kategori/[categoryId]).
+ */
+
+export interface CategoryRow {
+  categoryId: string;
   categoryName: string;
+  objectTypeName: string;
+  group: "PIMPINAN" | "SELAIN_PIMPINAN";
   periodId: string;
   periodName: string;
-  group: "PIMPINAN" | "SELAIN_PIMPINAN";
-  deadline: string; // ISO string, formatted client-side for a stable server/client render
-  displayStatus: "BELUM_MULAI" | "DRAF" | "TERKIRIM" | "DIBUKA_KEMBALI" | "LEWAT_TENGGAT";
+  deadline: string; // ISO string, diformat di sisi klien agar render server/klien sama
+  total: number;
+  terkirim: number;
+  draf: number;
+  belum: number;
+  lewat: number;
 }
 
-const statusLabel: Record<AssignmentRow["displayStatus"], string> = {
+type Keadaan = "SELESAI" | "SEDANG_DIISI" | "BELUM_MULAI" | "LEWAT_TENGGAT";
+
+const statusLabel: Record<Keadaan, string> = {
+  SELESAI: "Selesai",
+  SEDANG_DIISI: "Sedang diisi",
   BELUM_MULAI: "Belum mulai",
-  DRAF: "Draf",
-  TERKIRIM: "Terkirim",
-  DIBUKA_KEMBALI: "Dibuka kembali",
   LEWAT_TENGGAT: "Lewat tenggat",
 };
 
 const statusTone = {
+  SELESAI: "selesai",
+  SEDANG_DIISI: "proses",
   BELUM_MULAI: "netral",
-  DRAF: "proses",
-  TERKIRIM: "selesai",
-  DIBUKA_KEMBALI: "perhatian",
   LEWAT_TENGGAT: "gagal",
 } as const;
 
+/** Keadaan satu kategori diringkas dari tugas-tugas di dalamnya. */
+function keadaan(k: CategoryRow): Keadaan {
+  if (k.terkirim === k.total) return "SELESAI";
+  if (k.draf > 0) return "SEDANG_DIISI";
+  if (k.lewat > 0 && k.belum === 0) return "LEWAT_TENGGAT";
+  return "BELUM_MULAI";
+}
 
-// Bab 16.1: "Tugas saya" perlu filter periode/status, bukan hanya daftar datar — jumlah tugas
-// bertambah seiring periode berjalan bersamaan (mis. periode lama masih dalam jendela koreksi).
-export function AssignmentsList({ assignments }: { assignments: AssignmentRow[] }) {
+export function AssignmentsList({ categories }: { categories: CategoryRow[] }) {
   const [periodId, setPeriodId] = useState("");
   const [status, setStatus] = useState("");
 
   const periods = useMemo(() => {
     const seen = new Map<string, string>();
-    for (const a of assignments) seen.set(a.periodId, a.periodName);
+    for (const k of categories) seen.set(k.periodId, k.periodName);
     return [...seen.entries()];
-  }, [assignments]);
+  }, [categories]);
 
-  const visible = assignments.filter(
-    (a) => (!periodId || a.periodId === periodId) && (!status || a.displayStatus === status),
+  const visible = categories.filter(
+    (k) => (!periodId || k.periodId === periodId) && (!status || keadaan(k) === status),
   );
+
   return (
-    <>
-      <div className="assignments-data-list">
-        <DataList
-          columnHeaderHidden={false}
-          columns={[
-            ["title", "Objek"],
-            ["topic", "Kategori"],
-            ["dates", "Tenggat"],
-            ["location", (
-              <label className="assignment-head-filter" data-active={periodId ? "true" : undefined} key="period-filter">
-                <span>Periode</span>
-                <PilihanCari
-                  aria-label="Filter periode"
-                  value={periodId}
-                  onChange={setPeriodId}
-                  kosong={{ label: "Semua periode", bisaDipilih: true }}
-                  options={periods.map(([id, name]) => ({ value: id, label: name }))}
-                />
-              </label>
-            )],
-            ["price", (
-              <label className="assignment-head-filter" data-active={status ? "true" : undefined} key="status-filter">
-                <span>Status</span>
-                <Select
-                  aria-label="Filter status"
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                >
-                  <option value="">Semua status</option>
-                  {Object.entries(statusLabel).map(([value, label]) => (
-                    <option key={value} value={value}>{label}</option>
-                  ))}
-                </Select>
-              </label>
-            )],
-          ]}
-        >
-          {/* Pesan kosong berada di dalam daftar, tepat di bawah kepala kolom — bukan di atasnya.
-              Penyaringnya menempel pada kepala itu, jadi kepala harus tetap terlihat saat hasilnya
-              nol supaya penyaringnya masih bisa diubah. */}
-          {visible.length === 0 && (
-            <li className="s__course sb-course sb-course--empty">
-              <div className="sb__link">Tidak ada tugas yang cocok dengan filter ini.</div>
-            </li>
-          )}
-          {visible.map((a) => (
-            <DataRow key={a.id} href={`/tugas/${a.id}`}>
-              <RowTitle>
-                {a.objectName}
-                {a.group === "PIMPINAN" && (
-                  <span className="assignment-row__leadership">Pimpinan</span>
-                )}
-              </RowTitle>
-              <RowField kind="topic" icon={false}>{a.categoryName}</RowField>
-              <RowField kind="dates"><DateValue value={a.deadline} /></RowField>
-              <RowField kind="location" icon={false}>{a.periodName}</RowField>
-              <RowField kind="price">
-                <StatusPill tone={statusTone[a.displayStatus]}>
-                  {statusLabel[a.displayStatus]}
-                </StatusPill>
-              </RowField>
-            </DataRow>
-          ))}
-        </DataList>
-      </div>
-    </>
+    <div className="assignments-data-list">
+      <DataList
+        columnHeaderHidden={false}
+        columns={[
+          ["title", "Kategori"],
+          ["topic", "Kemajuan"],
+          ["dates", "Tenggat"],
+          ["location", (
+            <label className="assignment-head-filter" data-active={periodId ? "true" : undefined} key="period-filter">
+              <span>Periode</span>
+              <PilihanCari
+                aria-label="Filter periode"
+                value={periodId}
+                onChange={setPeriodId}
+                kosong={{ label: "Semua periode", bisaDipilih: true }}
+                options={periods.map(([id, name]) => ({ value: id, label: name }))}
+              />
+            </label>
+          )],
+          ["price", (
+            <label className="assignment-head-filter" data-active={status ? "true" : undefined} key="status-filter">
+              <span>Status</span>
+              <Select
+                aria-label="Filter status"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+              >
+                <option value="">Semua status</option>
+                {Object.entries(statusLabel).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </Select>
+            </label>
+          )],
+        ]}
+      >
+        {/* Pesan kosong berada di dalam daftar, tepat di bawah kepala kolom — bukan di atasnya.
+            Penyaringnya menempel pada kepala itu, jadi kepala harus tetap terlihat saat hasilnya
+            nol supaya penyaringnya masih bisa diubah. */}
+        {visible.length === 0 && (
+          <li className="s__course sb-course sb-course--empty">
+            <div className="sb__link">Tidak ada tugas yang cocok dengan filter ini.</div>
+          </li>
+        )}
+        {visible.map((k) => (
+          <DataRow
+            key={`${k.categoryId}-${k.group}`}
+            href={`/tugas/kategori/${k.categoryId}?kelompok=${k.group}`}
+          >
+            <RowTitle>
+              {k.categoryName}
+              {k.group === "PIMPINAN" && (
+                <span className="assignment-row__leadership">Pimpinan</span>
+              )}
+              <span className="sb__subtitle">
+                {k.total} {k.objectTypeName.toLowerCase()} untuk dinilai
+              </span>
+            </RowTitle>
+            <RowField kind="topic" icon={false}>
+              {k.terkirim} dari {k.total} terkirim
+              {k.draf > 0 && ` · ${k.draf} draf`}
+            </RowField>
+            <RowField kind="dates"><DateValue value={k.deadline} /></RowField>
+            <RowField kind="location" icon={false}>{k.periodName}</RowField>
+            <RowField kind="price">
+              <StatusPill tone={statusTone[keadaan(k)]}>{statusLabel[keadaan(k)]}</StatusPill>
+            </RowField>
+          </DataRow>
+        ))}
+      </DataList>
+    </div>
   );
 }

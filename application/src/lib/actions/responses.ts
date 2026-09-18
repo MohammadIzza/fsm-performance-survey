@@ -10,6 +10,7 @@ import {
   voidResponse,
   listMyAssignments,
   computeDisplayStatus,
+  submitOrSaveDraft,
   type ScoreInput,
 } from "@/lib/services/responses";
 import { ServiceError } from "@/lib/services/units";
@@ -142,4 +143,128 @@ export async function voidResponseAction(_prev: FormState, formData: FormData): 
   }
   revalidatePath(`/tugas/${assignmentId}`);
   return {};
+}
+
+export interface KategoriFormState {
+  error?: string;
+  savedAt?: string;
+  /** Versi draf terbaru per tugas, dipakai sebagai expectedVersion kiriman berikutnya. */
+  versions?: Record<string, number>;
+  ringkasan?: {
+    terkirim: number;
+    draf: number;
+    gagal: { assignmentId: string; nama: string; pesan: string }[];
+  };
+  submittedAt?: string;
+}
+
+/** Membaca isian lembar kategori: satu daftar tugas, skornya bernama `skor.<tugas>.<parameter>`. */
+function bacaLembar(formData: FormData) {
+  const tugas = formData.getAll("tugas").map(String);
+  return tugas.map((assignmentId) => {
+    const scores: ScoreInput[] = [];
+    for (const [nama, nilai] of formData.entries()) {
+      const awalan = `skor.${assignmentId}.`;
+      if (!nama.startsWith(awalan)) continue;
+      const mentah = String(nilai);
+      if (mentah === "") continue;
+      const angka = Number(mentah);
+      if (Number.isNaN(angka)) continue;
+      scores.push({ parameterId: nama.slice(awalan.length), score: angka });
+    }
+    const versi = String(formData.get(`versi.${assignmentId}`) ?? "");
+    return {
+      assignmentId,
+      nama: String(formData.get(`nama.${assignmentId}`) ?? "Objek"),
+      scores,
+      expectedVersion: versi === "" ? null : Number(versi),
+      idempotencyKey: String(formData.get(`kunci.${assignmentId}`) ?? ""),
+    };
+  });
+}
+
+/**
+ * Simpan draf seluruh objek pada satu lembar kategori sekaligus.
+ *
+ * Tiap tugas tetap disimpan sendiri-sendiri lewat saveDraft, jadi satu baris yang bentrok versinya
+ * tidak membatalkan baris lain; yang gagal dilaporkan dengan nama objeknya.
+ */
+export async function saveCategoryDraftAction(
+  _prev: KategoriFormState,
+  formData: FormData
+): Promise<KategoriFormState> {
+  const actor = await requireActiveActor();
+  const baris = bacaLembar(formData);
+  const versions: Record<string, number> = {};
+  const gagal: { assignmentId: string; nama: string; pesan: string }[] = [];
+  let tersimpan = 0;
+  for (const b of baris) {
+    // Baris yang belum pernah disentuh dilewati: menyimpan draf kosong akan mengubah statusnya
+    // dari "Belum mulai" menjadi "Draf", sehingga pemantauan mengira pengisian sudah dimulai.
+    if (b.scores.length === 0 && b.expectedVersion === null) continue;
+    try {
+      const saved = await saveDraft(b.assignmentId, b.scores, b.expectedVersion, actor);
+      versions[b.assignmentId] = saved.version;
+      tersimpan += 1;
+    } catch (e) {
+      if (!(e instanceof ServiceError)) throw e;
+      gagal.push({ assignmentId: b.assignmentId, nama: b.nama, pesan: e.message });
+    }
+  }
+  revalidatePath("/tugas");
+  if (tersimpan === 0 && gagal.length > 0) return { error: gagal[0].pesan, ringkasan: { terkirim: 0, draf: 0, gagal } };
+  return {
+    savedAt: new Date().toISOString(),
+    versions,
+    ringkasan: { terkirim: 0, draf: tersimpan, gagal },
+  };
+}
+
+/**
+ * Kirim seluruh objek yang isiannya sudah lengkap; yang belum lengkap disimpan sebagai draf.
+ * Objek yang sudah terkirim sebelumnya tidak ikut dikirim ulang — barisnya memang tidak lagi
+ * dikirimkan oleh halaman.
+ */
+export async function submitCategoryAction(
+  _prev: KategoriFormState,
+  formData: FormData
+): Promise<KategoriFormState> {
+  const actor = await requireActiveActor();
+  const baris = bacaLembar(formData);
+  const versions: Record<string, number> = {};
+  const gagal: { assignmentId: string; nama: string; pesan: string }[] = [];
+  let terkirim = 0;
+  let draf = 0;
+  for (const b of baris) {
+    // Sama seperti simpan draf: objek yang dibiarkan kosong tidak diapa-apakan, bukan disimpan
+    // sebagai draf kosong.
+    if (b.scores.length === 0 && b.expectedVersion === null) continue;
+    try {
+      const hasil = await submitOrSaveDraft(
+        b.assignmentId,
+        b.scores,
+        b.idempotencyKey,
+        b.expectedVersion,
+        actor
+      );
+      if (hasil.hasil === "terkirim") terkirim += 1;
+      else {
+        draf += 1;
+        if (hasil.version != null) versions[b.assignmentId] = hasil.version;
+      }
+    } catch (e) {
+      if (!(e instanceof ServiceError)) throw e;
+      gagal.push({ assignmentId: b.assignmentId, nama: b.nama, pesan: e.message });
+    }
+  }
+  revalidatePath("/tugas");
+  for (const b of baris) revalidatePath(`/tugas/${b.assignmentId}`);
+  if (terkirim === 0 && draf === 0 && gagal.length > 0) {
+    return { error: gagal[0].pesan, ringkasan: { terkirim, draf, gagal } };
+  }
+  return {
+    submittedAt: new Date().toISOString(),
+    versions,
+    ringkasan: { terkirim, draf, gagal },
+  };
 }
