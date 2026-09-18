@@ -406,9 +406,14 @@ export function LembarKategori({
               <thead>
                 <tr>
                   <th scope="col">Objek</th>
+                  {/* Nama pertanyaan di layar lebar, nomornya di ponsel (kolomnya hanya ±40px), dan
+                      bobot di bawah keduanya — bobot itulah yang menjelaskan kenapa nilai akhir bisa
+                      jauh dari rata-rata skornya. */}
                   {urut.map((p, i) => (
-                    <th scope="col" key={p.id} title={`${p.name} · ${p.weight}%`}>
-                      {i + 1}
+                    <th scope="col" key={p.id} title={`${p.name} · bobot ${p.weight}%`}>
+                      <span className="lembar-ringkasan__nama">{p.name}</span>
+                      <span className="lembar-ringkasan__nomor">{i + 1}</span>
+                      <small className="lembar-ringkasan__bobot">{p.weight}%</small>
                     </th>
                   ))}
                   <th scope="col">Nilai</th>
