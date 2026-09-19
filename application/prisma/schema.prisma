@@ -261,6 +261,8 @@ model AssessmentObject {
   contributors    ObjectContributor[]
   categoryObjects CategoryObject[]
 
+  objectGroups ObjectGroupMember[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -316,6 +318,36 @@ model Category {
 }
 
 // Bab 8.2: keikutsertaan objek dalam suatu kategori, dengan snapshot nama/unit saat ditetapkan.
+/// Kelompok objek bernama: sekumpulan objek yang sering dipakai bersama — mis. finalis sebuah
+/// lomba atau video promosi satu angkatan. Anggotanya bisa lintas unit dan lintas jenis; gunanya
+/// semata mempercepat pemilihan peserta kategori, bukan memengaruhi perhitungan.
+model ObjectGroup {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+  active      Boolean @default(true)
+
+  members ObjectGroupMember[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("object_groups")
+}
+
+model ObjectGroupMember {
+  id       String @id @default(cuid())
+  groupId  String @map("group_id")
+  group    ObjectGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  objectId String @map("object_id")
+  object   AssessmentObject @relation(fields: [objectId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([groupId, objectId])
+  @@map("object_group_members")
+}
+
 model CategoryObject {
   id         String           @id @default(cuid())
   categoryId String           @map("category_id")
