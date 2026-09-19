@@ -45,6 +45,13 @@ export const KET: Record<string, ReactNode> = {
       objek tertinggi mendapat 100, yang lain sebanding.
     </>
   ),
+  salinKategori: (
+    <>
+      Menyalin pertanyaan beserta bobot dan skalanya, aturan kelompok (agregasi, target, minimum,
+      parameter pembeda), syarat calon penilai, dan bobot nilai gabungan dari kategori yang dipilih.
+      Jawaban, penugasan, dan hasil tidak ikut — kategori baru selalu mulai kosong.
+    </>
+  ),
   pembeda: (
     <>Bila nilai akhir dua objek sama persis, peringkatnya ditentukan skor parameter yang dipilih di sini, sesuai urutan.</>
   ),

@@ -3658,3 +3658,10 @@ input[type="range"]:disabled::-moz-range-thumb {
   margin-left:.3rem;color:var(--color-brand-1);
   font-size:.55em;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
 }
+
+/* Jenis objek pada formulir salin kategori: nilai yang mengikuti sumbernya, bukan isian — ditulis
+   setinggi kolom isian di sebelahnya supaya barisnya tetap sejajar. */
+.kategori-sumber__jenis {
+  display:flex;align-items:center;min-height:1.9rem;margin:0;
+  color:var(--color-black);font-size:.72rem;font-weight:600;
+}
