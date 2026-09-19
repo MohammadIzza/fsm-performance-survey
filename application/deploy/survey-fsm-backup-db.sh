@@ -4,8 +4,8 @@
 # Memulihkan: lihat "Backup dan pemulihan database" di docs/deployment.md.
 set -euo pipefail
 
-ENV_FILE=${ENV_FILE:-/home/restart/survey-fsm/application/.env}
-TUJUAN=${TUJUAN:-/home/restart/backups/survey-fsm}
+ENV_FILE=${ENV_FILE:-/home/survey/survey-fsm/application/.env}
+TUJUAN=${TUJUAN:-/home/survey/backups/survey-fsm}
 SIMPAN_HARI=${SIMPAN_HARI:-14}
 BIN=/usr/lib/postgresql/16/bin
 

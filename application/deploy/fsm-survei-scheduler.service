@@ -1,16 +1,16 @@
 [Unit]
 Description=Survei FSM UNDIP - buka periode terjadwal (Bab 7.2, one-shot; dipicu oleh fsm-survei-scheduler.timer)
-Documentation=file:///home/restart/survey-fsm/application/docs/deployment.md
-After=survey-fsm-postgres.service
-Requires=survey-fsm-postgres.service
+Documentation=file:///home/survey/survey-fsm/application/docs/deployment.md
+After=postgresql.service
+Requires=postgresql.service
 
 [Service]
 Type=oneshot
-User=restart
-Group=restart
-WorkingDirectory=/home/restart/survey-fsm/application
-Environment=PATH=/home/restart/survey-fsm/application/node_modules/.bin:/usr/bin:/bin
-ExecStart=/home/restart/survey-fsm/application/node_modules/.bin/tsx scripts/run-scheduled-transitions.ts
+User=survey
+Group=survey
+WorkingDirectory=/home/survey/survey-fsm/application
+Environment=PATH=/opt/node22/bin:/home/survey/survey-fsm/application/node_modules/.bin:/usr/bin:/bin
+ExecStart=/home/survey/survey-fsm/application/node_modules/.bin/tsx scripts/run-scheduled-transitions.ts
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=fsm-survei-scheduler

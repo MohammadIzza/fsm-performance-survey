@@ -1,22 +1,23 @@
 [Unit]
 Description=Survei Penilaian FSM UNDIP (aplikasi baru, Next.js)
-Documentation=file:///home/restart/survey-fsm/application/docs/deployment.md
-After=network.target survey-fsm-postgres.service
-Requires=survey-fsm-postgres.service
+Documentation=file:///home/survey/survey-fsm/application/docs/deployment.md
+After=network.target postgresql.service
+Requires=postgresql.service
 
 [Service]
 Type=simple
-User=restart
-Group=restart
-WorkingDirectory=/home/restart/survey-fsm/application
+User=survey
+Group=survey
+WorkingDirectory=/home/survey/survey-fsm/application
 # next start baca .env dari WorkingDirectory sendiri — tidak perlu EnvironmentFile=.
 # .dist-aktif (ditulis deploy/terbitkan.sh) memilih folder build .next-a atau .next-b; tanpa berkas
 # itu Next memakai .next.
-EnvironmentFile=-/home/restart/survey-fsm/application/.dist-aktif
-ExecStart=/home/restart/survey-fsm/application/node_modules/.bin/next start -H 127.0.0.1 -p 3930
+EnvironmentFile=-/home/survey/survey-fsm/application/.dist-aktif
+ExecStart=/home/survey/survey-fsm/application/node_modules/.bin/next start -H 127.0.0.1 -p 3930
 Restart=always
 RestartSec=5
 Environment=NODE_ENV=production
+Environment=PATH=/opt/node22/bin:/usr/bin:/bin
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=fsm-survei
