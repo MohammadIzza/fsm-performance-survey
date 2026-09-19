@@ -3695,3 +3695,88 @@ input[type="range"]:disabled::-moz-range-thumb {
 .predikat-contoh {
   margin:.6rem 0 0;color:var(--color-text);font-size:.6rem;line-height:1.5;
 }
+
+/* Direktori akun demo lengkap di halaman masuk (lingkungan uji saja). Daftarnya ratusan baris,
+   jadi ditaruh di kartu putih bergulung sendiri: halaman tetap setinggi satu layar, dan baris
+   yang lewat di atas bukit warna tidak lagi terbaca hitam di atas biru tua. */
+.survey-demo-accounts--lengkap {
+  margin-top:1.4rem;padding:1rem 1rem .9rem;border:0;border-radius:.9rem;
+  background:var(--color-white);box-shadow:0 .5rem 1.6rem rgb(0 0 0 / .08);
+}
+.akun-demo {margin-top:.7rem;color:var(--color-black)}
+.akun-demo__khusus {display:flex;flex-wrap:wrap;gap:.3rem 1.2rem;margin:0}
+.akun-demo__khusus > div {display:flex;gap:.45rem;align-items:baseline}
+.akun-demo__khusus dt {color:var(--color-text)}
+.akun-demo__khusus dd {margin:0}
+.akun-demo__cari {display:block;margin-top:.7rem}
+.survey-login .akun-demo__cari .form__control {
+  width:100%;min-height:2.2rem;padding:.35rem .75rem;border-color:var(--color-grey-2);
+  background:var(--color-beige);font-size:.68rem;
+}
+/* Tinggi daftar dibatasi dan digulung di dalam kartu; tepi bawahnya diberi garis supaya jelas
+   bahwa daftar berlanjut di bawah. */
+.akun-demo__daftar {
+  max-height:19rem;margin-top:.6rem;overflow-y:auto;overscroll-behavior:contain;
+  border-top:1px solid var(--color-grey-2);border-bottom:1px solid var(--color-grey-2);
+}
+.akun-demo__unit {border-bottom:1px solid var(--color-grey-3)}
+.akun-demo__unit:last-child {border-bottom:0}
+.akun-demo__unit summary {
+  display:flex;align-items:baseline;justify-content:space-between;gap:.8rem;
+  padding:.5rem .2rem;cursor:pointer;list-style:none;
+}
+.akun-demo__unit summary::-webkit-details-marker {display:none}
+/* Penanda lipat dari garis tepi, bukan karakter panah, supaya ukurannya ikut huruf. */
+.akun-demo__unit summary::before {
+  content:"";flex:0 0 auto;align-self:center;width:.38em;height:.38em;margin-right:-.3rem;
+  border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  transform:rotate(-45deg);transition:transform .15s ease;
+}
+.akun-demo__unit[open] > summary::before {transform:rotate(45deg)}
+.akun-demo__unit[data-depth="1"] > summary {padding-left:.9rem}
+.akun-demo__unit[data-depth="2"] > summary {padding-left:1.8rem}
+.akun-demo__unit[data-depth="0"] > summary .akun-demo__unit-nama {font-weight:700}
+.akun-demo__unit[data-depth="1"] > summary .akun-demo__unit-nama {font-weight:600}
+.akun-demo__unit-nama {flex:1 1 auto;min-width:0;font-size:.7rem}
+.akun-demo__unit-jumlah {flex:0 0 auto;color:var(--color-text);font-size:.6rem;white-space:nowrap}
+.akun-demo__unit > section {padding:0 .2rem .5rem 1.8rem}
+.akun-demo__unit[data-depth="1"] > section {padding-left:2.7rem}
+.akun-demo__unit[data-depth="2"] > section {padding-left:3.6rem}
+.akun-demo__jenis {
+  margin:.35rem 0 .2rem;color:var(--color-text);
+  font-size:.56rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+}
+.akun-demo__jenis span {letter-spacing:0}
+.akun-demo__unit ul {margin:0;padding:0;list-style:none}
+/* Nama, jumlah tugas, lalu ID di ujung kanan: ID yang sejajar satu kolom mudah dipindai. */
+.akun-demo__baris {
+  display:grid;grid-template-columns:1fr auto auto;align-items:baseline;gap:.2rem .7rem;
+  padding:.22rem 0;font-size:.64rem;line-height:1.35;
+}
+.akun-demo__nama {min-width:0}
+.akun-demo__jabatan {display:block;color:var(--color-text);font-size:.58rem}
+.akun-demo__tugas {color:color-mix(in srgb, var(--color-brand-4) 60%, var(--color-black));font-size:.58rem;font-weight:600;white-space:nowrap}
+.akun-demo__id {
+  padding:0;border:0;background:none;cursor:pointer;
+  color:var(--color-black);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.62rem;
+  text-decoration:underline;text-decoration-color:var(--color-grey-2);text-underline-offset:.18em;
+}
+.akun-demo__id:hover,
+.akun-demo__id:focus-visible {text-decoration-color:currentColor;color:var(--color-brand-3)}
+.akun-demo__kosong,
+.akun-demo__ringkas {margin:.6rem 0 0;color:var(--color-text);font-size:.62rem}
+
+@media only screen and (max-width:640px) {
+  .survey-demo-accounts--lengkap {padding:0;box-shadow:none}
+  .akun-demo__daftar {max-height:60vh}
+  /* Lekuk per tingkat dirapatkan: di layar sempit lekuk desktop menyisakan kolom nama selebar
+     dua kata, dan nama bergelar terpecah jadi tiga baris. */
+  .akun-demo__unit[data-depth="1"] > summary {padding-left:.5rem}
+  .akun-demo__unit[data-depth="2"] > summary {padding-left:1rem}
+  .akun-demo__unit > section,
+  .akun-demo__unit[data-depth="1"] > section,
+  .akun-demo__unit[data-depth="2"] > section {padding-left:1.1rem}
+  .akun-demo__baris {grid-template-columns:1fr auto;font-size:.7rem}
+  .akun-demo__tugas {grid-column:1;grid-row:2}
+  .akun-demo__id {grid-column:2;grid-row:1 / span 2;align-self:center;font-size:.68rem}
+}

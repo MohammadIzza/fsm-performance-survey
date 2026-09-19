@@ -3,9 +3,16 @@ import { withBase } from '@/lib/base-path';
 import { getCurrentAuthContext } from '@/lib/authz';
 import { LoginForm } from './login-form';
 import { LoginHeroFsm } from './login-hero-fsm';
+import { DaftarAkunDemo } from './daftar-akun';
+import { getDemoAccountDirectory } from '@/lib/services/demoAccounts';
 
 export default async function LoginPage() {
   if (await getCurrentAuthContext()) redirect('/dashboard');
+
+  // Direktori lengkap hanya untuk lingkungan uji berdata fiktif (v2/UAT). Tanpa penanda ini
+  // halaman kembali ke empat ID contoh, supaya penggabungan ke aplikasi berpengguna sungguhan
+  // tidak ikut membeberkan seluruh ID di halaman yang bisa dibuka siapa saja.
+  const direktori = process.env.DAFTAR_AKUN_DEMO === '1' ? await getDemoAccountDirectory() : null;
 
   return (
     <main className="survey-login">
@@ -55,11 +62,17 @@ export default async function LoginPage() {
         </div>
         <div className="survey-login-panel">
           <LoginForm />
-          <div className="survey-demo-accounts">
+          <div className={`survey-demo-accounts${direktori ? ' survey-demo-accounts--lengkap' : ''}`}>
             <strong>Lingkungan demo · data fiktif</strong>
             <p>
-              Login prototipe tanpa kata sandi. Gunakan salah satu ID berikut:
+              Login prototipe tanpa kata sandi.{' '}
+              {direktori
+                ? 'Pilih akun per unit di bawah; menekan ID mengisikannya ke kolom di atas.'
+                : 'Gunakan salah satu ID berikut:'}
             </p>
+            {direktori ? (
+              <DaftarAkunDemo direktori={direktori} />
+            ) : (
             <dl>
               <dt>Admin</dt>
               <dd>
@@ -78,6 +91,7 @@ export default async function LoginPage() {
                 <code>dosen1004</code>
               </dd>
             </dl>
+            )}
           </div>
         </div>
       </section>
