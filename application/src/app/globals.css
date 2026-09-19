@@ -3572,11 +3572,11 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell main .lembar-ringkasan thead th {
   padding:.6rem .3rem;text-align:center;vertical-align:bottom;white-space:normal;
 }
-.lembar-ringkasan__nama {
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-  line-height:1.25;overflow-wrap:anywhere;
+/* Nomor pertanyaan di kepala kolom, sepadan dengan nomor pada stepper di atasnya. */
+.survey-shell main .lembar-ringkasan__nomor {
+  display:block;color:var(--color-black);font-size:.8rem;font-weight:600;line-height:1.2;
+  letter-spacing:0;font-variant-numeric:tabular-nums;
 }
-.lembar-ringkasan__nomor {display:none}
 /* Bobot di bawah nama kolom memakai pil kuning yang sama dengan bobot di judul pertanyaan, supaya
    terbaca sebagai satu hal yang sama — dan tidak lagi berupa angka kecil pucat yang terlihat
    terlepas dari nama di atasnya. */
@@ -3608,8 +3608,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-shell main small.lembar-ringkasan__status[data-status="LEWAT_TENGGAT"] {color:var(--color-brand-1)}
 .survey-shell main small.lembar-ringkasan__galat {color:var(--color-brand-1)}
 @media only screen and (max-width: 640px) {
-  .lembar-ringkasan__nama {display:none}
-  .lembar-ringkasan__nomor {display:block}
+  .survey-shell main .lembar-ringkasan__nomor {font-size:.66rem}
   .survey-shell main .lembar-ringkasan__bobot {margin-top:.25rem;padding:.08rem .3rem;font-size:.5rem}
   .survey-shell main .lembar-ringkasan {font-size:.62rem}
   .survey-shell main .lembar-ringkasan thead th {font-size:.5rem}
