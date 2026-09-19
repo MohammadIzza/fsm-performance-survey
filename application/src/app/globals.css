@@ -2668,6 +2668,10 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-login .btn-plain.survey-login-submit {width:100%}
 .survey-login .btn-plain.survey-login-submit .btn-plain__inner {text-align:center}
 
+/* Pembatas "atau" antara tombol SSO dan formulir ID demo. */
+.survey-login-divider {display:flex;align-items:center;gap:.8rem;margin:1.4rem 0;color:var(--color-text-muted,var(--color-text));font-size:.75rem;letter-spacing:.04em;text-transform:uppercase}
+.survey-login-divider::before,.survey-login-divider::after {content:"";flex:1;height:1px;background:currentColor;opacity:.25}
+
 .survey-demo-accounts {
   margin-top:2.4rem;border-top:1px solid var(--color-grey-2);padding-top:1.3rem;
   font-size:.8rem;line-height:1.5;color:var(--color-text);
