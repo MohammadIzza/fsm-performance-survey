@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import type { AssessmentGroup } from "@/generated/prisma/enums";
 import type { AuthContext } from "@/lib/authz";
 import { isUnitInScope } from "@/lib/authz";
+import { bacaAmbang, predikatUntuk, skorMaksimum, type Predikat } from "@/lib/predikat";
 
 export interface RankedEntry {
   categoryObjectId: string;
@@ -16,6 +17,33 @@ export interface RankedEntry {
   rank: number | null; // null bila tidak layak peringkat
   /** Masih berbagi peringkat dengan objek lain setelah parameter pembeda dipakai. */
   tied: boolean;
+  /** Label baca nilai ("Sangat baik", …); null bila kategori tidak memakai predikat. */
+  band: Predikat | null;
+}
+
+/**
+ * Bahan predikat sebuah run: ambang milik kategori dan nilai maksimum yang mungkin per kelompok.
+ *
+ * Maksimum dibaca dari versi instrumen yang DIPAKAI run ini, bukan instrumen kategori saat ini,
+ * supaya predikat hasil lama tetap dihitung terhadap skala yang benar setelah instrumen direvisi.
+ * Metode agregasi diambil dari snapshot run dengan alasan yang sama.
+ */
+async function bahanPredikat(
+  categoryId: string,
+  run: { instrumentVersionId: string; groupRuleSnapshot: unknown }
+) {
+  const [category, instrumen] = await Promise.all([
+    prisma.category.findUnique({ where: { id: categoryId }, select: { gradeBands: true } }),
+    prisma.instrumentVersion.findUnique({
+      where: { id: run.instrumentVersionId },
+      select: { scaleMax: true, parameters: { select: { weight: true, normalized: true } } },
+    }),
+  ]);
+  const ambang = bacaAmbang(category?.gradeBands);
+  const snapshot = (run.groupRuleSnapshot ?? {}) as Record<string, { aggregation?: "RATA_RATA" | "TOTAL" } | undefined>;
+  const maks = (group: AssessmentGroup) =>
+    instrumen ? skorMaksimum(instrumen.parameters, instrumen.scaleMax, snapshot[group]?.aggregation ?? "RATA_RATA") : null;
+  return { ambang, maksPimpinan: maks("PIMPINAN"), maksSelain: maks("SELAIN_PIMPINAN") };
 }
 
 // Bab 13.3: peringkat kompetisi (1,2,2,4) — dua nilai sama mendapat peringkat sama, dan
@@ -65,6 +93,9 @@ export async function getRanking(options: RankingOptions): Promise<RankedEntry[]
   const rules = run.groupRuleSnapshot as Record<string,{tieBreakParameterIds?:string[]|null}>;
   const tieBreakParameterIds = rules[options.group]?.tieBreakParameterIds ?? [];
 
+  const { ambang, maksPimpinan, maksSelain } = await bahanPredikat(options.categoryId, run);
+  const maks = options.group === "PIMPINAN" ? maksPimpinan : maksSelain;
+
   const results = await prisma.objectGroupResult.findMany({
     where: { runId: run.id, group: options.group },
     include: {
@@ -88,6 +119,7 @@ export async function getRanking(options: RankingOptions): Promise<RankedEntry[]
     eligibility: r.eligibility,
     rank: null,
     tied: false,
+    band: predikatUntuk(r.score, maks, ambang),
   }));
 
   const tieBreakByObject = new Map<string, number[]>();
@@ -167,6 +199,13 @@ export async function getCombinedRanking(options: {
     },
   });
 
+  // Maksimum nilai gabungan mengikuti rumusnya sendiri: maksimum tiap kelompok dicampur dengan
+  // bobot yang sama seperti nilainya. Bila salah satu kelompok memakai metode Total — yang tidak
+  // punya batas atas — gabungannya pun tidak bisa dipersenkan, jadi predikat tidak dipakai.
+  const { ambang, maksPimpinan, maksSelain } = await bahanPredikat(options.categoryId, run);
+  const maksGabungan =
+    maksPimpinan !== null && maksSelain !== null ? maksPimpinan * wP + maksSelain * wS : null;
+
   const perObjek = new Map<string, { pimpinan?: (typeof results)[number]; selain?: (typeof results)[number] }>();
   for (const r of results) {
     const e = perObjek.get(r.categoryObjectId) ?? {};
@@ -200,6 +239,7 @@ export async function getCombinedRanking(options: {
       eligibility: layak ? "MEMENUHI_SYARAT" : kosong ? "BELUM_ADA_PENILAIAN" : "BELUM_MEMENUHI_MINIMUM",
       rank: null,
       tied: false,
+      band: predikatUntuk(score, maksGabungan, ambang),
     });
 
     if (tieBreakParameterIds.length > 0) {

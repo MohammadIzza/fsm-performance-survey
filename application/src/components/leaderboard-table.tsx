@@ -31,6 +31,24 @@ export interface DetailData {
   respondents: { evaluatorName: string; evaluatorLogin: string; submittedAt: string | null; scores: { parameterName: string; score: number }[] }[];
 }
 
+/**
+ * Predikat nilai di bawah angkanya. Warnanya mengikuti tingkat — tertinggi tosca, terendah merah —
+ * sebagai teks berwarna saja, tanpa lencana, supaya kolom Nilai tetap terbaca sebagai satu angka
+ * dengan keterangan, bukan dua tanda yang bersaing.
+ */
+function PredikatLabel({ band }: { band: NonNullable<RankedEntry["band"]> }) {
+  // Tingkat dipetakan ke 0..3 supaya susunan 2 sampai 6 tingkat memakai palet yang sama.
+  const posisi = band.total <= 1 ? 0 : Math.round((band.level / (band.total - 1)) * 3);
+  return (
+    <span
+      className={`leaderboard-predikat leaderboard-predikat--${posisi}`}
+      title={`${band.persen}% dari nilai maksimum`}
+    >
+      {band.label}
+    </span>
+  );
+}
+
 const eligibilityLabel: Record<RankedEntry["eligibility"], string> = {
   BELUM_ADA_PENILAIAN: "Belum ada penilaian",
   BELUM_MEMENUHI_MINIMUM: "Belum memenuhi minimum",
@@ -173,6 +191,11 @@ function EntryRow({
               <RowPanelField label="Unit">{entry.unitName}</RowPanelField>
               <RowPanelField label="Respons">{respons}</RowPanelField>
               <RowPanelField label="Nilai">{nilai}</RowPanelField>
+              {entry.band && (
+                <RowPanelField label="Predikat">
+                  <PredikatLabel band={entry.band} />
+                </RowPanelField>
+              )}
               <RowPanelField label="Status">
                 <StatusPill tone={eligibilityTone[entry.eligibility]}>
                   {eligibilityLabel[entry.eligibility]}
@@ -196,6 +219,7 @@ function EntryRow({
       </RowField>
       <RowField kind="topic" icon={false}>
         <span className="leaderboard-score">{nilai}</span>
+        {entry.band && <PredikatLabel band={entry.band} />}
       </RowField>
       <RowField kind="dates" icon={false}>
         <StatusPill tone={eligibilityTone[entry.eligibility]}>

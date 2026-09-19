@@ -302,6 +302,9 @@ model Category {
   // Bobot kelompok Pimpinan (1–99) untuk nilai gabungan; Selain Pimpinan mendapat sisanya.
   // null = kedua kelompok diperingkat terpisah tanpa nilai gabungan.
   pimpinanWeight      Int?    @map("pimpinan_weight")
+  // Ambang predikat: [{label, min}] dengan min = persen dari nilai maksimum yang mungkin.
+  // null = kategori tidak memakai predikat; hasil tampil sebagai angka saja.
+  gradeBands          Json?   @map("grade_bands")
 
   categoryObjects    CategoryObject[]
   instrumentVersions InstrumentVersion[]
