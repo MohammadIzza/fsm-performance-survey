@@ -2675,6 +2675,9 @@ input[type="range"]:disabled::-moz-range-thumb {
 .survey-login-hint {
   margin:.85rem 0 0;font-size:.78rem;line-height:1.5;text-align:center;
   color:var(--color-text);
+  /* Dua baris yang panjangnya sepadan, bukan satu baris penuh disusul potongan pendek menggantung
+     — kalimatnya memang berisi beberapa alamat yang tidak boleh terpisah di tengah. */
+  text-wrap:balance;
 }
 .survey-login-hint span {color:var(--color-black);font-weight:600;white-space:nowrap}
 
@@ -2712,12 +2715,26 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-login-art {justify-content:flex-end;padding-bottom:7.15rem}
   /* Tinggi kolom kanan yang menentukan tinggi halaman begitu isinya melebihi min-height; jarak
      atas-bawahnya dirapatkan supaya halaman benar-benar berhenti di tepi layar.
-     Isinya ditengahkan tegak, tetapi ditengahkan terhadap bidang di ATAS bukit, bukan terhadap
-     seluruh kolom: jarak bawah kira-kira setinggi pita bukit, sehingga titik tengahnya naik dan
-     kartu tidak jatuh di atas bidang biru. Dulu isinya dipatok ke atas (flex-start) karena kolom
-     ini memuat formulir beserta daftar akun demo; dengan hanya satu kartu masuk, patokan itu
-     menyisakan ruang kosong sepertiga layar di bawahnya. */
-  .survey-login-form {justify-content:center;padding-block:2.4rem 11rem}
+     Isinya ditengahkan tegak terhadap bidang kuningnya sendiri — jarak atas dan bawah sama — dan
+     titik tengah bidang itu jatuh setinggi huruf FSM di sebelahnya, jadi kedua kolom berdiri pada
+     sumbu yang sama tanpa perlu angka yang dicocok-cocokkan. Dulu isinya dipatok ke atas
+     (flex-start) karena kolom ini memuat formulir beserta daftar akun demo; dengan hanya satu
+     kartu masuk, patokan itu menyisakan ruang kosong sepertiga layar di bawahnya.
+
+     Bidang kuningnya perangkat yang sama dengan tampilan ponsel: kartu putih di atas kertas krem
+     nyaris tanpa beda warna, sehingga tombol masuk terbaca mengambang tanpa tempat. Di atas
+     kuning, kartu putih dan tombol birunya sama-sama punya bidang yang memegangnya. */
+  .survey-login-form {
+    justify-content:center;
+    background:var(--color-brand-2);color:var(--color-black);
+    /* Sudut besar hanya di kiri atas: bidang warna menyeruak dari tepi kanan halaman, perangkat
+       yang sama dipakai seksi bersalut warna di situs publik. Sudut kiri bawah dibiarkan siku
+       supaya tepi kiri panel lurus dari atas ke bawah — dengan sudut membulat, pita bukit di
+       belakangnya menyembul lewat lengkungan itu sebagai serpihan segitiga. */
+    border-radius:3.4rem 0 0 0;
+  }
+  .survey-login-form .eyebrow {color:var(--color-black)}
+  .survey-login-form__text {color:var(--color-black);opacity:.78}
   /* Pembungkus judul hanya alat susun untuk ponsel; di sini ia dihapus dari tata letak supaya
      judul tetap satu aliran dengan kolom kanan seperti sebelum pembungkusnya ada. */
   .survey-login-intro {display:contents}
@@ -2767,6 +2784,8 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-login {grid-template-columns:1fr 1fr}
   .survey-login-form {padding-left:2.5rem}
   .survey-login-art {padding-right:1.5rem}
+  /* Kolomnya dibagi rata di rentang ini, jadi pita bukit ikut berhenti di tengah. */
+  .survey-login-hills {width:50%}
 }
 .survey-footer {padding:24px 4vw;font-size:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;gap:16px}
 @media(max-width:768px){.survey-header nav{gap:12px;font-size:12px}.survey-brand small{display:none}.survey-login{grid-template-columns:1fr}.survey-login-art{padding:40px 24px}.survey-login-form{padding:40px 24px}.survey-hero{padding:24px;min-height:150px}.survey-hero .survey-motion{width:100px;min-width:80px;height:100px}.survey-header{padding:18px 24px}}
