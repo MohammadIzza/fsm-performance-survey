@@ -16,6 +16,8 @@ import { ParameterManager } from "./parameter-manager";
 import { DuplicateInstrumentForm } from "./duplicate-instrument-form";
 import { GroupRuleForm } from "./group-rule-form";
 import { CombinedWeightForm } from "./combined-weight-form";
+import { PredikatForm } from "./predikat-form";
+import { bacaAmbang, skorMaksimum } from "@/lib/predikat";
 import { ParticipantManager } from "./participant-manager";
 import { AssignmentRuleForm } from "./assignment-rule-form";
 import { AssignmentPlanner } from "./assignment-planner";
@@ -44,6 +46,16 @@ async function CategoryDetailPage({
   const totalWeight = instrument
     ? instrument.parameters.reduce((s, p) => s + p.weight, 0)
     : 0;
+  // Nilai tertinggi yang mungkin dicapai kategori ini — dipakai formulir predikat untuk
+  // menerjemahkan ambang persen menjadi angka nilai. Metode Rerata kedua kelompok memberi
+  // maksimum yang sama; bila salah satunya Total, maksimumnya tidak ada (null).
+  const skorTertinggi = instrument
+    ? skorMaksimum(
+        instrument.parameters,
+        instrument.scaleMax,
+        category.groupRules.every((r) => r.aggregation === "RATA_RATA") ? "RATA_RATA" : "TOTAL"
+      )
+    : null;
 
   const [candidateObjects, userTypes, assignments, activeUsers, sourceCandidates, units, objectGroups] =
     await Promise.all([
@@ -246,6 +258,19 @@ async function CategoryDetailPage({
                       categoryId={categoryId}
                       pimpinanWeight={category.pimpinanWeight}
                       editable={["DRAF", "SIAP", "AKTIF"].includes(category.period.status)}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <p className="eyebrow mb-3">Predikat nilai</p>
+                  <div className="app-panel app-panel--ruled">
+                    <PredikatForm
+                      periodId={periodId}
+                      categoryId={categoryId}
+                      bands={bacaAmbang(category.gradeBands)}
+                      skorMaksimum={skorTertinggi}
+                      editable={category.period.status !== "FINAL"}
                     />
                   </div>
                 </div>

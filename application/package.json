@@ -13,7 +13,7 @@
     "seed:uat": "tsx scripts/seed-uat.ts",
     "seed:leaderboard": "tsx scripts/seed-leaderboard-demo.ts",
     "scheduler:run": "tsx scripts/run-scheduled-transitions.ts",
-    "test:all": "tsx scripts/test-services.ts && tsx scripts/test-tahap2.ts && tsx scripts/test-tahap3.ts && tsx scripts/test-tahap4.ts && tsx scripts/test-tahap5.ts && tsx scripts/test-tahap6.ts && tsx scripts/test-tahap7.ts && tsx scripts/test-penghapusan.ts && tsx scripts/test-nilai-gabungan.ts",
+    "test:all": "tsx scripts/test-services.ts && tsx scripts/test-tahap2.ts && tsx scripts/test-tahap3.ts && tsx scripts/test-tahap4.ts && tsx scripts/test-tahap5.ts && tsx scripts/test-tahap6.ts && tsx scripts/test-tahap7.ts && tsx scripts/test-penghapusan.ts && tsx scripts/test-nilai-gabungan.ts && tsx scripts/test-predikat.ts",
     "test:services": "tsx scripts/test-services.ts",
     "test:tahap2": "tsx scripts/test-tahap2.ts",
     "test:tahap3": "tsx scripts/test-tahap3.ts",
@@ -28,7 +28,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:e2e": "playwright test",
-    "test:e2e:reset-db": "bash scripts/reset-e2e-db.sh"
+    "test:e2e:reset-db": "bash scripts/reset-e2e-db.sh",
+    "test:predikat": "tsx scripts/test-predikat.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.12.0",

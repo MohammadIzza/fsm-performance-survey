@@ -1,10 +1,12 @@
 import { atomic } from "@/lib/prisma";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@/generated/prisma/client";
 import { writeAudit } from "@/lib/services/audit";
 import { ServiceError } from "@/lib/services/units";
 import type { AuthContext } from "@/lib/authz";
 import { kodeUnikDariNama } from "@/lib/kode-otomatis";
 import { periksaPenambahan } from "@/lib/services/penambahan-berjalan";
+import { periksaAmbang, type AmbangPredikat } from "@/lib/predikat";
 
 export interface CategoryInput {
   code: string;
@@ -371,7 +373,12 @@ async function createCategoryFromImpl(
       });
     }
 
-    await tx.category.update({ where: { id: category.id }, data: { pimpinanWeight: source.pimpinanWeight } });
+    // Bobot gabungan dan ambang predikat ikut, karena keduanya menentukan cara nilai kategori
+    // serupa dibaca — menyalin instrumennya saja akan menyisakan tampilan hasil yang berbeda.
+    await tx.category.update({
+      where: { id: category.id },
+      data: { pimpinanWeight: source.pimpinanWeight, gradeBands: source.gradeBands ?? Prisma.DbNull },
+    });
   });
 
   let objekDisalin = 0;
@@ -426,4 +433,39 @@ export async function listCategorySources() {
       parameterCount: c.instrumentVersions[0]._count.parameters,
       objectCount: c._count.categoryObjects,
     }));
+}
+
+/**
+ * Ambang predikat kategori. Predikat hanya label baca — nilai, peringkat, dan kelayakan tidak
+ * tersentuh — tapi tetap dikunci setelah periode Final, karena hasil yang sudah ditetapkan tidak
+ * boleh berganti sebutan setelah diumumkan.
+ */
+async function updateGradeBandsImpl(categoryId: string, bands: AmbangPredikat[] | null, actor: AuthContext) {
+  const before = await prisma.category.findUnique({ where: { id: categoryId }, include: { period: true } });
+  if (!before) throw new ServiceError("Kategori tidak ditemukan.");
+  if (before.period.status === "FINAL") {
+    throw new ServiceError("Predikat tidak dapat diubah setelah periode difinalkan.");
+  }
+  if (bands) {
+    const galat = periksaAmbang(bands);
+    if (galat) throw new ServiceError(galat);
+  }
+  const category = await prisma.category.update({
+    where: { id: categoryId },
+    data: { gradeBands: bands ? (bands as unknown as Prisma.InputJsonValue) : Prisma.DbNull },
+  });
+  await writeAudit({
+    actorId: actor.userId,
+    actorRole: "ADMIN",
+    action: "CATEGORY_GRADE_BANDS_UPDATE",
+    entity: "Category",
+    entityId: categoryId,
+    before: { gradeBands: before.gradeBands ?? null },
+    after: { gradeBands: bands },
+  });
+  return category;
+}
+
+export async function updateGradeBands(...args: Parameters<typeof updateGradeBandsImpl>): Promise<Awaited<ReturnType<typeof updateGradeBandsImpl>>> {
+  return atomic(() => updateGradeBandsImpl(...args));
 }

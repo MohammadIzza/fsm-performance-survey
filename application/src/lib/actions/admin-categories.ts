@@ -9,8 +9,10 @@ import {
   setCategoryActive,
   addCategoryObjects,
   removeCategoryObject,
+  updateGradeBands,
   type CategoryInput,
 } from "@/lib/services/categories";
+import type { AmbangPredikat } from "@/lib/predikat";
 import { ServiceError } from "@/lib/services/units";
 
 export interface FormState {
@@ -111,4 +113,35 @@ export async function removeCategoryObjectAction(formData: FormData): Promise<vo
   const categoryId = String(formData.get("categoryId") ?? "");
   await removeCategoryObject(categoryObjectId, actor);
   revalidatePath(`/admin/periode/${periodId}/kategori/${categoryId}`);
+}
+
+/**
+ * Menyimpan ambang predikat. Formulirnya mengirim pasangan label/batas sebagai dua daftar sejajar
+ * (`bandLabel` dan `bandMin`); baris yang namanya kosong diabaikan supaya baris yang baru
+ * ditambahkan lalu dibatalkan tidak menggagalkan penyimpanan.
+ */
+export async function updateGradeBandsAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const actor = await requireAdminActor();
+  const categoryId = String(formData.get("categoryId") ?? "");
+  const periodId = String(formData.get("periodId") ?? "");
+  const aktif = formData.get("pakai") === "on";
+
+  let bands: AmbangPredikat[] | null = null;
+  if (aktif) {
+    const labels = formData.getAll("bandLabel").map(String);
+    const mins = formData.getAll("bandMin").map(String);
+    bands = labels
+      .map((label, i) => ({ label: label.trim(), min: Number(mins[i]) }))
+      .filter((b) => b.label !== "");
+  }
+
+  try {
+    await updateGradeBands(categoryId, bands, actor);
+  } catch (e) {
+    if (e instanceof ServiceError) return { error: e.message };
+    throw e;
+  }
+  revalidatePath(`/admin/periode/${periodId}/kategori/${categoryId}`);
+  revalidatePath(`/hasil/${categoryId}`);
+  return {};
 }

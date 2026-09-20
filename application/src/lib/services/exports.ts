@@ -69,6 +69,9 @@ export async function buildResultsExport(categoryId: string, scopedEntries: {
       { header: "Minimum", key: "minimum", width: 10 },
       { header: "Nilai", key: "score", width: 12 },
       { header: "Status", key: "status", width: 22 },
+      // Predikat ikut agar file ini dapat dibaca tanpa membuka aplikasi; kolomnya tetap ada
+      // meski kategori tidak memakai predikat, supaya susunan kolom sama di semua ekspor.
+      { header: "Predikat", key: "predikat", width: 16 },
       { header: "Seri", key: "seri", width: 8 },
     ];
     sheet.getRow(1).font = { bold: true };
@@ -81,6 +84,7 @@ export async function buildResultsExport(categoryId: string, scopedEntries: {
         minimum,
         score: e.score, // tetap numerik (bukan string) sesuai Bab 15.2
         status: eligibilityLabel[e.eligibility],
+        predikat: e.band ? safeCell(e.band.label) : "",
         seri: e.tied ? "Ya" : "",
       });
     }

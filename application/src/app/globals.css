@@ -3674,3 +3674,24 @@ input[type="range"]:disabled::-moz-range-thumb {
 }
 .kelompok-anggota li:last-child {border-bottom:0}
 .kelompok-anggota__unit {color:var(--color-text);font-size:.6rem}
+
+/* Predikat nilai di bawah angkanya pada papan peringkat. Hanya teks berwarna — lencana berlatar
+   sudah dipakai kolom Status di sebelahnya, dan dua lencana berdampingan membuat baris terbaca
+   sebagai dua status yang bersaing. Warnanya diturunkan dari palet yang sama seperti penanda
+   "terkirim": dicampur hitam supaya cukup gelap dibaca sebagai teks kecil di atas putih. */
+.leaderboard-predikat {
+  display:block;margin-top:.1rem;
+  font-size:.56rem;font-weight:600;letter-spacing:.04em;line-height:1.3;
+}
+.leaderboard-predikat--0 {color:color-mix(in srgb, var(--color-brand-4) 60%, var(--color-black))}
+.leaderboard-predikat--1 {color:color-mix(in srgb, var(--color-brand-5) 65%, var(--color-black))}
+.leaderboard-predikat--2 {color:color-mix(in srgb, var(--color-brand-6) 70%, var(--color-black))}
+.leaderboard-predikat--3 {color:var(--color-brand-1)}
+
+/* Baris ambang predikat pada formulir admin: nama tingkat lebar, batas bawahnya sempit, dan
+   tombol hapus sebesar ikonnya saja supaya barisnya tidak setinggi dua isian. */
+.predikat-baris {display:grid;grid-template-columns:1fr 6.5rem auto;gap:.5rem;align-items:end}
+.predikat-baris + .predikat-baris {margin-top:.5rem}
+.predikat-contoh {
+  margin:.6rem 0 0;color:var(--color-text);font-size:.6rem;line-height:1.5;
+}

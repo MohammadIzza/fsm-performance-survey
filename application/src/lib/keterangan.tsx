@@ -45,6 +45,13 @@ export const KET: Record<string, ReactNode> = {
       objek tertinggi mendapat 100, yang lain sebanding.
     </>
   ),
+  predikat: (
+    <>
+      Label baca untuk nilai akhir, mis. &ldquo;Sangat baik&rdquo;. Batasnya ditulis dalam persen
+      dari nilai tertinggi yang mungkin di kategori ini, jadi susunan yang sama berlaku pada skala
+      mana pun. Predikat tidak mengubah nilai, peringkat, maupun kelayakan — hanya mendampinginya.
+    </>
+  ),
   salinKategori: (
     <>
       Menyalin pertanyaan beserta bobot dan skalanya, aturan kelompok (agregasi, target, minimum,
