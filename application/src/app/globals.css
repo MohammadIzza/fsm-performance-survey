@@ -2671,6 +2671,12 @@ input[type="range"]:disabled::-moz-range-thumb {
    oleh .btn-plain yang memang ditulis untuk <button>. */
 .survey-login a.btn-plain {text-decoration:none}
 
+/* Kartu masuk disusun sebagai kolom flex, bukan kotak berisi baris teks. Tombolnya inline-block,
+   jadi di dalam baris teks ia berdiri di garis alas huruf dan menyisakan ruang turunan di
+   bawahnya: jarak dalam kartu terukur 42px di atas tombol tetapi 56px di bawahnya, meski
+   paddingnya ditulis sama — dan kartunya jadi 139px untuk isi setinggi 41px. */
+.survey-login-panel {display:flex;flex-direction:column}
+
 
 /* Pembatas "atau" antara tombol SSO dan formulir ID demo. */
 .survey-login-divider {display:flex;align-items:center;gap:.8rem;margin:1.4rem 0;color:var(--color-text-muted,var(--color-text));font-size:.75rem;letter-spacing:.04em;text-transform:uppercase}
@@ -2734,7 +2740,7 @@ input[type="range"]:disabled::-moz-range-thumb {
      menyisakan satu tombol yang mengambang tanpa tempat — jadi tindakan masuk diberi kartu putih,
      susunan yang sama yang sudah dipakai panel ini di ponsel. */
   .survey-login-panel {
-    padding:1.75rem 1.75rem 1.9rem;background:var(--color-white);border-radius:1.4rem;
+    padding:1.75rem;background:var(--color-white);border-radius:1.4rem;
   }
   /* Pita bukit dipendekkan dari 17rem ke 13rem. Dengan halaman yang kini hanya setinggi satu
      layar, pita setinggi 17rem naik sampai ke tengah kolom kanan dan daftar akun demo jatuh di
