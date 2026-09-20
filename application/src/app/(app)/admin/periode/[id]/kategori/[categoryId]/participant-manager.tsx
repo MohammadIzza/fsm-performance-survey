@@ -39,6 +39,7 @@ export function ParticipantManager({
   participants,
   candidateObjects,
   units,
+  objectGroups,
   objectTypeName,
   editable,
   bisaTambah,
@@ -49,6 +50,8 @@ export function ParticipantManager({
   participants: Participant[];
   candidateObjects: CandidateObject[];
   units: Unit[];
+  /** Kelompok objek yang punya anggota berjenis sama dengan kategori ini. */
+  objectGroups: { id: string; name: string; objectIds: string[] }[];
   objectTypeName: string;
   /** Boleh mengeluarkan objek (hanya saat Draf). */
   editable: boolean;
@@ -66,6 +69,12 @@ export function ParticipantManager({
     .map((u) => ({ value: u.id, label: `${u.name} (${perUnit.get(u.id)!.length})` }));
   // Objek yang sudah jadi peserta hilang dari daftar calon setelah ditambahkan; pilihan lama ikut dibuang.
   const idCalon = new Set(candidateObjects.map((o) => o.id));
+  // Kelompok yang masih menyisakan objek untuk ditambahkan; yang seluruh anggotanya sudah jadi
+  // peserta tidak ditampilkan supaya daftarnya tidak memberi pilihan yang tidak mengubah apa pun.
+  const opsiKelompok = objectGroups
+    .map((g) => ({ ...g, tersedia: g.objectIds.filter((id) => idCalon.has(id)) }))
+    .filter((g) => g.tersedia.length > 0)
+    .map((g) => ({ value: g.id, label: `${g.name} (${g.tersedia.length})`, ids: g.tersedia }));
   const pilihan = terpilih.filter((id) => idCalon.has(id));
   const tambahkan = (ids: string[]) => setTerpilih([...pilihan, ...ids.filter((id) => !pilihan.includes(id))]);
   const semuaTerpilih = pilihan.length === candidateObjects.length;
@@ -139,6 +148,20 @@ export function ParticipantManager({
                 >
                   Semua {objectTypeName.toLowerCase()} ({candidateObjects.length})
                 </button>
+                {opsiKelompok.length > 0 && (
+                  <span className="participant-add__unit">
+                    <PilihanCari
+                      aria-label="Tambahkan objek dari kelompok"
+                      value=""
+                      onChange={(groupId) => {
+                        const k = opsiKelompok.find((x) => x.value === groupId);
+                        if (k) tambahkan(k.ids);
+                      }}
+                      kosong={{ label: "Dari kelompok objek…", bisaDipilih: false }}
+                      options={opsiKelompok.map(({ value, label }) => ({ value, label }))}
+                    />
+                  </span>
+                )}
                 {opsiUnit.length > 1 && (
                   <span className="participant-add__unit">
                     <PilihanCari

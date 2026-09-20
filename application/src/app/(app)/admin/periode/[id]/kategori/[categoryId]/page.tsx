@@ -45,7 +45,7 @@ async function CategoryDetailPage({
     ? instrument.parameters.reduce((s, p) => s + p.weight, 0)
     : 0;
 
-  const [candidateObjects, userTypes, assignments, activeUsers, sourceCandidates, units] =
+  const [candidateObjects, userTypes, assignments, activeUsers, sourceCandidates, units, objectGroups] =
     await Promise.all([
       prisma.assessmentObject.findMany({
         where: {
@@ -76,6 +76,12 @@ async function CategoryDetailPage({
         orderBy: [{ period: { createdAt: "desc" } }, { name: "asc" }],
       }),
       prisma.unit.findMany({ select: { id: true, name: true, parentId: true }, orderBy: { name: "asc" } }),
+      // Kelompok objek dipakai sebagai pilih cepat saat menyusun peserta; anggotanya disaring ke
+      // jenis objek kategori ini supaya tidak menawarkan objek yang pasti ditolak.
+      prisma.objectGroup.findMany({
+        include: { members: { include: { object: { select: { id: true, typeId: true, active: true } } } } },
+        orderBy: { name: "asc" },
+      }),
     ]);
 
   // Hanya kategori yang instrumennya sudah punya parameter yang layak jadi sumber salinan.
@@ -291,6 +297,15 @@ async function CategoryDetailPage({
                   participants={category.categoryObjects}
                   candidateObjects={candidateObjects}
                   units={units}
+                  objectGroups={objectGroups
+                    .map((g) => ({
+                      id: g.id,
+                      name: g.name,
+                      objectIds: g.members
+                        .filter((m) => m.object.typeId === category.objectTypeId && m.object.active)
+                        .map((m) => m.object.id),
+                    }))
+                    .filter((g) => g.objectIds.length > 0)}
                   objectTypeName={category.objectType.name}
                   editable={category.period.status === "DRAF"}
                   bisaTambah={bisaTambah}

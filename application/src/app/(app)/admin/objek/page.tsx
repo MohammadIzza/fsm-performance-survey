@@ -3,10 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { listObjects } from "@/lib/services/objects";
 import { listObjectTypes } from "@/lib/services/objectTypes";
 import { ObjectManager } from "./object-manager";
+import { ObjectGroupManager } from "./object-group-manager";
+import { listObjectGroups } from "@/lib/services/objectGroups";
 import { PageIntro, SummaryCard } from "@/components/theme/summary";
 
 async function ObjekPage() {
-  const [objects, objectTypes, units, users, pemakaianJenis] = await Promise.all([
+  const [objects, objectTypes, units, users, pemakaianJenis, objectGroups] = await Promise.all([
     listObjects(),
     listObjectTypes(),
     prisma.unit.findMany({ where: { active: true }, orderBy: { code: "asc" } }),
@@ -16,6 +18,7 @@ async function ObjekPage() {
       orderBy: { name: "asc" },
     }),
     prisma.objectType.findMany({ select: { id: true, _count: { select: { objects: true, categories: true } } } }),
+    listObjectGroups(),
   ]);
   const daftarJenis = objectTypes.map((t) => {
     const c = pemakaianJenis.find((p) => p.id === t.id)?._count ?? { objects: 0, categories: 0 };
@@ -50,6 +53,17 @@ async function ObjekPage() {
       </PageIntro>
 
       <ObjectManager objects={objects} objectTypes={objectTypes} units={units} users={users} daftarJenis={daftarJenis} />
+
+      <ObjectGroupManager
+        groups={objectGroups}
+        objects={objects.map((o) => ({
+          id: o.id,
+          name: o.name,
+          typeName: o.type.name,
+          unitName: o.ownerUnit.name,
+          active: o.active,
+        }))}
+      />
     </div>
   );
 }
