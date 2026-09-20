@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdminActor } from "@/lib/authz";
 import {
   createCategory,
+  createCategoryFrom,
   updateCategory,
   setCategoryActive,
   addCategoryObjects,
@@ -32,8 +33,25 @@ export async function createCategoryAction(
 ): Promise<FormState> {
   const actor = await requireAdminActor();
   const periodId = String(formData.get("periodId") ?? "");
+  const sourceCategoryId = String(formData.get("sourceCategoryId") ?? "");
   try {
-    await createCategory(periodId, readCategoryInput(formData), actor);
+    if (sourceCategoryId) {
+      // Menyalin kategori lain: jenis objek, pertanyaan, dan aturannya ikut dari sumber, jadi
+      // formulirnya hanya perlu nama (dan pilihan apakah objek pesertanya ikut disalin).
+      await createCategoryFrom(
+        periodId,
+        sourceCategoryId,
+        {
+          code: String(formData.get("code") ?? ""),
+          name: String(formData.get("name") ?? ""),
+          description: (formData.get("description") as string) || null,
+          includeObjects: formData.get("includeObjects") === "on",
+        },
+        actor
+      );
+    } else {
+      await createCategory(periodId, readCategoryInput(formData), actor);
+    }
   } catch (e) {
     if (e instanceof ServiceError) return { error: e.message };
     throw e;

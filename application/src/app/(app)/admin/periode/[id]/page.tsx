@@ -25,6 +25,7 @@ import { GroupRuleForm } from "./kategori/[categoryId]/group-rule-form";
 import { AssignmentRuleForm } from "./kategori/[categoryId]/assignment-rule-form";
 import { AssignmentPlanner } from "./kategori/[categoryId]/assignment-planner";
 import { listObjectTypes } from "@/lib/services/objectTypes";
+import { listCategorySources } from "@/lib/services/categories";
 
 // Nada lencana status mengikuti daftar periode, supaya satu status berwarna sama di mana pun.
 const statusTone = {
@@ -51,11 +52,12 @@ async function PeriodDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [period, objectTypes, userTypes, ctx] = await Promise.all([
+  const [period, objectTypes, userTypes, ctx, categorySources] = await Promise.all([
     getPeriodDetail(id),
     listObjectTypes({ active: true }),
     prisma.userType.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     getCurrentAuthContext(),
+    listCategorySources(),
   ]);
   if (!period) notFound();
 
@@ -71,6 +73,15 @@ async function PeriodDetailPage({
   const activeCategories = period.categories.filter((category) => category.active);
   const categoryCount = activeCategories.length;
   type ActiveCategory = (typeof activeCategories)[number];
+  // Kelompok objek dipakai sebagai pilih cepat saat menyusun peserta kategori.
+  const objectGroups =
+    categoryCount > 0
+      ? await prisma.objectGroup.findMany({
+          include: { members: { include: { object: { select: { id: true, typeId: true, active: true } } } } },
+          orderBy: { name: "asc" },
+        })
+      : [];
+
   const candidateObjects =
     categoryCount > 0
       ? await prisma.assessmentObject.findMany({
@@ -230,7 +241,15 @@ async function PeriodDetailPage({
       note: categoryCount > 0 ? `${categoryCount} kategori aktif` : "Belum ada kategori",
       href: "#tambah-kategori",
       state: stepState(1),
-      content: <CategoryCreateForm periodId={period.id} objectTypes={objectTypes} />,
+      content: (
+        <CategoryCreateForm
+          periodId={period.id}
+          objectTypes={objectTypes}
+          // Kategori sumber dari periode mana pun, kecuali kategori periode ini sendiri —
+          // menyalin dari dirinya sendiri hanya menggandakan isi yang sedang disusun.
+          sources={categorySources.filter((c) => !period.categories.some((k) => k.id === c.id))}
+        />
+      ),
     },
     {
       title: "Susun pertanyaan dan bobot",
@@ -288,6 +307,15 @@ async function PeriodDetailPage({
                 (item) => item.typeId === category.objectTypeId && !selectedIds.has(item.id)
               )}
               units={units}
+              objectGroups={objectGroups
+                .map((g) => ({
+                  id: g.id,
+                  name: g.name,
+                  objectIds: g.members
+                    .filter((m) => m.object.typeId === category.objectTypeId && m.object.active && !selectedIds.has(m.object.id))
+                    .map((m) => m.object.id),
+                }))
+                .filter((g) => g.objectIds.length > 0)}
               objectTypeName={category.objectType.name}
               editable={period.status === "DRAF"}
               bisaTambah={bisaTambah}

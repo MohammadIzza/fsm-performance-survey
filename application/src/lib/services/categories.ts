@@ -271,3 +271,159 @@ export async function addCategoryObjects(...args: Parameters<typeof addCategoryO
 export async function removeCategoryObject(...args: Parameters<typeof removeCategoryObjectImpl>): Promise<Awaited<ReturnType<typeof removeCategoryObjectImpl>>> {
   return atomic(() => removeCategoryObjectImpl(...args));
 }
+
+/**
+ * Membuat kategori baru dengan menyalin kategori yang sudah ada — dari periode mana pun.
+ *
+ * Menyiapkan kategori yang serupa (Dies tahun berikutnya, kategori sejenis antar-prodi) sebelumnya
+ * berarti mengetik ulang pertanyaan, bobot, aturan kelompok, dan syarat calon satu per satu.
+ * Yang ikut tersalin: instrumen (skala, panduan, seluruh parameter beserta bobot, urutan, dan
+ * penanda nilai mentah), aturan kelompok (agregasi, target, minimum, parameter pembeda),
+ * bobot nilai gabungan, syarat calon penilai, dan — bila diminta — daftar objek pesertanya.
+ *
+ * Yang SENGAJA tidak ikut: jawaban, penugasan, dan hasil perhitungan. Kategori baru selalu mulai
+ * kosong, jenis objeknya mengikuti sumbernya (instrumen dan objek tidak masuk akal berpindah jenis).
+ */
+async function createCategoryFromImpl(
+  periodId: string,
+  sourceCategoryId: string,
+  input: { name: string; code: string; description: string | null; includeObjects: boolean },
+  actor: AuthContext
+) {
+  const source = await prisma.category.findUnique({
+    where: { id: sourceCategoryId },
+    include: {
+      instrumentVersions: { orderBy: { revision: "desc" }, take: 1, include: { parameters: { orderBy: { order: "asc" } } } },
+      groupRules: true,
+      assignmentRules: true,
+      categoryObjects: { include: { object: true } },
+    },
+  });
+  if (!source) throw new ServiceError("Kategori sumber tidak ditemukan.");
+  const sumberInstrumen = source.instrumentVersions[0];
+  if (!sumberInstrumen || sumberInstrumen.parameters.length === 0) {
+    throw new ServiceError("Kategori sumber belum memiliki parameter untuk disalin.");
+  }
+
+  const category = await createCategory(
+    periodId,
+    {
+      code: input.code,
+      name: input.name,
+      description: input.description,
+      objectTypeId: source.objectTypeId,
+      excludeContributors: source.excludeContributors,
+    },
+    actor
+  );
+
+  const parameterIdMap = new Map<string, string>();
+  await prisma.$transaction(async (tx) => {
+    const instrumen = await tx.instrumentVersion.findFirstOrThrow({ where: { categoryId: category.id } });
+    await tx.instrumentVersion.update({
+      where: { id: instrumen.id },
+      data: {
+        scaleMin: sumberInstrumen.scaleMin,
+        scaleMax: sumberInstrumen.scaleMax,
+        scaleStep: sumberInstrumen.scaleStep,
+        guide: sumberInstrumen.guide,
+      },
+    });
+    for (const p of sumberInstrumen.parameters) {
+      const baru = await tx.parameter.create({
+        data: {
+          instrumentVersionId: instrumen.id,
+          name: p.name,
+          indicator: p.indicator,
+          weight: p.weight,
+          order: p.order,
+          normalized: p.normalized,
+        },
+      });
+      parameterIdMap.set(p.id, baru.id);
+    }
+
+    for (const rule of source.groupRules) {
+      // Parameter pembeda menunjuk parameter sumber; id-nya dipetakan ke parameter salinan.
+      const pembeda = ((rule.tieBreakParameterIds as string[] | null) ?? [])
+        .map((id) => parameterIdMap.get(id))
+        .filter((id): id is string => !!id);
+      await tx.groupRule.updateMany({
+        where: { categoryId: category.id, group: rule.group },
+        data: {
+          aggregation: rule.aggregation,
+          target: rule.target,
+          minimum: rule.minimum,
+          tieBreakParameterIds: pembeda,
+        },
+      });
+    }
+
+    for (const rule of source.assignmentRules) {
+      const tujuan = await tx.assignmentRule.findFirstOrThrow({ where: { categoryId: category.id, group: rule.group } });
+      await tx.assignmentRule.update({
+        where: { id: tujuan.id },
+        data: {
+          scope: rule.scope,
+          userTypeIds: rule.userTypeIds ?? [],
+          revision: { increment: 1 },
+        },
+      });
+    }
+
+    await tx.category.update({ where: { id: category.id }, data: { pimpinanWeight: source.pimpinanWeight } });
+  });
+
+  let objekDisalin = 0;
+  if (input.includeObjects) {
+    // Objek yang sudah dinonaktifkan tidak ikut: ia tidak boleh dinilai lagi.
+    const objectIds = source.categoryObjects.filter((co) => co.object.active).map((co) => co.objectId);
+    if (objectIds.length > 0) {
+      await addCategoryObjects(category.id, objectIds, actor);
+      objekDisalin = objectIds.length;
+    }
+  }
+
+  await writeAudit({
+    actorId: actor.userId,
+    actorRole: "ADMIN",
+    action: "CATEGORY_CREATE_FROM",
+    entity: "Category",
+    entityId: category.id,
+    after: {
+      sourceCategoryId,
+      sourceName: source.name,
+      parameters: sumberInstrumen.parameters.length,
+      objects: objekDisalin,
+    },
+  });
+
+  return { category, parameters: sumberInstrumen.parameters.length, objects: objekDisalin };
+}
+
+export async function createCategoryFrom(...args: Parameters<typeof createCategoryFromImpl>): Promise<Awaited<ReturnType<typeof createCategoryFromImpl>>> {
+  return atomic(() => createCategoryFromImpl(...args));
+}
+
+/** Kategori yang layak dijadikan sumber salinan: instrumennya sudah berisi parameter. */
+export async function listCategorySources() {
+  const categories = await prisma.category.findMany({
+    where: { active: true },
+    include: {
+      period: { select: { name: true } },
+      objectType: { select: { name: true } },
+      instrumentVersions: { orderBy: { revision: "desc" }, take: 1, include: { _count: { select: { parameters: true } } } },
+      _count: { select: { categoryObjects: true } },
+    },
+    orderBy: [{ period: { startsAt: "desc" } }, { name: "asc" }],
+  });
+  return categories
+    .filter((c) => (c.instrumentVersions[0]?._count.parameters ?? 0) > 0)
+    .map((c) => ({
+      id: c.id,
+      label: `${c.period.name} · ${c.name}`,
+      objectTypeName: c.objectType.name,
+      parameterCount: c.instrumentVersions[0]._count.parameters,
+      objectCount: c._count.categoryObjects,
+    }));
+}
