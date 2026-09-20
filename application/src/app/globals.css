@@ -2749,7 +2749,12 @@ input[type="range"]:disabled::-moz-range-thumb {
      layar, pita setinggi 17rem naik sampai ke tengah kolom kanan dan daftar akun demo jatuh di
      atas bukit biru — terbaca hitam di atas biru tua. Yang dipendekkan pitanya, bukan jarak
      tangkai ke bukit: jarak itu dijaga lewat padding di bawah. */
-  .survey-login-hills {height:13rem}
+  /* Pita bukit hidup di dalam kolom huruf saja, selebar 1,12fr dari 2,12fr — berhenti persis di
+     tepi bidang kuning, jadi sambungannya satu garis lurus.
+     Dibiarkan selebar halaman, tiga dari lima bukitnya terpotong saat sedang menanjak dan yang
+     biru (mulai 48%, sedangkan panel mulai 52,8%) hanya kebagian ujung kiri — terbaca sebagai
+     serpihan biru yang terjepit di sambungan, bukan sebagai bukit. */
+  .survey-login-hills {height:6rem;right:auto;width:calc(100% * 1.12 / 2.12)}
   /* Empat akun demo dirapatkan jadi dua baris berpasangan. Dengan halaman setinggi satu layar,
      daftar setinggi empat baris menjulur sampai ke bukit biru dan dua baris terakhirnya terbaca
      samar di atasnya. */
