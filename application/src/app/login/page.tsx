@@ -65,7 +65,10 @@ export default async function LoginPage() {
               : 'Masuk dengan akun UNDIP Anda untuk membuka ruang penilaian.'}
           </p>
         </div>
-        <div className="survey-login-panel">
+        {/* Kartu putihnya hanya dipasang bila ada formulir yang perlu diwadahi. Dengan satu tombol
+            SSO saja, kartu itu tinggal bingkai kosong — dan tombol birunya justru lebih menonjol
+            di atas kuning daripada di atas putih. */}
+        <div className={`survey-login-panel${LOGIN_ID_AKTIF ? ' survey-login-panel--kartu' : ''}`}>
           <SsoLoginButton />
           {/* Masuk dengan ID tanpa kata sandi hanya ada bila saklarnya dinyalakan (lib/login-id.ts).
               Penolakan sesungguhnya ada di loginAction; bagian ini sekadar tidak menawarkannya. */}

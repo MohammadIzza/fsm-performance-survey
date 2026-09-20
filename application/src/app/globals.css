@@ -2739,7 +2739,7 @@ input[type="range"]:disabled::-moz-range-thumb {
      sudah punya bobot sendiri di kolom kanan. Sejak masuk hanya lewat satu tombol SSO, kolom itu
      menyisakan satu tombol yang mengambang tanpa tempat — jadi tindakan masuk diberi kartu putih,
      susunan yang sama yang sudah dipakai panel ini di ponsel. */
-  .survey-login-panel {
+  .survey-login-panel--kartu {
     padding:1.75rem;background:var(--color-white);border-radius:1.4rem;
   }
   /* Pita bukit dipendekkan dari 17rem ke 13rem. Dengan halaman yang kini hanya setinggi satu
@@ -2825,8 +2825,8 @@ input[type="range"]:disabled::-moz-range-thumb {
     dikerjakan, dan bidang kuningnya tidak lagi berisi campuran judul, isian, dan catatan.
     Kartu putih di atas bidang warna adalah susunan yang sama dipakai beranda — kartu merah muda
     yang menumpang di atas lengkung biru. */
- .survey-login-panel {
-   padding:1.15rem 1rem 1.25rem;background:var(--color-white);border-radius:1.4rem;
+ .survey-login-panel--kartu {
+   padding:1.15rem 1rem;background:var(--color-white);border-radius:1.4rem;
  }
  /* Bintang tema menandai pertemuan bidang kuning dengan kertas krem, sama seperti bintang yang
     menempel di pojok panel video beranda. */
