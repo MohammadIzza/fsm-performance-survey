@@ -2667,6 +2667,16 @@ input[type="range"]:disabled::-moz-range-thumb {
 /* Tombol tema apa adanya juga — ukuran bawaannya memang ukuran tombol di situs publik. */
 .survey-login .btn-plain.survey-login-submit {width:100%}
 .survey-login .btn-plain.survey-login-submit .btn-plain__inner {text-align:center}
+/* Tombol SSO berupa tautan, bukan tombol formulir: garis bawah bawaan <a> tidak ikut terhapus
+   oleh .btn-plain yang memang ditulis untuk <button>. */
+.survey-login a.btn-plain {text-decoration:none}
+
+/* Keterangan alamat email di bawah tombol masuk. */
+.survey-login-hint {
+  margin:.85rem 0 0;font-size:.78rem;line-height:1.5;text-align:center;
+  color:var(--color-text);
+}
+.survey-login-hint span {color:var(--color-black);font-weight:600;white-space:nowrap}
 
 /* Pembatas "atau" antara tombol SSO dan formulir ID demo. */
 .survey-login-divider {display:flex;align-items:center;gap:.8rem;margin:1.4rem 0;color:var(--color-text-muted,var(--color-text));font-size:.75rem;letter-spacing:.04em;text-transform:uppercase}
@@ -2702,13 +2712,22 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-login-art {justify-content:flex-end;padding-bottom:7.15rem}
   /* Tinggi kolom kanan yang menentukan tinggi halaman begitu isinya melebihi min-height; jarak
      atas-bawahnya dirapatkan supaya halaman benar-benar berhenti di tepi layar.
-     Isinya juga dinaikkan ke atas: begitu bukit naik menemui tangkai huruf, daftar akun demo yang
-     tadinya di tengah kolom jatuh persis di atas bukit biru dan hampir tak terbaca. */
-  .survey-login-form {justify-content:flex-start;padding-block:2.4rem}
-  /* Pembungkus judul dan panel hanya alat susun untuk ponsel; di sini keduanya dihapus dari tata
-     letak supaya kolom kanan tetap satu aliran seperti sebelum keduanya ada. */
-  .survey-login-intro,
-  .survey-login-panel {display:contents}
+     Isinya ditengahkan tegak, tetapi ditengahkan terhadap bidang di ATAS bukit, bukan terhadap
+     seluruh kolom: jarak bawah kira-kira setinggi pita bukit, sehingga titik tengahnya naik dan
+     kartu tidak jatuh di atas bidang biru. Dulu isinya dipatok ke atas (flex-start) karena kolom
+     ini memuat formulir beserta daftar akun demo; dengan hanya satu kartu masuk, patokan itu
+     menyisakan ruang kosong sepertiga layar di bawahnya. */
+  .survey-login-form {justify-content:center;padding-block:2.4rem 11rem}
+  /* Pembungkus judul hanya alat susun untuk ponsel; di sini ia dihapus dari tata letak supaya
+     judul tetap satu aliran dengan kolom kanan seperti sebelum pembungkusnya ada. */
+  .survey-login-intro {display:contents}
+  /* Panelnya tidak ikut dilarutkan lagi. Dulu isinya formulir ID beserta daftar akun demo, yang
+     sudah punya bobot sendiri di kolom kanan. Sejak masuk hanya lewat satu tombol SSO, kolom itu
+     menyisakan satu tombol yang mengambang tanpa tempat — jadi tindakan masuk diberi kartu putih,
+     susunan yang sama yang sudah dipakai panel ini di ponsel. */
+  .survey-login-panel {
+    padding:1.75rem 1.75rem 1.9rem;background:var(--color-white);border-radius:1.4rem;
+  }
   /* Pita bukit dipendekkan dari 17rem ke 13rem. Dengan halaman yang kini hanya setinggi satu
      layar, pita setinggi 17rem naik sampai ke tengah kolom kanan dan daftar akun demo jatuh di
      atas bukit biru — terbaca hitam di atas biru tua. Yang dipendekkan pitanya, bukan jarak

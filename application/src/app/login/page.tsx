@@ -67,6 +67,12 @@ export default async function LoginPage() {
         </div>
         <div className="survey-login-panel">
           <SsoLoginButton />
+          {/* Alamat mana yang dipakai bukan hal yang bisa ditebak sendiri: satu orang bisa punya
+              email pribadi dan email UNDIP, dan hanya yang UNDIP yang dikenali SSO. */}
+          <p className="survey-login-hint">
+            Gunakan email UNDIP Anda — <span>@students</span>, <span>@lecturer</span>, atau{' '}
+            <span>@staff</span>.undip.ac.id
+          </p>
           {/* Masuk dengan ID tanpa kata sandi hanya ada bila saklarnya dinyalakan (lib/login-id.ts).
               Penolakan sesungguhnya ada di loginAction; bagian ini sekadar tidak menawarkannya. */}
           {LOGIN_ID_AKTIF && (
