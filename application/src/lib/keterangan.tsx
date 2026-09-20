@@ -105,6 +105,7 @@ export const KET: Record<string, ReactNode> = {
   ),
   // Pengguna & organisasi
   idMasuk: <>ID yang diketik saat masuk: NIP, NIM, atau NIK. Tidak boleh sama dengan pengguna lain.</>,
+  email: <>Alamat email UNDIP orang ini. Dipakai mencocokkan akunnya saat masuk lewat SSO — tanpa email, dosen dan tenaga kependidikan tidak dapat dikenali otomatis karena SSO tidak menyediakan NIP. Terisi sendiri setelah yang bersangkutan berhasil masuk lewat SSO.</>,
   jenisPengguna: <>Golongan pengguna (Dosen, Mahasiswa, Tenaga Kependidikan). Dipakai untuk membatasi siapa yang boleh menilai kategori tertentu.</>,
   unitUtama: <>Unit tempat orang ini bernaung. Menentukan objek mana yang bisa ia nilai sebagai anggota unit.</>,
   peran: (

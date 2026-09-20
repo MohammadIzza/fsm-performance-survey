@@ -8,6 +8,8 @@ import { kodeUnikDariNama, samakanNama } from "@/lib/kode-otomatis";
 export interface UserInput {
   loginIdentifier: string;
   name: string;
+  /** Opsional: kosong untuk akun yang belum pernah masuk lewat SSO. */
+  email?: string | null;
   userTypeId: string;
   primaryUnitId: string | null;
 }
@@ -16,6 +18,20 @@ export interface UserInput {
 // agar nol awal dan format non-numerik (NIM/NIK/NIP) tidak berubah.
 function normalizeIdentifier(id: string): string {
   return id.trim();
+}
+
+// Email dicocokkan dengan alamat dari SSO, yang selalu huruf kecil.
+function normalizeEmail(email: string | null | undefined): string | null {
+  const bersih = (email ?? "").trim().toLowerCase();
+  return bersih === "" ? null : bersih;
+}
+
+async function pastikanEmailBelumDipakai(email: string | null, kecualiUserId?: string) {
+  if (!email) return;
+  const pemilik = await prisma.user.findUnique({ where: { email } });
+  if (pemilik && pemilik.id !== kecualiUserId) {
+    throw new ServiceError(`Email "${email}" sudah dipakai pengguna lain.`);
+  }
 }
 
 async function createUserTypeImpl(input: { code: string; name: string }, actor: AuthContext) {
@@ -76,10 +92,14 @@ async function createUserImpl(input: UserInput, actor: AuthContext) {
   const existing = await prisma.user.findUnique({ where: { loginIdentifier } });
   if (existing) throw new ServiceError("ID pengguna sudah terdaftar.");
 
+  const email = normalizeEmail(input.email);
+  await pastikanEmailBelumDipakai(email);
+
   const user = await prisma.user.create({
     data: {
       loginIdentifier,
       name,
+      email,
       userTypeId: input.userTypeId,
       primaryUnitId: input.primaryUnitId,
     },
@@ -119,11 +139,15 @@ async function updateUserImpl(userId: string, input: UserInput, actor: AuthConte
     if (existing) throw new ServiceError("ID pengguna sudah terdaftar.");
   }
 
+  const email = normalizeEmail(input.email);
+  await pastikanEmailBelumDipakai(email, userId);
+
   const user = await prisma.user.update({
     where: { id: userId },
     data: {
       loginIdentifier,
       name,
+      email,
       userTypeId: input.userTypeId,
       primaryUnitId: input.primaryUnitId,
     },

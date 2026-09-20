@@ -16,9 +16,11 @@ export interface FormState {
 
 function readUserInput(formData: FormData) {
   const primaryUnitIdRaw = String(formData.get("primaryUnitId") ?? "");
+  const emailRaw = String(formData.get("email") ?? "").trim();
   return {
     loginIdentifier: String(formData.get("loginIdentifier") ?? ""),
     name: String(formData.get("name") ?? ""),
+    email: emailRaw === "" ? null : emailRaw,
     userTypeId: String(formData.get("userTypeId") ?? ""),
     primaryUnitId: primaryUnitIdRaw === "" ? null : primaryUnitIdRaw,
   };

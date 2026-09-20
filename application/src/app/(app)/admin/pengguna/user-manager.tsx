@@ -58,6 +58,7 @@ export function UserManager({
         (u) =>
           u.name.toLowerCase().includes(term) ||
           u.loginIdentifier.toLowerCase().includes(term) ||
+          u.email?.toLowerCase().includes(term) ||
           u.primaryUnit?.name.toLowerCase().includes(term) ||
           u.userType.name.toLowerCase().includes(term)
       )
@@ -83,6 +84,15 @@ export function UserManager({
           <label className="admin-tools__field">
             <span>Nama lengkap</span>
             <input name="name" placeholder="Nama lengkap" required className="form__control" />
+          </label>
+          <label className="admin-tools__field">
+            <span>Email UNDIP (opsional)<Info>{KET.email}</Info></span>
+            <input
+              name="email"
+              type="email"
+              placeholder="nama@lecturer.undip.ac.id"
+              className="form__control"
+            />
           </label>
           <label className="admin-tools__field">
           <span>Jenis pengguna<Info>{KET.jenisPengguna}</Info></span>
@@ -243,6 +253,7 @@ function UserRow({
         <div className="admin-row-panel">
           <RowPanelDetails>
             <RowPanelField label="ID pengguna">{user.loginIdentifier}</RowPanelField>
+            <RowPanelField label="Email UNDIP">{user.email ?? "—"}</RowPanelField>
             <RowPanelField label="Jenis">{user.userType.name}</RowPanelField>
             <RowPanelField label="Unit utama">
               {user.primaryUnit ? user.primaryUnit.name : "—"}
@@ -289,6 +300,16 @@ function UserRow({
             <label className="admin-tools__field">
               <span>Nama lengkap</span>
               <input name="name" defaultValue={user.name} required className="form__control" />
+            </label>
+            <label className="admin-tools__field">
+              <span>Email UNDIP<Info>{KET.email}</Info></span>
+              <input
+                name="email"
+                type="email"
+                defaultValue={user.email ?? ""}
+                placeholder="nama@lecturer.undip.ac.id"
+                className="form__control"
+              />
             </label>
             <label className="admin-tools__field">
               <span>Jenis pengguna<Info>{KET.jenisPengguna}</Info></span>
