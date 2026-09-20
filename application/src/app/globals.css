@@ -2671,15 +2671,6 @@ input[type="range"]:disabled::-moz-range-thumb {
    oleh .btn-plain yang memang ditulis untuk <button>. */
 .survey-login a.btn-plain {text-decoration:none}
 
-/* Keterangan alamat email di bawah tombol masuk. */
-.survey-login-hint {
-  margin:.85rem 0 0;font-size:.78rem;line-height:1.5;text-align:center;
-  color:var(--color-text);
-  /* Dua baris yang panjangnya sepadan, bukan satu baris penuh disusul potongan pendek menggantung
-     — kalimatnya memang berisi beberapa alamat yang tidak boleh terpisah di tengah. */
-  text-wrap:balance;
-}
-.survey-login-hint span {color:var(--color-black);font-weight:600;white-space:nowrap}
 
 /* Pembatas "atau" antara tombol SSO dan formulir ID demo. */
 .survey-login-divider {display:flex;align-items:center;gap:.8rem;margin:1.4rem 0;color:var(--color-text-muted,var(--color-text));font-size:.75rem;letter-spacing:.04em;text-transform:uppercase}
@@ -2749,12 +2740,11 @@ input[type="range"]:disabled::-moz-range-thumb {
      layar, pita setinggi 17rem naik sampai ke tengah kolom kanan dan daftar akun demo jatuh di
      atas bukit biru — terbaca hitam di atas biru tua. Yang dipendekkan pitanya, bukan jarak
      tangkai ke bukit: jarak itu dijaga lewat padding di bawah. */
-  /* Pita bukit hidup di dalam kolom huruf saja, selebar 1,12fr dari 2,12fr — berhenti persis di
-     tepi bidang kuning, jadi sambungannya satu garis lurus.
-     Dibiarkan selebar halaman, tiga dari lima bukitnya terpotong saat sedang menanjak dan yang
-     biru (mulai 48%, sedangkan panel mulai 52,8%) hanya kebagian ujung kiri — terbaca sebagai
-     serpihan biru yang terjepit di sambungan, bukan sebagai bukit. */
-  .survey-login-hills {height:6rem;right:auto;width:calc(100% * 1.12 / 2.12)}
+  /* Pita bukit tidak dipakai di layar lebar. Ia dirancang sebagai komposisi selebar halaman yang
+     garis lengkungnya menyambung ke tangkai huruf; begitu separuh kanannya tertutup bidang kuning,
+     yang tersisa hanya potongan warna dan garis hitam yang berakhir menggantung. Peran hiasnya
+     sudah dipegang bidang kuning itu sendiri. */
+  .survey-login-hills {display:none}
   /* Empat akun demo dirapatkan jadi dua baris berpasangan. Dengan halaman setinggi satu layar,
      daftar setinggi empat baris menjulur sampai ke bukit biru dan dua baris terakhirnya terbaca
      samar di atasnya. */
