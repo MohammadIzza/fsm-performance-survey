@@ -5,6 +5,8 @@ import { LoginForm } from './login-form';
 import { LoginHeroFsm } from './login-hero-fsm';
 import { DaftarAkunDemo } from './daftar-akun';
 import { getDemoAccountDirectory } from '@/lib/services/demoAccounts';
+import { SsoLoginButton } from './sso-login-button';
+import { LOGIN_ID_AKTIF } from '@/lib/login-id';
 
 export default async function LoginPage() {
   if (await getCurrentAuthContext()) redirect('/dashboard');
@@ -12,7 +14,8 @@ export default async function LoginPage() {
   // Direktori lengkap hanya untuk lingkungan uji berdata fiktif (v2/UAT). Tanpa penanda ini
   // halaman kembali ke empat ID contoh, supaya penggabungan ke aplikasi berpengguna sungguhan
   // tidak ikut membeberkan seluruh ID di halaman yang bisa dibuka siapa saja.
-  const direktori = process.env.DAFTAR_AKUN_DEMO === '1' ? await getDemoAccountDirectory() : null;
+  const direktori =
+    LOGIN_ID_AKTIF && process.env.DAFTAR_AKUN_DEMO === '1' ? await getDemoAccountDirectory() : null;
 
   return (
     <main className="survey-login">
@@ -57,42 +60,54 @@ export default async function LoginPage() {
             kembali.
           </h2>
           <p className="survey-login-form__text t-t-md">
-            Masukkan ID terdaftar untuk membuka ruang penilaian Anda.
+            {LOGIN_ID_AKTIF
+              ? 'Masukkan ID terdaftar untuk membuka ruang penilaian Anda.'
+              : 'Masuk dengan akun UNDIP Anda untuk membuka ruang penilaian.'}
           </p>
         </div>
         <div className="survey-login-panel">
-          <LoginForm />
-          <div className={`survey-demo-accounts${direktori ? ' survey-demo-accounts--lengkap' : ''}`}>
-            <strong>Lingkungan demo · data fiktif</strong>
-            <p>
-              Login prototipe tanpa kata sandi.{' '}
-              {direktori
-                ? 'Pilih akun per unit di bawah; menekan ID mengisikannya ke kolom di atas.'
-                : 'Gunakan salah satu ID berikut:'}
-            </p>
-            {direktori ? (
-              <DaftarAkunDemo direktori={direktori} />
-            ) : (
-            <dl>
-              <dt>Admin</dt>
-              <dd>
-                <code>admin01</code>
-              </dd>
-              <dt>Dekan</dt>
-              <dd>
-                <code>dekan01</code>
-              </dd>
-              <dt>Pimpinan</dt>
-              <dd>
-                <code>dosen1001</code>
-              </dd>
-              <dt>Penilai</dt>
-              <dd>
-                <code>dosen1004</code>
-              </dd>
-            </dl>
-            )}
-          </div>
+          <SsoLoginButton />
+          {/* Masuk dengan ID tanpa kata sandi hanya ada bila saklarnya dinyalakan (lib/login-id.ts).
+              Penolakan sesungguhnya ada di loginAction; bagian ini sekadar tidak menawarkannya. */}
+          {LOGIN_ID_AKTIF && (
+            <>
+              <div className="survey-login-divider" role="separator">
+                <span>atau</span>
+              </div>
+              <LoginForm />
+              <div className={`survey-demo-accounts${direktori ? ' survey-demo-accounts--lengkap' : ''}`}>
+                <strong>Lingkungan demo · data fiktif</strong>
+                <p>
+                  Login prototipe tanpa kata sandi.{' '}
+                  {direktori
+                    ? 'Pilih akun per unit di bawah; menekan ID mengisikannya ke kolom di atas.'
+                    : 'Gunakan salah satu ID berikut:'}
+                </p>
+                {direktori ? (
+                  <DaftarAkunDemo direktori={direktori} />
+                ) : (
+                  <dl>
+                    <dt>Admin</dt>
+                    <dd>
+                      <code>admin01</code>
+                    </dd>
+                    <dt>Dekan</dt>
+                    <dd>
+                      <code>dekan01</code>
+                    </dd>
+                    <dt>Pimpinan</dt>
+                    <dd>
+                      <code>dosen1001</code>
+                    </dd>
+                    <dt>Penilai</dt>
+                    <dd>
+                      <code>dosen1004</code>
+                    </dd>
+                  </dl>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </section>
 

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+import { LOGIN_ID_AKTIF } from "@/lib/login-id";
 
 const loginSchema = z.object({
   loginIdentifier: z
@@ -20,6 +21,12 @@ export interface LoginState {
 // AUTH-01/AUTH-02: verifikasi ID terdaftar dan akun aktif; ID diperlakukan sebagai teks
 // (normalisasi hanya memangkas spasi tepi, tidak mengubah nol awal atau kapitalisasi).
 export async function loginAction(_prevState: LoginState, formData: FormData): Promise<LoginState> {
+  // Penjagaan sesungguhnya ada di sini, bukan di halaman: menyembunyikan formulir tidak menutup
+  // Server Action-nya — alamatnya tetap bisa dipanggil langsung tanpa membuka halaman login.
+  if (!LOGIN_ID_AKTIF) {
+    return { error: "Masuk dengan ID sudah ditutup. Gunakan tombol Login dengan SSO FSM." };
+  }
+
   const parsed = loginSchema.safeParse({
     loginIdentifier: formData.get("loginIdentifier"),
   });
