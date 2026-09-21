@@ -31,6 +31,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     ...(ctx.isAdmin || ctx.isDekan || ctx.leadershipUnitIds.length > 0
       ? [{ href: "/hasil", label: "Hasil" }]
       : []),
+    { href: "/profil", label: "Profil" },
   ];
   const adminLinks = ctx.isAdmin
     ? [
