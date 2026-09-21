@@ -32,7 +32,7 @@ export async function perbaruiProfil(userId: string, input: ProfilInput) {
     const dipakai = await prisma.user.findUnique({ where: { loginIdentifier } });
     if (dipakai) {
       throw new ServiceError(
-        "NIM atau NIP itu sudah tercatat pada akun lain. Bila itu milik Anda, hubungi admin agar kedua akun digabungkan."
+        "NIM atau NIP itu sudah tercatat pada akun lain. Periksa kembali, atau hubungi admin bila itu memang milik Anda."
       );
     }
   }

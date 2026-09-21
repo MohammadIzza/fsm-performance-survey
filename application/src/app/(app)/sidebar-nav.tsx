@@ -153,7 +153,10 @@ export function SidebarNav({
   return (
     <>
       {/* Desktop (≥lg): sidebar permanen, tinggi penuh layar, sticky di kiri. */}
-      <aside className="survey-side sticky top-0 hidden h-screen w-56 shrink-0 flex-col lg:flex">
+      {/* Tingginya seukuran layar DIKURANGI kepala situs (86px, angka yang sama dipakai halaman
+          masuk). Dengan h-screen penuh, sidebar mulai di bawah kepala situs tetapi tetap setinggi
+          100vh, sehingga ujung bawahnya — identitas dan tombol Keluar — jatuh di luar layar. */}
+      <aside className="survey-side sticky top-0 hidden h-[calc(100svh-86px)] w-56 shrink-0 flex-col lg:flex">
         {navContent}
       </aside>
 

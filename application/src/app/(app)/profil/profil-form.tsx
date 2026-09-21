@@ -33,8 +33,8 @@ export function ProfilForm({
         <span>
           NIM / NIP
           <Info>
-            Nomor induk Anda. SSO tidak menyediakannya, jadi hanya Anda yang dapat mengisinya. Nol
-            di depan tidak akan hilang.
+            Nomor induk Anda, ditulis apa adanya — nol di depan tidak akan hilang. Dipakai
+            mencocokkan Anda dengan data kepegawaian dan daftar penugasan.
           </Info>
         </span>
         <input

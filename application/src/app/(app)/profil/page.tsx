@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { getCurrentAuthContext } from "@/lib/authz";
 import { ambilProfil } from "@/lib/services/profil";
 import { PageIntro } from "@/components/theme/summary";
+import { Panel } from "@/components/theme/panel";
+import { RowPanelDetails, RowPanelField } from "@/components/theme/data-list";
 import { ProfilForm } from "./profil-form";
 
 export default async function ProfilPage() {
@@ -21,45 +23,35 @@ export default async function ProfilPage() {
 
   return (
     <div className="space-y-8">
-      <PageIntro
-        title="Profil"
-        intro="Lengkapi nama dan nomor induk Anda. SSO tidak menyediakan keduanya secara lengkap, jadi hanya Anda yang dapat memastikannya benar."
-      />
+      {/* Tanpa kartu ringkasan: kartu itu dirancang untuk angka, dan jenis pengguna maupun unit
+          sudah tercantum utuh di bagian "Penempatan dan akun" di bawah. */}
+      <PageIntro title="Profil" intro="Data diri Anda di ruang penilaian." />
 
-      <ProfilForm name={profil.name} loginIdentifier={profil.loginIdentifier} />
+      <Panel
+        plain
+        eyebrow="Diisi sendiri"
+        title="Identitas"
+        intro="Pastikan nama dan nomor induk Anda tertulis benar. Keduanya dipakai pada daftar penilai dan laporan hasil."
+      >
+        <ProfilForm name={profil.name} loginIdentifier={profil.loginIdentifier} />
+      </Panel>
 
-      {/* Bagian yang tidak diisi sendiri. Unit menentukan objek unit mana yang boleh Anda nilai,
-          jadi ia ditetapkan admin — bukan dipilih sendiri. Email dan jenis pengguna datang dari
-          SSO dan dipakai mencocokkan akun. */}
-      <section className="space-y-3">
-        <h2 className="text-base font-semibold">Ditetapkan admin</h2>
-        <dl className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
-          <div>
-            <dt className="text-xs uppercase tracking-wide text-[var(--muted)]">Email UNDIP</dt>
-            <dd className="mt-0.5">{profil.email ?? "—"}</dd>
-          </div>
-          <div>
-            <dt className="text-xs uppercase tracking-wide text-[var(--muted)]">Jenis pengguna</dt>
-            <dd className="mt-0.5">{profil.userType.name}</dd>
-          </div>
-          <div>
-            <dt className="text-xs uppercase tracking-wide text-[var(--muted)]">Unit / Departemen</dt>
-            <dd className="mt-0.5">
-              {profil.primaryUnit ? (
-                profil.primaryUnit.name
-              ) : (
-                <span className="text-[var(--muted)]">
-                  Belum ditetapkan — hubungi admin agar Anda dapat menerima tugas penilaian.
-                </span>
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-xs uppercase tracking-wide text-[var(--muted)]">Peran</dt>
-            <dd className="mt-0.5">{peran}</dd>
-          </div>
-        </dl>
-      </section>
+      {/* Unit menentukan objek unit mana yang boleh dinilai seseorang, jadi ia tidak dapat dipilih
+          sendiri. Email dan jenis pengguna mengikuti akun UNDIP. */}
+      <Panel
+        eyebrow="Ditetapkan admin"
+        title="Penempatan dan akun"
+        intro="Bagian ini mengikuti data kepegawaian dan akun UNDIP Anda. Hubungi admin bila ada yang keliru."
+      >
+        <RowPanelDetails>
+          <RowPanelField label="Email UNDIP">{profil.email ?? "—"}</RowPanelField>
+          <RowPanelField label="Jenis pengguna">{profil.userType.name}</RowPanelField>
+          <RowPanelField label="Unit / Departemen">
+            {profil.primaryUnit ? profil.primaryUnit.name : "Belum ditetapkan"}
+          </RowPanelField>
+          <RowPanelField label="Peran">{peran}</RowPanelField>
+        </RowPanelDetails>
+      </Panel>
     </div>
   );
 }
