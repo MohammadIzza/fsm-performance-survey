@@ -3828,3 +3828,11 @@ input[type="range"]:disabled::-moz-range-thumb {
   .akun-demo__tugas {grid-column:1;grid-row:2}
   .akun-demo__id {grid-column:2;grid-row:1 / span 2;align-self:center;font-size:.68rem}
 }
+
+/* Bidang kuning halaman masuk di ponsel kira-kira separuh layar, isinya di tengah. Setinggi isinya
+   saja ia hanya seperempat layar dan terbaca seperti pita tipis di atas huruf FSM yang justru lebih
+   besar — padahal yang dicari orang di halaman ini adalah tombol masuknya. Hanya pada layar yang
+   cukup tinggi: di ponsel pendek (±640px) separuh layar memaksa halaman bergulung. */
+@media (max-width:640px) and (min-height:700px) {
+  .survey-login-form {min-height:50svh;justify-content:center}
+}
