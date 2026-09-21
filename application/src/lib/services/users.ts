@@ -4,6 +4,7 @@ import { writeAudit } from "@/lib/services/audit";
 import { ServiceError } from "@/lib/services/units";
 import type { AuthContext } from "@/lib/authz";
 import { kodeUnikDariNama, samakanNama } from "@/lib/kode-otomatis";
+import { hashKataSandi, PANJANG_MINIMUM } from "@/lib/password";
 
 export interface UserInput {
   loginIdentifier: string;
@@ -12,6 +13,12 @@ export interface UserInput {
   email?: string | null;
   userTypeId: string;
   primaryUnitId: string | null;
+  /**
+   * Kata sandi untuk orang tanpa akun UNDIP, supaya ia bisa masuk dengan email/ID. Kosong saat
+   * mengubah pengguna berarti kata sandinya dibiarkan; `hapusKataSandi` mencabutnya.
+   */
+  kataSandi?: string | null;
+  hapusKataSandi?: boolean;
 }
 
 // Bab 5.2: ID disimpan sebagai teks; normalisasi hanya memangkas spasi tepi
@@ -24,6 +31,17 @@ function normalizeIdentifier(id: string): string {
 function normalizeEmail(email: string | null | undefined): string | null {
   const bersih = (email ?? "").trim().toLowerCase();
   return bersih === "" ? null : bersih;
+}
+
+/** undefined = biarkan kata sandi lama; null = cabut; string = hash baru. */
+async function olahKataSandi(input: UserInput): Promise<string | null | undefined> {
+  if (input.hapusKataSandi) return null;
+  const sandi = input.kataSandi ?? "";
+  if (sandi === "") return undefined;
+  if (sandi.length < PANJANG_MINIMUM) {
+    throw new ServiceError(`Kata sandi minimal ${PANJANG_MINIMUM} karakter.`);
+  }
+  return hashKataSandi(sandi);
 }
 
 async function pastikanEmailBelumDipakai(email: string | null, kecualiUserId?: string) {
@@ -63,15 +81,21 @@ async function createUserTypeImpl(input: { code: string; name: string }, actor: 
 }
 
 export async function listUsersWithMeta() {
-  return prisma.user.findMany({
-    orderBy: [{ active: "desc" }, { name: "asc" }],
-    include: {
-      userType: true,
-      primaryUnit: true,
-      roleGrants: { where: { active: true } },
-      leaderships: { where: { active: true }, include: { unit: true } },
-    },
-  });
+  const [users, berkataSandi] = await Promise.all([
+    prisma.user.findMany({
+      orderBy: [{ active: "desc" }, { name: "asc" }],
+      include: {
+        userType: true,
+        primaryUnit: true,
+        roleGrants: { where: { active: true } },
+        leaderships: { where: { active: true }, include: { unit: true } },
+      },
+    }),
+    // Hanya "ada atau tidak" yang dikirim ke halaman — hash-nya sendiri tidak pernah ikut.
+    prisma.user.findMany({ where: { passwordHash: { not: null } }, select: { id: true } }),
+  ]);
+  const punya = new Set(berkataSandi.map((u) => u.id));
+  return users.map((u) => ({ ...u, adaKataSandi: punya.has(u.id) }));
 }
 
 async function createUserImpl(input: UserInput, actor: AuthContext) {
@@ -94,6 +118,7 @@ async function createUserImpl(input: UserInput, actor: AuthContext) {
 
   const email = normalizeEmail(input.email);
   await pastikanEmailBelumDipakai(email);
+  const passwordHash = await olahKataSandi(input);
 
   const user = await prisma.user.create({
     data: {
@@ -102,6 +127,7 @@ async function createUserImpl(input: UserInput, actor: AuthContext) {
       email,
       userTypeId: input.userTypeId,
       primaryUnitId: input.primaryUnitId,
+      ...(passwordHash && { passwordHash }),
     },
   });
 
@@ -112,6 +138,7 @@ async function createUserImpl(input: UserInput, actor: AuthContext) {
     entity: "User",
     entityId: user.id,
     after: user,
+    ...(passwordHash && { reason: "Dibuat beserta kata sandi untuk masuk tanpa SSO." }),
   });
 
   return user;
@@ -141,6 +168,7 @@ async function updateUserImpl(userId: string, input: UserInput, actor: AuthConte
 
   const email = normalizeEmail(input.email);
   await pastikanEmailBelumDipakai(email, userId);
+  const passwordHash = await olahKataSandi(input);
 
   const user = await prisma.user.update({
     where: { id: userId },
@@ -150,6 +178,7 @@ async function updateUserImpl(userId: string, input: UserInput, actor: AuthConte
       email,
       userTypeId: input.userTypeId,
       primaryUnitId: input.primaryUnitId,
+      ...(passwordHash !== undefined && { passwordHash }),
     },
   });
 
@@ -161,6 +190,10 @@ async function updateUserImpl(userId: string, input: UserInput, actor: AuthConte
     entityId: user.id,
     before,
     after: user,
+    // Hash tidak pernah masuk jejak audit, jadi perubahannya dicatat dengan kata-kata.
+    ...(passwordHash !== undefined && {
+      reason: passwordHash === null ? "Kata sandi dicabut." : "Kata sandi diganti.",
+    }),
   });
 
   return user;

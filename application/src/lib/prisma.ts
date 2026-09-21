@@ -3,7 +3,13 @@ import { PrismaClient } from "@/generated/prisma/client";
 import type { Prisma } from "@/generated/prisma/client";
 
 const globalForPrisma = globalThis as unknown as { surveyPrisma?: PrismaClient };
-const client = globalForPrisma.surveyPrisma ?? new PrismaClient();
+// Hash kata sandi disembunyikan dari SETIAP query secara bawaan. Baris pengguna ikut terkirim ke
+// peramban di banyak tempat (daftar Pengguna, penugasan, objek rujukan, jejak audit), dan
+// mengingat-ingat untuk membuang kolom ini di tiap tempat itu pasti suatu saat terlewat. Hanya
+// pemeriksaan login yang memintanya, secara eksplisit lewat `omit: { passwordHash: false }`.
+const client =
+  globalForPrisma.surveyPrisma ??
+  (new PrismaClient({ omit: { user: { passwordHash: true } } }) as unknown as PrismaClient);
 if (process.env.NODE_ENV !== "production") globalForPrisma.surveyPrisma = client;
 const context = new AsyncLocalStorage<Prisma.TransactionClient>();
 

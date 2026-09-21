@@ -72,6 +72,10 @@ model User {
   // keadaan di SSO — bukan sebagai pemberian peran yang menetap — supaya pencabutan di SSO ikut
   // berlaku di sini pada login berikutnya, tanpa perlu ada yang mencabutnya manual.
   ssoRole         String? @map("sso_role")
+  // Hash scrypt untuk akun yang dibuatkan admin bagi orang tanpa akun UNDIP (masuk dengan email/ID
+  // dan kata sandi). Kosong = akun itu hanya bisa masuk lewat SSO. Tidak pernah dibaca kecuali
+  // oleh pemeriksaan login: klien Prisma menyembunyikannya secara bawaan (lihat lib/prisma.ts).
+  passwordHash    String? @map("password_hash")
 
   leaderships Leadership[]
   roleGrants  RoleGrant[]

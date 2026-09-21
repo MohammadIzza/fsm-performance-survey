@@ -86,11 +86,22 @@ export function UserManager({
             <input name="name" placeholder="Nama lengkap" required className="form__control" />
           </label>
           <label className="admin-tools__field">
-            <span>Email UNDIP (opsional)<Info>{KET.email}</Info></span>
+            <span>Email (opsional)<Info>{KET.email}</Info></span>
             <input
               name="email"
               type="email"
               placeholder="nama@lecturer.undip.ac.id"
+              className="form__control"
+            />
+          </label>
+          <label className="admin-tools__field">
+            <span>Kata sandi (opsional)<Info>{KET.kataSandi}</Info></span>
+            <input
+              name="kataSandi"
+              type="password"
+              autoComplete="new-password"
+              minLength={8}
+              placeholder="Min. 8 karakter"
               className="form__control"
             />
           </label>
@@ -253,7 +264,10 @@ function UserRow({
         <div className="admin-row-panel">
           <RowPanelDetails>
             <RowPanelField label="ID pengguna">{user.loginIdentifier}</RowPanelField>
-            <RowPanelField label="Email UNDIP">{user.email ?? "—"}</RowPanelField>
+            <RowPanelField label="Email">{user.email ?? "—"}</RowPanelField>
+            <RowPanelField label="Cara masuk">
+              {user.adaKataSandi ? "SSO atau email/ID + kata sandi" : "SSO"}
+            </RowPanelField>
             <RowPanelField label="Jenis">{user.userType.name}</RowPanelField>
             <RowPanelField label="Unit utama">
               {user.primaryUnit ? user.primaryUnit.name : "—"}
@@ -302,7 +316,7 @@ function UserRow({
               <input name="name" defaultValue={user.name} required className="form__control" />
             </label>
             <label className="admin-tools__field">
-              <span>Email UNDIP<Info>{KET.email}</Info></span>
+              <span>Email<Info>{KET.email}</Info></span>
               <input
                 name="email"
                 type="email"
@@ -310,6 +324,25 @@ function UserRow({
                 placeholder="nama@lecturer.undip.ac.id"
                 className="form__control"
               />
+            </label>
+            <label className="admin-tools__field">
+              <span>
+                {user.adaKataSandi ? "Kata sandi baru" : "Beri kata sandi"}
+                <Info>{KET.kataSandi}</Info>
+              </span>
+              <input
+                name="kataSandi"
+                type="password"
+                autoComplete="new-password"
+                minLength={8}
+                placeholder={user.adaKataSandi ? "Kosongkan bila tidak diganti" : "Min. 8 karakter"}
+                className="form__control"
+              />
+              {user.adaKataSandi && (
+                <span className="admin-tools__check">
+                  <input type="checkbox" name="hapusKataSandi" /> Cabut kata sandi (hanya SSO)
+                </span>
+              )}
             </label>
             <label className="admin-tools__field">
               <span>Jenis pengguna<Info>{KET.jenisPengguna}</Info></span>

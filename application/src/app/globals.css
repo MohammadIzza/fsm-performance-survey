@@ -3839,3 +3839,15 @@ input[type="range"]:disabled::-moz-range-thumb {
 @media (max-width:640px) and (min-height:700px) {
   .survey-login-form {min-height:40svh;justify-content:center}
 }
+
+/* Isian kata sandi di halaman masuk berdiri langsung di atas bidang kuning (tanpa kartu putih),
+   jadi bidangnya sendiri putih: di ponsel isian bawaannya krem, dan krem di atas kuning nyaris
+   tidak terbedakan sebagai tempat mengetik. */
+.survey-login-panel:not(.survey-login-panel--kartu) .form__control {
+  background:var(--color-white);border-color:transparent;
+}
+
+/* Kotak centang kecil di bawah sebuah isian formulir admin, mis. "Cabut kata sandi". */
+.admin-tools__check {display:flex;align-items:center;gap:.4rem;margin-top:.35rem;font-size:.75rem;
+  text-transform:none;letter-spacing:0;font-weight:400;color:var(--color-text)}
+.admin-tools__check input {width:auto;margin:0}

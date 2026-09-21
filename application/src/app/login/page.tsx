@@ -6,6 +6,7 @@ import { LoginHeroFsm } from './login-hero-fsm';
 import { DaftarAkunDemo } from './daftar-akun';
 import { getDemoAccountDirectory } from '@/lib/services/demoAccounts';
 import { SsoLoginButton } from './sso-login-button';
+import { SandiForm } from './sandi-form';
 import { LOGIN_ID_AKTIF } from '@/lib/login-id';
 
 export default async function LoginPage() {
@@ -62,14 +63,19 @@ export default async function LoginPage() {
           <p className="survey-login-form__text t-t-md">
             {LOGIN_ID_AKTIF
               ? 'Masukkan ID terdaftar untuk membuka ruang penilaian Anda.'
-              : 'Masuk dengan akun UNDIP Anda untuk membuka ruang penilaian.'}
+              : 'Masuk dengan akun UNDIP Anda, atau dengan akun yang diberikan admin.'}
           </p>
         </div>
-        {/* Kartu putihnya hanya dipasang bila ada formulir yang perlu diwadahi. Dengan satu tombol
-            SSO saja, kartu itu tinggal bingkai kosong — dan tombol birunya justru lebih menonjol
-            di atas kuning daripada di atas putih. */}
+        {/* Kartu putih hanya untuk formulir ID darurat. Tombol SSO dan isian kata sandi berdiri
+            langsung di atas kuning: tombol birunya lebih menonjol di sana, dan isiannya diberi
+            bidang putih sendiri supaya tempat mengetik tetap jelas. */}
         <div className={`survey-login-panel${LOGIN_ID_AKTIF ? ' survey-login-panel--kartu' : ''}`}>
           <SsoLoginButton />
+          {/* Akun berkata sandi dibuatkan admin untuk orang tanpa akun UNDIP. */}
+          <div className="survey-login-divider" role="separator">
+            <span>atau dengan akun dari admin</span>
+          </div>
+          <SandiForm />
           {/* Masuk dengan ID tanpa kata sandi hanya ada bila saklarnya dinyalakan (lib/login-id.ts).
               Penolakan sesungguhnya ada di loginAction; bagian ini sekadar tidak menawarkannya. */}
           {LOGIN_ID_AKTIF && (

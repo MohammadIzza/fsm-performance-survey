@@ -20,11 +20,24 @@ export async function writeAudit(input: AuditInput): Promise<void> {
       action: input.action,
       entity: input.entity,
       entityId: input.entityId,
-      before: input.before === undefined ? undefined : (input.before as object),
-      after: input.after === undefined ? undefined : (input.after as object),
+      before: input.before === undefined ? undefined : (sensor(input.before) as object),
+      after: input.after === undefined ? undefined : (sensor(input.after) as object),
       reason: input.reason,
     },
   });
+}
+
+// Jejak audit dapat dibaca admin dan tidak pernah dihapus, jadi hash kata sandi tidak boleh ikut
+// tersimpan di dalamnya — walau klien Prisma menyembunyikannya, snapshot bisa saja disusun tangan.
+// Yang dicatat cukup bahwa kata sandinya berubah.
+function sensor(nilai: unknown): unknown {
+  if (Array.isArray(nilai)) return nilai.map(sensor);
+  if (nilai && typeof nilai === "object" && !(nilai instanceof Date)) {
+    return Object.fromEntries(
+      Object.entries(nilai).map(([k, v]) => [k, k === "passwordHash" ? (v ? "[disembunyikan]" : null) : sensor(v)])
+    );
+  }
+  return nilai;
 }
 
 export interface AuditFilter {

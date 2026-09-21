@@ -23,6 +23,8 @@ function readUserInput(formData: FormData) {
     email: emailRaw === "" ? null : emailRaw,
     userTypeId: String(formData.get("userTypeId") ?? ""),
     primaryUnitId: primaryUnitIdRaw === "" ? null : primaryUnitIdRaw,
+    kataSandi: String(formData.get("kataSandi") ?? ""),
+    hapusKataSandi: formData.get("hapusKataSandi") === "on",
   };
 }
 
