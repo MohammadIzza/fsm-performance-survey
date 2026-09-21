@@ -1,5 +1,6 @@
 import { atomic } from "@/lib/prisma";
 import ExcelJS from "exceljs";
+import { hashKataSandi, PANJANG_MINIMUM } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import { writeAudit } from "@/lib/services/audit";
 import { ServiceError } from "@/lib/services/units";
@@ -379,6 +380,12 @@ export async function previewUserImport(buffer: ArrayBuffer): Promise<ImportPrev
       seenIds.add(id);
     }
 
+    // Nilai kata sandi tidak pernah dikutip di pesan galat: pesan itu tersimpan di riwayat impor.
+    const sandi = row.kata_sandi || "";
+    if (sandi && sandi.length < PANJANG_MINIMUM) {
+      errors.push({ row: rowNum, message: `kata_sandi minimal ${PANJANG_MINIMUM} karakter.` });
+    }
+
     const email = (row.email || "").trim().toLowerCase();
     if (email) {
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
@@ -473,6 +480,15 @@ async function applyImportImpl(
     throw new ServiceError("Berkas tidak memiliki baris data.");
   }
 
+  // Kata sandi di-hash SEBELUM transaksi dibuka: scrypt sengaja lambat (±50 ms per baris), dan
+  // menjalankannya di dalam transaksi akan melewati batas waktunya pada berkas ratusan baris.
+  const hashSandi = new Map<string, string>();
+  if (entity === "PENGGUNA") {
+    for (const row of preview.rows) {
+      if (row.kata_sandi) hashSandi.set(row.id_login, await hashKataSandi(row.kata_sandi));
+    }
+  }
+
   await prisma.$transaction(async (tx) => {
     if (entity === "UNIT") {
       // Urutkan agar induk dibuat/diperbarui sebelum anak (topological pass sederhana:
@@ -515,11 +531,13 @@ async function applyImportImpl(
             primaryUnitId: unit?.id ?? null,
             active: (row.status || "aktif").toLowerCase() === "aktif",
             ...(email && { email }),
+            ...(hashSandi.has(row.id_login) && { passwordHash: hashSandi.get(row.id_login) }),
           },
           create: {
             loginIdentifier: row.id_login,
             name: row.nama,
             email,
+            ...(hashSandi.has(row.id_login) && { passwordHash: hashSandi.get(row.id_login) }),
             userTypeId: userType.id,
             primaryUnitId: unit?.id ?? null,
             active: (row.status || "aktif").toLowerCase() === "aktif",

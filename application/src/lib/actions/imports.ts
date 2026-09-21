@@ -43,7 +43,9 @@ export async function previewImportAction(_prev: PreviewState, formData: FormDat
         : entity === "PENGGUNA"
           ? await previewUserImport(buffer)
           : await previewLeadershipImport(buffer);
-    return { preview, fileName: name };
+    // Isi barisnya tidak dikirim ke peramban: halaman hanya menampilkan jumlah dan galat, penerapan
+    // membaca ulang berkasnya sendiri, dan berkas Pengguna dapat memuat kata sandi terbaca.
+    return { preview: { ...preview, rows: [] }, fileName: name };
   } catch (e) {
     if (e instanceof ServiceError) return { error: e.message };
     return { error: "Berkas tidak dapat dibaca. Pastikan formatnya .xlsx yang valid." };

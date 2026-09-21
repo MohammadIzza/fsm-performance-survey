@@ -101,10 +101,18 @@ export const FORMAT_IMPOR: Record<ImportEntity, FormatImpor> = {
       {
         nama: "email",
         wajib: false,
-        ket: "Alamat email UNDIP orang ini. Dipakai mengenali akunnya saat masuk lewat SSO — tanpa email, dosen dan tenaga kependidikan tidak dikenali otomatis. Boleh dikosongkan dan diisi belakangan.",
+        ket: "Alamat email orang ini. Bagi pengguna SSO: email UNDIP-nya, dipakai mengenali akunnya saat masuk — tanpa email, dosen dan tenaga kependidikan tidak dikenali otomatis. Bagi akun berkata sandi: boleh email mana pun. Boleh dikosongkan.",
         contoh: "andi.wijaya@lecturer.undip.ac.id",
         contoh2: "24060121130001@students.undip.ac.id",
         lebar: 36,
+      },
+      {
+        nama: "kata_sandi",
+        wajib: false,
+        ket: "Hanya untuk orang tanpa akun UNDIP: kata sandi awal agar ia dapat masuk dengan email atau id_login. Minimal 8 karakter. Kosongkan bagi pengguna SSO — dan pada baris yang sudah ada, kosong berarti kata sandinya tidak diubah.",
+        contoh: "",
+        contoh2: "Awal#2026tamu",
+        lebar: 18,
       },
       {
         nama: "jenis",
@@ -138,6 +146,7 @@ export const FORMAT_IMPOR: Record<ImportEntity, FormatImpor> = {
       "Nol di depan tidak hilang: id_login selalu dibaca sebagai teks, jadi NIM atau NIP yang diawali nol tetap utuh.",
       "Email boleh dikosongkan. Mengisinya membuat orang itu langsung dikenali saat pertama kali masuk lewat SSO, lengkap dengan unit dan penugasannya — tanpa email, yang terbentuk justru akun baru yang terpisah.",
       "Satu alamat email hanya boleh dipakai satu orang; email yang sudah dipakai akun lain membatalkan seluruh berkas.",
+      "Kolom kata_sandi berisi kata sandi terbaca. Hapus berkas ini setelah diunggah, dan minta pemilik akun menggantinya bila perlu. Kata sandi tidak disimpan di riwayat impor.",
       "Impor ini tidak pernah mengubah peran atau hak akses siapa pun — tidak ada kolom peran di berkasnya.",
       ...UMUM,
     ],
