@@ -8,10 +8,22 @@ const JWT_SECRET = process.env.JWT_SECRET as string;
 export const SSO_LOGIN_URL =
   "https://apps-fsm.undip.ac.id/sso?client_id=d52e4bb1-b345-478d-81cb-ce2b6256a335&redirect_uri=https://apps-fsm.undip.ac.id/survey";
 
+/**
+ * Seluruh isi balasan GET /sso_api/users/me — diperiksa dari respons sungguhan, bukan dokumentasi:
+ *
+ *   { status: true, data: { id, username, role, name, iat, exp } }
+ *
+ * `iat` dan `exp` stempel waktu JWT (selisihnya 1 jam), yang menunjukkan endpoint itu hanya
+ * mengembalikan isi token yang sudah di-decode — bukan hasil membaca tabel pengguna. Karena itu
+ * tidak ada program studi, departemen, NIM, maupun NIP di sini, dan tidak akan pernah ada selama
+ * ketiganya tidak ditanam ke dalam token.
+ *
+ * `username` pun tidak selalu alamat email: akun "adminfakultas" mengirimkannya tanpa @.
+ */
 export interface SsoIdentity {
   id: string;
   name: string;
-  username: string; // email SSO, mis. "24060121130001@students.undip.ac.id"
+  username: string;
   role: string;
 }
 
