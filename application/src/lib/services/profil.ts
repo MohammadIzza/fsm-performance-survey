@@ -27,6 +27,12 @@ export async function perbaruiProfil(userId: string, input: ProfilInput) {
   if (!name) throw new ServiceError("Nama wajib diisi.");
   if (!loginIdentifier) throw new ServiceError("NIM atau NIP wajib diisi.");
   if (loginIdentifier.length > 64) throw new ServiceError("NIM atau NIP terlalu panjang.");
+  // Nomor induk diisi sendiri oleh pemiliknya dan ikut tercetak di ekspor Excel, jadi bentuknya
+  // dibatasi: huruf, angka, dan . _ @ + -, diawali huruf atau angka (bukan "=", "+", "-", "@"
+  // yang dibaca lembar kerja sebagai awal rumus).
+  if (!/^[A-Za-z0-9][A-Za-z0-9._@+-]*$/.test(loginIdentifier)) {
+    throw new ServiceError("NIM atau NIP hanya boleh berisi huruf, angka, dan tanda . _ @ + -.");
+  }
 
   if (loginIdentifier !== before.loginIdentifier) {
     const dipakai = await prisma.user.findUnique({ where: { loginIdentifier } });

@@ -155,7 +155,9 @@ export async function buildResultsExport(categoryId: string, scopedEntries: {
             objek: safeCell(data.result.categoryObject.nameSnapshot),
             kelompok: groupLabel[group],
             penilai: safeCell(respondent.evaluatorName),
-            idPenilai: String(respondent.evaluatorLogin), // ID tetap teks (Bab 15.2)
+            // Dibungkus safeCell seperti kolom teks lain: sejak halaman Profil, nomor induk diisi
+            // pemiliknya sendiri, bukan lagi hanya oleh admin.
+            idPenilai: safeCell(String(respondent.evaluatorLogin)), // ID tetap teks (Bab 15.2)
             parameter: safeCell(s.parameterName),
             skor: s.score,
             waktu: respondent.submittedAt ? respondent.submittedAt.toISOString() : "",
