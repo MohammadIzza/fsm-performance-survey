@@ -342,10 +342,16 @@ export async function previewUserImport(buffer: ArrayBuffer): Promise<ImportPrev
   const seenIds = new Set<string>();
 
   const [existingUsers, userTypes, units] = await Promise.all([
-    prisma.user.findMany({ select: { loginIdentifier: true } }),
+    prisma.user.findMany({ select: { loginIdentifier: true, email: true } }),
     prisma.userType.findMany({ select: { code: true, name: true } }),
     prisma.unit.findMany({ select: { code: true, name: true } }),
   ]);
+  // Email milik orang lain tidak boleh diserobot: alamat itu yang menentukan akun mana yang
+  // dikenali saat seseorang masuk lewat SSO.
+  const emailPemilik = new Map(
+    existingUsers.filter((u) => u.email).map((u) => [u.email as string, u.loginIdentifier])
+  );
+  const emailDiBerkas = new Set<string>();
   isiKodeDariNama(rows, "kode_jenis", "jenis", "jenis", userTypes, errors);
   isiKodeDariNama(rows, "kode_unit", "unit", "unit", units, errors);
   const existingIds = new Set(existingUsers.map((u) => u.loginIdentifier));
@@ -371,6 +377,21 @@ export async function previewUserImport(buffer: ArrayBuffer): Promise<ImportPrev
     if (id) {
       if (seenIds.has(id)) errors.push({ row: rowNum, message: `id_login "${id}" duplikat dalam berkas ini.` });
       seenIds.add(id);
+    }
+
+    const email = (row.email || "").trim().toLowerCase();
+    if (email) {
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        errors.push({ row: rowNum, message: `email "${email}" bukan alamat yang sah.` });
+      } else if (emailDiBerkas.has(email)) {
+        errors.push({ row: rowNum, message: `email "${email}" duplikat dalam berkas ini.` });
+      } else {
+        const pemilik = emailPemilik.get(email);
+        if (pemilik && pemilik !== id) {
+          errors.push({ row: rowNum, message: `email "${email}" sudah dipakai pengguna "${pemilik}".` });
+        }
+        emailDiBerkas.add(email);
+      }
     }
   });
 
@@ -483,6 +504,9 @@ async function applyImportImpl(
       for (const row of preview.rows) {
         const userType = await tx.userType.findUniqueOrThrow({ where: { code: row.kode_jenis } });
         const unit = row.kode_unit ? await tx.unit.findUnique({ where: { code: row.kode_unit } }) : null;
+        // Email kosong di berkas tidak menghapus email yang sudah ada: kolom ini boleh dibiarkan
+        // kosong oleh admin yang hanya ingin memperbarui nama atau unit.
+        const email = (row.email || "").trim().toLowerCase() || null;
         await tx.user.upsert({
           where: { loginIdentifier: row.id_login },
           update: {
@@ -490,10 +514,12 @@ async function applyImportImpl(
             userTypeId: userType.id,
             primaryUnitId: unit?.id ?? null,
             active: (row.status || "aktif").toLowerCase() === "aktif",
+            ...(email && { email }),
           },
           create: {
             loginIdentifier: row.id_login,
             name: row.nama,
+            email,
             userTypeId: userType.id,
             primaryUnitId: unit?.id ?? null,
             active: (row.status || "aktif").toLowerCase() === "aktif",

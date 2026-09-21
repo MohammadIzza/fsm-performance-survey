@@ -99,6 +99,14 @@ export const FORMAT_IMPOR: Record<ImportEntity, FormatImpor> = {
         lebar: 30,
       },
       {
+        nama: "email",
+        wajib: false,
+        ket: "Alamat email UNDIP orang ini. Dipakai mengenali akunnya saat masuk lewat SSO — tanpa email, dosen dan tenaga kependidikan tidak dikenali otomatis. Boleh dikosongkan dan diisi belakangan.",
+        contoh: "andi.wijaya@lecturer.undip.ac.id",
+        contoh2: "24060121130001@students.undip.ac.id",
+        lebar: 36,
+      },
+      {
         nama: "jenis",
         wajib: true,
         ket: "Jenis pengguna, ditulis persis seperti daftar di sheet Referensi.",
@@ -128,6 +136,8 @@ export const FORMAT_IMPOR: Record<ImportEntity, FormatImpor> = {
     ],
     catatan: [
       "Nol di depan tidak hilang: id_login selalu dibaca sebagai teks, jadi NIM atau NIP yang diawali nol tetap utuh.",
+      "Email boleh dikosongkan. Mengisinya membuat orang itu langsung dikenali saat pertama kali masuk lewat SSO, lengkap dengan unit dan penugasannya — tanpa email, yang terbentuk justru akun baru yang terpisah.",
+      "Satu alamat email hanya boleh dipakai satu orang; email yang sudah dipakai akun lain membatalkan seluruh berkas.",
       "Impor ini tidak pernah mengubah peran atau hak akses siapa pun — tidak ada kolom peran di berkasnya.",
       ...UMUM,
     ],
