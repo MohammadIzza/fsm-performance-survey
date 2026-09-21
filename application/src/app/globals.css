@@ -2819,10 +2819,12 @@ input[type="range"]:disabled::-moz-range-thumb {
     putih supaya tempat mengetik tetap jelas, dan tombol birunya justru lebih menonjol di atas
     kuning daripada di atas putih. */
  .survey-login-form {
-   position:relative;order:1;padding:1.7rem 1.1rem 2.1rem;background:var(--color-brand-2);
+   position:relative;order:1;padding:1.7rem 1.35rem 2.1rem;background:var(--color-brand-2);
    color:var(--color-black);
-   /* Sudut besar di kiri bawah: perangkat yang sama dipakai seksi bersalut warna di situs publik. */
-   border-bottom-left-radius:3.4rem;
+   /* Kartu membulat di keempat sudutnya, menjorok sedikit dari tepi layar, supaya sejalan dengan
+      tombol pil di dalamnya. Sebelumnya bidang ini selebar layar dengan satu sudut membulat di kiri
+      bawah, dan bentuk sepotong itu tidak senada dengan tombol yang membulat penuh. */
+   margin:.75rem .75rem 0;border-radius:2rem;
  }
  /* Judul berdiri langsung di atas bidang warna, sebesar judul seksi di beranda — bukan huruf kecil
     yang tenggelam di tengah bidang selebar layar. */
