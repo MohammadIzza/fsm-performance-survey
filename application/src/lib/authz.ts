@@ -37,7 +37,17 @@ export async function getAuthContext(userId: string): Promise<AuthContext | null
   );
   const leadershipUnitIds = activeLeaderships.map((l) => l.unitId);
 
-  const isAdmin = user.roleGrants.some((r) => r.role === "ADMIN");
+  // Dua jalur menuju Admin, dan hanya Admin. Pertama role_grants yang diberikan admin lewat
+  // halaman Pengguna. Kedua status superadmin di SSO FSM: pengelola SSO adalah pengelola aplikasi
+  // ini juga, jadi statusnya diikuti apa adanya.
+  //
+  // Jalur kedua tidak menulis baris role_grants melainkan dibaca ulang dari `sso_role`, yang
+  // disegarkan pada setiap login (lihat services/ssoUsers.ts). Dengan begitu pencopotan superadmin
+  // di SSO ikut mencabut hak Admin di sini pada login berikutnya — tidak ada hak yang menetap
+  // karena tidak ada yang ingat mencabutnya.
+  //
+  // Dekan tidak punya jalur seperti ini: ia hanya dari role_grants.
+  const isAdmin = user.roleGrants.some((r) => r.role === "ADMIN") || user.ssoRole === "superadmin";
   const isDekan = user.roleGrants.some((r) => r.role === "DEKAN");
 
   let scopeUnitIds: string[];

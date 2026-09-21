@@ -65,8 +65,13 @@ model User {
   // tendik tidak ada di SSO, jadi tanpa kolom ini akun mereka tidak bisa ditemukan otomatis.
   email           String? @unique
   // Identitas SSO FSM (endpoint /users/me), ditautkan otomatis saat pengguna yang sudah terdaftar
-  // pertama kali masuk lewat SSO. Tidak pernah dipakai untuk memberi peran — hanya menautkan.
+  // pertama kali masuk lewat SSO.
   ssoId           String? @unique @map("sso_id")
+  // Peran terakhir yang dikirim SSO, disegarkan setiap kali orangnya masuk. "superadmin" di sini
+  // memberi kewenangan Admin di aplikasi ini (lihat getAuthContext). Disimpan sebagai cerminan
+  // keadaan di SSO — bukan sebagai pemberian peran yang menetap — supaya pencabutan di SSO ikut
+  // berlaku di sini pada login berikutnya, tanpa perlu ada yang mencabutnya manual.
+  ssoRole         String? @map("sso_role")
 
   leaderships Leadership[]
   roleGrants  RoleGrant[]
