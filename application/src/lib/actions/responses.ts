@@ -6,6 +6,7 @@ import {
   saveDraft,
   submitResponse,
   reopenAssignment,
+  openLateAssignments,
   adminEditResponse,
   voidResponse,
   listMyAssignments,
@@ -24,6 +25,7 @@ export interface FormState {
   /** Tugas berikutnya yang masih bisa diisi, supaya penilai bisa langsung lanjut. */
   nextAssignmentId?: string | null;
   remainingCount?: number;
+  openedCount?: number;
 }
 
 function readExpectedVersion(formData: FormData): number | null {
@@ -111,6 +113,31 @@ export async function reopenAssignmentAction(
   }
   revalidatePath(`/tugas/${assignmentId}`);
   return {};
+}
+
+export async function openLateAssignmentsAction(
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const actor = await requireAdminActor();
+  const assignmentIds = formData.getAll("assignmentId").map(String).filter(Boolean);
+  const reason = String(formData.get("reason") ?? "");
+  const periodId = String(formData.get("periodId") ?? "");
+  const categoryId = String(formData.get("categoryId") ?? "");
+  try {
+    const result = await openLateAssignments(
+      assignmentIds,
+      reason,
+      actor,
+      formData.get("correctionEndsAt") ? `${String(formData.get("correctionEndsAt"))}+07:00` : undefined
+    );
+    revalidatePath(`/admin/periode/${periodId}/kategori/${categoryId}`);
+    for (const assignmentId of result.assignmentIds) revalidatePath(`/tugas/${assignmentId}`);
+    return { openedCount: result.openedCount };
+  } catch (e) {
+    if (e instanceof ServiceError) return { error: e.message };
+    throw e;
+  }
 }
 
 export async function adminEditResponseAction(

@@ -2,6 +2,7 @@ import "dotenv/config";
 import { prisma } from "../src/lib/prisma";
 import { ServiceError } from "../src/lib/services/units";
 import { createPeriod, transitionPeriodStatus } from "../src/lib/services/periods";
+import { openRevision } from "../src/lib/services/finalization";
 import { createCategory, addCategoryObjects, removeCategoryObject } from "../src/lib/services/categories";
 import { manualAssignEvaluator } from "../src/lib/services/assignments";
 import { addParameter } from "../src/lib/services/instruments";
@@ -13,6 +14,7 @@ import {
   saveDraft,
   submitResponse,
   reopenAssignment,
+  openLateAssignments,
   adminEditResponse,
   voidResponse,
   getAssignmentFormData,
@@ -436,6 +438,50 @@ async function main() {
   await expectServiceError("Penambahan setelah tenggat lewat ditolak walau status masih Aktif", () =>
     addCategoryObjects(shortCategory.id, [objBerjalan.id], adminActor, "Terlambat")
   );
+
+  console.log("== Pengisian terlambat saat Revisi ==");
+  await transitionPeriodStatus(shortPeriod.id, "DITUTUP", adminActor);
+  await openRevision(shortPeriod.id, "Memberi kesempatan pengisian terlambat", adminActor);
+  const lateDraft = await reopenAssignment(
+    shortAssignment.id,
+    "Penilai belum sempat mengisi",
+    adminActor,
+    new Date(Date.now() + 3600_000).toISOString()
+  );
+  ok("Tugas belum mulai dapat dibuka saat Revisi", lateDraft.state === "DRAFT" && lateDraft.scores.length === 0);
+  const lateAssignment = await prisma.assignment.findUniqueOrThrow({ where: { id: shortAssignment.id } });
+  ok("Tugas terlambat berstatus DIBUKA_KEMBALI", lateAssignment.status === "DIBUKA_KEMBALI");
+  const lateSubmitted = await submitResponse(
+    shortAssignment.id,
+    [{ parameterId: shortParam.id, score: 80 }],
+    "test-t4-late-open",
+    lateDraft.version,
+    shortActor
+  );
+  ok("Penilai dapat mengirim jawaban dalam jendela pengisian terlambat", lateSubmitted.state === "SUBMITTED");
+
+  console.log("== Pengisian terlambat massal saat Revisi ==");
+  await transitionPeriodStatus(period.id, "DITUTUP", adminActor);
+  await openRevision(period.id, "Membuka kesempatan terlambat secara massal", adminActor);
+  const bulkTargets = await prisma.assignment.findMany({
+    where: {
+      status: { in: ["BELUM_MULAI", "DRAF"] },
+      categoryObject: { categoryId: category.id },
+    },
+    take: 2,
+  });
+  if (bulkTargets.length !== 2) throw new Error("Prasyarat uji massal tidak terpenuhi: butuh 2 tugas yang belum terkirim.");
+  const bulkResult = await openLateAssignments(
+    bulkTargets.map((assignment) => assignment.id),
+    "Memberi kesempatan terlambat kepada beberapa penilai",
+    adminActor,
+    new Date(Date.now() + 3600_000).toISOString()
+  );
+  ok("Dua tugas dibuka sekaligus", bulkResult.openedCount === 2);
+  const bulkOpened = await prisma.assignment.count({
+    where: { id: { in: bulkTargets.map((assignment) => assignment.id) }, status: "DIBUKA_KEMBALI" },
+  });
+  ok("Semua tugas pilihan berstatus DIBUKA_KEMBALI", bulkOpened === 2);
 
   console.log("\n=== Ringkasan ===");
   console.log(`Lulus: ${pass}  Gagal: ${fail}`);

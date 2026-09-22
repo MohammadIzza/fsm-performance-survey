@@ -14,7 +14,13 @@ export function AdminTools({
   status: AssignmentStatus;
   effectiveRevisionId: string | null;
 }) {
-  const [reopenState, reopenAction, reopenPending] = useAksi(reopenAssignmentAction, {}, "Tugas dibuka kembali untuk koreksi.");
+  const sudahTerkirim = status === "TERKIRIM";
+  const bisaDibuka = sudahTerkirim || status === "BELUM_MULAI" || status === "DRAF";
+  const [reopenState, reopenAction, reopenPending] = useAksi(
+    reopenAssignmentAction,
+    {},
+    sudahTerkirim ? "Tugas dibuka kembali untuk koreksi." : "Pengisian terlambat dibuka."
+  );
   const [voidState, voidAction, voidPending] = useAksi(voidResponseAction, {}, "Respons dibatalkan.");
   const { editing, mulai } = useAdminEdit();
 
@@ -25,19 +31,23 @@ export function AdminTools({
           satu kalimat akibatnya, seperti daftar isi. <details> dipakai apa adanya supaya papan
           ketik dan pembaca layar mendapat perilaku buka-tutup tanpa kode tambahan. */}
       <div className="admin-actions">
-        {status === "TERKIRIM" && (
+        {bisaDibuka && (
           <details className="admin-actions__row">
             <summary className="admin-actions__summary">
               <span className="admin-actions__name">
-                <strong>Buka kembali</strong>
-                <span>Penilai dapat mengisi ulang sampai tenggat koreksi.</span>
+                <strong>{sudahTerkirim ? "Buka kembali" : "Buka pengisian terlambat"}</strong>
+                <span>
+                  {sudahTerkirim
+                    ? "Penilai dapat mengisi ulang sampai tenggat koreksi."
+                    : "Penilai dapat mengirim jawaban yang belum sempat diisi sampai tenggat ini."}
+                </span>
               </span>
             </summary>
             <form action={reopenAction} className="admin-actions__body">
               <input type="hidden" name="assignmentId" value={assignmentId} />
               <div className="admin-actions__fields">
                 <label className="admin-tools__field">
-                  <span>Tenggat koreksi (WIB)</span>
+                  <span>{sudahTerkirim ? "Tenggat koreksi (WIB)" : "Tenggat pengisian (WIB)"}</span>
                   <input
                     aria-label="Tenggat koreksi"
                     type="datetime-local"
@@ -50,7 +60,7 @@ export function AdminTools({
                   <span>Alasan</span>
                   <input
                     name="reason"
-                    placeholder="Alasan pembukaan kembali"
+                    placeholder={sudahTerkirim ? "Alasan pembukaan kembali" : "Alasan memberi kesempatan terlambat"}
                     required
                     className="form__control"
                   />
@@ -62,7 +72,7 @@ export function AdminTools({
                   disabled={reopenPending}
                   className="admin-action admin-action--primary"
                 >
-                  {reopenPending ? "Memproses…" : "Buka kembali"}
+                  {reopenPending ? "Memproses…" : sudahTerkirim ? "Buka kembali" : "Buka pengisian"}
                 </button>
               </div>
               {reopenState.error && (

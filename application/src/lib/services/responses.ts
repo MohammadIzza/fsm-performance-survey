@@ -275,12 +275,17 @@ async function submitResponseImpl(
   return revision;
 }
 
-// Bab 11.5/UC-07: admin memberi kesempatan pengisi memperbaiki jawaban terkirim.
+// Bab 11.5/UC-07: admin memberi kesempatan pengisi memperbaiki jawaban terkirim. Pada periode
+// Revisi, jalur yang sama juga dipakai untuk memberi kesempatan terlambat kepada tugas yang belum
+// pernah dikirim; jendelanya tetap eksplisit, sehingga Revisi tidak berubah menjadi pembukaan
+// survei untuk semua tugas secara otomatis.
 async function reopenAssignmentImpl(assignmentId: string, reason: string, actor: AuthContext, correctionEndsAt?: string) {
   if (!reason.trim()) throw new ServiceError("Alasan pembukaan kembali wajib diisi.");
   const assignment = await loadAssignmentContext(assignmentId);
-  if (assignment.status !== "TERKIRIM") {
-    throw new ServiceError("Hanya tugas yang sudah terkirim yang dapat dibuka kembali.");
+  const sudahTerkirim = assignment.status === "TERKIRIM";
+  const belumTerkirim = assignment.status === "BELUM_MULAI" || assignment.status === "DRAF";
+  if (!sudahTerkirim && !belumTerkirim) {
+    throw new ServiceError("Tugas ini tidak dapat dibuka untuk pengisian.");
   }
 
   const period = assignment.categoryObject.category.period;
@@ -288,13 +293,43 @@ async function reopenAssignmentImpl(assignmentId: string, reason: string, actor:
   const correctionEnd = correctionEndsAt ? new Date(correctionEndsAt) : period.endsAt;
   if (!Number.isFinite(correctionEnd.getTime()) || correctionEnd <= new Date()) throw new ServiceError("Tentukan tenggat koreksi yang masih akan datang.");
   if (period.status !== "AKTIF" && period.status !== "REVISI") throw new ServiceError("Buka status Revisi sebelum membuka koreksi periode tertutup.");
-  const latestSubmitted = await prisma.responseRevision.findFirst({
-    where: { assignmentId, state: "SUBMITTED" },
-    orderBy: { revision: "desc" },
-    include: { scores: true },
-  });
+  if (belumTerkirim && period.status !== "REVISI") {
+    throw new ServiceError("Pengisian terlambat hanya dapat dibuka saat periode berstatus Revisi.");
+  }
 
   const revision = await prisma.$transaction(async (tx) => {
+    if (!sudahTerkirim) {
+      // Draf yang pernah dibuat penilai dibiarkan utuh. Untuk tugas yang belum mulai, siapkan
+      // draf kosong agar jalur simpan/kirim berikutnya memakai kontrak revisi yang sama.
+      const latestRevision = await tx.responseRevision.findFirst({
+        where: { assignmentId },
+        orderBy: { revision: "desc" },
+        include: { scores: true },
+      });
+      const draft = latestRevision?.state === "DRAFT"
+        ? latestRevision
+        : await tx.responseRevision.create({
+            data: {
+              assignmentId,
+              revision: (latestRevision?.revision ?? 0) + 1,
+              state: "DRAFT",
+              editedById: actor.userId,
+              reason,
+            },
+            include: { scores: true },
+          });
+      await tx.assignment.update({
+        where: { id: assignmentId },
+        data: { status: "DIBUKA_KEMBALI", correctionEndsAt: correctionEnd },
+      });
+      return draft;
+    }
+
+    const latestSubmitted = await tx.responseRevision.findFirst({
+      where: { assignmentId, state: "SUBMITTED" },
+      orderBy: { revision: "desc" },
+      include: { scores: true },
+    });
     const nextRevision = (latestSubmitted?.revision ?? 0) + 1;
     const newRev = await tx.responseRevision.create({
       data: { assignmentId, revision: nextRevision, state: "DRAFT", editedById: actor.userId, reason },
@@ -313,13 +348,83 @@ async function reopenAssignmentImpl(assignmentId: string, reason: string, actor:
   await writeAudit({
     actorId: actor.userId,
     actorRole: "ADMIN",
-    action: "ASSIGNMENT_REOPEN",
+    action: sudahTerkirim ? "ASSIGNMENT_REOPEN" : "ASSIGNMENT_LATE_OPEN",
     entity: "Assignment",
     entityId: assignmentId,
     reason,
   });
 
   return revision;
+}
+
+/** Membuka beberapa tugas yang belum terkirim sekaligus, khusus saat periode sedang Revisi. */
+async function openLateAssignmentsImpl(
+  assignmentIds: string[],
+  reason: string,
+  actor: AuthContext,
+  correctionEndsAt?: string
+) {
+  const ids = [...new Set(assignmentIds.filter(Boolean))];
+  if (ids.length === 0) throw new ServiceError("Pilih setidaknya satu tugas.");
+  if (!reason.trim()) throw new ServiceError("Alasan pembukaan pengisian wajib diisi.");
+
+  const correctionEnd = correctionEndsAt ? new Date(correctionEndsAt) : null;
+  if (!correctionEnd || !Number.isFinite(correctionEnd.getTime()) || correctionEnd <= new Date()) {
+    throw new ServiceError("Tentukan tenggat pengisian yang masih akan datang.");
+  }
+
+  const assignments = await prisma.assignment.findMany({
+    where: { id: { in: ids } },
+    include: { categoryObject: { include: { category: { include: { period: true } } } } },
+  });
+  if (assignments.length !== ids.length) throw new ServiceError("Salah satu tugas tidak ditemukan.");
+
+  for (const assignment of assignments) {
+    if (assignment.status !== "BELUM_MULAI" && assignment.status !== "DRAF") {
+      throw new ServiceError("Semua tugas yang dipilih harus masih Belum mulai atau Draf.");
+    }
+    if (assignment.categoryObject.category.period.status !== "REVISI") {
+      throw new ServiceError("Pengisian terlambat massal hanya dapat dibuka saat periode berstatus Revisi.");
+    }
+  }
+
+  await prisma.$transaction(async (tx) => {
+    for (const assignment of assignments) {
+      const latestRevision = await tx.responseRevision.findFirst({
+        where: { assignmentId: assignment.id },
+        orderBy: { revision: "desc" },
+      });
+      if (latestRevision?.state !== "DRAFT") {
+        await tx.responseRevision.create({
+          data: {
+            assignmentId: assignment.id,
+            revision: (latestRevision?.revision ?? 0) + 1,
+            state: "DRAFT",
+            editedById: actor.userId,
+            reason,
+          },
+        });
+      }
+      await tx.assignment.update({
+        where: { id: assignment.id },
+        data: { status: "DIBUKA_KEMBALI", correctionEndsAt: correctionEnd },
+      });
+    }
+  });
+
+  await Promise.all(
+    assignments.map((assignment) =>
+      writeAudit({
+        actorId: actor.userId,
+        actorRole: "ADMIN",
+        action: "ASSIGNMENT_LATE_OPEN",
+        entity: "Assignment",
+        entityId: assignment.id,
+        reason,
+      })
+    )
+  );
+  return { openedCount: assignments.length, assignmentIds: ids };
 }
 
 // Bab 2.1/UC-07: admin mengedit lengkap dan langsung mengirim ulang (bukan menunggu pengisi).
@@ -490,6 +595,10 @@ export async function reopenAssignment(...args: Parameters<typeof reopenAssignme
   return atomic(() => reopenAssignmentImpl(...args));
 }
 
+export async function openLateAssignments(...args: Parameters<typeof openLateAssignmentsImpl>): Promise<Awaited<ReturnType<typeof openLateAssignmentsImpl>>> {
+  return atomic(() => openLateAssignmentsImpl(...args));
+}
+
 export async function adminEditResponse(...args: Parameters<typeof adminEditResponseImpl>): Promise<Awaited<ReturnType<typeof adminEditResponseImpl>>> {
   return atomic(() => adminEditResponseImpl(...args));
 }
@@ -541,6 +650,7 @@ export async function getCategorySheetData(
   if (!category) throw new ServiceError("Kategori tidak ditemukan.");
 
   const period = category.period;
+  const now = new Date();
   const baris = assignments
     .map((a) => {
       const latest = a.responseRevisions[0] ?? null;
@@ -548,9 +658,15 @@ export async function getCategorySheetData(
       const draf = latest && latest.state === "DRAFT" ? latest : null;
       const displayStatus = computeDisplayStatus(a.status, period.status, period.endsAt);
       // Cerminan assertFillable() di atas — sumber kebenarannya tetap di sana, diperiksa ulang
-      // saat menyimpan. Di sini hanya untuk menentukan baris mana yang boleh diketik.
-      const statusBolehDiisi =
-        a.status === "BELUM_MULAI" || a.status === "DRAF" || a.status === "DIBUKA_KEMBALI";
+      // saat menyimpan. Tugas yang dibuka kembali saat Revisi hanya boleh diketik sampai tenggat
+      // khususnya, bukan semata-mata karena status tugasnya DIBUKA_KEMBALI.
+      const statusBolehDiisi = a.status === "BELUM_MULAI" || a.status === "DRAF" || a.status === "DIBUKA_KEMBALI";
+      const dalamJendelaNormal =
+        period.status === "AKTIF" && now >= period.startsAt && now < period.endsAt;
+      const dalamJendelaBukaKembali =
+        a.status === "DIBUKA_KEMBALI" &&
+        ((period.status === "REVISI" && !!a.correctionEndsAt && now < a.correctionEndsAt) ||
+          (period.status === "AKTIF" && now < period.endsAt));
       return {
         assignmentId: a.id,
         instrumentVersionId: a.instrumentVersionId,
@@ -558,8 +674,7 @@ export async function getCategorySheetData(
         unitName: a.categoryObject.unitSnapshot,
         status: a.status,
         displayStatus,
-        bolehDiisi:
-          statusBolehDiisi && (a.status === "DIBUKA_KEMBALI" || displayStatus !== "LEWAT_TENGGAT"),
+        bolehDiisi: statusBolehDiisi && (dalamJendelaBukaKembali || (a.status !== "DIBUKA_KEMBALI" && dalamJendelaNormal)),
         scores: Object.fromEntries(
           ((draf ?? berlaku)?.scores ?? []).map((s) => [s.parameterId, s.score])
         ) as Record<string, number>,
