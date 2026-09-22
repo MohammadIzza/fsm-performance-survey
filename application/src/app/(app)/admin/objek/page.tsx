@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { listObjects } from "@/lib/services/objects";
 import { listObjectTypes } from "@/lib/services/objectTypes";
 import { ObjectManager } from "./object-manager";
-import { ObjectGroupManager } from "./object-group-manager";
 import { listObjectGroups } from "@/lib/services/objectGroups";
 import { PageIntro, SummaryCard } from "@/components/theme/summary";
 
@@ -52,17 +51,13 @@ async function ObjekPage() {
         />
       </PageIntro>
 
-      <ObjectManager objects={objects} objectTypes={objectTypes} units={units} users={users} daftarJenis={daftarJenis} />
-
-      <ObjectGroupManager
-        groups={objectGroups}
-        objects={objects.map((o) => ({
-          id: o.id,
-          name: o.name,
-          typeName: o.type.name,
-          unitName: o.ownerUnit.name,
-          active: o.active,
-        }))}
+      <ObjectManager
+        objects={objects}
+        objectTypes={objectTypes}
+        units={units}
+        users={users}
+        daftarJenis={daftarJenis}
+        objectGroups={objectGroups}
       />
     </div>
   );

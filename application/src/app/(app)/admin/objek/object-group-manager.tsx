@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAksi } from "@/components/theme/notifikasi";
-import { AdminAction, AdminActionList } from "@/components/theme/admin-actions";
+import { AdminAction } from "@/components/theme/admin-actions";
 import { DataList, DataRow, RowField, RowTitle } from "@/components/theme/data-list";
 import { PilihanCariBanyak } from "@/components/theme/pilihan-cari";
 import { TombolHapus } from "@/components/theme/tombol-hapus";
@@ -52,18 +52,10 @@ export function ObjectGroupManager({
     .map((o) => ({ value: o.id, label: `${o.name} — ${o.typeName}, ${o.unitName}` }));
 
   return (
-    <section className="app-panel app-panel--ruled">
-      <h2 className="app-panel__label">Kelompok objek</h2>
-      <p className="app-panel__text">
-        Kumpulan objek yang sering dipakai bersama, mis. peserta satu lomba. Saat menyusun peserta
-        kategori, seluruh anggotanya bisa ditambahkan sekaligus.
-      </p>
-
-      <AdminActionList>
-        <AdminAction
-          name="Buat kelompok objek"
-          description="Beri nama, lalu pilih objek mana saja yang termasuk di dalamnya."
-        >
+    <AdminAction
+      name="Kelola kelompok objek"
+      description="Daftar objek yang dapat dipilih bersama saat menyusun peserta kategori."
+    >
           <form action={tambahAction} className="grid gap-3">
             <label className="admin-tools__field">
               <span>Nama kelompok</span>
@@ -94,8 +86,6 @@ export function ObjectGroupManager({
               )}
             </div>
           </form>
-        </AdminAction>
-      </AdminActionList>
 
       {groups.length === 0 ? (
         <p className="app-empty">Belum ada kelompok objek.</p>
@@ -114,7 +104,7 @@ export function ObjectGroupManager({
           ))}
         </DataList>
       )}
-    </section>
+    </AdminAction>
   );
 }
 

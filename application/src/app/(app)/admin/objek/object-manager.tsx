@@ -29,6 +29,7 @@ import {
 } from "@/lib/actions/admin-objects";
 import type { listObjects } from "@/lib/services/objects";
 import { PilihanCari, PilihanCariBanyak } from "@/components/theme/pilihan-cari";
+import { ObjectGroupManager, type KelompokObjek } from "./object-group-manager";
 
 type ObjectWithMeta = Awaited<ReturnType<typeof listObjects>>[number];
 type ObjectType = { id: string; code: string; name: string };
@@ -44,12 +45,14 @@ export function ObjectManager({
   units,
   users,
   daftarJenis,
+  objectGroups,
 }: {
   objects: ObjectWithMeta[];
   objectTypes: ObjectType[];
   units: Unit[];
   users: UserOption[];
   daftarJenis: Jenis[];
+  objectGroups: KelompokObjek[];
 }) {
   const [typeState, typeFormAction, typePending] = useAksi(createObjectTypeAction, {}, "Jenis objek ditambahkan.");
   // Bab 16.2: "Tabel panjang memiliki pencarian, filter, pagination, dan state kosong" — master
@@ -105,6 +108,17 @@ export function ObjectManager({
           </form>
           <DaftarJenis jenis={daftarJenis} aksiUbah={renameObjectTypeAction} aksiHapus={deleteObjectTypeAction} sebutan="jenis objek" />
         </AdminAction>
+
+        <ObjectGroupManager
+          groups={objectGroups}
+          objects={objects.map((o) => ({
+            id: o.id,
+            name: o.name,
+            typeName: o.type.name,
+            unitName: o.ownerUnit.name,
+            active: o.active,
+          }))}
+        />
       </AdminActionList>
 
       <FilterBar>
