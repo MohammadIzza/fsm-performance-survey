@@ -24,9 +24,15 @@ export async function grantRoleAction(_prev: FormState, formData: FormData): Pro
   return {};
 }
 
-export async function revokeRoleAction(formData: FormData): Promise<void> {
+export async function revokeRoleAction(_prev: FormState, formData: FormData): Promise<FormState> {
   const actor = await requireAdminActor();
   const grantId = String(formData.get("grantId") ?? "");
-  await revokeRole(grantId, actor);
+  try {
+    await revokeRole(grantId, actor);
+  } catch (e) {
+    if (e instanceof ServiceError) return { error: e.message };
+    throw e;
+  }
   revalidatePath("/admin/pengguna");
+  return {};
 }

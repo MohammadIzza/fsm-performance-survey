@@ -211,10 +211,10 @@ function UserRow({
   userTypes: UserType[];
   units: Unit[];
 }) {
-  const cabutPeran = useAksiLangsung(revokeRoleAction, "Peran dicabut.");
   const ubahAktifPengguna = useAksiLangsung(setUserActiveAction, (fd) => (fd.get("active") === "true" ? "Pengguna diaktifkan." : "Pengguna dinonaktifkan."));
   const [updateState, updateFormAction, updatePending] = useAksi(updateUserAction, {}, "Perubahan pengguna disimpan.");
   const [grantState, grantFormAction, grantPending] = useAksi(grantRoleAction, {}, "Peran diberikan.");
+  const [revokeState, revokeFormAction, revokePending] = useAksi(revokeRoleAction, {}, "Peran dicabut.");
 
   const rowFields = (
     <>
@@ -398,18 +398,24 @@ function UserRow({
                       <span className="font-medium text-[var(--foreground)]">
                         {g.role === "ADMIN" ? "Admin" : "Dekan"}
                       </span>
-                      <form action={cabutPeran}>
+                      <form action={revokeFormAction}>
                         <input type="hidden" name="grantId" value={g.id} />
                         <button
                           type="submit"
+                          disabled={revokePending}
                           className="app-text-xs font-medium text-[var(--muted)] hover:text-[var(--danger)] hover:underline"
                         >
-                          Cabut
+                          {revokePending ? "Mencabut…" : "Cabut"}
                         </button>
                       </form>
                     </li>
                   ))}
                 </ul>
+              )}
+              {revokeState.error && (
+                <p role="alert" className="app-text-sm" style={{ color: "var(--color-brand-1)" }}>
+                  {revokeState.error}
+                </p>
               )}
 
               <form action={grantFormAction} className="admin-inline-form grid gap-3 sm:grid-cols-4">
