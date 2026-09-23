@@ -362,6 +362,25 @@ export function PilihanCariBanyak(props: PropsBanyak) {
           ? { value: props.value }
           : { defaultValue: props.defaultValue ?? [] })}
         onChange={(e) => props.onChange?.(Array.from(e.target.selectedOptions, (o) => o.value))}
+        /**
+         * Klik biasa menambah atau melepas satu pilihan, tanpa menahan Ctrl/Cmd.
+         *
+         * Perilaku bawaan kotak daftar pilih-banyak adalah "klik = ganti seluruh pilihan": memilih
+         * dua parameter menuntut Ctrl+klik, dan mengosongkan pilihan pun begitu. Tidak ada apa pun
+         * di layar yang memberitahukan itu, jadi yang terjadi orang mengira hanya satu pilihan yang
+         * mungkin. Di sini bawaannya dicegah, keadaan terpilih dibalik sendiri, lalu event change
+         * dikirim supaya React tetap menerima perubahannya seperti biasa.
+         */
+        onMouseDown={(e) => {
+          if (props.disabled) return;
+          const opsi = (e.target as HTMLElement).closest("option");
+          if (!opsi) return;
+          e.preventDefault();
+          const select = e.currentTarget;
+          (opsi as HTMLOptionElement).selected = !(opsi as HTMLOptionElement).selected;
+          select.focus();
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+        }}
         size={Math.max(2, options.length)}
         className={`form__control ${className}`.trim()}
       >

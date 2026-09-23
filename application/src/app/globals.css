@@ -1315,6 +1315,11 @@ input[type="range"]:disabled::-moz-range-thumb {
        baris, sisanya digulir di dalam daftarnya sendiri. */
     max-height: 17rem;
     overflow-y: auto;
+    /* Selebar kotak yang membukanya. Bawaannya hanya menetapkan lebar minimum, sehingga pilihan
+       sepanjang "Modul KAT · Dosen Favorit · Orang, 5 pertanyaan" membuat daftarnya meluber
+       melewati kotaknya dan terbaca sebagai lapisan yang terlepas dari isian. */
+    width: anchor-size(self-inline);
+    box-sizing: border-box;
     /* margin-block, bukan margin-top: peramban membalik daftar ke atas bila ruang di bawah tidak
        cukup, dan jarak yang hanya diberikan di satu sisi hilang begitu itu terjadi. */
     margin-block: .3rem;
@@ -1322,19 +1327,29 @@ input[type="range"]:disabled::-moz-range-thumb {
     background: var(--color-white);
     border: 1px solid var(--color-grey-2);
     border-radius: .55rem;
-    font: 400 var(--font-size-t-sm)/1.3 var(--font-family-text);
+    /* Ukuran hurufnya mengikuti kotaknya sendiri: isian formulir utama, bilah penyaring, dan isian
+       ringkas di dalam panel memakai tiga ukuran berbeda, jadi satu angka tetap akan salah di dua
+       di antaranya. */
+    font-family: var(--font-family-text);
+    font-weight: 400;
+    font-size: inherit;
+    line-height: 1.35;
     color: var(--color-black);
   }
   .survey-shell select option,
   .survey-login select option {
     display: flex;
     align-items: center;
-    padding: .45rem .6rem;
+    /* Satuan em, bukan rem: jaraknya ikut mengecil bersama huruf pada isian yang ringkas. */
+    padding: .45em .6em;
     border-radius: .4rem;
     color: var(--color-black);
+    /* Pilihan yang panjang membungkus ke baris berikutnya; melebarkan daftarnya bukan pilihan,
+       karena lebarnya sudah dikunci selebar kotaknya. */
+    white-space: normal;
     /* Tanda centang bawaan menyisakan kolom kosong di depan setiap baris; keadaan terpilih sudah
        ditandai warna latar, jadi kolom itu tidak dibutuhkan. */
-    padding-inline-start: .6rem;
+    padding-inline-start: .6em;
   }
   .survey-shell select option::checkmark,
   .survey-login select option::checkmark {
@@ -1348,6 +1363,26 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-login select option:checked {
     background: var(--color-brand-2);
     font-weight: 600;
+  }
+
+  /* Layar ponsel. Daftar pilihan memakai ukuran huruf teks biasa (16px), sementara kotak pilihannya
+     sendiri hanya 10,8px di lebar ini: daftarnya jadi satu setengah kali lebih besar daripada
+     isian yang membukanya, melebar melewati formulir karena ada label sepanjang "Modul KAT ·
+     Dosen Favorit · Orang, 5 pertanyaan", dan menutupi hampir seluruh isi di belakangnya.
+     Ukurannya disamakan dengan kotaknya, lebarnya dibatasi selebar layar, dan label yang panjang
+     dibiarkan membungkus alih-alih melebarkan daftarnya. */
+  @media only screen and (max-width: 640px) {
+    .survey-shell select::picker(select),
+    .survey-login select::picker(select) {
+      max-height: 12rem;
+      max-width: calc(100vw - 1.6rem);
+      padding: .2rem;
+      border-radius: .5rem;
+    }
+    .survey-shell select option,
+    .survey-login select option {
+      border-radius: .35rem;
+    }
   }
 }
 
