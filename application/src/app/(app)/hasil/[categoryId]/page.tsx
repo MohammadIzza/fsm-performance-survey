@@ -166,7 +166,7 @@ export default async function HasilDetailPage({
       )}
 
       <p className="app-text-xs text-[var(--muted)]">
-        Dihitung {latestRun ? dateFmt.format(latestRun.createdAt) : "—"}
+        {latestRun ? `Dihitung ${dateFmt.format(latestRun.createdAt)}` : "Belum pernah dihitung"}
       </p>
     </div>
   );

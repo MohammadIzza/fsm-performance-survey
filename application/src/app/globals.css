@@ -1171,9 +1171,11 @@ input[type="range"]:disabled::-moz-range-thumb {
    tetap, supaya nama-nama di bawahnya tetap rata meski nomornya satu atau dua digit; tiga teratas
    diberi mahkota tema di depan nomornya. */
 .leaderboard-rank {
-  display:inline-flex;align-items:center;justify-content:flex-start;gap:.25rem;
-  min-width:2.6em;margin-right:.35em;font-weight:600;
+  display:inline-flex;align-items:center;justify-content:flex-end;gap:.25rem;
+  flex:0 0 auto;width:2.7em;margin-right:.5em;font-weight:600;
 }
+/* Baris tanpa peringkat tetap menyisakan slot nomor supaya nama objek di seluruh papan rata. */
+.leaderboard-rank__number--kosong {display:inline-block;width:1ch}
 .leaderboard-rank__crown {width:.95em;height:.95em;flex:0 0 auto}
 .leaderboard-rank__number {font-variant-numeric:tabular-nums}
 /* Nilai adalah angka yang dicari orang di baris ini — satu tingkat lebih tebal dari bidang lain. */
@@ -1184,22 +1186,26 @@ input[type="range"]:disabled::-moz-range-thumb {
   font-size:.62rem;line-height:1.45;
 }
 .leaderboard-detail__muted {color:var(--color-text)}
-/* Lebar kolom leaderboard. Daftar accordion admin mengunci kolom Status 6rem — cukup untuk
-   "Aktif" dan "Nonaktif". Di sini isinya "Memenuhi syarat" dan "Belum ada penilaian", yang
-   meluber sampai menutupi tombol buka-tutup di kolom Aksi. Status dilebarkan, dan jatahnya
-   diambil dari Respons dan Nilai — dua kolom yang isinya cuma angka pendek. */
-@media only screen and (min-width:988px) {
-  /* Kolom Status boleh menyusut kalau layarnya sempit; Respons dan Nilai punya lebar dasar supaya
-     nama kolom beserta ikon keterangannya tidak saling menimpa di layar 1000–1300px. */
-  .survey-shell main .admin-area .leaderboard-list .s-courses-list:has(.sb__disclosure)
-    .sb-course .sb__link > .sb__title {flex:2.2 1 8rem;min-width:7rem}
-  .survey-shell main .admin-area .leaderboard-list .s-courses-list:has(.sb__disclosure)
-    .sb-course .sb__link > .sb__duration {flex:1.5 1 6rem;min-width:5rem}
-  .survey-shell main .admin-area .leaderboard-list .s-courses-list:has(.sb__disclosure)
-    .sb-course .sb__link > :is(.sb__location,.sb__topic) {flex:0 0 5rem}
-  .survey-shell main .admin-area .leaderboard-list .s-courses-list:has(.sb__disclosure)
-    .sb-course .sb__link > .sb__dates {flex:0 1 10.5rem;min-width:8.6rem}
+/* Nama objek beserta unitnya, satu bidang dua baris. Keduanya dipotong dengan elipsis, bukan
+   dipatahkan: nama unit yang patah jadi tiga baris membuat tinggi baris di kedua papan berbeda,
+   sehingga peringkat yang sejajar tidak lagi terbaca sejajar. */
+.leaderboard-objek {display:flex;flex:1 1 auto;flex-direction:column;gap:.05rem;min-width:0}
+.leaderboard-objek__nama {overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.leaderboard-objek__unit {
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:var(--color-text);font-size:.58rem;font-weight:400;line-height:1.35;
 }
+.leaderboard-list .s-courses-list .sb-course .sb__title {display:flex;align-items:center;min-width:0}
+.leaderboard-respons {font-variant-numeric:tabular-nums}
+/* Nama bidang Respons: hanya muncul di baris yang tidak punya panel detail dan sedang menumpuk
+   (papan gabungan di layar sempit). Di tempat lain kepala kolom atau panel sudah menamainya. */
+.leaderboard-respons__label {display:none}
+/* Susunan bobot pada judul papan gabungan: sebaris dengan judulnya di layar lebar. */
+.leaderboard-bobot::before {content:"·";margin:0 .4em}
+/* Nilai yang belum ada: ditulis sebagai keterangan singkat, bukan tanda hubung — di kolom angka,
+   tanda hubung terbaca seperti nilai minus. */
+.leaderboard-score--kosong {color:var(--color-text);font-size:.58rem;font-weight:500}
+.leaderboard-status__pendek {display:none}
 
 /* Simpul pohon organisasi: kotak beige bergaris hitam seperti sel tabel, bukan kartu berbayang. */
 .org-tree__node {
@@ -1706,7 +1712,10 @@ input[type="range"]:disabled::-moz-range-thumb {
 
 /* Panel yang isinya beberapa bagian sekaligus — ubah data, kelola pimpinan — dipisah garis tipis
    supaya terbaca sebagai dua pekerjaan, bukan satu formulir panjang. */
-.admin-row-section {padding:0!important}
+/* min-width:0 menembus lebar minimum bawaan petak: tanpa itu seksi selebar isi terlebarnya —
+   tabel penilai yang angkanya tidak boleh patah — dan panel di kolom papan peringkat meluber
+   melewati kolomnya alih-alih membiarkan tabelnya sendiri yang digeser ke samping. */
+.admin-row-section {padding:0!important;min-width:0}
 .admin-row-section + .admin-row-section {
   border-top:1px solid var(--color-grey-2);padding-top:.9rem!important;
 }
@@ -2259,7 +2268,206 @@ input[type="range"]:disabled::-moz-range-thumb {
    seluruh nilai terbaca tanpa menggeser layar ke samping. `data-label` pada sel berasal dari
    judul kolom yang sama, sehingga hubungan label–nilai tetap jelas setelah kepala tabel
    disembunyikan secara visual. */
+/* Papan peringkat berdampingan: dua kelompok penilai, atau tiga bila kategori memakai nilai
+   gabungan. Di lebar sekolom itu satu baris hanya membawa nomor peringkat, nama objek, dan
+   nilainya; unit, respons, predikat, dan status dibaca di panel yang terbuka lewat tombol detail.
+
+   Sebelumnya baris memakai jatah lebar milik daftar admin selebar halaman. Di dalam kolom
+   separuh layar jatah itu menyusut jadi beberapa puluh piksel sementara isinya tetap sepanjang
+   "Belum ada penilaian", sehingga lencana status menimpa nama objek di sebelahnya.
+
+   Ditulis sesudah blok daftar admin di atas dan dengan selektor yang lebih panjang: aturan di
+   sana memakai tujuh kelas, dan versi yang lebih pendek di sini tidak akan pernah berlaku. */
+@media only screen and (min-width:1180px) {
+  /* Halaman ini memakai lebar layar yang tersedia, bukan batas 1240px milik halaman lain. Isinya
+     tiga papan berdampingan: pada batas itu tiap papan tinggal sekitar 380px, nama objek terpotong
+     di tengah kata, dan tabel penilai di panelnya harus digeser ke samping — sementara di layar
+     lebar ada ratusan piksel menganggur di kiri dan kanan. Halaman lain tidak ikut: barisnya satu
+     kolom teks, dan teks selebar 1600px justru tidak nyaman dibaca. */
+  .survey-shell main:has(.leaderboard-columns) {max-width:1680px}
+
+  .survey-shell main .leaderboard-columns {
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;align-items:start;
+  }
+  .survey-shell main .leaderboard-columns--three {grid-template-columns:repeat(3,minmax(0,1fr))}
+  /* Judul papan gabungan menyebut susunan bobotnya, jadi ia bisa memakan dua baris sementara dua
+     judul lainnya satu baris — dan daftar di bawahnya ikut turun, sehingga kepala kolom "Objek /
+     Nilai" ketiga papan tidak lagi sebaris. Tiap papan memakai baris milik kisi induknya
+     (subgrid): tinggi baris judul menjadi tinggi judul tertinggi, dan ketiga daftar mulai pada
+     garis yang sama. */
+  .survey-shell main .leaderboard-columns__panel {
+    min-width:0;padding:0 .7rem;display:grid;grid-template-rows:subgrid;grid-row:span 2;
+    align-content:start;
+  }
+  .survey-shell main .leaderboard-columns__panel:first-child {padding-left:0}
+  .survey-shell main .leaderboard-columns__panel:last-child {padding-right:0}
+  .survey-shell main .leaderboard-columns__panel + .leaderboard-columns__panel {border-left:1px solid var(--border)}
+
+  .survey-shell main .admin-area .leaderboard-columns .leaderboard-list .s-courses-list .sb-course {font-size:.68rem}
+  /* Tinggi baris seragam di ketiga papan. Baris yang punya tombol buka-tutup setinggi tombolnya,
+     sementara papan gabungan tidak punya tombol — barisnya jadi lebih pendek, dan peringkat yang
+     sejajar tidak lagi terbaca sejajar antarpapan. Tombolnya dikecilkan (di sini ia hanya chevron,
+     bukan sasaran sentuh ponsel) lalu tinggi minimum yang sama dipasang pada semua baris. */
+  .survey-shell main .admin-area .leaderboard-columns .leaderboard-list .s-courses-list
+    .sb-course .sb__detail-toggle {width:1.3rem;height:1.3rem;flex-basis:1.3rem}
+  .survey-shell main .admin-area .leaderboard-columns .leaderboard-list .s-courses-list
+    .sb-course:not(.sb-course--head) .sb__link {min-height:2.3rem}
+  .survey-shell main .admin-area .leaderboard-columns .leaderboard-list .s-courses-list .sb-course .sb__link {
+    display:flex;flex-direction:row;align-items:center;gap:.55rem;padding:.5rem 0;
+  }
+  .survey-shell main .admin-area .leaderboard-columns .leaderboard-list .s-courses-list .sb-course .sb__link > .sb__title {
+    flex:1 1 auto;width:auto;min-width:0;
+  }
+  .survey-shell main .admin-area .leaderboard-columns .leaderboard-list .s-courses-list .sb-course .sb__link >
+    :is(.sb__location,.sb__topic,.sb__dates,.sb__price) {
+    flex:0 0 auto;width:auto;max-width:none;margin:0;text-align:right;
+  }
+  .survey-shell main .admin-area .leaderboard-columns .leaderboard-list .s-courses-list .sb-course .sb__link > .sb__topic {width:3.4rem}
+  .survey-shell main .admin-area .leaderboard-columns .leaderboard-list .s-courses-list .sb-course .sb__link > .sb__price {width:1.5rem}
+  /* Slot terakhir hanya memuat satu chevron, sementara kata "Aksi" lebih lebar daripada slot itu
+     dan meluber ke luar papan. Kepala kolomnya dikosongkan — panahnya sudah menjelaskan dirinya. */
+  .survey-shell main .admin-area .leaderboard-columns .leaderboard-list .s-courses-list
+    .sb-course--head .sb__link > .sb__price {visibility:hidden}
+  /* Papan yang berdampingan hanya membawa yang utama: nomor, nama objek, dan nilai. Unit,
+     respons, predikat, dan status kelayakan tidak ikut di baris — semuanya sudah ada di panel
+     yang terbuka lewat tombol detail, dan memaksakannya ke kolom selebar ini justru membuat
+     tiap bidang terpotong. Di layar sempit papannya melebar penuh dan semuanya kembali tampil. */
+  .survey-shell main .admin-area .leaderboard-columns .leaderboard-list .s-courses-list .sb-course .sb__link >
+    :is(.sb__location,.sb__dates) {display:none}
+  /* Daftar admin lain menyembunyikan detail berlabel di panel pada layar lebar, karena barisnya
+     sudah memuat seluruh kolom. Di papan peringkat justru sebaliknya: barisnya hanya membawa
+     nama dan nilai, jadi di sinilah unit, respons, predikat, dan status dibaca. */
+  .survey-shell main .admin-area .leaderboard-columns .admin-row-details {display:grid}
+  /* Panel di dalam kolom papan memuat keterangan pelengkap, bukan isi utama halaman: ukurannya
+     seukuran baris papannya dan jaraknya dirapatkan. Dengan ukuran panel admin selebar halaman,
+     satu panel terbuka jadi lebih tinggi daripada seluruh papan di sebelahnya. Detail berlabelnya
+     juga dibuat muat dua kolom — ambang 9rem terlalu lebar untuk kolom selebar sepertiga papan,
+     sehingga semuanya berbaris menurun satu per satu. */
+  .survey-shell main .admin-area .leaderboard-columns .sb__panel > * {padding:.85rem .9rem}
+  .survey-shell main .admin-area .leaderboard-columns .admin-row-panel {gap:.7rem}
+  .survey-shell main .admin-area .leaderboard-columns .admin-row-details {
+    grid-template-columns:repeat(auto-fit,minmax(7rem,1fr));gap:.5rem .8rem;
+  }
+  .survey-shell main .admin-area .leaderboard-columns .admin-row-details dt {
+    margin-bottom:.1rem;font-size:.5rem;letter-spacing:.05em;
+  }
+  .survey-shell main .admin-area .leaderboard-columns .admin-row-details dd {
+    font-size:.6rem;line-height:1.3;
+  }
+  .survey-shell main .admin-area .leaderboard-columns .admin-row-section + .admin-row-section {
+    padding-top:.7rem!important;
+  }
+  .survey-shell main .admin-area .leaderboard-columns .admin-row-section .app-panel__label {
+    margin-bottom:.35rem;font-size:.5rem;
+  }
+  .survey-shell main .admin-area .leaderboard-columns .leaderboard-detail {gap:.22rem}
+  .survey-shell main .admin-area .leaderboard-columns .leaderboard-detail li {
+    font-size:.6rem;line-height:1.3;
+  }
+  .survey-shell main .admin-area .leaderboard-columns .leaderboard-objek__unit,
+  .survey-shell main .admin-area .leaderboard-columns .leaderboard-list .s-courses-list .sb-course .sb__link .leaderboard-predikat {
+    display:none;
+  }
+}
+
+/* Papan gabungan di layar sempit. Baris papan ini tidak punya panel detail — tidak ada yang bisa
+   dibuka — sehingga aturan yang menyembunyikan bidang pelengkap di daftar admin sengaja melewatinya
+   dan seluruh bidangnya tetap di baris. Tanpa kepala kolom di atasnya, bidang-bidang itu jatuh
+   menumpuk sebagai angka telanjang: "2", lalu "23,20", lalu predikatnya, dengan lencana status
+   melayang di kanan. Di sini bidangnya ditata sendiri: nama dan responsnya di kolom kiri, nilai
+   dan statusnya rata kanan, dua baris yang sejajar. */
+@media only screen and (max-width:1179px) {
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list
+    .sb-course:not(.sb-course--head) .leaderboard-respons__label {
+    display:inline;
+  }
+}
+/* Di antara ponsel dan papan berdampingan, daftar admin menyusun bidangnya menurun satu per baris.
+   Untuk papan peringkat susunan itu memecah satu baris peringkat menjadi lima baris: nama, respons,
+   nilai, predikat, lalu lencana status — dan papannya tidak lagi terbaca sebagai papan. Di sini
+   barisnya dikembalikan menjadi dua baris: nama dan responsnya di kiri, nilai dan statusnya rata
+   kanan, dengan tombol buka-tutup di ujung. Berlaku untuk ketiga papan. */
+@media only screen and (min-width:641px) and (max-width:1179px) {
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list
+    .sb-course:not(.sb-course--head) .sb__link {
+    display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;
+    gap:.15rem .9rem;padding:.7rem 0;
+  }
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list
+    .sb-course:not(.sb-course--head) .sb__link > .sb__title {
+    grid-column:1;grid-row:1;width:auto;
+  }
+  /* Sejajar dengan nama objek, bukan dengan tepi baris: nomor peringkat di atasnya selebar
+     2,7em + 0,5em pada huruf judul (0,9375rem), yaitu sekitar 3rem. */
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list
+    .sb-course:not(.sb-course--head) .sb__link > .sb__location {
+    grid-column:1;grid-row:2;width:auto;margin:0;padding-left:3rem;
+    color:var(--color-text);font-size:.62rem;line-height:1.3;
+  }
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list
+    .sb-course:not(.sb-course--head) .sb__link > .sb__topic {
+    grid-column:2;grid-row:1;width:auto;margin:0;justify-self:end;align-self:start;text-align:right;
+  }
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list
+    .sb-course:not(.sb-course--head) .sb__link > .sb__dates {
+    grid-column:2;grid-row:2;width:auto;margin:0;justify-self:end;
+  }
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list
+    .sb-course:not(.sb-course--head) .sb__link > :is(.sb__price,.sb__disclosure) {
+    grid-column:3;grid-row:1/span 2;width:auto;margin:0;align-self:center;justify-self:end;
+  }
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list
+    .sb-course:not(.sb-course--head) .leaderboard-score {font-size:.8rem;line-height:1.2}
+  /* Lencana kelayakan seukuran teks di sekitarnya: pada lebar ini ukuran bawaannya setinggi
+     hampir dua baris dan menjadi benda paling menonjol di papan, mengalahkan nilainya. */
+  .survey-shell main .admin-area .leaderboard-list .status-pill {padding:.25em .7em;font-size:.62rem}
+}
+@media only screen and (max-width:640px) {
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list
+    .sb-course:not([data-collapsible="true"]):not(.sb-course--head) .sb__link {
+    gap:.15rem .7rem;
+  }
+  /* Nama objek beserta unitnya di kiri atas; nilai sebaris dengan namanya di kanan. */
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list
+    .sb-course:not([data-collapsible="true"]):not(.sb-course--head) .sb__link > .sb__title {
+    grid-column:1;grid-row:1;
+  }
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list
+    .sb-course:not([data-collapsible="true"]):not(.sb-course--head) .sb__link > .sb__topic {
+    grid-column:2;grid-row:1;justify-self:end;align-self:start;text-align:right;
+  }
+  /* Baris kedua: jumlah respons di kiri, lencana kelayakan di kanan. Responsnya menjorok
+     selebar slot nomor peringkat (2,7em + 0,5em pada huruf judul 0,68rem) supaya lurus dengan
+     nama objek di atasnya, bukan menggantung sendiri di tepi kiri baris. */
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list
+    .sb-course:not([data-collapsible="true"]):not(.sb-course--head) .sb__link > .sb__location {
+    grid-column:1;grid-row:2;align-self:center;padding-left:2.2rem;color:var(--color-text);
+  }
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list
+    .sb-course:not([data-collapsible="true"]):not(.sb-course--head) .sb__link > .sb__dates {
+    grid-column:2;grid-row:2;justify-self:end;align-self:center;
+  }
+  /* Angka nilai selevel nama objek: ia yang dicari orang di papan ini. */
+  .survey-shell main .admin-area .leaderboard-list .s-courses-list
+    .sb-course:not([data-collapsible="true"]):not(.sb-course--head) .leaderboard-score {
+    font-size:.72rem;line-height:1.2;
+  }
+}
+
 @media only screen and (max-width: 640px) {
+  /* Bobot papan gabungan turun ke baris sendiri: judul beserta ikon keterangannya tetap utuh di
+     baris pertama, tidak terdorong sampai ikonnya menggantung sendirian di bawah. */
+  .leaderboard-bobot {
+    display:block;margin-top:.15rem;font-size:.5rem;font-weight:500;line-height:1.3;
+  }
+  .leaderboard-bobot::before {content:none}
+  /* Judul papan berdiri di antara dua garis: garis penutup papan sebelumnya di atasnya dan garis
+     kepala daftarnya sendiri di bawahnya. Di layar lebar ketiga papan berdampingan sehingga hal
+     itu tidak terjadi; bertumpuk begini judulnya perlu ruang di kedua sisi agar tidak terbaca
+     menempel pada garis. */
+  .survey-shell main .leaderboard-columns__panel + .leaderboard-columns__panel {margin-top:1.4rem}
+  .survey-shell main .leaderboard-columns__panel > .app-panel__label {margin-bottom:.55rem}
+
   .access-policy-form__row,
   .access-policy-form__row[data-has-time="true"] {
     grid-template-columns:minmax(0,1fr) max-content;width:100%;gap:.4rem;
@@ -2367,6 +2575,50 @@ input[type="range"]:disabled::-moz-range-thumb {
   }
   .admin-area table tbody td [class*="text-[11px]"],
   .admin-area table tbody td [class*="text-[12px]"] {font-size:.56rem}
+  /* Panel baris papan peringkat di ponsel. Isinya keterangan pelengkap yang dibaca sekilas, bukan
+     isi utama halaman: hurufnya diturunkan dan detail berlabelnya disusun dua kolom, supaya satu
+     panel terbuka tidak mendorong seluruh papan peringkat keluar layar. */
+  .survey-shell main .admin-area .leaderboard-list .sb__panel > * {padding:.55rem .6rem}
+  .survey-shell main .admin-area .leaderboard-list .admin-row-panel {gap:.55rem}
+  .survey-shell main .admin-area .leaderboard-list .admin-row-details {
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem .7rem;
+  }
+  .survey-shell main .admin-area .leaderboard-list .admin-row-details dt {font-size:.46rem}
+  .survey-shell main .admin-area .leaderboard-list .admin-row-details dd {font-size:.56rem}
+  .survey-shell main .admin-area .leaderboard-list .leaderboard-detail li {
+    font-size:.56rem;line-height:1.3;
+  }
+  .survey-shell main .admin-area .leaderboard-list .admin-row-section .app-panel__label {
+    font-size:.46rem;
+  }
+  /* Tabel penilai tetap berbentuk tabel di ponsel. Aturan di atas mengubah tabel admin menjadi
+     daftar kartu berlabel karena tabel itu berkolom lebar dan berisi tautan aksi; tabel ini
+     sebaliknya — kolomnya angka pendek, dan justru perbandingan antarbarisnya yang dicari. */
+  .survey-shell main .admin-area table.penilai-tabel {
+    display:table;width:100%;min-width:0!important;font-size:.56rem;
+  }
+  .survey-shell main .admin-area .penilai-tabel thead {
+    position:static;width:auto;height:auto;padding:0;margin:0;overflow:visible;
+    clip:auto;white-space:normal;border:0;
+  }
+  .survey-shell main .admin-area .penilai-tabel thead th {padding:.2rem .3rem;font-size:.46rem}
+  .survey-shell main .admin-area .penilai-tabel tbody td {font-size:.56rem}
+  .survey-shell main .admin-area .penilai-tabel tbody {display:table-row-group;gap:0}
+  .survey-shell main .admin-area .penilai-tabel tbody tr {
+    display:table-row;padding:0;border:0!important;
+  }
+  .survey-shell main .admin-area .penilai-tabel tbody :is(th,td) {
+    display:table-cell;padding:.24rem .3rem!important;border:0;text-align:right!important;
+  }
+  .survey-shell main .admin-area .penilai-tabel tbody tr + tr :is(th,td) {
+    border-top:1px solid var(--color-grey-2);
+  }
+  .survey-shell main .admin-area .penilai-tabel tbody th:first-child {
+    padding-left:0!important;text-align:left!important;
+  }
+  .survey-shell main .admin-area .penilai-tabel tbody td::before {content:none}
+  .survey-shell main .admin-area .penilai-tabel__id {font-size:.46rem}
+
   .admin-area ul.divide-y > li {padding:.55rem!important;font-size:.64rem;line-height:1.3}
   .admin-area form.grid > * {min-width:0;max-width:100%}
   .admin-area input[type="file"] {width:100%;min-width:0;font-size:.64rem}
@@ -3725,8 +3977,50 @@ input[type="range"]:disabled::-moz-range-thumb {
 .kelompok-anggota li:last-child {border-bottom:0}
 .kelompok-anggota__unit {color:var(--color-text);font-size:.6rem}
 
-/* Predikat nilai di bawah angkanya pada papan peringkat. Hanya teks berwarna — lencana berlatar
-   sudah dipakai kolom Status di sebelahnya, dan dua lencana berdampingan membuat baris terbaca
+/* Nilai tiap penilai di panel baris papan peringkat: satu baris satu penilai, satu kolom satu
+   parameter. Garisnya tipis dan hanya mendatar — kotak penuh bergaris di dalam panel yang sudah
+   berlatar sendiri terbaca seperti kartu di dalam kartu. Angkanya rata kanan dengan angka tabular
+   supaya satuan dan puluhan tetap lurus antarbaris. */
+/* Rantainya disebut lengkap (`.survey-shell main …`) seperti tabel lain di aplikasi ini: aturan
+   tabel umum di ruang survei memakai rantai itu, dan versi sekelas di sini akan kalah — sel tetap
+   berpadding 1em dengan garis hitam 2px, ukuran untuk tabel selebar halaman. */
+.penilai-tabel-wrap {overflow-x:auto}
+.survey-shell main .penilai-tabel {
+  width:100%;border-collapse:collapse;font-size:.6rem;line-height:1.3;
+}
+.survey-shell main .penilai-tabel :is(thead th,tbody :is(th,td)) {
+  padding:.26rem .28rem;border:0;text-align:right;white-space:nowrap;
+}
+/* Kolom angka dijaga seringkas isinya: tiap piksel yang tidak dipakai di sini menjadi jatah kolom
+   nama, satu-satunya kolom yang isinya bisa patah jadi beberapa baris. */
+.survey-shell main .penilai-tabel tbody td {font-size:.6rem}
+/* Nama parameter boleh patah, angkanya tidak: nama seperti "Publikasi ilmiah" jadi lantai lebar
+   kolom kalau dijaga satu baris, dan tabelnya melebihi lebar panel hanya karena kepalanya. */
+.survey-shell main .penilai-tabel thead th {
+  color:var(--color-text);font-size:.5rem;font-weight:600;letter-spacing:.05em;line-height:1.25;
+  white-space:normal;border-bottom:1px solid var(--color-grey-2);
+}
+.survey-shell main .penilai-tabel tbody tr + tr :is(th,td) {
+  border-top:1px solid var(--color-grey-2);
+}
+/* Kolom nama: satu-satunya kolom teks, jadi ia yang melar dan boleh memotong nama yang panjang. */
+.survey-shell main .penilai-tabel :is(thead th,tbody th):first-child {
+  width:99%;min-width:5.5rem;padding-left:0;text-align:left;white-space:normal;font-weight:600;
+}
+/* NIM/NIP adalah satu kata sepanjang 18 angka: dibiarkan utuh ia menjadi lantai lebar kolom nama,
+   dan tabelnya melebihi panel meski kolom angkanya sudah seringkas mungkin. */
+.penilai-tabel__id {overflow-wrap:anywhere}
+.penilai-tabel tbody td {font-variant-numeric:tabular-nums}
+/* Sorot baris tabel admin menandai baris yang sedang diarahkan tetikus pada daftar yang bisa
+   ditindaklanjuti. Tabel ini isi panel yang hanya dibaca — dan barisnya sudah berada di dalam
+   baris papan yang punya sorotnya sendiri, jadi dua sorot bertumpuk. */
+.survey-shell main .admin-area .penilai-tabel tbody tr:hover {background:transparent}
+.penilai-tabel__nama {display:block}
+/* NIM/NIP di bawah namanya: penanda pembeda saat ada dua nama mirip, bukan bagian namanya. */
+.penilai-tabel__id {
+  display:block;color:var(--color-text);font-size:.5rem;font-weight:400;line-height:1.3;
+}
+
    sebagai dua status yang bersaing. Warnanya diturunkan dari palet yang sama seperti penanda
    "terkirim": dicampur hitam supaya cukup gelap dibaca sebagai teks kecil di atas putih. */
 .leaderboard-predikat {

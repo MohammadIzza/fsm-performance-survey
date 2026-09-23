@@ -13,6 +13,7 @@ import {
   RowPanelDetails,
   RowPanelField,
   RowTitle,
+  type RowKind,
 } from "@/components/theme/data-list";
 import { StatusPill } from "@/components/theme/status-pill";
 import { FilterBar, FilterField } from "@/components/theme/filter-bar";
@@ -54,6 +55,25 @@ const eligibilityLabel: Record<RankedEntry["eligibility"], string> = {
   BELUM_MEMENUHI_MINIMUM: "Belum memenuhi minimum",
   MEMENUHI_SYARAT: "Memenuhi syarat",
 };
+
+/** Bentuk pendek untuk papan yang berdampingan: di kolom selebar sepertiga layar, teks panjang
+    meluber menutupi bidang di sebelahnya. Yang panjang tetap ada dan dipakai layar sempit. */
+const eligibilityLabelPendek: Record<RankedEntry["eligibility"], string> = {
+  BELUM_ADA_PENILAIAN: "Belum dinilai",
+  BELUM_MEMENUHI_MINIMUM: "Kurang",
+  MEMENUHI_SYARAT: "Memenuhi",
+};
+
+function StatusKelayakan({ eligibility }: { eligibility: RankedEntry["eligibility"] }) {
+  return (
+    <StatusPill tone={eligibilityTone[eligibility]}>
+      <span className="leaderboard-status__panjang">{eligibilityLabel[eligibility]}</span>
+      <span className="leaderboard-status__pendek" aria-hidden="true">
+        {eligibilityLabelPendek[eligibility]}
+      </span>
+    </StatusPill>
+  );
+}
 
 const eligibilityTone: Record<RankedEntry["eligibility"], "selesai" | "perhatian" | "netral"> = {
   MEMENUHI_SYARAT: "selesai",
@@ -109,13 +129,17 @@ export function LeaderboardTable({
       <DataList
         // Kepala kolom memuat ikon keterangan yang bisa difokus, jadi tidak boleh aria-hidden.
         columnHeaderHidden={false}
+        // Susunannya satu macam untuk semua lebar: unit ikut nama objek, dan sisanya bidang
+        // pendek. Yang membedakan papan berdampingan dari papan selebar halaman hanyalah CSS —
+        // bidang Respons disembunyikan saat papannya tiga, dan status memakai teks pendeknya.
         columns={[
           ["title", "Objek"],
-          ["duration", "Unit"],
           ["location", <>Respons<Info>{KET.respons}</Info></>],
           ["topic", <>Nilai<Info>{KET.nilaiAkhir}</Info></>],
           ["dates", <>Status<Info>{KET.statusKelayakan}</Info></>],
-          ["price", "Aksi"],
+          // Papan gabungan tidak punya panel detail, jadi kolom Aksi-nya pun tidak ada — kepala
+          // kolom "Aksi" tanpa tombol apa pun di bawahnya hanya menyisakan kolom kosong.
+          ...(showDetail ? ([["price", "Aksi"]] as [RowKind, ReactNode][]) : []),
         ]}
       >
         {visible.map((e) => (
@@ -125,6 +149,7 @@ export function LeaderboardTable({
             minimum={minimum}
             minimumText={minimumText}
             detail={showDetail ? detailByObject?.get(e.categoryObjectId) : undefined}
+            adaKolomAksi={showDetail}
           />
         ))}
       </DataList>
@@ -154,7 +179,13 @@ function Peringkat({ rank, tied }: { rank: number | null; tied?: boolean }) {
           height={16}
         />
       )}
-      <span className="leaderboard-rank__number">{rank ?? "—"}</span>
+      {rank === null ? (
+        // Objek yang belum berperingkat: slotnya tetap selebar nomor supaya nama di bawahnya
+        // tetap rata, tapi dibiarkan kosong — tanda hubung di kolom nomor terbaca seperti angka.
+        <span className="leaderboard-rank__number leaderboard-rank__number--kosong" aria-hidden="true" />
+      ) : (
+        <span className="leaderboard-rank__number">{rank}</span>
+      )}
       {/* Nilai yang tetap sama setelah parameter pembeda dipakai: peringkatnya dibagi, dan
           keputusannya masih terbuka — ditandai supaya tidak dibaca sebagai urutan pasti. */}
       {tied && <span className="leaderboard-rank__seri" title="Nilai sama persis dengan objek lain">seri</span>}
@@ -167,21 +198,28 @@ function EntryRow({
   minimum,
   minimumText,
   detail,
+  adaKolomAksi,
 }: {
   entry: RankedEntry;
   minimum: number;
   minimumText?: string;
   detail?: DetailData;
+  /** Papannya punya kolom Aksi; baris tanpa tombol tetap mengisinya supaya bidang lain sejajar. */
+  adaKolomAksi: boolean;
 }) {
   const bisaDibuka = !!detail;
   const respons = `${entry.responseCount}${
     entry.eligibility !== "MEMENUHI_SYARAT" ? ` / ${minimumText ?? `min. ${minimum}`}` : ""
   }`;
-  const nilai = entry.score !== null ? entry.score.toFixed(2) : "—";
+  const nilai = entry.score !== null ? entry.score.toFixed(2) : null;
 
   return (
     <DataRow
       collapsible={bisaDibuka}
+      // Panel di sini hanya dibaca, tidak ada isian yang bisa hilang, dan isinya panjang: dua panel
+      // terbuka sekaligus mendorong papan peringkatnya keluar layar ponsel. Lingkupnya seluruh
+      // papan, bukan satu papan saja: di ponsel ketiganya tersusun menurun dalam satu layar.
+      bukaTunggal=".leaderboard-columns"
       panel={
         bisaDibuka ? (
           <div className="admin-row-panel">
@@ -190,17 +228,16 @@ function EntryRow({
             <RowPanelDetails>
               <RowPanelField label="Unit">{entry.unitName}</RowPanelField>
               <RowPanelField label="Respons">{respons}</RowPanelField>
-              <RowPanelField label="Nilai">{nilai}</RowPanelField>
+              <RowPanelField label="Nilai">{nilai ?? "Belum ada nilai"}</RowPanelField>
               {entry.band && (
                 <RowPanelField label="Predikat">
                   <PredikatLabel band={entry.band} />
                 </RowPanelField>
               )}
-              <RowPanelField label="Status">
-                <StatusPill tone={eligibilityTone[entry.eligibility]}>
-                  {eligibilityLabel[entry.eligibility]}
-                </StatusPill>
-              </RowPanelField>
+              {/* Teks biasa, bukan lencana: di dalam panel ia satu dari beberapa keterangan
+                  berlabel, dan lencana berlatar di antara teks polos terbaca seperti tombol.
+                  Lencananya tetap dipakai di barisnya sendiri, tempat ia memang jadi penanda. */}
+              <RowPanelField label="Status">{eligibilityLabel[entry.eligibility]}</RowPanelField>
             </RowPanelDetails>
             <DetailPanel detail={detail} />
           </div>
@@ -209,26 +246,37 @@ function EntryRow({
     >
       <RowTitle>
         <Peringkat rank={entry.rank} tied={entry.tied} />
-        {entry.objectName}
+        {/* Nama objek dengan unitnya sebagai baris kecil di bawahnya. Sebagai kolom tersendiri,
+            nama unit ("Departemen Informatika") memakan sepertiga lebar papan yang berdampingan
+            dan memaksa nama objeknya patah jadi tiga baris. */}
+        <span className="leaderboard-objek">
+          <span className="leaderboard-objek__nama">{entry.objectName}</span>
+          <span className="leaderboard-objek__unit">{entry.unitName}</span>
+        </span>
       </RowTitle>
-      <RowField kind="duration" icon={false} detail>
-        {entry.unitName}
-      </RowField>
       <RowField kind="location" icon={false} detail>
-        {respons}
+        {/* Papan gabungan tidak punya panel detail, jadi di ponsel angka ini tetap di barisnya —
+            tanpa kepala kolom di atasnya. Namanya ikut ditulis di sana supaya "0 / min. 1 + 1"
+            tidak terbaca sebagai angka tanpa arti; di papan lain label ini disembunyikan. */}
+        <span className="leaderboard-respons">
+          <span className="leaderboard-respons__label">Respons </span>
+          {respons}
+        </span>
       </RowField>
       <RowField kind="topic" icon={false}>
-        <span className="leaderboard-score">{nilai}</span>
+        {nilai === null ? (
+          <span className="leaderboard-score leaderboard-score--kosong">Belum ada</span>
+        ) : (
+          <span className="leaderboard-score">{nilai}</span>
+        )}
         {entry.band && <PredikatLabel band={entry.band} />}
       </RowField>
       <RowField kind="dates" icon={false}>
-        <StatusPill tone={eligibilityTone[entry.eligibility]}>
-          {eligibilityLabel[entry.eligibility]}
-        </StatusPill>
+        <StatusKelayakan eligibility={entry.eligibility} />
       </RowField>
       {/* Tanpa detail tidak ada tombol buka-tutup; kolom Aksi tetap diisi supaya bidang lain
           tidak bergeser dari kepala kolomnya. */}
-      {!bisaDibuka && <RowActions>{null}</RowActions>}
+      {!bisaDibuka && adaKolomAksi && <RowActions>{null}</RowActions>}
     </DataRow>
   );
 }
@@ -260,22 +308,58 @@ function DetailPanel({ detail }: { detail: DetailData }) {
         {detail.respondents.length === 0 ? (
           <p className="app-text-xs">Belum ada jawaban terkirim.</p>
         ) : (
-          <ul className="leaderboard-detail">
-            {detail.respondents.map((r, i) => (
-              <li key={i}>
-                <span>
-                  {r.evaluatorName}{" "}
-                  <span className="leaderboard-detail__muted">({r.evaluatorLogin})</span>
-                </span>
-                <span className="leaderboard-detail__muted">
-                  {r.scores.map((s) => `${s.parameterName}: ${s.score}`).join(" · ")}
-                </span>
-              </li>
-            ))}
-          </ul>
+          <PenilaiTabel detail={detail} />
         )}
       </section>
     </>
+  );
+}
+
+/**
+ * Nilai tiap penilai sebagai tabel: satu baris satu penilai, satu kolom satu parameter. Sebelumnya
+ * deretan "Ramah: 12 · Baik: 12 · Sopan: 12" yang membungkus beberapa baris — nilai penilai yang
+ * satu tidak bisa dibandingkan dengan penilai lain tanpa membacanya kata demi kata.
+ *
+ * Urutan kolom mengikuti urutan parameter pada hasil agregasi supaya sama dengan tabel di atasnya;
+ * parameter yang tidak ada pada hasil (mis. jawaban lama) tetap diikutkan di belakang.
+ */
+function PenilaiTabel({ detail }: { detail: DetailData }) {
+  const kolom: string[] = detail.parameterResults.map((p) => p.parameterName);
+  for (const r of detail.respondents) {
+    for (const s of r.scores) if (!kolom.includes(s.parameterName)) kolom.push(s.parameterName);
+  }
+
+  return (
+    <div className="penilai-tabel-wrap">
+      <table className="penilai-tabel">
+        <thead>
+          <tr>
+            <th scope="col">Penilai</th>
+            {kolom.map((nama) => (
+              <th key={nama} scope="col">
+                {nama}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {detail.respondents.map((r, i) => {
+            const nilai = new Map(r.scores.map((s) => [s.parameterName, s.score]));
+            return (
+              <tr key={i}>
+                <th scope="row">
+                  <span className="penilai-tabel__nama">{r.evaluatorName}</span>
+                  <span className="penilai-tabel__id">{r.evaluatorLogin}</span>
+                </th>
+                {kolom.map((nama) => (
+                  <td key={nama}>{nilai.get(nama) ?? "—"}</td>
+                ))}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -327,40 +411,46 @@ export function LeaderboardGroups({
         {action && <div className="filter-bar__action">{action}</div>}
       </FilterBar>
 
-      {gabungan && (
-        <div>
-          <h2 className="app-panel__label">
-            Leaderboard Gabungan · Pimpinan {gabungan.pimpinanWeight}% + Selain Pimpinan{" "}
-            {100 - gabungan.pimpinanWeight}%<Info>{KET.nilaiGabungan}</Info>
-          </h2>
+      <div className={`leaderboard-columns${gabungan ? " leaderboard-columns--three" : ""}`}>
+        <section className="leaderboard-columns__panel">
+          <h2 className="app-panel__label">Leaderboard Pimpinan<Info>{KET.kelompok}</Info></h2>
           <LeaderboardTable
-            entries={gabungan.entries}
-            minimum={pimpinanMinimum + selainMinimum}
-            minimumText={`min. ${pimpinanMinimum} + ${selainMinimum}`}
-            showDetail={false}
+            entries={pimpinanEntries}
+            minimum={pimpinanMinimum}
+            showDetail
+            detailByObject={pimpinanDetail}
             searchTerm={search}
           />
-        </div>
-      )}
-      <div>
-        <h2 className="app-panel__label">Leaderboard Pimpinan<Info>{KET.kelompok}</Info></h2>
-        <LeaderboardTable
-          entries={pimpinanEntries}
-          minimum={pimpinanMinimum}
-          showDetail
-          detailByObject={pimpinanDetail}
-          searchTerm={search}
-        />
-      </div>
-      <div>
-        <h2 className="app-panel__label">Leaderboard Selain Pimpinan<Info>{KET.kelompok}</Info></h2>
-        <LeaderboardTable
-          entries={selainEntries}
-          minimum={selainMinimum}
-          showDetail
-          detailByObject={selainDetail}
-          searchTerm={search}
-        />
+        </section>
+        {gabungan && (
+          <section className="leaderboard-columns__panel leaderboard-columns__panel--gabungan">
+            <h2 className="app-panel__label">
+              Leaderboard Gabungan<Info>{KET.nilaiGabungan}</Info>
+              {/* Susunan bobotnya keterangan judul, bukan bagian namanya: di ponsel ia turun jadi
+                  baris kecil sendiri, sehingga ikon keterangan tetap menempel pada judulnya. */}
+              <span className="leaderboard-bobot">
+                Pimpinan {gabungan.pimpinanWeight}% + Selain Pimpinan {100 - gabungan.pimpinanWeight}%
+              </span>
+            </h2>
+            <LeaderboardTable
+              entries={gabungan.entries}
+              minimum={pimpinanMinimum + selainMinimum}
+              minimumText={`min. ${pimpinanMinimum} + ${selainMinimum}`}
+              showDetail={false}
+              searchTerm={search}
+            />
+          </section>
+        )}
+        <section className="leaderboard-columns__panel">
+          <h2 className="app-panel__label">Leaderboard Selain Pimpinan<Info>{KET.kelompok}</Info></h2>
+          <LeaderboardTable
+            entries={selainEntries}
+            minimum={selainMinimum}
+            showDetail
+            detailByObject={selainDetail}
+            searchTerm={search}
+          />
+        </section>
       </div>
     </div>
   );

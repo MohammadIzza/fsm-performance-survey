@@ -94,11 +94,19 @@ export function DataRow({
   href,
   panel,
   collapsible = false,
+  bukaTunggal = false,
   children,
 }: {
   href?: string;
   /** Jadikan baris sebagai accordion dengan tombol panah dan panel detail. */
   collapsible?: boolean;
+  /**
+   * Hanya satu baris terbuka sekaligus dalam daftar ini. Dipakai daftar yang panelnya panjang dan
+   * hanya dibaca — dua panel terbuka bersamaan membuat daftarnya hilang dari layar ponsel. Jangan
+   * dipakai pada daftar yang panelnya memuat formulir: membuka baris lain akan menyembunyikan
+   * isian yang sedang diketik. Diisi pemilih CSS bila "yang lain" mencakup daftar bersebelahan.
+   */
+  bukaTunggal?: boolean | string;
   /**
    * Isi yang terbuka di bawah barisnya, selebar baris — dipakai daftar admin untuk form sunting
    * dan panel pimpinan yang dulu menempati satu <tr> tambahan ber-colSpan. Tetap di dalam <li>
@@ -116,7 +124,7 @@ export function DataRow({
       >
         <div className="sb__link">
           {children}
-          {collapsible && <RowDisclosure />}
+          {collapsible && <RowDisclosure tunggal={bukaTunggal} />}
           <span className="sb__background" aria-hidden="true" />
         </div>
         {panel && <div className="sb__panel">{panel}</div>}
