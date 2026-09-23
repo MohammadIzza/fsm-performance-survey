@@ -58,6 +58,7 @@ export default async function LembarKategoriPage({
   const baris = lembar.flatMap((l) => l.baris);
   const terkirim = baris.filter((b) => b.displayStatus === "TERKIRIM").length;
   const belum = jumlahObjek - terkirim;
+  const terbuka = baris.filter((b) => b.bolehDiisi).length;
 
   return (
     <div className="assignment-detail space-y-8">
@@ -87,9 +88,14 @@ export default async function LembarKategoriPage({
         </nav>
       )}
 
-      {period.status !== "AKTIF" && (
+      {period.status !== "AKTIF" && terbuka === 0 && (
         <div className="assignment-detail__notice app-note">
           Periode {period.name} tidak sedang aktif, jadi isian di bawah hanya dapat dibaca.
+        </div>
+      )}
+      {period.status === "REVISI" && terbuka > 0 && (
+        <div className="assignment-detail__notice app-note app-note--perhatian">
+          Pengisian dibuka kembali untuk {terbuka} tugas yang dipilih admin. Kirim jawaban sebelum tenggat pengisian.
         </div>
       )}
 

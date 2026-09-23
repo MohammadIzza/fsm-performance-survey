@@ -1582,8 +1582,6 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell main .sb-course[data-detail-open="true"] .sb__detail-toggle::after {
     transform:rotate(90deg);
   }
-  .assignment-row__leadership {display:block;margin-top:.12rem;color:var(--color-text);
-    font-size:.52rem;font-weight:400;line-height:1.2}
 
   /* Judul daftar: di Beranda ia sebesar judul halaman dan mendorong daftarnya ke bawah layar. */
   .survey-shell main .s-courses-list .s__top {margin:0}

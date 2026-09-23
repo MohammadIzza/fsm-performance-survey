@@ -121,9 +121,10 @@ export function AssignmentsList({ categories }: { categories: CategoryRow[] }) {
           >
             <RowTitle>
               {k.categoryName}
-              {k.group === "PIMPINAN" && (
-                <span className="assignment-row__leadership">Pimpinan</span>
-              )}
+              {/* Kelompok penilai (Pimpinan / Selain Pimpinan) sengaja tidak ditampilkan: itu
+                  urusan pembagian tugas dan perhitungan nilai, bukan sesuatu yang mengubah cara
+                  penilai mengisi. Yang ia perlu tahu di baris ini hanya kategori, berapa objek,
+                  dan tenggatnya. */}
               <span className="sb__subtitle">
                 {k.total} {k.objectTypeName.toLowerCase()} untuk dinilai
               </span>
