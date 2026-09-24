@@ -3,10 +3,10 @@ import { atomic } from "@/lib/prisma";
 import { prisma } from "@/lib/prisma";
 import { writeAudit } from "@/lib/services/audit";
 import { ServiceError } from "@/lib/services/units";
-import { getUnitAndDescendantIds } from "@/lib/units";
+import { getUnitAndDescendantIds, getUnitAndAncestorIds } from "@/lib/units";
 import { createRng, seededShuffle } from "@/lib/prng";
 import type { AuthContext } from "@/lib/authz";
-import type { AssessmentGroup } from "@/generated/prisma/enums";
+import type { AssessmentGroup, AssignmentScope } from "@/generated/prisma/enums";
 import { periksaPenambahan } from "@/lib/services/penambahan-berjalan";
 
 export interface PlanCandidate {
@@ -34,10 +34,11 @@ export interface AssignmentPlan {
   fingerprint?:string;
 }
 
-async function resolveScopeUnitIds(ownerUnitId: string, scope: "UNIT_OBJEK" | "UNIT_DAN_SUBUNIT") {
-  if (scope === "UNIT_DAN_SUBUNIT") {
-    return getUnitAndDescendantIds(ownerUnitId);
-  }
+async function resolveScopeUnitIds(ownerUnitId: string, scope: AssignmentScope) {
+  if (scope === "UNIT_DAN_SUBUNIT") return getUnitAndDescendantIds(ownerUnitId);
+  // Naik ke atas: dipakai kelompok Pimpinan, karena satu prodi kerap hanya punya satu atau dua
+  // pejabat — target penilai tidak mungkin terpenuhi tanpa ikut mengambil pimpinan di atasnya.
+  if (scope === "UNIT_DAN_INDUK") return getUnitAndAncestorIds(ownerUnitId);
   return [ownerUnitId];
 }
 
@@ -108,7 +109,12 @@ export async function computePlan(categoryId: string, seed: string): Promise<Ass
     const perObject: Candidate[] = [];
 
     for (const co of category.categoryObjects) {
-      const scopeUnitIds = group === "PIMPINAN" ? [co.ownerUnitIdSnapshot ?? co.object.ownerUnitId] : await resolveScopeUnitIds(co.ownerUnitIdSnapshot ?? co.object.ownerUnitId, rule.scope);
+      // Lingkup berlaku untuk kedua kelompok. Sebelumnya kelompok Pimpinan selalu dipaksa ke unit
+      // objek saja dan isian lingkupnya diabaikan diam-diam — admin mengaturnya tanpa efek apa pun.
+      const scopeUnitIds = await resolveScopeUnitIds(
+        co.ownerUnitIdSnapshot ?? co.object.ownerUnitId,
+        rule.scope
+      );
 
       let poolUserIds: string[];
       if (group === "PIMPINAN") {

@@ -459,6 +459,10 @@ model GroupRule {
 enum AssignmentScope {
   UNIT_OBJEK
   UNIT_DAN_SUBUNIT
+  // Unit objek beserta unit di atasnya sampai unit teratas. Dipakai kelompok Pimpinan: satu prodi
+  // kerap hanya punya satu atau dua pejabat, sehingga target penilai tidak mungkin terpenuhi tanpa
+  // ikut mengambil pimpinan departemen dan fakultas di atasnya.
+  UNIT_DAN_INDUK
 }
 
 enum AssignmentStatus {

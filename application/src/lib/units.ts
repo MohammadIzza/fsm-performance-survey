@@ -39,3 +39,17 @@ export async function getUnitAndDescendantIds(unitId: string): Promise<string[]>
   const { childrenByParent } = await loadUnitTree();
   return collectDescendants(unitId, childrenByParent);
 }
+
+/** Unit itu sendiri beserta seluruh induknya, dari yang terdekat sampai unit teratas. */
+export async function getUnitAndAncestorIds(unitId: string): Promise<string[]> {
+  const units = await prisma.unit.findMany({ select: { id: true, parentId: true } });
+  const indukDari = new Map(units.map((u) => [u.id, u.parentId]));
+  const hasil: string[] = [];
+  let sekarang: string | null | undefined = unitId;
+  // Dijaga dari lingkaran: data unit yang rusak tidak boleh membuat penugasan berputar selamanya.
+  while (sekarang && !hasil.includes(sekarang)) {
+    hasil.push(sekarang);
+    sekarang = indukDari.get(sekarang) ?? null;
+  }
+  return hasil;
+}
