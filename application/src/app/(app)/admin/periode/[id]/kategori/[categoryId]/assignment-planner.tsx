@@ -9,6 +9,8 @@ import {
   commitAssignmentPlanAction,
 } from "@/lib/actions/admin-assignments";
 import { AlasanBerjalan } from "@/components/theme/alasan-berjalan";
+import { StatusPill } from "@/components/theme/status-pill";
+import type { PreviewState } from "@/lib/actions/admin-assignments";
 
 const groupLabel: Record<string, string> = {
   PIMPINAN: "Pimpinan",
@@ -65,40 +67,7 @@ export function AssignmentPlanner({
 
       {plan && (
         <div className="assignment-planner__result space-y-3">
-          <div className="app-table-wrap assignment-planner__table-wrap">
-            <table className="assignment-planner__table w-full min-w-[640px] text-left">
-              <thead>
-                <tr>
-                  <th className="px-3 py-2 font-medium">Objek</th>
-                  <th className="px-3 py-2 font-medium">Kelompok</th>
-                  <th className="px-3 py-2 font-medium">Calon sah<Info>{KET.calonSah}</Info></th>
-                  <th className="px-3 py-2 font-medium">Sudah ada</th>
-                  <th className="px-3 py-2 font-medium">Akan ditambah</th>
-                  <th className="px-3 py-2 font-medium">Kekurangan<Info>{KET.kekurangan}</Info></th>
-                </tr>
-              </thead>
-              <tbody>
-                {plan.entries.map((e, i) => (
-                  <tr key={i} className="border-b border-[var(--border)] last:border-b-0">
-                    <td data-label="Objek" className="px-3 py-2 text-[var(--foreground)]">{e.objectName}</td>
-                    <td data-label="Kelompok" className="px-3 py-2 text-[var(--muted)]">{groupLabel[e.group]}</td>
-                    <td data-label="Calon sah" className="px-3 py-2 text-[var(--muted)]">{e.eligibleCount}</td>
-                    <td data-label="Sudah ada" className="px-3 py-2 text-[var(--muted)]">{e.alreadyAssigned.length}</td>
-                    <td data-label="Ditambahkan" className="px-3 py-2 text-[var(--foreground)]">
-                      {e.picked.length > 0 ? e.picked.map((p) => p.name).join(", ") : "—"}
-                    </td>
-                    <td data-label="Kekurangan" className="px-3 py-2">
-                      {e.shortage > 0 ? (
-                        <span className="text-[var(--danger)]">{e.shortage}</span>
-                      ) : (
-                        <span className="text-[var(--success)]">0</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <RencanaTugas plan={plan} />
 
           <div className="assignment-planner__footer">
             {plan.totalNewAssignments > 0 ? (
@@ -148,6 +117,84 @@ export function AssignmentPlanner({
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * Hasil pratinjau, dibaca sebagai daftar per objek — bukan tabel berkolom "Calon sah / Sudah ada /
+ * Akan ditambah / Kekurangan".
+ *
+ * Tabel itu memaksa orang mengingat arti enam kolom sekaligus, memecah satu objek menjadi dua baris
+ * yang berjauhan (Pimpinan dan Selain Pimpinan), dan tetap tidak muat di layar sehingga harus
+ * digeser ke samping. Di sini tiap objek berdiri sendiri, tiap kelompok penilainya satu baris, dan
+ * angkanya ditulis sebagai kalimat: berapa yang ditambahkan, dari berapa calon, dan apakah
+ * targetnya tercapai.
+ */
+function RencanaTugas({ plan }: { plan: NonNullable<PreviewState["plan"]> }) {
+  // Dua baris milik satu objek dikumpulkan; urutan objek mengikuti urutan pertama kali muncul.
+  const perObjek = new Map<string, { nama: string; baris: typeof plan.entries }>();
+  for (const e of plan.entries) {
+    const objek = perObjek.get(e.categoryObjectId) ?? { nama: e.objectName, baris: [] };
+    objek.baris.push(e);
+    perObjek.set(e.categoryObjectId, objek);
+  }
+  const kurang = plan.entries.filter((e) => e.shortage > 0).length;
+
+  return (
+    <div className="rencana-tugas">
+      <p className="rencana-tugas__ringkas">
+        {plan.totalNewAssignments > 0
+          ? `${plan.totalNewAssignments} tugas baru untuk ${perObjek.size} objek.`
+          : "Tidak ada tugas baru yang perlu diterbitkan."}{" "}
+        {kurang > 0 ? (
+          <span className="rencana-tugas__ringkas-kurang">
+            {kurang} kelompok belum mencapai target karena calonnya habis.
+          </span>
+        ) : (
+          "Semua target penilai terpenuhi."
+        )}
+      </p>
+
+      <ul className="rencana-tugas__daftar">
+        {[...perObjek.entries()].map(([id, objek]) => (
+          <li key={id} className="rencana-tugas__objek">
+            <p className="rencana-tugas__nama">{objek.nama}</p>
+            <ul className="rencana-tugas__kelompok">
+              {objek.baris.map((e) => (
+                <li key={e.group} className="rencana-tugas__baris">
+                  <span className="rencana-tugas__label">{groupLabel[e.group]}</span>
+                  <span className="rencana-tugas__isi">
+                    {e.picked.length > 0 ? (
+                      <>
+                        <strong>{e.picked.length} penilai ditambahkan:</strong>{" "}
+                        {e.picked.map((p) => p.name).join(", ")}
+                      </>
+                    ) : (
+                      <span className="rencana-tugas__kosong">Tidak ada penilai baru yang ditambahkan</span>
+                    )}
+                    <span className="rencana-tugas__meta">
+                      Target {e.target} penilai · {e.alreadyAssigned.length} sudah bertugas ·{" "}
+                      {e.eligibleCount} calon memenuhi syarat
+                      <Info>{KET.calonSah}</Info>
+                    </span>
+                  </span>
+                  <span className="rencana-tugas__status">
+                    {e.shortage > 0 ? (
+                      <StatusPill tone="perhatian">
+                        Kurang {e.shortage}
+                        <Info>{KET.kekurangan}</Info>
+                      </StatusPill>
+                    ) : (
+                      <StatusPill tone="selesai">Target tercapai</StatusPill>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

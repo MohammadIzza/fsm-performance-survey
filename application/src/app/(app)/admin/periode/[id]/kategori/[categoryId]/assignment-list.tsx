@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { StatusPill } from "@/components/theme/status-pill";
 import { cancelAssignmentAction } from "@/lib/actions/admin-assignments";
+import { openLateAssignmentsAction } from "@/lib/actions/responses";
 import type { listAssignmentsForCategory } from "@/lib/services/assignments";
 
 type Assignment = Awaited<ReturnType<typeof listAssignmentsForCategory>>[number];
@@ -36,11 +37,31 @@ export function AssignmentList({
   assignments,
   periodId,
   categoryId,
+  periodStatus,
 }: {
   assignments: Assignment[];
   periodId: string;
   categoryId: string;
+  periodStatus: string;
 }) {
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [lateState, lateAction, latePending] = useAksi(
+    openLateAssignmentsAction,
+    {},
+    "Pengisian terlambat dibuka."
+  );
+  const canOpenLate = periodStatus === "REVISI";
+  const eligibleIds = assignments
+    .filter((assignment) => assignment.status === "BELUM_MULAI" || assignment.status === "DRAF")
+    .map((assignment) => assignment.id);
+  const selectedCount = selectedIds.filter((id) => eligibleIds.includes(id)).length;
+
+  function toggleSelection(assignmentId: string, checked: boolean) {
+    setSelectedIds((current) =>
+      checked ? [...new Set([...current, assignmentId])] : current.filter((id) => id !== assignmentId)
+    );
+  }
+
   if (assignments.length === 0) {
     return (
       <p className="assignment-list__empty">
@@ -51,10 +72,48 @@ export function AssignmentList({
   }
 
   return (
-    <div className="app-table-wrap">
+    <div className="space-y-4">
+      {canOpenLate && eligibleIds.length > 0 && (
+        <form action={lateAction} className="app-note app-note--perhatian space-y-3">
+          <input type="hidden" name="periodId" value={periodId} />
+          <input type="hidden" name="categoryId" value={categoryId} />
+          {selectedIds.map((assignmentId) => (
+            <input key={assignmentId} type="hidden" name="assignmentId" value={assignmentId} />
+          ))}
+          <div>
+            <strong>Buka pengisian terlambat sekaligus</strong>
+            <p className="app-text-sm">Pilih tugas Belum mulai atau Draf pada tabel, lalu tetapkan satu tenggat untuk semuanya.</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <label className="admin-tools__field">
+              <span>Tenggat pengisian (WIB)</span>
+              <input type="datetime-local" name="correctionEndsAt" required className="form__control" />
+            </label>
+            <label className="admin-tools__field admin-tools__field--grow">
+              <span>Alasan</span>
+              <input name="reason" placeholder="Alasan memberi kesempatan terlambat" required className="form__control" />
+            </label>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="submit" disabled={latePending || selectedCount === 0} className="app-btn app-btn--primary">
+              {latePending ? "Memproses…" : `Buka pengisian (${selectedCount})`}
+            </button>
+            <button
+              type="button"
+              className="app-btn app-btn--polos"
+              onClick={() => setSelectedIds(selectedCount === eligibleIds.length ? [] : eligibleIds)}
+            >
+              {selectedCount === eligibleIds.length ? "Kosongkan pilihan" : "Pilih semua yang belum mengisi"}
+            </button>
+          </div>
+          {lateState.error && <p role="alert" className="aturan-galat">{lateState.error}</p>}
+        </form>
+      )}
+      <div className="app-table-wrap">
       <table className="tugas-tabel">
         <thead>
           <tr>
+            {canOpenLate && <th aria-label="Pilih tugas" />}
             <th>Objek</th>
             <th>Kelompok</th>
             <th>Penilai</th>
@@ -65,10 +124,20 @@ export function AssignmentList({
         </thead>
         <tbody>
           {assignments.map((a) => (
-            <AssignmentRow key={a.id} assignment={a} periodId={periodId} categoryId={categoryId} />
+            <AssignmentRow
+              key={a.id}
+              assignment={a}
+              periodId={periodId}
+              categoryId={categoryId}
+              showSelectionColumn={canOpenLate}
+              selectable={canOpenLate && eligibleIds.includes(a.id)}
+              selected={selectedIds.includes(a.id)}
+              onSelect={toggleSelection}
+            />
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }
@@ -77,10 +146,18 @@ function AssignmentRow({
   assignment,
   periodId,
   categoryId,
+  showSelectionColumn,
+  selectable,
+  selected,
+  onSelect,
 }: {
   assignment: Assignment;
   periodId: string;
   categoryId: string;
+  showSelectionColumn: boolean;
+  selectable: boolean;
+  selected: boolean;
+  onSelect: (assignmentId: string, checked: boolean) => void;
 }) {
   const [cancelling, setCancelling] = useState(false);
   const [state, formAction, pending] = useAksi(cancelAssignmentAction, {}, "Penugasan dibatalkan.");
@@ -89,6 +166,18 @@ function AssignmentRow({
 
   return (
     <tr>
+      {showSelectionColumn && (
+        <td data-label="Pilih">
+          {selectable ? (
+            <input
+              type="checkbox"
+              aria-label={`Pilih tugas ${assignment.categoryObject.nameSnapshot} untuk ${assignment.evaluator.name}`}
+              checked={selected}
+              onChange={(event) => onSelect(assignment.id, event.target.checked)}
+            />
+          ) : "—"}
+        </td>
+      )}
       <td data-label="Objek">
         <Link href={`/tugas/${assignment.id}`} className="tugas-tabel__objek">
           {assignment.categoryObject.nameSnapshot}

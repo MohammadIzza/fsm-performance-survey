@@ -682,7 +682,10 @@ input[type="range"]:disabled::-moz-range-thumb {
 .period-stepper__list {
   display:block;margin:0;padding:0;border-top:2px solid var(--color-black);list-style:none;
 }
-.period-stepper__list li {min-width:0;border-bottom:2px solid var(--color-black)}
+/* Hanya langkahnya sendiri yang berbatas garis tebal. Ditulis sebagai anak langsung: sebagai
+   pemilih keturunan, garis ini ikut menempel pada setiap <li> di dalam panel langkah — daftar
+   pratinjau pengacakan, daftar kategori, dan daftar apa pun yang dibuka di sana. */
+.period-stepper__list > li {min-width:0;border-bottom:2px solid var(--color-black)}
 .period-stepper__list details {display:block}
 .period-stepper__summary {
   position:relative;display:grid;grid-template-columns:1.65rem minmax(0,1fr) .42rem;
@@ -783,18 +786,45 @@ input[type="range"]:disabled::-moz-range-thumb {
   min-height:1.9rem;padding:.38rem .75rem;font-size:.6rem;
 }
 .survey-shell main .assignment-planner .assignment-planner__preview-button {font-size:.6rem}
-.assignment-planner__table-wrap {border:0;border-radius:0;background:transparent}
-.survey-shell main .assignment-planner__table {
-  table-layout:fixed;font-size:.6rem;line-height:1.4;
+/* Hasil pratinjau pengacakan: satu blok per objek, satu baris per kelompok penilai. Menggantikan
+   tabel enam kolom yang memecah satu objek jadi dua baris berjauhan dan tetap harus digeser ke
+   samping. Angkanya turun menjadi baris keterangan kecil di bawah nama penilainya, karena yang
+   dicari orang lebih dulu adalah "siapa yang ditambahkan" dan "sudah cukup atau belum". */
+/* Selebar panelnya: daftar penilai yang ditambahkan bisa memuat tiga sampai lima nama sekaligus,
+   dan membatasi lebarnya hanya memaksa nama-nama itu membungkus ke tiga baris sementara ruang di
+   kanan menganggur. */
+.rencana-tugas {display:grid;gap:.6rem;max-width:100%}
+.rencana-tugas__ringkas {margin:0;color:var(--color-text);font-size:.62rem;line-height:1.45}
+.rencana-tugas__ringkas-kurang {color:var(--color-brand-1);font-weight:600}
+.rencana-tugas__daftar,
+.rencana-tugas__kelompok {display:grid;gap:0;margin:0;padding:0;list-style:none}
+/* Satu garis tegas di antara objek, tidak ada garis di ujung atas dan bawah daftar: batas antar
+   objek itulah yang perlu terbaca, bukan bingkai daftarnya. */
+.rencana-tugas__objek {padding:.7rem 0 .75rem;border:0}
+.rencana-tugas__objek + .rencana-tugas__objek {border-top:2px solid var(--color-black)}
+.rencana-tugas__nama {margin:0 0 .4rem;font-size:.66rem;font-weight:600;line-height:1.3}
+.rencana-tugas__kelompok {gap:.45rem}
+/* Tiga bidang: nama kelompok yang lebarnya tetap, isi yang melar, dan lencana status rata kanan. */
+/* Kolom lencana berlebar tetap supaya lencana di semua baris berdiri lurus, bukan bergeser
+   mengikuti panjang nama di sebelahnya. */
+.rencana-tugas__baris {
+  display:grid;grid-template-columns:6.4rem minmax(0,1fr) 6.2rem;align-items:start;gap:.2rem .7rem;
 }
-.survey-shell main .assignment-planner__table thead th {
-  padding:.5rem .45rem;font-size:.54rem;line-height:1.25;white-space:normal;
+.rencana-tugas__label {
+  color:var(--color-text);font-size:.54rem;font-weight:600;letter-spacing:.05em;
+  text-transform:uppercase;line-height:1.65;
 }
-.survey-shell main .assignment-planner__table tbody td {
-  padding:.55rem .45rem;font-size:.6rem;line-height:1.4;vertical-align:top;
-}
-.survey-shell main .assignment-planner__table :is(th,td):is(:nth-child(3),:nth-child(4),:nth-child(6)) {
-  text-align:center;
+.rencana-tugas__isi {display:block;min-width:0;font-size:.62rem;line-height:1.4}
+.rencana-tugas__kosong {color:var(--color-text)}
+.rencana-tugas__meta {display:block;margin-top:.1rem;color:var(--color-text);font-size:.56rem;line-height:1.4}
+.rencana-tugas__status {justify-self:end;align-self:center}
+/* Lencana seukuran teks di sebelahnya: ukuran bawaannya dibuat untuk baris daftar, dan di sini ia
+   jadi benda paling besar di blok yang hurufnya kecil-kecil. */
+.survey-shell main .rencana-tugas .status-pill {padding:.3em .75em;font-size:.56rem}
+@media only screen and (max-width:640px) {
+  /* Layar sempit: nama kelompok dan lencananya berbagi satu baris di atas isinya. */
+  .rencana-tugas__baris {grid-template-columns:minmax(0,1fr) auto;gap:.15rem .5rem}
+  .rencana-tugas__isi {grid-column:1/-1}
 }
 .assignment-planner__footer {display:block}
 .assignment-planner__summary {margin:0;font-size:.6rem;line-height:1.4}
