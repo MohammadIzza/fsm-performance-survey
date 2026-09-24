@@ -412,27 +412,54 @@ export async function createCategoryFrom(...args: Parameters<typeof createCatego
   return atomic(() => createCategoryFromImpl(...args));
 }
 
-/** Kategori yang layak dijadikan sumber salinan: instrumennya sudah berisi parameter. */
+/**
+ * Kategori yang layak dijadikan sumber salinan: instrumennya sudah berisi parameter.
+ *
+ * Ikut membawa isi ringkas tiap kategori — skala, daftar parameter beserta bobotnya, dan aturan
+ * kelompok penilainya — supaya formulir "Salin dari kategori yang sudah ada" dapat memperlihatkan
+ * apa yang akan tersalin sebelum tombolnya ditekan. Tanpa itu admin baru tahu isinya setelah
+ * kategori terbentuk, dan satu-satunya cara membatalkan adalah menghapusnya lagi.
+ */
 export async function listCategorySources() {
   const categories = await prisma.category.findMany({
     where: { active: true },
     include: {
       period: { select: { name: true } },
       objectType: { select: { name: true } },
-      instrumentVersions: { orderBy: { revision: "desc" }, take: 1, include: { _count: { select: { parameters: true } } } },
+      instrumentVersions: {
+        orderBy: { revision: "desc" },
+        take: 1,
+        include: { parameters: { orderBy: { order: "asc" }, select: { name: true, weight: true, normalized: true } } },
+      },
+      groupRules: { select: { group: true, aggregation: true, target: true, minimum: true } },
       _count: { select: { categoryObjects: true } },
     },
     orderBy: [{ period: { startsAt: "desc" } }, { name: "asc" }],
   });
   return categories
-    .filter((c) => (c.instrumentVersions[0]?._count.parameters ?? 0) > 0)
-    .map((c) => ({
-      id: c.id,
-      label: `${c.period.name} · ${c.name}`,
-      objectTypeName: c.objectType.name,
-      parameterCount: c.instrumentVersions[0]._count.parameters,
-      objectCount: c._count.categoryObjects,
-    }));
+    .filter((c) => (c.instrumentVersions[0]?.parameters.length ?? 0) > 0)
+    .map((c) => {
+      const instrumen = c.instrumentVersions[0];
+      return {
+        id: c.id,
+        label: `${c.period.name} · ${c.name}`,
+        /** Nama dan tujuan sumbernya, dipakai mengisi awal formulir salinan. */
+        name: c.name,
+        description: c.description,
+        objectTypeName: c.objectType.name,
+        parameterCount: instrumen.parameters.length,
+        objectCount: c._count.categoryObjects,
+        scale: { min: instrumen.scaleMin, max: instrumen.scaleMax, step: instrumen.scaleStep },
+        parameters: instrumen.parameters.map((p) => ({ name: p.name, weight: p.weight, normalized: p.normalized })),
+        groupRules: c.groupRules.map((r) => ({
+          group: r.group,
+          aggregation: r.aggregation,
+          target: r.target,
+          minimum: r.minimum,
+        })),
+        pimpinanWeight: c.pimpinanWeight,
+      };
+    });
 }
 
 /**

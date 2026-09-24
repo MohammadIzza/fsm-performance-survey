@@ -12,9 +12,15 @@ import type { AuthContext } from "@/lib/authz";
  * admin diarahkan ke Nonaktifkan. Dengan begitu riwayat penilaian dan audit tidak pernah kehilangan
  * rujukan. Setiap penghapusan dicatat di audit beserta isi datanya sebelum dihapus.
  *
- * Periode dan kategori hanya boleh dihapus saat periode masih Draf — pada status itu belum ada
- * jawaban maupun hasil, jadi seluruh konfigurasinya (pertanyaan, aturan, peserta, tugas yang belum
- * diisi) ikut dihapus.
+ * Kategori hanya boleh dihapus saat periodenya masih Draf — pada status itu belum ada jawaban
+ * maupun hasil, jadi seluruh konfigurasinya (pertanyaan, aturan, peserta, tugas yang belum diisi)
+ * ikut dihapus.
+ *
+ * Periode adalah satu-satunya pengecualian aturan di atas: ia boleh dihapus pada status apa pun,
+ * beserta jawaban dan hasil di dalamnya. Membuang periode salah buat atau periode uji coba adalah
+ * kebutuhan nyata admin, dan menyisakan periode yang tidak terpakai justru mengotori daftar
+ * periode, papan hasil, dan Tugas Saya milik penilai. Penghapusannya tercatat di audit beserta isi
+ * periodenya sebelum dihapus.
  */
 
 function tolakKarenaDipakai(apa: string, pemakai: [number, string][], saran: string): never | void {
@@ -204,7 +210,7 @@ async function deleteObjectTypeImpl(id: string, actor: AuthContext) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Periode dan kategori (hanya saat Draf)
+// Periode (status apa pun) dan kategori (hanya saat periodenya Draf)
 
 /** Menghapus seluruh isi kategori-kategori ini. Hanya dipanggil untuk periode Draf. */
 async function hapusIsiKategori(categoryIds: string[]) {
@@ -235,13 +241,45 @@ async function deleteCategoryImpl(categoryId: string, actor: AuthContext) {
   return category.periodId;
 }
 
+/**
+ * Menghapus seluruh isi sebuah periode, termasuk jawaban dan hasil perhitungannya.
+ *
+ * Berbeda dari hapusIsiKategori di atas, yang menolak begitu ada satu jawaban: ini dipakai saat
+ * admin memang bermaksud membuang periodenya sekalian — periode uji coba, atau periode yang salah
+ * dibuat lalu terlanjur dibuka. Urutannya mengikuti arah kunci asing, dari daun ke akar: hasil
+ * perhitungan, lalu jawaban, lalu tugas, lalu konfigurasi kategori, baru finalisasinya.
+ */
+async function hapusIsiPeriode(periodId: string) {
+  const diPeriode = { categoryObject: { category: { periodId } } };
+
+  await prisma.parameterResult.deleteMany({ where: { result: { run: { category: { periodId } } } } });
+  await prisma.objectGroupResult.deleteMany({ where: { run: { category: { periodId } } } });
+  // Run menunjuk finalisasi yang memakainya, jadi run dulu baru finalisasinya di bawah.
+  await prisma.calculationRun.deleteMany({ where: { category: { periodId } } });
+
+  await prisma.responseScore.deleteMany({ where: { responseRevision: { assignment: diPeriode } } });
+  await prisma.responseRevision.deleteMany({ where: { assignment: diPeriode } });
+  // Tugas pengganti menunjuk tugas yang digantikannya; tautannya dilepas dulu agar urutan hapus
+  // tidak tergantung siapa menggantikan siapa.
+  await prisma.assignment.updateMany({ where: diPeriode, data: { replacesId: null } });
+  await prisma.assignment.deleteMany({ where: diPeriode });
+  await prisma.assignmentBatch.deleteMany({ where: { category: { periodId } } });
+
+  await prisma.categoryObject.deleteMany({ where: { category: { periodId } } });
+  await prisma.groupRule.deleteMany({ where: { category: { periodId } } });
+  await prisma.assignmentRule.deleteMany({ where: { category: { periodId } } });
+  await prisma.parameter.deleteMany({ where: { instrumentVersion: { category: { periodId } } } });
+  await prisma.instrumentVersion.deleteMany({ where: { category: { periodId } } });
+
+  // Finalisasi berantai: yang satu menunjuk finalisasi sebelumnya.
+  await prisma.finalization.updateMany({ where: { periodId }, data: { priorFinalId: null } });
+  await prisma.finalization.deleteMany({ where: { periodId } });
+}
+
 async function deletePeriodImpl(periodId: string, actor: AuthContext) {
   const period = await prisma.period.findUnique({ where: { id: periodId }, include: { categories: { select: { id: true, name: true } } } });
   if (!period) throw new ServiceError("Periode tidak ditemukan.");
-  if (period.status !== "DRAF") {
-    throw new ServiceError("Periode hanya bisa dihapus selama masih Draf. Periode yang sudah dibuka menyimpan riwayat penilaian.");
-  }
-  await hapusIsiKategori(period.categories.map((c) => c.id));
+  await hapusIsiPeriode(periodId);
   await prisma.category.deleteMany({ where: { periodId } });
   await prisma.accessPolicy.deleteMany({ where: { periodId } });
   // Periode lain yang disalin dari periode ini tetap ada; tautan asal-usulnya saja yang dilepas.
