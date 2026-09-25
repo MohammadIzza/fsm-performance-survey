@@ -25,7 +25,7 @@ export default async function ProfilPage() {
     <div className="space-y-8">
       {/* Tanpa kartu ringkasan: kartu itu dirancang untuk angka, dan jenis pengguna maupun unit
           sudah tercantum utuh di bagian "Penempatan dan akun" di bawah. */}
-      <PageIntro title="Profil" intro="Data diri Anda di ruang penilaian." />
+      <PageIntro title="Profil" intro="Data diri Anda di ruang survei." />
 
       <Panel
         plain

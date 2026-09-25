@@ -62,7 +62,7 @@ export default async function LoginPage() {
           </h2>
           <p className="survey-login-form__text t-t-md">
             {LOGIN_ID_AKTIF
-              ? 'Masukkan ID terdaftar untuk membuka ruang penilaian Anda.'
+              ? 'Masukkan ID terdaftar untuk membuka ruang survei Anda.'
               : 'Masuk dengan akun UNDIP Anda, atau dengan akun yang diberikan admin.'}
           </p>
         </div>
