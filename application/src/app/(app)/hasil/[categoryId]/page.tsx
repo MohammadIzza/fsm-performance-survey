@@ -21,13 +21,16 @@ export default async function HasilDetailPage({
 }) {
   const { categoryId } = await params;
   const ctx = await getCurrentAuthContext();
-  if (!ctx || (!ctx.isAdmin && !ctx.isDekan && ctx.leadershipUnitIds.length === 0)) {
+  if (!ctx) {
     return (
       <div className="app-empty-box">
         <p className="font-medium text-[var(--foreground)]">Tidak berwenang</p>
       </div>
     );
   }
+  // Pengguna biasa boleh membaca papan peringkat, tetapi hanya hasil yang sudah ditetapkan dan
+  // hanya angka akhirnya: rincian per parameter dan daftar penilai tetap tertutup bagi mereka.
+  const berwenang = ctx.isAdmin || ctx.isDekan || ctx.leadershipUnitIds.length > 0;
 
   const category = await prisma.category.findUnique({
     where: { id: categoryId },
@@ -36,16 +39,19 @@ export default async function HasilDetailPage({
   if (!category) notFound();
 
   // Bab 4.3/13.5: EDGE-19/EDGE-18 — waktu akses diperiksa sebelum data ditampilkan (tidak
-  // membocorkan angka melalui pesan error), dan Admin tidak terhalang jadwal ini.
+  // membocorkan angka melalui pesan error), dan Admin tidak terhalang jadwal ini. Pengguna biasa
+  // menghadapi satu syarat tambahan: hasilnya harus sudah final, bukan sekadar jendela aksesnya
+  // terbuka.
+  const kebijakan = category.period.accessPolicy;
+  const jadwalTerbuka = kebijakan
+    ? isResultAccessOpenForNonAdmin({
+        mode: kebijakan.mode,
+        availableAt: kebijakan.availableAt,
+        periodStatus: category.period.status,
+      })
+    : false;
   const accessOpen =
-    ctx.isAdmin ||
-    (category.period.accessPolicy
-      ? isResultAccessOpenForNonAdmin({
-          mode: category.period.accessPolicy.mode,
-          availableAt: category.period.accessPolicy.availableAt,
-          periodStatus: category.period.status,
-        })
-      : false);
+    ctx.isAdmin || (jadwalTerbuka && (berwenang || category.period.status === "FINAL"));
 
   if (!accessOpen) {
     return (
@@ -56,9 +62,14 @@ export default async function HasilDetailPage({
         <div className="app-empty-box">
           <p className="font-medium text-[var(--foreground)]">Hasil belum dapat diakses</p>
           <p className="mt-1 text-sm text-[var(--muted)]">
-            {category.period.accessPolicy
-              ? describeAccessCondition(category.period.accessPolicy.mode, category.period.accessPolicy.availableAt)
-              : "Kebijakan akses belum ditetapkan."}
+            {/* Bagi pengguna biasa syaratnya bukan jendela akses, melainkan hasil yang sudah
+                ditetapkan. Menyebut jendela akses di situ justru menyesatkan: jendelanya bisa
+                saja sedang terbuka, tetapi hasilnya memang belum final. */}
+            {!berwenang && category.period.status !== "FINAL"
+              ? "Papan peringkat tampil setelah panitia menetapkan hasil akhir."
+              : kebijakan
+                ? describeAccessCondition(kebijakan.mode, kebijakan.availableAt)
+                : "Kebijakan akses belum ditetapkan."}
           </p>
         </div>
       </div>
@@ -75,24 +86,30 @@ export default async function HasilDetailPage({
   let pimpinanDetail: Map<string, DetailData> | undefined;
   let selainDetail: Map<string, DetailData> | undefined;
 
+  // undefined = seluruh peserta. Bagi pengguna biasa lingkup unit tidak berlaku: yang diumumkan
+  // adalah peringkat utuh kategori itu, bukan potongan unitnya sendiri (yang justru kosong).
+  const lingkup = berwenang ? await getPeriodScope(ctx, category.periodId) : undefined;
+
   if (latestRun) {
     const [pAll, sAll] = await Promise.all([
-      getRanking({ categoryId, group: "PIMPINAN", unitIds: await getPeriodScope(ctx, category.periodId) }),
-      getRanking({ categoryId, group: "SELAIN_PIMPINAN", unitIds: await getPeriodScope(ctx, category.periodId) }),
+      getRanking({ categoryId, group: "PIMPINAN", unitIds: lingkup }),
+      getRanking({ categoryId, group: "SELAIN_PIMPINAN", unitIds: lingkup }),
     ]);
     // Bab 13.5/EDGE-19/EDGE-20: dipangkas ke unit objek dalam lingkup aktor SETELAH ranking
     // dihitung atas seluruh populasi, supaya nomor peringkat tetap benar secara global lalu
     // ditampilkan sebagai subset — bukan diranking ulang dari subset yang terlihat.
     pimpinanEntries = pAll;
     selainEntries = sAll;
-    gabungan = await getCombinedRanking({ categoryId, unitIds: await getPeriodScope(ctx, category.periodId) });
+    gabungan = await getCombinedRanking({ categoryId, unitIds: lingkup });
 
     const visibleIds = new Set([...pimpinanEntries, ...selainEntries].map((e) => e.categoryObjectId));
 
-    const [pimpinanBulk, selainBulk] = await Promise.all([
-      getGroupDetailBulk(categoryId, "PIMPINAN"),
-      getGroupDetailBulk(categoryId, "SELAIN_PIMPINAN"),
-    ]);
+    const [pimpinanBulk, selainBulk] = berwenang
+      ? await Promise.all([
+          getGroupDetailBulk(categoryId, "PIMPINAN"),
+          getGroupDetailBulk(categoryId, "SELAIN_PIMPINAN"),
+        ])
+      : [null, null];
 
     function toDetailMap(bulk: Awaited<ReturnType<typeof getGroupDetailBulk>>) {
       if (!bulk) return undefined;
@@ -119,7 +136,10 @@ export default async function HasilDetailPage({
     selainDetail = toDetailMap(selainBulk);
   }
 
-  const scopeLabel = ctx.isAdmin || ctx.isDekan ? "Seluruh fakultas" : "Unit yang Anda pimpin dan subunitnya";
+  const scopeLabel =
+    ctx.isAdmin || ctx.isDekan || !berwenang
+      ? "Seluruh fakultas"
+      : "Unit yang Anda pimpin dan subunitnya";
 
   // `admin-area` di sini bukan penanda hak akses: kelas itu lingkup gaya daftar data aplikasi —
   // tata letak kolom, tombol buka-tutup baris, panel detail, dan susunan ponsel. Tanpanya daftar
@@ -158,9 +178,11 @@ export default async function HasilDetailPage({
           selainDetail={selainDetail}
           gabungan={gabungan}
           action={
-            <a href={withBase(`/hasil/${categoryId}/export`)} className="app-btn">
-              Unduh Excel
-            </a>
+            berwenang ? (
+              <a href={withBase(`/hasil/${categoryId}/export`)} className="app-btn">
+                Unduh Excel
+              </a>
+            ) : undefined
           }
         />
       )}

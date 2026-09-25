@@ -28,9 +28,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     { href: "/dashboard", label: "Beranda" },
     { href: "/tugas", label: "Tugas Saya" },
     ...(ctx.isAdmin || ctx.isDekan ? [{href:"/akses-hasil",label:"Waktu akses hasil"}] : []),
-    ...(ctx.isAdmin || ctx.isDekan || ctx.leadershipUnitIds.length > 0
-      ? [{ href: "/hasil", label: "Hasil" }]
-      : []),
+    // Terbuka untuk semua: pengguna biasa hanya menemukan papan peringkat yang hasilnya sudah
+    // ditetapkan, sedangkan rekap periode berjalan tetap terbatas pada Admin, Dekan, dan Pimpinan.
+    { href: "/hasil", label: "Hasil" },
     { href: "/profil", label: "Profil" },
   ];
   const adminLinks = ctx.isAdmin
