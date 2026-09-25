@@ -68,8 +68,6 @@ export const themeBundles = {
 export const themeTransitions = {
   '/': { layout: 'front-page' },
   '/alur-penilaian/': { layout: 'bootcamp' },
-  '/kebijakan-data/': { layout: 'page' },
-  '/kebijakan-privasi/': { layout: 'page' },
   '/panduan-admin/': { layout: 'b2b' },
   '/panduan-penilai/': { layout: 'bootcamp' },
   '/panduan-pimpinan/': { layout: 'b2b' },

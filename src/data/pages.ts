@@ -34,16 +34,4 @@ export const pages = {
     layout: 'l-b2b',
     path: '/panduan-admin/',
   },
-  'kebijakan-privasi': {
-    title: 'Kebijakan Privasi - Survei FSM UNDIP',
-    description: 'Terakhir diperbarui: 9 September 2026',
-    layout: 'l-page',
-    path: '/kebijakan-privasi/',
-  },
-  'kebijakan-data': {
-    title: 'Kebijakan Data dan Sesi - Survei FSM UNDIP',
-    description: 'Kebijakan Data dan Sesi - Survei Penilaian FSM UNDIP',
-    layout: 'l-page',
-    path: '/kebijakan-data/',
-  },
 } as const;

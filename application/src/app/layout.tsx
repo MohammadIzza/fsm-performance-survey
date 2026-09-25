@@ -54,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </nav>
        </header>
        <div id="app-content">{children}</div><ThemeReveal /><RevealOnScroll />
-       <footer className="survey-footer"><span>Survei Penilaian FSM UNDIP · Demonstrasi</span><a href={withBase("/kebijakan-privasi")}>Kebijakan privasi ↗</a></footer>
+       <footer className="survey-footer"><span>Survei Penilaian FSM UNDIP · Demonstrasi</span></footer>
       </body>
     </html>
   );
