@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { Info } from "@/components/theme/info";
 import { KET } from "@/lib/keterangan";
-import { useAksi } from "@/components/theme/notifikasi";
-import { updateGradeBandsAction } from "@/lib/actions/admin-categories";
 import { MAKS_TINGKAT, PREDIKAT_BAWAAN, type AmbangPredikat } from "@/lib/predikat";
 
 const fieldClass = "form__control disabled:opacity-60";
@@ -16,23 +14,16 @@ const fieldClass = "form__control disabled:opacity-60";
  * berlaku baik pada kategori berskala 1–5 maupun 0–100 — dan supaya admin tidak perlu menghitung
  * sendiri berapa nilai tertinggi yang mungkin dari bobot parameternya.
  */
-export function PredikatForm({
-  periodId,
-  categoryId,
+export function PredikatFields({
   bands,
   skorMaksimum,
   editable,
 }: {
-  periodId: string;
-  categoryId: string;
   bands: AmbangPredikat[] | null;
   /** Nilai tertinggi yang mungkin pada kategori ini; null bila metodenya Total (tak berbatas). */
   skorMaksimum: number | null;
   editable: boolean;
 }) {
-  const [state, formAction, pending] = useAksi(updateGradeBandsAction, {}, (_h, fd) =>
-    fd.get("pakai") === "on" ? "Ambang predikat disimpan." : "Predikat dimatikan."
-  );
   const [pakai, setPakai] = useState(bands != null);
   const [daftar, setDaftar] = useState<AmbangPredikat[]>(bands ?? PREDIKAT_BAWAAN);
 
@@ -40,9 +31,10 @@ export function PredikatForm({
     setDaftar((d) => d.map((b, idx) => (idx === i ? { ...b, ...patch } : b)));
 
   return (
-    <form action={formAction} className="grid gap-3">
-      <input type="hidden" name="periodId" value={periodId} />
-      <input type="hidden" name="categoryId" value={categoryId} />
+    <div className="grid gap-3">
+      {/* Lihat catatan pada CombinedWeightFields: penanda ini yang membedakan "predikat dimatikan"
+          dari "bagian predikat tidak ikut dikirim". */}
+      <input type="hidden" name="adaPredikat" value="1" />
 
       <label className="flex items-center gap-2 app-text-sm text-[var(--foreground)]">
         <input
@@ -130,20 +122,7 @@ export function PredikatForm({
         </>
       )}
 
-      {editable ? (
-        <div className="flex items-center gap-2">
-          <button type="submit" disabled={pending} className="app-btn app-btn--primary">
-            {pending ? "Menyimpan…" : "Simpan"}
-          </button>
-          {state.error && (
-            <p role="alert" className="aturan-galat">
-              {state.error}
-            </p>
-          )}
-        </div>
-      ) : (
-        <p className="aturan-terkunci">Terkunci — periode sudah difinalkan.</p>
-      )}
-    </form>
+      {!editable && <p className="aturan-terkunci">Terkunci — periode sudah difinalkan.</p>}
+    </div>
   );
 }

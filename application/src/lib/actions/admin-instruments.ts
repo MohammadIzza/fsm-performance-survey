@@ -11,8 +11,12 @@ import {
   duplicateInstrumentFrom,
 } from "@/lib/services/instruments";
 import { updateCombinedWeight, updateGroupRule } from "@/lib/services/groupRules";
+import { updateAssignmentRule } from "@/lib/services/assignmentRules";
+import { updateGradeBands } from "@/lib/services/categories";
 import { ServiceError } from "@/lib/services/units";
-import type { AggregationMethod } from "@/generated/prisma/enums";
+import { atomic, prisma } from "@/lib/prisma";
+import type { AmbangPredikat } from "@/lib/predikat";
+import type { AggregationMethod, AssignmentScope } from "@/generated/prisma/enums";
 
 export interface FormState {
   error?: string;
@@ -182,4 +186,90 @@ export async function beginInstrumentRevisionAction(_prev:FormState,form:FormDat
  const categoryId=String(form.get("categoryId")??"");const periodId=String(form.get("periodId")??"");
  try{await beginInstrumentRevision(categoryId,String(form.get("reason")??""),String(form.get("correctionEndsAt")??"")+"+07:00",actor)}catch(e){if(e instanceof ServiceError)return {error:e.message};throw e}
  revalidateCategory(periodId,categoryId);return {};
+}
+
+/**
+ * Menyimpan seluruh bagian "Aturan penilai" sekaligus: jumlah penilai kedua kelompok, bobot nilai
+ * gabungan, ambang predikat, dan syarat calon kedua kelompok.
+ *
+ * Satu tombol, satu transaksi. Sebelumnya tiap bagian punya tombol Simpan sendiri, dan perubahan
+ * di bagian yang tidak ditekan tombolnya hilang tanpa peringatan.
+ *
+ * Bagian mana yang boleh ikut tersimpan ditentukan di sini dari status periode, bukan dari isian
+ * yang dikirim peramban: pada status selain Draf, isian jumlah penilai dan syarat calon memang
+ * ditampilkan terkunci, dan service-nya pun akan menolaknya — mengirimnya hanya akan menggagalkan
+ * penyimpanan bagian lain yang sebenarnya masih boleh diubah.
+ */
+export async function simpanAturanPenilaiAction(
+  _prev: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const actor = await requireAdminActor();
+  const periodId = String(formData.get("periodId") ?? "");
+  const categoryId = String(formData.get("categoryId") ?? "");
+  const teks = (nama: string) => String(formData.get(nama) ?? "");
+
+  const kategori = await prisma.category.findUnique({
+    where: { id: categoryId },
+    include: { period: { select: { status: true } } },
+  });
+  if (!kategori) return { error: "Kategori tidak ditemukan." };
+  const status = kategori.period.status;
+  const bolehAturan = status === "DRAF";
+  const bolehGabungan = ["DRAF", "SIAP", "AKTIF"].includes(status);
+  const bolehPredikat = status !== "FINAL";
+
+  try {
+    await atomic(async () => {
+      if (bolehAturan) {
+        for (const id of formData.getAll("groupRuleIds").map(String)) {
+          await updateGroupRule(
+            id,
+            {
+              aggregation: (teks(`gr__${id}__aggregation`) || "RATA_RATA") as AggregationMethod,
+              target: Number(teks(`gr__${id}__target`) || 0),
+              minimum: Number(teks(`gr__${id}__minimum`) || 1),
+              expectedRevision: Number(teks(`gr__${id}__revision`) || 0),
+              tieBreakParameterIds: formData.getAll(`gr__${id}__tieBreakParameterIds`).map(String),
+            },
+            actor
+          );
+        }
+        for (const id of formData.getAll("assignmentRuleIds").map(String)) {
+          await updateAssignmentRule(
+            id,
+            {
+              scope: (teks(`ar__${id}__scope`) || "UNIT_OBJEK") as AssignmentScope,
+              userTypeIds: formData.getAll(`ar__${id}__userTypeIds`).map(String),
+            },
+            actor
+          );
+        }
+      }
+
+      if (bolehGabungan && formData.has("adaGabungan")) {
+        const aktif = formData.get("gabung") === "on";
+        await updateCombinedWeight(categoryId, aktif ? Number(teks("pimpinanWeight")) : null, actor);
+      }
+
+      if (bolehPredikat && formData.has("adaPredikat")) {
+        let bands: AmbangPredikat[] | null = null;
+        if (formData.get("pakai") === "on") {
+          const label = formData.getAll("bandLabel").map(String);
+          const batas = formData.getAll("bandMin").map(String);
+          bands = label
+            .map((teksLabel, i) => ({ label: teksLabel.trim(), min: Number(batas[i]) }))
+            .filter((b) => b.label !== "");
+        }
+        await updateGradeBands(categoryId, bands, actor);
+      }
+    });
+  } catch (e) {
+    if (e instanceof ServiceError) return { error: e.message };
+    throw e;
+  }
+
+  revalidateCategory(periodId, categoryId);
+  revalidatePath(`/hasil/${categoryId}`);
+  return {};
 }

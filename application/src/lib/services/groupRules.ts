@@ -39,9 +39,20 @@ async function updateGroupRuleImpl(
 
   if(input.expectedRevision !== undefined && before.revision!==input.expectedRevision) throw new ServiceError("Data berubah sejak terakhir dibuka. Muat ulang sebelum menyimpan.");
   if(!["RATA_RATA","TOTAL"].includes(input.aggregation)) throw new ServiceError("Metode agregasi tidak valid.");
-  if(input.tieBreakParameterIds?.length) {
-    const valid = await prisma.parameter.count({where:{id:{in:input.tieBreakParameterIds},instrumentVersion:{categoryId:before.categoryId}}});
-    if(valid!==input.tieBreakParameterIds.length) throw new ServiceError("Parameter pembeda tidak valid atau duplikat.");
+  // Urutan dikirim apa adanya: itu urutan admin memilihnya, dan di sinilah prioritas pembeda
+  // ditentukan — parameter pertama diperiksa lebih dulu. Yang diperiksa hanya keabsahannya:
+  // parameter milik kategori ini, dan tidak ada yang kembar.
+  const tieBreakParameterIds = input.tieBreakParameterIds;
+  if (tieBreakParameterIds?.length) {
+    if (new Set(tieBreakParameterIds).size !== tieBreakParameterIds.length) {
+      throw new ServiceError("Parameter pembeda tidak valid atau duplikat.");
+    }
+    const sah = await prisma.parameter.count({
+      where: { id: { in: tieBreakParameterIds }, instrumentVersion: { categoryId: before.categoryId } },
+    });
+    if (sah !== tieBreakParameterIds.length) {
+      throw new ServiceError("Parameter pembeda tidak valid atau duplikat.");
+    }
   }
   const rule = await prisma.groupRule.update({
     where: { id: groupRuleId },
@@ -50,7 +61,7 @@ async function updateGroupRuleImpl(
       target: input.target,
       minimum: input.minimum,
       revision:{increment:1},
-      tieBreakParameterIds:input.tieBreakParameterIds,
+      tieBreakParameterIds,
     },
   });
 

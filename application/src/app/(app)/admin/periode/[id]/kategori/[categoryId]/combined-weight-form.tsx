@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { Info } from "@/components/theme/info";
 import { KET } from "@/lib/keterangan";
-import { useAksi } from "@/components/theme/notifikasi";
-import { updateCombinedWeightAction } from "@/lib/actions/admin-instruments";
 
 const fieldClass = "form__control disabled:opacity-60";
 
@@ -12,29 +10,24 @@ const fieldClass = "form__control disabled:opacity-60";
  * Bobot nilai gabungan antar-kelompok. Mati = dua peringkat terpisah seperti biasa; hidup = satu
  * peringkat tambahan dari nilai Pimpinan × bobot + nilai Selain Pimpinan × sisanya.
  */
-export function CombinedWeightForm({
-  periodId,
-  categoryId,
+export function CombinedWeightFields({
   pimpinanWeight,
   editable,
 }: {
-  periodId: string;
-  categoryId: string;
   pimpinanWeight: number | null;
   editable: boolean;
 }) {
-  const [state, formAction, pending] = useAksi(updateCombinedWeightAction, {}, (_h, fd) =>
-    fd.get("gabung") === "on" ? "Bobot nilai gabungan disimpan." : "Nilai gabungan dimatikan."
-  );
   const [gabung, setGabung] = useState(pimpinanWeight != null);
   const [bobot, setBobot] = useState(String(pimpinanWeight ?? 60));
   const angka = Number(bobot);
   const sisa = Number.isInteger(angka) && angka >= 1 && angka <= 99 ? 100 - angka : null;
 
   return (
-    <form action={formAction} className="grid gap-3">
-      <input type="hidden" name="periodId" value={periodId} />
-      <input type="hidden" name="categoryId" value={categoryId} />
+    <div className="grid gap-3">
+      {/* Penanda bahwa bagian ini ikut dikirim. Kotak centang yang tidak dicentang tidak muncul di
+          FormData sama sekali, jadi tanpa penanda ini "matikan nilai gabungan" tidak bisa dibedakan
+          dari "bagian ini memang tidak ditampilkan". */}
+      <input type="hidden" name="adaGabungan" value="1" />
 
       <label className="flex items-center gap-2 app-text-sm text-[var(--foreground)]">
         <input
@@ -73,20 +66,7 @@ export function CombinedWeightForm({
         </div>
       )}
 
-      {editable ? (
-        <div className="flex items-center gap-2">
-          <button type="submit" disabled={pending} className="app-btn app-btn--primary">
-            {pending ? "Menyimpan…" : "Simpan"}
-          </button>
-          {state.error && (
-            <p role="alert" className="aturan-galat">
-              {state.error}
-            </p>
-          )}
-        </div>
-      ) : (
-        <p className="aturan-terkunci">Terkunci — periode sudah ditutup.</p>
-      )}
-    </form>
+      {!editable && <p className="aturan-terkunci">Terkunci — periode sudah ditutup.</p>}
+    </div>
   );
 }

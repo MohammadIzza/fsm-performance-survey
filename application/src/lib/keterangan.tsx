@@ -60,12 +60,14 @@ export const KET: Record<string, ReactNode> = {
     </>
   ),
   pembeda: (
-    <>Bila nilai akhir dua objek sama persis, peringkatnya ditentukan skor parameter yang dipilih di sini, sesuai urutan.</>
+    <>Bila nilai akhir dua objek sama persis, peringkatnya ditentukan skor parameter yang dipilih di sini. Urutan memilih menentukan prioritas: parameter pertama diperiksa lebih dulu, dan yang berikutnya hanya dipakai bila masih sama.</>
   ),
   lingkup: (
     <>
-      Dari unit mana calon penilai diambil. <b>Unit objek saja</b>: hanya anggota unit tempat objek berada.{" "}
-      <b>Unit objek dan subunitnya</b>: termasuk unit di bawahnya, mis. departemen beserta prodinya.
+      Dari unit mana calon penilai diambil. <b>Unit objek saja</b>: hanya unit tempat objek berada.{" "}
+      <b>Unit objek dan subunitnya</b>: termasuk unit di bawahnya, mis. departemen beserta prodinya.{" "}
+      <b>Unit objek dan unit di atasnya</b> (kelompok Pimpinan): naik ke induknya sampai fakultas,
+      untuk objek di unit yang pejabatnya sedikit.
     </>
   ),
   filterJenis: <>Batasi calon penilai ke jenis tertentu, mis. hanya Mahasiswa. Bila tidak ada yang dicentang, semua jenis boleh.</>,

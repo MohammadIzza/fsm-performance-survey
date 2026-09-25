@@ -775,8 +775,6 @@ input[type="range"]:disabled::-moz-range-thumb {
 .period-stepper__form-status {
   margin:0;color:var(--color-brand-4-dark);font-size:.58rem;font-weight:600;
 }
-.period-stepper__rules-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
-
 /* Pratinjau pembagian tugas memakai skala teks yang sama dengan panduan stepper di atasnya.
    Tabel memberi sebagian besar ruang kepada daftar nama penilai, sementara angka ringkas tidak
    ikut meregang. Area persetujuan dan tombol dibaca sebagai satu tindakan yang kompak. */
@@ -855,9 +853,6 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell main .assignment-planner .assignment-planner__apply .app-btn {
     justify-self:stretch;width:100%;
   }
-}
-.period-stepper__rules-grid .period-stepper__form-section {
-  padding:.7rem;border-top:1px solid var(--color-grey-2);background:rgba(255,255,255,.32);
 }
 .period-stepper__secondary-link {
   display:inline-block;color:var(--color-brand-3);font-size:.58rem;font-weight:600;text-decoration:none;
@@ -986,7 +981,6 @@ input[type="range"]:disabled::-moz-range-thumb {
   .period-stepper__content small {font-size:.48rem}
   .period-stepper__panel {padding:.7rem .55rem .85rem}
   .period-stepper__form-grid {grid-template-columns:1fr;gap:.8rem}
-  .period-stepper__rules-grid {grid-template-columns:1fr;gap:.65rem}
   .survey-shell main .period-stepper__panel :is(input,select,textarea).form__control {
     min-height:1.8rem;padding:.34rem .48rem;font-size:.6rem!important;
   }
@@ -4118,6 +4112,47 @@ input[type="range"]:disabled::-moz-range-thumb {
   display:block;color:var(--color-text);font-size:.5rem;font-weight:400;line-height:1.3;
 }
 
+/* Bagian Aturan penilai: empat kelompok isian dalam satu formulir, dengan satu tombol simpan di
+   bawahnya. Jarak antarkelompok dibuat lebih lebar daripada jarak di dalamnya supaya batas tiap
+   bagian tetap terbaca meski tombolnya tinggal satu. */
+.aturan-penilai {display:grid;gap:1.6rem}
+/* Judul bagian berdiri di atas garis kedua panel, bukan menempel padanya. */
+.aturan-penilai__judul {margin:0 0 .75rem}
+.aturan-penilai__pasangan {
+  display:grid;gap:1rem 1.5rem;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));
+}
+/* Garis atas dipasang pada KEDUA panel, bukan hanya pada panel kedua lewat aturan saudara
+   (.app-panel + .app-panel). Saat berdampingan, garis yang cuma ada di kanan membuat judul
+   "Pimpinan" dan "Selain Pimpinan" tidak sejajar dan barisnya ikut bergeser sepanjang panel. */
+.aturan-penilai__pasangan > .app-panel {border-top:2px solid var(--color-black);padding-top:1.1rem}
+.aturan-penilai__simpan {
+  display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;
+  padding-top:1rem;border-top:2px solid var(--color-black);
+}
+.aturan-penilai__catatan {color:var(--color-text);font-size:.62rem;line-height:1.4}
+
+/* Pilihan ganda yang urutan memilihnya berarti: tiap pilihan sebuah tombol selebar kotak, dan
+   yang terpilih membawa nomor urut di depannya. Nomor itulah satu-satunya cara melihat parameter
+   mana yang diperiksa lebih dulu — daftar bawaan peramban tidak punya tempat untuk itu. */
+.pilihan-urut {display:block}
+.pilihan-urut__daftar {
+  display:grid;gap:.15rem;margin:0;padding:.25rem;list-style:none;
+  border:1px solid var(--color-grey-2);border-radius:.5rem;background:var(--color-white);
+}
+.pilihan-urut__opsi {
+  display:flex;align-items:center;justify-content:space-between;gap:.6rem;width:100%;
+  padding:.34rem .55rem;border:0;border-radius:.35rem;background:transparent;
+  color:var(--color-black);font-size:.68rem;line-height:1.35;text-align:left;cursor:pointer;
+}
+.pilihan-urut__opsi:hover:not(:disabled) {background:var(--color-beige-dark)}
+.pilihan-urut__opsi:disabled {cursor:default;opacity:.6}
+.pilihan-urut__opsi[data-aktif="true"] {background:var(--color-brand-2);font-weight:600}
+/* Angka saja di ujung kanan — tanpa lencana dan tanpa slot kosong di kiri. */
+.pilihan-urut__nomor {flex:0 0 auto;font-weight:700;font-variant-numeric:tabular-nums}
+.pilihan-urut__label {min-width:0}
+
+/* Predikat nilai di bawah angkanya pada papan peringkat. Hanya teks berwarna — lencana berlatar
+   sudah dipakai kolom Status di sebelahnya, dan dua lencana berdampingan membuat baris terbaca
    sebagai dua status yang bersaing. Warnanya diturunkan dari palet yang sama seperti penanda
    "terkirim": dicampur hitam supaya cukup gelap dibaca sebagai teks kecil di atas putih. */
 .leaderboard-predikat {

@@ -1,5 +1,5 @@
 import { TombolHapus } from "@/components/theme/tombol-hapus";
-import { deletePeriodAction } from "@/lib/actions/admin-hapus";
+import { deleteCategoryAction, deletePeriodAction } from "@/lib/actions/admin-hapus";
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -21,8 +21,7 @@ import { PeriodStepper, type PeriodStep } from "@/components/theme/period-steppe
 import { AdminAction, AdminActionList } from "@/components/theme/admin-actions";
 import { ParameterManager } from "./kategori/[categoryId]/parameter-manager";
 import { ParticipantManager } from "./kategori/[categoryId]/participant-manager";
-import { GroupRuleForm } from "./kategori/[categoryId]/group-rule-form";
-import { AssignmentRuleForm } from "./kategori/[categoryId]/assignment-rule-form";
+import { AturanPenilaiForm } from "./kategori/[categoryId]/aturan-penilai-form";
 import { AssignmentPlanner } from "./kategori/[categoryId]/assignment-planner";
 import { listObjectTypes } from "@/lib/services/objectTypes";
 import { listCategorySources } from "@/lib/services/categories";
@@ -62,6 +61,17 @@ async function PeriodDetailPage({
   if (!period) notFound();
 
   const problems = period.status === "DRAF" ? await checkReadiness(id) : [];
+  // Isi periode yang ikut hilang bila periodenya dihapus — disebut apa adanya pada konfirmasi,
+  // karena di luar status Draf yang dihapus bukan lagi sekadar konfigurasi.
+  const [jumlahTugas, jumlahJawaban, jumlahDraf] = await Promise.all([
+    prisma.assignment.count({ where: { categoryObject: { category: { periodId: id } } } }),
+    prisma.responseRevision.count({
+      where: { assignment: { categoryObject: { category: { periodId: id } } }, state: "SUBMITTED" },
+    }),
+    prisma.responseRevision.count({
+      where: { assignment: { categoryObject: { category: { periodId: id } } }, state: "DRAFT" },
+    }),
+  ]);
   const canManageAccess = !!ctx && (ctx.isAdmin || ctx.isDekan);
   const finalizationPreview =
     period.status === "DITUTUP" ? await getFinalizationPreview(id) : null;
@@ -204,23 +214,37 @@ async function PeriodDetailPage({
           <section className="period-stepper__form-section">
             <h3>Informasi periode</h3>
             <PeriodSettingsForm period={period} />
-            {period.status === "DRAF" && (
-              <div className="hapus-zona">
-                <TombolHapus
-                  aksi={deletePeriodAction}
-                  id={period.id}
-                  label="Hapus periode"
-                  judul={`Hapus periode ${period.name}?`}
-                  pesan={
+            {/* Tersedia pada status apa pun: periode salah buat atau periode uji coba kadang baru
+                ketahuan setelah pengisian dibuka. Yang berubah hanya kalimat konfirmasinya —
+                begitu ada jawaban terkirim, jumlahnya disebut supaya admin tahu persis apa yang
+                ikut hilang. */}
+            <div className="hapus-zona">
+              <TombolHapus
+                aksi={deletePeriodAction}
+                id={period.id}
+                label="Hapus periode"
+                judul={`Hapus periode ${period.name}?`}
+                pesan={
+                  <>
                     <p>
-                      Seluruh isi periode ini — {period.categories.length} kategori beserta pertanyaan, aturan, objek yang
-                      dinilai, dan tugas yang sudah dibagikan — ikut terhapus permanen. Hanya bisa selama periode masih Draf.
+                      Seluruh isi periode ini terhapus permanen: {period.categories.length} kategori beserta pertanyaan,
+                      aturan, objek yang dinilai, dan {jumlahTugas} tugas penilaian.
                     </p>
-                  }
-                  berhasil="Periode dihapus."
-                />
-              </div>
-            )}
+                    {jumlahJawaban + jumlahDraf > 0 && (
+                      <p>
+                        Termasuk{" "}
+                        {jumlahJawaban > 0 && <strong>{jumlahJawaban} jawaban yang sudah dikirim penilai</strong>}
+                        {jumlahJawaban > 0 && jumlahDraf > 0 && " dan "}
+                        {jumlahDraf > 0 && `${jumlahDraf} jawaban yang masih draf`}, beserta hasil perhitungan dan
+                        finalisasinya. Isian penilai itu tidak dapat dikembalikan.
+                      </p>
+                    )}
+                    <p>Penghapusan ini tercatat di Audit.</p>
+                  </>
+                }
+                berhasil="Periode dihapus."
+              />
+            </div>
           </section>
           <section className="period-stepper__form-section">
             <h3>Waktu akses hasil</h3>
@@ -242,13 +266,50 @@ async function PeriodDetailPage({
       href: "#tambah-kategori",
       state: stepState(1),
       content: (
-        <CategoryCreateForm
-          periodId={period.id}
-          objectTypes={objectTypes}
-          // Kategori sumber dari periode mana pun, kecuali kategori periode ini sendiri —
-          // menyalin dari dirinya sendiri hanya menggandakan isi yang sedang disusun.
-          sources={categorySources.filter((c) => !period.categories.some((k) => k.id === c.id))}
-        />
+        <div className="space-y-4">
+          <CategoryCreateForm
+            periodId={period.id}
+            objectTypes={objectTypes}
+            // Kategori sumber dari periode mana pun, kecuali kategori periode ini sendiri —
+            // menyalin dari dirinya sendiri hanya menggandakan isi yang sedang disusun.
+            sources={categorySources.filter((c) => !period.categories.some((k) => k.id === c.id))}
+          />
+          {/* Kategori yang sudah ada di periode ini, dengan tombol hapusnya. Salah pilih sumber
+              salinan baru terasa setelah kategorinya terbentuk; tanpa daftar ini admin harus masuk
+              ke halaman kategori dulu untuk membatalkannya. Hapus mengikuti aturan servicenya:
+              hanya selama periode masih Draf. */}
+          {activeCategories.length > 0 && (
+            <ul className="kategori-daftar">
+              {activeCategories.map((category) => (
+                <li key={category.id} className="kategori-daftar__baris">
+                  <div className="kategori-daftar__nama">
+                    <Link href={`/admin/periode/${period.id}/kategori/${category.id}`}>{category.name}</Link>
+                    <span className="kategori-daftar__ket">
+                      {category.objectType.name} · {category.instrumentVersions[0]?.parameters.length ?? 0} pertanyaan ·{" "}
+                      {category._count.categoryObjects} objek
+                    </span>
+                  </div>
+                  {period.status === "DRAF" && (
+                    <TombolHapus
+                      aksi={deleteCategoryAction}
+                      id={category.id}
+                      label="Hapus"
+                      judul={`Hapus kategori ${category.name}?`}
+                      pesan={
+                        <p>
+                          Pertanyaan, aturan penilai, {category._count.categoryObjects} objek yang dinilai, dan tugas yang
+                          sudah dibagikan di kategori ini ikut terhapus permanen.
+                        </p>
+                      }
+                      berhasil="Kategori dihapus."
+                      className="app-btn app-btn--polos app-btn--danger"
+                    />
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       ),
     },
     {
@@ -339,40 +400,23 @@ async function PeriodDetailPage({
         renderForm: (category) => {
           const parameters = category.instrumentVersions[0]?.parameters ?? [];
           return (
-            <div className="period-stepper__rules-grid">
-              {category.groupRules
-                .slice()
-                .sort((a) => (a.group === "PIMPINAN" ? -1 : 1))
-                .map((rule) => (
-                  <section key={rule.id} className="period-stepper__form-section">
-                    <h3>{rule.group === "PIMPINAN" ? "Pimpinan" : "Selain pimpinan"}</h3>
-                    <GroupRuleForm
-                      parameters={parameters}
-                      rule={rule}
-                      periodId={period.id}
-                      categoryId={category.id}
-                      editable={editable}
-                    />
-                  </section>
-                ))}
-              {category.assignmentRules
-                .slice()
-                .sort((a) => (a.group === "PIMPINAN" ? -1 : 1))
-                .map((rule) => (
-                  <section key={rule.id} className="period-stepper__form-section">
-                    <h3>
-                      Syarat {rule.group === "PIMPINAN" ? "pimpinan" : "selain pimpinan"}
-                    </h3>
-                    <AssignmentRuleForm
-                      rule={rule}
-                      userTypes={userTypes}
-                      periodId={period.id}
-                      categoryId={category.id}
-                      editable={editable}
-                    />
-                  </section>
-                ))}
-            </div>
+            <AturanPenilaiForm
+              periodId={period.id}
+              categoryId={category.id}
+              groupRules={category.groupRules}
+              assignmentRules={category.assignmentRules}
+              parameters={parameters}
+              userTypes={userTypes}
+              pimpinanWeight={category.pimpinanWeight}
+              bands={null}
+              skorMaksimum={null}
+              editableAturan={editable}
+              editableGabungan={false}
+              editablePredikat={false}
+              // Langkah ini hanya soal siapa yang menilai; bobot gabungan dan predikat diatur di
+              // halaman kategori, bersama pertanyaan dan bobotnya.
+              tampilkanGabunganDanPredikat={false}
+            />
           );
         },
       }),

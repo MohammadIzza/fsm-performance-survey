@@ -3,8 +3,6 @@
 import { Info } from "@/components/theme/info";
 import { KET } from "@/lib/keterangan";
 
-import { useAksi } from "@/components/theme/notifikasi";
-import { updateAssignmentRuleAction } from "@/lib/actions/admin-assignments";
 import type { getCategoryDetail } from "@/lib/services/categories";
 
 type AssignmentRule = NonNullable<Awaited<ReturnType<typeof getCategoryDetail>>>["assignmentRules"][number];
@@ -13,33 +11,34 @@ type UserType = { id: string; name: string };
 const fieldClass =
   "form__control disabled:opacity-60";
 
-export function AssignmentRuleForm({
+/** Isian syarat calon satu kelompok; disimpan bersama bagian lain oleh AturanPenilaiForm. */
+export function AssignmentRuleFields({
   rule,
   userTypes,
-  periodId,
-  categoryId,
   editable,
 }: {
   rule: AssignmentRule;
   userTypes: UserType[];
-  periodId: string;
-  categoryId: string;
   editable: boolean;
 }) {
-  const [state, formAction, pending] = useAksi(updateAssignmentRuleAction, {}, "Aturan pembagian tugas disimpan.");
   const currentTypeIds = new Set((rule.userTypeIds as string[] | null) ?? []);
+  const f = (nama: string) => `ar__${rule.id}__${nama}`;
 
   return (
-    <form action={formAction} className="grid gap-3">
-      <input type="hidden" name="ruleId" value={rule.id} />
-      <input type="hidden" name="periodId" value={periodId} />
-      <input type="hidden" name="categoryId" value={categoryId} />
+    <div className="grid gap-3">
+      <input type="hidden" name="assignmentRuleIds" value={rule.id} />
 
       <label className="admin-tools__field">
         <span>Lingkup calon<Info>{KET.lingkup}</Info></span>
-        <select name="scope" defaultValue={rule.scope} disabled={!editable} className={fieldClass}>
+        <select name={f("scope")} defaultValue={rule.scope} disabled={!editable} className={fieldClass}>
           <option value="UNIT_OBJEK">Unit objek saja</option>
           <option value="UNIT_DAN_SUBUNIT">Unit objek dan subunitnya</option>
+          {/* Hanya untuk Pimpinan: satu prodi biasanya cuma punya satu atau dua pejabat, jadi
+              target penilai baru terpenuhi bila pimpinan departemen dan fakultas ikut jadi calon.
+              Pada kelompok Selain Pimpinan, naik ke atas justru menarik seluruh isi fakultas. */}
+          {rule.group === "PIMPINAN" && (
+            <option value="UNIT_DAN_INDUK">Unit objek dan unit di atasnya</option>
+          )}
         </select>
       </label>
 
@@ -53,7 +52,7 @@ export function AssignmentRuleForm({
             <label key={t.id}>
               <input
                 type="checkbox"
-                name="userTypeIds"
+                name={f("userTypeIds")}
                 value={t.id}
                 defaultChecked={currentTypeIds.has(t.id)}
                 disabled={!editable}
@@ -65,24 +64,9 @@ export function AssignmentRuleForm({
         <span className="admin-tools__hint">Kosongkan untuk semua jenis.</span>
       </div>
 
-      {editable ? (
-        <div className="flex items-center gap-2">
-          <button
-            type="submit"
-            disabled={pending}
-            className="app-btn app-btn--primary"
-          >
-            {pending ? "Menyimpan…" : "Simpan aturan"}
-          </button>
-          {state.error && (
-            <p role="alert" className="aturan-galat">
-              {state.error}
-            </p>
-          )}
-        </div>
-      ) : (
+      {!editable && (
         <p className="aturan-terkunci">Terkunci — hanya bisa diubah saat periode berstatus Draf.</p>
       )}
-    </form>
+    </div>
   );
 }

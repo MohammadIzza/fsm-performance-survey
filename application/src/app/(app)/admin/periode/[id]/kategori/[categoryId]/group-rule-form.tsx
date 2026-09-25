@@ -3,41 +3,39 @@
 import { Info } from "@/components/theme/info";
 import { KET } from "@/lib/keterangan";
 
-import { useAksi } from "@/components/theme/notifikasi";
-import { updateGroupRuleAction } from "@/lib/actions/admin-instruments";
 import type { getCategoryDetail } from "@/lib/services/categories";
-import { PilihanCariBanyak } from "@/components/theme/pilihan-cari";
+import { PilihanBerurutan } from "@/components/theme/pilihan-berurutan";
 
 type GroupRule = NonNullable<Awaited<ReturnType<typeof getCategoryDetail>>>["groupRules"][number];
 
 const fieldClass =
   "form__control disabled:opacity-60";
 
-export function GroupRuleForm({
+/**
+ * Isian jumlah penilai dan perhitungan satu kelompok. Bukan formulir tersendiri: seluruh bagian
+ * Aturan penilai disimpan sekaligus oleh satu tombol di AturanPenilaiForm, jadi nama isiannya
+ * diberi awalan id aturan supaya dua kelompok tidak bertabrakan dalam satu FormData.
+ */
+export function GroupRuleFields({
   rule,
-  periodId,
-  categoryId,
   editable,
   parameters,
 }: {
   rule: GroupRule;
-  periodId: string;
-  categoryId: string;
   editable: boolean;
   parameters: {id:string;name:string}[];
 }) {
-  const [state, formAction, pending] = useAksi(updateGroupRuleAction, {}, "Aturan penilai disimpan.");
+  const f = (nama: string) => `gr__${rule.id}__${nama}`;
 
   return (
-    <form action={formAction} className="grid gap-3">
-      <input type="hidden" name="groupRuleId" value={rule.id} /><input type="hidden" name="expectedRevision" value={rule.revision} />
-      <input type="hidden" name="periodId" value={periodId} />
-      <input type="hidden" name="categoryId" value={categoryId} />
+    <div className="grid gap-3">
+      <input type="hidden" name="groupRuleIds" value={rule.id} />
+      <input type="hidden" name={f("revision")} value={rule.revision} />
 
       <label className="admin-tools__field">
         <span>Metode agregasi<Info>{KET.agregasi}</Info></span>
         <select
-          name="aggregation"
+          name={f("aggregation")}
           defaultValue={rule.aggregation}
           disabled={!editable}
           className={fieldClass}
@@ -50,7 +48,7 @@ export function GroupRuleForm({
         <label className="admin-tools__field">
           <span>Target penilai<Info>{KET.target}</Info></span>
           <input
-            name="target"
+            name={f("target")}
             type="number"
             min={0}
             defaultValue={rule.target}
@@ -62,7 +60,7 @@ export function GroupRuleForm({
         <label className="admin-tools__field">
           <span>Minimum respons<Info>{KET.minimum}</Info></span>
           <input
-            name="minimum"
+            name={f("minimum")}
             type="number"
             min={1}
             defaultValue={rule.minimum}
@@ -77,36 +75,21 @@ export function GroupRuleForm({
           Parameter pembeda nilai sama (opsional)
           <Info>{KET.pembeda}</Info>
         </span>
-        <PilihanCariBanyak
-          name="tieBreakParameterIds"
+        <PilihanBerurutan
+          name={f("tieBreakParameterIds")}
           aria-label="Parameter pembeda nilai sama"
           disabled={!editable}
           defaultValue={(rule.tieBreakParameterIds as string[] | null) ?? []}
-          className="block w-full"
           options={parameters.map((p) => ({ value: p.id, label: p.name }))}
         />
         <span className="admin-tools__hint">
-          Dipakai sesuai urutan parameter. Tanpa pilihan, nilai yang sama berbagi peringkat (1, 2, 2, 4).
+          Klik untuk memilih, klik lagi untuk melepas. Nomor menunjukkan prioritas: yang dipilih lebih
+          dulu diperiksa lebih dulu. Tanpa pilihan, nilai yang sama berbagi peringkat (1, 2, 2, 4).
         </span>
       </div>
-      {editable ? (
-        <div className="flex items-center gap-2">
-          <button
-            type="submit"
-            disabled={pending}
-            className="app-btn app-btn--primary"
-          >
-            {pending ? "Menyimpan…" : "Simpan"}
-          </button>
-          {state.error && (
-            <p role="alert" className="aturan-galat">
-              {state.error}
-            </p>
-          )}
-        </div>
-      ) : (
+      {!editable && (
         <p className="aturan-terkunci">Terkunci — hanya bisa diubah saat periode berstatus Draf.</p>
       )}
-    </form>
+    </div>
   );
 }

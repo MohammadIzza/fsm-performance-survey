@@ -14,12 +14,9 @@ import { CategoryEditForm } from "./category-edit-form";
 import { ScaleForm } from "./scale-form";
 import { ParameterManager } from "./parameter-manager";
 import { DuplicateInstrumentForm } from "./duplicate-instrument-form";
-import { GroupRuleForm } from "./group-rule-form";
-import { CombinedWeightForm } from "./combined-weight-form";
-import { PredikatForm } from "./predikat-form";
+import { AturanPenilaiForm } from "./aturan-penilai-form";
 import { bacaAmbang, skorMaksimum } from "@/lib/predikat";
 import { ParticipantManager } from "./participant-manager";
-import { AssignmentRuleForm } from "./assignment-rule-form";
 import { AssignmentPlanner } from "./assignment-planner";
 import { AssignmentList } from "./assignment-list";
 import { ManualAssignForm } from "./manual-assign-form";
@@ -223,85 +220,20 @@ async function CategoryDetailPage({
             hint: "Siapa yang boleh menilai, berapa orang per objek, dan berapa jawaban minimum agar nilainya sah.",
             completion: "jumlah, minimum respons, dan syarat calon untuk setiap kelompok sudah tersimpan.",
             content: (
-              <>
-                <div>
-                  <p className="eyebrow mb-3">Jumlah penilai dan perhitungan</p>
-                  <div className="grid gap-6 sm:grid-cols-2">
-                    {category.groupRules
-                      .slice()
-                      .sort((a) => (a.group === "PIMPINAN" ? -1 : 1))
-                      .map((rule) => (
-                        <div
-                          key={rule.id}
-                          className="app-panel app-panel--ruled"
-                        >
-                          <h2 className="app-panel__label">
-                            {rule.group === "PIMPINAN" ? "Pimpinan" : "Selain Pimpinan"}
-                            <Info>{KET.kelompok}</Info>
-                          </h2>
-                          <GroupRuleForm parameters={instrument?.parameters ?? []}
-                            rule={rule}
-                            periodId={periodId}
-                            categoryId={categoryId}
-                            editable={editable}
-                          />
-                        </div>
-                      ))}
-                  </div>
-                </div>
-
-                <div>
-                  <p className="eyebrow mb-3">Nilai gabungan</p>
-                  <div className="app-panel app-panel--ruled">
-                    <CombinedWeightForm
-                      periodId={periodId}
-                      categoryId={categoryId}
-                      pimpinanWeight={category.pimpinanWeight}
-                      editable={["DRAF", "SIAP", "AKTIF"].includes(category.period.status)}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <p className="eyebrow mb-3">Predikat nilai</p>
-                  <div className="app-panel app-panel--ruled">
-                    <PredikatForm
-                      periodId={periodId}
-                      categoryId={categoryId}
-                      bands={bacaAmbang(category.gradeBands)}
-                      skorMaksimum={skorTertinggi}
-                      editable={category.period.status !== "FINAL"}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <p className="eyebrow mb-3">Syarat penilai</p>
-                  <div className="grid gap-6 sm:grid-cols-2">
-                    {category.assignmentRules
-                      .slice()
-                      .sort((a) => (a.group === "PIMPINAN" ? -1 : 1))
-                      .map((rule) => (
-                        <div
-                          key={rule.id}
-                          className="app-panel app-panel--ruled"
-                        >
-                          <h2 className="app-panel__label">
-                            {rule.group === "PIMPINAN" ? "Pimpinan" : "Selain Pimpinan"}
-                            <Info>{KET.kelompok}</Info>
-                          </h2>
-                          <AssignmentRuleForm
-                            rule={rule}
-                            userTypes={userTypes}
-                            periodId={periodId}
-                            categoryId={categoryId}
-                            editable={editable}
-                          />
-                        </div>
-                      ))}
-                  </div>
-                </div>
-              </>
+              <AturanPenilaiForm
+                periodId={periodId}
+                categoryId={categoryId}
+                groupRules={category.groupRules}
+                assignmentRules={category.assignmentRules}
+                parameters={instrument?.parameters ?? []}
+                userTypes={userTypes}
+                pimpinanWeight={category.pimpinanWeight}
+                bands={bacaAmbang(category.gradeBands)}
+                skorMaksimum={skorTertinggi}
+                editableAturan={editable}
+                editableGabungan={["DRAF", "SIAP", "AKTIF"].includes(category.period.status)}
+                editablePredikat={category.period.status !== "FINAL"}
+              />
             ),
           },
           {
@@ -381,7 +313,12 @@ async function CategoryDetailPage({
                     Daftar ini menunjukkan objek, penilai, kelompok, dan status pengisian setiap tugas.
                   </p>
                   <div className="space-y-4">
-                    <AssignmentList assignments={assignments} periodId={periodId} categoryId={categoryId} />
+                    <AssignmentList
+                      assignments={assignments}
+                      periodId={periodId}
+                      categoryId={categoryId}
+                      periodStatus={category.period.status}
+                    />
                     {bisaTambah && category.categoryObjects.length > 0 && (
                       <div className="assignment-manual border-t border-[var(--border)] pt-4">
                         <h3 className="app-panel__label">
