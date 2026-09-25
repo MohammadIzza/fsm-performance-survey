@@ -48,6 +48,8 @@ export default async function HomePage() {
         ? "Pimpinan Unit"
         : "Pengguna";
 
+  // Sapaan memakai nama lengkap, bukan identitas login: nomor induk yang panjang tidak memberi
+  // tahu siapa yang sedang masuk, padahal itulah yang dicari saat memastikan akunnya benar.
   const scopeDescription = ctx.isAdmin
     ? "Akses penuh seluruh fakultas (Admin)."
     : ctx.isDekan
@@ -60,7 +62,7 @@ export default async function HomePage() {
     <div className="space-y-8">
       <PageIntro
         title={`Selamat datang, ${ctx.name.split(" ")[0]}`}
-        intro={`Masuk sebagai ${ctx.loginIdentifier}. ${scopeDescription}`}
+        intro={`Masuk sebagai ${ctx.name}. ${scopeDescription}`}
       >
         <SummaryCard
           tone="biru"
