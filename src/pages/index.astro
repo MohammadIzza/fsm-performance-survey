@@ -3,33 +3,18 @@ import SiteLayout from '../layouts/SiteLayout.astro';
 import { pages } from '../data/pages';
 import Hero from '../components/sections/home/Hero.astro';
 import VideoHighlight from '../components/sections/home/VideoHighlight.astro';
-import Reviews from '../components/sections/home/Reviews.astro';
-import SuccessStories from '../components/sections/home/SuccessStories.astro';
 import Interlude from '../components/sections/shared/BubblesInterlude.astro';
 import Usps from '../components/sections/home/Usps.astro';
-import Separator from '../components/sections/shared/AnimatedSeparator.astro';
-import Bootcamps from '../components/sections/home/Bootcamps.astro';
-import CoursesList from '../components/sections/home/CoursesList.astro';
-import CoursesList2 from '../components/sections/home/CoursesList2.astro';
-import ContentSlider from '../components/sections/home/ContentSlider.astro';
-import Separator2 from '../components/sections/home/Separator2.astro';
-import Content1 from '../components/sections/home/Content1.astro';
 ---
 
 <SiteLayout {...pages['home']}>
   <Hero />
   <VideoHighlight />
-  <Reviews />
-  <SuccessStories />
   <Interlude />
   <Usps />
-  <Separator />
-  <Bootcamps />
-  <CoursesList />
-  <CoursesList2 />
-  <ContentSlider />
-  <Separator2 />
-  <Content1 />
-  <!-- Materi Pendukung dinonaktifkan sementara sampai video siap dipublikasikan.
-       Komponennya tetap tersedia di components/sections/home/Youtube.astro. -->
+  {/* Bagian yang dilepas dari beranda atas permintaan, komponennya tetap ada di
+      components/sections/home/ dan tinggal dipasang kembali bila diperlukan:
+      Reviews (Peringkat Teratas), SuccessStories (Skenario Pengguna),
+      Bootcamps (Periode Penilaian), CoursesList, CoursesList2, ContentSlider,
+      Separator2, Content1, dan Youtube (Materi Pendukung). */}
 </SiteLayout>
