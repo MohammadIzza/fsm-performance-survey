@@ -336,9 +336,12 @@
 .site-head .s__logo a {
   display: inline-block;
 }
+/* Lambang Dies berbentuk bujur sangkar dan membawa dua baris tulisan di bawah angkanya, bukan
+   wordmark melebar seperti logo sebelumnya. Tingginya dibuat lebih dari dua kali tinggi lama
+   (1.25rem) supaya tulisan itu masih tampak, bukan menjadi noda abu-abu. */
 .site-head .s__logo img {
   width: auto;
-  height: 1.25rem;
+  height: 3rem;
 }
 @media only screen and (max-width: 987px) {
   .site-head .s__wrapper {

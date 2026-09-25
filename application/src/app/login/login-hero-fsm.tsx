@@ -151,11 +151,11 @@ export function LoginHeroFsm() {
       </div>
       <img
         className="login-fsm__logo"
-        src={withBase("/assets/images/hero-home-undip.svg")}
+        src={withBase("/assets/images/logo-dies-38.png")}
         alt=""
         aria-hidden="true"
-        width={140}
-        height={30}
+        width={120}
+        height={120}
       />
     </div>
   );

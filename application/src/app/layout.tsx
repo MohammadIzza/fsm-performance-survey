@@ -41,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
        <header className="survey-header">
         <div className="s__logo survey-header__logo">
          <a href={withBase("/")}>
-          <img src={withBase("/assets/images/hero-home-undip.svg")} alt="Survei Penilaian FSM UNDIP" width="140" height="30"/>
+          <img src={withBase("/assets/images/logo-dies-38.png")} alt="Dies Natalis ke-38 FSM UNDIP" width="72" height="72"/>
           <span className="s__logo__label">Fakultas Sains dan Matematika<br/>Universitas Diponegoro</span>
          </a>
         </div>

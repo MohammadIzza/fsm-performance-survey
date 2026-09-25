@@ -2031,51 +2031,42 @@
     width: 94%;
   }
 }
+/* Lambang yang menggantung di bawah huruf FSM.
+   Ukuran dan posisinya dipatok pada TINGGI hero, bukan lebarnya. Dengan patokan lebar (warisan
+   wordmark lama) lambang ikut membesar dan turun setiap layar melebar, sementara tinggi hero
+   nyaris tetap — di layar 1920 ia tinggal 30px dari batas bawah, sedangkan di 1440 masih 147px.
+   Sekarang jaraknya ke batas bawah selalu 6% tinggi hero di lebar berapa pun. */
 .b-hero-home .b__bootcamp {
   position: absolute;
-  top: 30%;
-  left: 41%;
+  top: auto;
+  bottom: 6%;
+  /* 47,2%, bukan 50%: tali yang menggantungnya keluar dari huruf S, dan pusat huruf S memang
+     sedikit di kiri pusat hero. Dengan 50% lambangnya tergantung meleset ke kanan dari talinya. */
+  left: 47.2%;
   z-index: 2;
-  margin: 19% 0 0;
-  width: 18%;
-  height: auto;
+  margin: 0;
+  width: auto;
+  height: 18%;
+  aspect-ratio: 1 / 1;
+  transform: translate3d(-50%, 0, 0);
 }
-@media only screen and (max-width: 987px) {
-  .b-hero-home .b__bootcamp {
-    top: 40%;
-    left: 35%;
-    margin-top: 23%;
-    width: 30%;
-  }
-}
-@media only screen and (max-width: 767px) {
-  .b-hero-home .b__bootcamp {
-    left: 32.5%;
-    margin-top: 27.5%;
-    width: 35%;
-  }
-}
-@media only screen and (max-width: 767px) and (orientation: landscape),
-  only screen and (max-width: 576px) {
-  .b-hero-home .b__bootcamp {
-    left: 27.5%;
-    margin-top: 33%;
-    width: 45%;
-  }
-}
+/* Tanpa bidang warna di belakang lambang. Kotak beige itu tidak terlihat selama latarnya sama,
+   tetapi huruf FSM bergerak melintas di belakangnya saat hero beranimasi, dan potongannya
+   terlihat sebagai gigitan persegi pada huruf S. Lambangnya sendiri sudah berlatar tembus
+   pandang, jadi tidak perlu alas. */
+/* clip-path penuh dipertahankan meski tampak tidak berpengaruh: animasi pembuka hero menggerakkan
+   lambang ini DARI polygon garis tipis (0 50% … 0 50%) MENUJU nilai di sini. Tanpa nilai tujuan,
+   GSAP tidak punya yang dituju dan lambangnya muncul begitu saja tanpa tersingkap. */
 .b-hero-home .b__bootcamp__inner {
   position: absolute;
-  top: 0;
-  left: -10%;
-  width: 120%;
-  background: var(--color-beige);
-  border-radius: 1.5rem;
+  inset: 0;
+  width: 100%;
+  background: transparent;
   clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
 }
+/* Tinggi kotak kini datang dari .b__bootcamp (aspect-ratio), bukan dari trik padding-top. */
 .b-hero-home .b__bootcamp__inner:before {
-  display: block;
-  padding-top: 24%;
-  content: '';
+  display: none;
 }
 @keyframes b-hero-home-bootcamp {
   0% {
@@ -2094,8 +2085,7 @@
   left: 8.33%;
   width: 83.34%;
   height: 100%;
-  background: url('/assets/images/hero-home-undip.svg') 0 50% / contain
-    no-repeat;
+  background: url('/assets/images/logo-dies-38.png') 50% 50% / contain no-repeat;
   animation: b-hero-home-bootcamp 10s cubic-bezier(0.455, 0.03, 0.515, 0.955)
     infinite;
 }

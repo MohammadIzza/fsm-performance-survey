@@ -165,10 +165,10 @@ export function SidebarNav({
       <div className="survey-side__bar lg:hidden">
         <Link href="/dashboard" className="survey-side__bar-logo" aria-label="Beranda ruang survei">
           <Image
-            src={withBase("/assets/images/hero-home-undip.svg")}
-            alt="FSM UNDIP"
-            width={88}
-            height={25}
+            src={withBase("/assets/images/logo-dies-38.png")}
+            alt="Dies Natalis ke-38 FSM UNDIP"
+            width={62}
+            height={62}
             priority
           />
         </Link>
@@ -219,10 +219,10 @@ export function SidebarNav({
                 onClick={() => setMobileOpen(false)}
               >
                 <Image
-                  src={withBase("/assets/images/hero-home-undip.svg")}
-                  alt="FSM UNDIP"
-                  width={92}
-                  height={26}
+                  src={withBase("/assets/images/logo-dies-38.png")}
+                  alt="Dies Natalis ke-38 FSM UNDIP"
+                  width={67}
+                  height={67}
                 />
                 <span>
                   Fakultas Sains dan Matematika
