@@ -1,6 +1,4 @@
 ---
-import CourseSession from '../../courses/CourseSession.astro';
-import { sessions, sessionGroups } from '../../../data/courses';
 ---
 
 <div class="s-bootcamps s-bootcamps--full" data-plr-component="s-bootcamps">
@@ -94,13 +92,6 @@ import { sessions, sessionGroups } from '../../../data/courses';
     <div class="s__price t-t-lg">
       Skala bawaan 0-100 dengan total bobot parameter tepat 100%.
     </div>
-    <ul class="s__bootcamps js-bootcamps">
-      {
-        sessionGroups['periodePenilaian'].map((key) => (
-          <CourseSession session={sessions[key]} />
-        ))
-      }
-    </ul>
     <small class="s__legal">
       Minimum respons per kelompok ditetapkan admin; objek di bawah minimum
       tetap muncul di rekap tanpa peringkat sah.
