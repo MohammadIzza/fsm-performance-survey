@@ -1,5 +1,33 @@
 ---
 import { withBase } from '../../../utils/url';
+
+// Dua video panduan berbagi satu pemutar tema: tab di kolom teks menukar sumber video, sampul,
+// dan keterangannya. Nama berkas diberi versi setiap kali videonya diganti — CDN dan peramban bisa
+// masih menyimpan berkas lama dengan nama yang sama.
+const video = [
+  {
+    kunci: 'pengguna',
+    label: 'Pengguna',
+    src: withBase('/assets/media/panduan-pengguna-v2.mp4'),
+    poster: withBase('/assets/images/panduan-pengguna-poster-v2.jpg'),
+    teks: 'Untuk penilai: masuk lewat SSO, buka survei di Tugas Saya, beri skor setiap dosen, lalu kirim.',
+  },
+  {
+    kunci: 'admin',
+    label: 'Admin',
+    src: withBase('/assets/media/panduan-admin-v3.mp4'),
+    poster: withBase('/assets/images/panduan-admin-poster-v2.jpg'),
+    teks: 'Untuk admin: buat periode, susun kategori dan bobot, bagikan tugas ke banyak penilai, pantau, lalu tetapkan dan unduh hasilnya.',
+  },
+];
+interface Props {
+  /** Tampilkan satu video saja (tanpa tab), mis. di halaman panduan peran. */
+  hanya?: 'admin' | 'pengguna';
+  judul?: string;
+}
+const { hanya, judul = 'Sekilas Sistem Penilaian FSM' } = Astro.props;
+const tampil = hanya ? video.filter((v) => v.kunci === hanya) : video;
+const [awal] = tampil;
 ---
 
 <div
@@ -17,7 +45,7 @@ import { withBase } from '../../../utils/url';
       <div class="b__content">
         <div class="b__content__inner">
           <h2 class="b__title b__title--lg js-heading">
-            Sekilas Sistem Penilaian FSM
+            {judul}
           </h2>
           <div class="b__shapes">
             <div class="b__shape"></div>
@@ -50,40 +78,98 @@ import { withBase } from '../../../utils/url';
             <img
               alt=""
               decoding="async"
-              height="1280"
+              height="720"
               data-plr-loading="lazy"
-              data-src={withBase("/assets/images/tutorial-survei-fsm-v2-poster.jpg")}
-              width="720"
+              data-src={awal.poster}
+              width="1280"
             />
           </picture>
         </div>
         <div class="s__video js-video">
-          {/* preload="none": berkas videonya (±4 MB) baru diambil saat tombol putar ditekan. Tanpa
-              atribut poster: peramban mengunduh poster <video> seketika, tidak menunggu seksinya
-              terlihat — sampul di atas (img loading="lazy") sudah menampilkan gambar yang sama. Nama berkas diberi versi
-              setiap kali videonya diganti: CDN dan peramban bisa masih menyimpan berkas lama
-              dengan nama yang sama. */}
+          {/* preload="none": berkas video baru diambil saat tombol putar ditekan. Tanpa atribut poster:
+              peramban mengunduh poster <video> seketika — sampul di atas sudah menampilkan gambar
+              yang sama dan dimuat malas. */}
           <video
             preload="none"
             class="s__video-player js-video-player"
-            height="1920"
+            height="1080"
             playsinline=""
-            src={withBase("/assets/media/tutorial-survei-fsm-v2.mp4")}
-            width="1080"></video>
+            src={awal.src}
+            width="1920"></video>
         </div>
         <button
           type="button"
-          aria-label="Putar video tutorial alur penilaian"
+          aria-label={`Putar video panduan ${awal.label}`}
           class="a-play s__play js-play"></button>
       </div>
-      <div class="s__text t-t-xl">
-        <p>
-          <span class="a-bullet-point js-bullet"></span>
-
-          Satu menit untuk seluruh alurnya: buka situs, masuk survei, isi skor
-          setiap indikator, lalu kirim sampai tugas tercatat selesai.
+      <div class="s__text">
+        {tampil.length > 1 && (
+        <div class="vh-pilih" role="tablist" aria-label="Pilih video panduan">
+          {
+            tampil.map((v, i) => (
+              <button
+                type="button"
+                role="tab"
+                class="vh-pilih__tab"
+                aria-selected={i === 0 ? 'true' : 'false'}
+                data-src={v.src}
+                data-poster={v.poster}
+                data-kunci={v.kunci}
+                data-label={v.label}
+              >
+                {v.label}
+              </button>
+            ))
+          }
+        </div>
+        )}
+        {/* Kedua keterangan ditumpuk di sel grid yang sama: tinggi kolom mengikuti yang terpanjang,
+            jadi seksi tidak melompat saat tab diganti (terutama di ponsel). */}
+        <p class="t-t-xl">
+          <span class="vh-teks">
+            {
+              tampil.map((v, i) => (
+                <span class:list={['vh-teks__isi', { 'is-aktif': i === 0 }]} data-kunci={v.kunci} aria-hidden={i === 0 ? undefined : 'true'}>
+                  <span class:list={['a-bullet-point', { 'js-bullet': i === 0 }]}></span>
+                  {v.teks}
+                </span>
+              ))
+            }
+          </span>
         </p>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+  // Delegasi di document: tema mengganti isi halaman lewat transisi AJAX, jadi pendengar yang
+  // dipasang langsung pada tombol akan hilang setelah pindah halaman.
+  document.addEventListener('click', (e) => {
+    const tab = (e.target as HTMLElement).closest<HTMLButtonElement>('.vh-pilih__tab');
+    if (!tab || tab.getAttribute('aria-selected') === 'true') return;
+    const seksi = tab.closest('.s-video-highlight');
+    if (!seksi) return;
+    seksi.querySelectorAll('.vh-pilih__tab').forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+    const pemutar = seksi.querySelector<HTMLVideoElement>('.js-video-player');
+    if (pemutar) {
+      pemutar.pause();
+      pemutar.src = tab.dataset.src ?? '';
+      pemutar.load();
+    }
+    // Kembali ke keadaan awal tema: sampul dan tombol putar tampil lagi.
+    seksi.classList.remove('is-playing', 'is-paused');
+    const sampul = seksi.querySelector<HTMLImageElement>('.s__cover img');
+    if (sampul) {
+      sampul.src = tab.dataset.poster ?? '';
+      sampul.dataset.src = tab.dataset.poster ?? '';
+    }
+    seksi.querySelector('.s__play')?.setAttribute('aria-label', `Putar video panduan ${tab.dataset.label}`);
+    seksi.querySelectorAll<HTMLElement>('.vh-teks__isi').forEach((isi) => {
+      const aktif = isi.dataset.kunci === tab.dataset.kunci;
+      isi.classList.toggle('is-aktif', aktif);
+      if (aktif) isi.removeAttribute('aria-hidden');
+      else isi.setAttribute('aria-hidden', 'true');
+    });
+  });
+</script>

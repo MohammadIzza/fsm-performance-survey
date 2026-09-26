@@ -119,34 +119,89 @@ main:focus {
   cursor: wait;
 }
 
-/* Video tutorialnya tegak (9:16, rekaman layar ponsel dengan tulisan di atasnya), sedangkan bidang
-   video tema melebar. Dengan bidang bawaan, video itu terpotong jadi pita tengah dan tulisannya
-   hilang. Bidang video — beserta sapuan biru dan bingkainya, yang ukurannya harus sama — dibuat
-   tegak setinggi 86% bidang kuning dan tetap berpusat di tengahnya. */
+/* Video panduan melebar (16:9, rekaman layar 1080p). Bidang video — beserta sapuan biru dan
+   bingkainya, yang ukurannya harus sama — mengikuti rasio itu selebar 88% bidang kuning, tetap
+   berpusat di tengahnya. Tinggi seksi diturunkan dari rasio tema (47,5%) supaya bidang kuning
+   tidak menyisakan ruang kosong besar di atas dan bawah video. */
 @media only screen and (min-width: 768px) {
+  .s-video-highlight .s__body {
+    padding-top: 38%;
+  }
   .s-video-highlight .s__video-mask,
   .s-video-highlight .s__video-border,
   .s-video-highlight .s__video-wrapper {
-    width: auto;
-    height: 86%;
-    aspect-ratio: 9 / 16;
+    width: 44%;
+    height: auto;
+    aspect-ratio: 16 / 9;
   }
   .s-video-highlight .s__video-mask {
-    height: calc(86% - 2px);
+    width: calc(44% - 2px);
   }
   .s-video-highlight .s__video-border {
-    height: calc(86% + 4px);
+    width: calc(44% + 4px);
   }
-  /* Lingkaran pengungkap tema (72%) diukur untuk bidang melebar; pada bidang tegak sudut-sudutnya
-     tertinggal di luar lingkaran. */
-  .s-video-highlight.is-in .s__video-wrapper {
-    clip-path: circle(80% at 50% 50%);
+  .s-video-highlight .s__text {
+    padding: 0 calc(0.75 * var(--grid-column-width)) 0 calc(0.9 * var(--grid-column-width));
   }
 }
-/* Seluruh bingkai video tampil utuh — tulisan panduannya ada di tepi atas dan bawah. */
+/* Tinggi bidang video di semua lebar mengikuti rasio 16:9 (tema memakai bujur sangkar). */
+.s-video-highlight .s__video-wrapper:before {
+  padding-top: 56.25%;
+}
 .s-video-highlight .s__video-player {
-  object-fit: contain;
-  background: var(--color-brand-7);
+  object-fit: cover;
+  background: var(--color-background, #f7f7ef);
+}
+
+/* Pilihan video: dua tab berbentuk pil, senada dengan tombol tema. */
+.vh-pilih {
+  display: inline-flex;
+  gap: 0.25rem;
+  margin-bottom: 1.75rem;
+  padding: 0.3rem;
+  border: 1.5px solid var(--color-black);
+  border-radius: 999px;
+  background: white;
+}
+.vh-pilih__tab {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.7rem 1.35rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-black);
+  font: inherit;
+  font-size: var(--font-size-t-md);
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+.vh-pilih__tab:hover {
+  background: var(--color-brand-2);
+}
+.vh-pilih__tab[aria-selected='true'] {
+  background: var(--color-brand-3);
+  color: white;
+}
+.vh-pilih__tab:focus-visible {
+  outline: 2px solid var(--color-brand-3);
+  outline-offset: 3px;
+}
+.vh-teks {
+  display: grid;
+}
+.vh-teks__isi {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s;
+}
+.vh-teks__isi.is-aktif {
+  opacity: 1;
+  visibility: visible;
 }
 
 /* Di bawah 768px tema menyembunyikan seluruh kolom teks bagian video (display:none), padahal
@@ -183,10 +238,15 @@ main:focus {
     font-size: var(--font-size-t-md);
     line-height: 1.45;
   }
-  /* Bidang videonya mengikuti bentuk video tutorial yang tegak (9:16), supaya rekaman layar dan
-     tulisannya tampil utuh selebar layar, tidak terpotong jadi bujur sangkar. */
-  .s-video-highlight .s__video-wrapper:before {
-    padding-top: 177.78%;
+  /* Di ponsel tab memenuhi lebar kolom, masing-masing separuh. */
+  .s-video-highlight .vh-pilih {
+    display: flex;
+    width: 100%;
+  }
+  .s-video-highlight .vh-pilih__tab {
+    flex: 1;
+    justify-content: center;
+    padding: 0.75rem 0.5rem;
   }
 }
 
