@@ -1,6 +1,7 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
 import { pages } from '../data/pages';
+import VideoHighlight from '../components/sections/home/VideoHighlight.astro';
 import Hero from '../components/sections/genai-bootcamp/Hero.astro';
 import Bootcamps from '../components/sections/genai-bootcamp/Bootcamps.astro';
 import Usps from '../components/sections/genai-bootcamp/Usps.astro';
@@ -13,6 +14,7 @@ import Faq from '../components/sections/genai-bootcamp/Faq.astro';
 
 <SiteLayout {...pages['panduan-penilai']}>
   <Hero />
+  <VideoHighlight hanya="pengguna" judul="Video Panduan Pengguna" />
   <Bootcamps />
   <Usps />
   <Separator />

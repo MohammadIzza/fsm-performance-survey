@@ -1,6 +1,7 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
 import { pages } from '../data/pages';
+import VideoHighlight from '../components/sections/home/VideoHighlight.astro';
 import Hero from '../components/sections/summer-bootcamps/Hero.astro';
 import Interlude from '../components/sections/shared/BubblesInterlude.astro';
 import Usps from '../components/sections/summer-bootcamps/Usps.astro';
@@ -15,6 +16,7 @@ import Faq from '../components/sections/shared/TrainingFaq.astro';
 
 <SiteLayout {...pages['panduan-admin']}>
   <Hero />
+  <VideoHighlight hanya="admin" judul="Video Panduan Administrator" />
   <Interlude />
   <Usps />
   <Separator />
