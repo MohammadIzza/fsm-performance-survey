@@ -411,11 +411,13 @@ async function PeriodDetailPage({
               bands={null}
               skorMaksimum={null}
               editableAturan={editable}
-              editableGabungan={false}
+              editableGabungan={["DRAF", "SIAP", "AKTIF"].includes(period.status)}
               editablePredikat={false}
-              // Langkah ini hanya soal siapa yang menilai; bobot gabungan dan predikat diatur di
-              // halaman kategori, bersama pertanyaan dan bobotnya.
+              // Langkah ini soal siapa yang menilai dan bagaimana nilai kedua kelompok dihitung:
+              // nilai gabungan Pimpinan + Selain Pimpinan ikut di sini. Predikat tetap di halaman
+              // kategori, bersama pertanyaan dan bobotnya.
               tampilkanGabunganDanPredikat={false}
+              tampilkanGabungan
             />
           );
         },

@@ -38,6 +38,7 @@ export function AturanPenilaiForm({
   editableGabungan,
   editablePredikat,
   tampilkanGabunganDanPredikat = true,
+  tampilkanGabungan = tampilkanGabunganDanPredikat,
 }: {
   periodId: string;
   categoryId: string;
@@ -54,8 +55,10 @@ export function AturanPenilaiForm({
   editableGabungan: boolean;
   /** Ambang predikat: sampai sebelum final. */
   editablePredikat: boolean;
-  /** Langkah periode hanya memuat aturan kelompok dan syarat calon. */
+  /** Langkah periode hanya memuat aturan kelompok, nilai gabungan, dan syarat calon. */
   tampilkanGabunganDanPredikat?: boolean;
+  /** Nilai gabungan ditampilkan walau predikat tidak (dipakai langkah periode). */
+  tampilkanGabungan?: boolean;
 }) {
   const [state, formAction, pending] = useAksi(
     simpanAturanPenilaiAction,
@@ -65,7 +68,9 @@ export function AturanPenilaiForm({
   const urut = (a: { group: string }) => (a.group === "PIMPINAN" ? -1 : 1);
   const judul = (group: string) => (group === "PIMPINAN" ? "Pimpinan" : "Selain Pimpinan");
   const bisaSimpan =
-    editableAturan || (tampilkanGabunganDanPredikat && (editableGabungan || editablePredikat));
+    editableAturan ||
+    (tampilkanGabungan && editableGabungan) ||
+    (tampilkanGabunganDanPredikat && editablePredikat);
 
   return (
     <form action={formAction} className="aturan-penilai">
@@ -90,15 +95,17 @@ export function AturanPenilaiForm({
         </div>
       </div>
 
+      {tampilkanGabungan && (
+        <div>
+          <p className="eyebrow aturan-penilai__judul">Nilai gabungan</p>
+          <div className="app-panel app-panel--ruled">
+            <CombinedWeightFields pimpinanWeight={pimpinanWeight} editable={editableGabungan} />
+          </div>
+        </div>
+      )}
+
       {tampilkanGabunganDanPredikat && (
         <>
-          <div>
-            <p className="eyebrow aturan-penilai__judul">Nilai gabungan</p>
-            <div className="app-panel app-panel--ruled">
-              <CombinedWeightFields pimpinanWeight={pimpinanWeight} editable={editableGabungan} />
-            </div>
-          </div>
-
           <div>
             <p className="eyebrow aturan-penilai__judul">Predikat nilai</p>
             <div className="app-panel app-panel--ruled">
