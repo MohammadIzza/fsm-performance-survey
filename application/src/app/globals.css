@@ -4281,3 +4281,33 @@ input[type="range"]:disabled::-moz-range-thumb {
 .admin-tools__check {display:flex;align-items:center;gap:.4rem;margin-top:.35rem;font-size:.75rem;
   text-transform:none;letter-spacing:0;font-weight:400;color:var(--color-text)}
 .admin-tools__check input {width:auto;margin:0}
+
+/* Paginasi daftar admin. Tombolnya memakai bentuk `app-btn` (pil bertepi tipis); halaman aktif
+   terisi biru seperti tombol utama. Tanpa garis sendiri: daftar di atasnya sudah ditutup garis
+   hitam. Di layar sempit nomor halaman diganti keterangan "2 / 46". */
+.survey-shell main .paginasi {
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.75rem 1.25rem;
+  margin-top:1rem;
+}
+.survey-shell main .paginasi__info {margin:0;font:400 .625rem/1.4 var(--font-family-text);color:var(--color-text)}
+.survey-shell main .paginasi__info strong {font-weight:600;color:var(--color-black)}
+.survey-shell main .paginasi__daftar {display:flex;align-items:center;gap:.3rem;margin:0;padding:0;list-style:none}
+.survey-shell main .paginasi__daftar li {margin:0}
+.survey-shell main .paginasi__nomor {min-width:1.85rem;padding:.35rem .5rem}
+.survey-shell main .paginasi__arah {gap:.35rem}
+.survey-shell main .paginasi__nomor[aria-current="page"] {
+  border-color:transparent;background:var(--color-brand-5);color:var(--color-white);cursor:default;
+}
+.survey-shell main .paginasi__arah[aria-disabled="true"] {opacity:.4;cursor:default}
+.survey-shell main .paginasi__arah[aria-disabled="true"]:hover {border-color:var(--color-grey-2)}
+.survey-shell main .paginasi__elipsis {
+  min-width:1.2rem;text-align:center;font:600 .625rem/1 var(--font-family-text);color:var(--color-text);
+}
+.survey-shell main .paginasi__posisi {display:none;font:600 .625rem/1 var(--font-family-text);padding:0 .4rem}
+@media only screen and (max-width:640px) {
+  .survey-shell main .paginasi {flex-direction:column;align-items:stretch}
+  .survey-shell main .paginasi__daftar {justify-content:space-between}
+  .survey-shell main .paginasi__lain,
+  .survey-shell main .paginasi__daftar li:has(> [aria-current="page"]) {display:none}
+  .survey-shell main .paginasi__posisi {display:block}
+}
