@@ -4311,3 +4311,31 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell main .paginasi__daftar li:has(> [aria-current="page"]) {display:none}
   .survey-shell main .paginasi__posisi {display:block}
 }
+
+/* Daftar admin berpenyaring kolom. Di desktop penyaringnya duduk di kepala kolom (lihat
+   `assignment-head-filter`). Ketika daftar admin menumpuk (≤1179px) kepala kolom biasanya
+   disembunyikan; di sini ia tetap tampil sebagai bilah penyaring: kolom tanpa penyaring
+   disembunyikan, sisanya berderet dua kolom dengan label kecil di atas pilihannya. */
+@media only screen and (max-width:1179px) {
+  .survey-shell .admin-area .daftar-berfilter .s-courses-list .sb-course--head {display:block;margin:0 0 .35rem}
+  .survey-shell .admin-area .daftar-berfilter .sb-course--head .sb__link {
+    /* !important: aturan kolom baris admin yang lebih spesifik ikut menimpa kepala kolom. */
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:end;
+    gap:.5rem .6rem;padding:.55rem 0;border:0;overflow:visible;
+  }
+  /* Lebar kolom bawaan tema (persentase per jenis kolom) dilepas: di bilah ini tiap penyaring
+     mengisi satu sel grid yang sama lebar. */
+  .survey-shell .admin-area .daftar-berfilter .sb-course--head .sb__link > span {
+    display:block;width:100%!important;min-width:0;max-width:none!important;flex:none!important;margin:0;
+  }
+  .survey-shell .admin-area .daftar-berfilter .sb-course--head .sb__link > span:not(:has(.assignment-head-filter)) {display:none}
+  .survey-shell .admin-area .daftar-berfilter .assignment-head-filter {display:flex;flex-direction:column;gap:.15rem;text-align:left}
+  .survey-shell .admin-area .daftar-berfilter .assignment-head-filter > span {
+    position:static;width:auto;height:auto;margin:0;overflow:visible;clip:auto;
+    font-size:.6rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text);
+  }
+  .survey-shell .admin-area .daftar-berfilter .assignment-head-filter[data-active] > span {color:var(--color-brand-3)}
+  .survey-shell .admin-area .daftar-berfilter .assignment-head-filter select.form__control {
+    position:static;width:100%;max-width:none;opacity:1;
+  }
+}
