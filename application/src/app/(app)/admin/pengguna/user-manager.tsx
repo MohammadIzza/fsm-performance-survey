@@ -7,7 +7,8 @@ import { useAksi, useAksiLangsung } from "@/components/theme/notifikasi";
 import { TombolHapus } from "@/components/theme/tombol-hapus";
 import { DaftarJenis, type Jenis } from "@/components/theme/daftar-jenis";
 import { deleteUserAction, deleteUserTypeAction, renameUserTypeAction } from "@/lib/actions/admin-hapus";
-import { useState } from "react";
+import type { ReactNode } from "react";
+import { withBase } from "@/lib/base-path";
 import {
   DataList,
   DataRow,
@@ -28,10 +29,11 @@ import {
   createUserTypeAction,
 } from "@/lib/actions/admin-users";
 import { grantRoleAction, revokeRoleAction } from "@/lib/actions/admin-roles";
-import type { listUsersWithMeta } from "@/lib/services/users";
+import type { listUsersPage } from "@/lib/services/users";
 import { PilihanCari } from "@/components/theme/pilihan-cari";
+import { FilterKepala } from "@/components/theme/filter-kepala";
 
-type UserWithMeta = Awaited<ReturnType<typeof listUsersWithMeta>>[number];
+type UserWithMeta = Awaited<ReturnType<typeof listUsersPage>>["users"][number];
 type UserType = { id: string; code: string; name: string };
 type Unit = { id: string; code: string; name: string };
 
@@ -40,29 +42,27 @@ export function UserManager({
   userTypes,
   units,
   daftarJenis,
+  cari,
+  saring,
+  paginasi,
 }: {
+  /** Satu halaman pengguna saja; pencarian dan pemotongan halaman dikerjakan di server. */
   users: UserWithMeta[];
   userTypes: UserType[];
   units: Unit[];
   /** Semua jenis pengguna beserta keterangan pemakaiannya, untuk diubah namanya atau dihapus. */
   daftarJenis: Jenis[];
+  /** Kata pencarian yang sedang berlaku (dari alamat). */
+  cari: string;
+  /** Penyaring kolom yang sedang berlaku (dari alamat), ikut dibawa formulir pencarian. */
+  saring: Record<string, string | undefined>;
+  paginasi: ReactNode;
 }) {
   const [createState, createFormAction, createPending] = useAksi(createUserAction, {}, "Pengguna ditambahkan.");
   const [typeState, typeFormAction, typePending] = useAksi(createUserTypeAction, {}, "Jenis pengguna ditambahkan.");
-  // Bab 16.2: "Tabel panjang memiliki pencarian, filter, pagination, dan state kosong" — daftar
-  // pengguna tumbuh dengan cepat (satu baris per orang di fakultas), jadi pencarian bukan opsional.
-  const [search, setSearch] = useState("");
-  const term = search.trim().toLowerCase();
-  const visibleUsers = term
-    ? users.filter(
-        (u) =>
-          u.name.toLowerCase().includes(term) ||
-          u.loginIdentifier.toLowerCase().includes(term) ||
-          u.email?.toLowerCase().includes(term) ||
-          u.primaryUnit?.name.toLowerCase().includes(term) ||
-          u.userType.name.toLowerCase().includes(term)
-      )
-    : users;
+  // Bab 16.2: "Tabel panjang memiliki pencarian, filter, pagination, dan state kosong". Pencarian
+  // dikirim ke server (formulir GET) supaya menjangkau seluruh pengguna, bukan hanya satu halaman.
+  const visibleUsers = users;
 
   return (
     <div className="space-y-6">
@@ -164,13 +164,14 @@ export function UserManager({
         </AdminAction>
       </AdminActionList>
 
-      <FilterBar>
+      <FilterBar action={withBase("/admin/pengguna")} method="GET" submitLabel="Cari">
+        {Object.entries(saring).map(([k, v]) => v && <input key={k} type="hidden" name={k} value={v} />)}
         <FilterField label="Cari pengguna" htmlFor="cari-pengguna" wide>
           <TextInput
             id="cari-pengguna"
+            name="cari"
             type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            defaultValue={cari}
             placeholder="Nama, ID, unit, atau jenis pengguna…"
           />
         </FilterField>
@@ -179,17 +180,20 @@ export function UserManager({
       {visibleUsers.length === 0 ? (
         <div className="app-empty-box">
           <p className="text-[var(--muted)]">
-            Tidak ada pengguna yang cocok dengan &ldquo;{search}&rdquo;.
+            {cari || Object.values(saring).some(Boolean)
+              ? "Tidak ada pengguna yang cocok dengan pencarian atau penyaring ini."
+              : "Belum ada pengguna."}
           </p>
         </div>
       ) : (
+        <div className="daftar-berfilter">
         <DataList
           columns={[
             ["title", "Pengguna"],
-            ["duration", "Jenis"],
-            ["location", "Unit utama"],
-            ["topic", "Peran"],
-            ["dates", "Status"],
+            ["duration", <FilterKepala key="jenis" nama="jenis" label="Jenis" semua="Semua jenis" pilihan={userTypes.map((t) => ({ value: t.id, label: t.name }))} />],
+            ["location", <FilterKepala key="unit" nama="unit" label="Unit utama" semua="Semua unit" pilihan={[{ value: "tanpa", label: "— Tanpa unit utama —" }, ...units.map((u) => ({ value: u.id, label: u.name }))]} />],
+            ["topic", <FilterKepala key="peran" nama="peran" label="Peran" semua="Semua peran" pilihan={[{ value: "ADMIN", label: "Admin" }, { value: "DEKAN", label: "Dekan" }, { value: "PIMPINAN", label: "Pimpinan unit" }, { value: "BIASA", label: "Pengguna biasa" }]} />],
+            ["dates", <FilterKepala key="status" nama="status" label="Status" semua="Semua status" pilihan={[{ value: "aktif", label: "Aktif" }, { value: "nonaktif", label: "Nonaktif" }]} />],
             ["price", "Aksi"],
           ]}
         >
@@ -197,7 +201,9 @@ export function UserManager({
                 <UserRow key={user.id} user={user} userTypes={userTypes} units={units} />
               ))}
         </DataList>
+        </div>
       )}
+      {paginasi}
     </div>
   );
 }

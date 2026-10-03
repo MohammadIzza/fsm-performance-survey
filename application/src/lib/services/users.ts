@@ -1,4 +1,5 @@
 import { atomic } from "@/lib/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { writeAudit } from "@/lib/services/audit";
 import { ServiceError } from "@/lib/services/units";
@@ -96,6 +97,82 @@ export async function listUsersWithMeta() {
   ]);
   const punya = new Set(berkataSandi.map((u) => u.id));
   return users.map((u) => ({ ...u, adaKataSandi: punya.has(u.id) }));
+}
+
+/**
+ * Satu halaman daftar pengguna untuk halaman admin, beserta jumlah seluruh yang cocok. Pencarian
+ * dikerjakan di basis data supaya tetap menjangkau seluruh pengguna, bukan hanya halaman yang tampil.
+ */
+export interface SaringPengguna {
+  /** id jenis pengguna */
+  jenis?: string;
+  /** id unit utama, atau "tanpa" untuk pengguna tanpa unit utama */
+  unit?: string;
+  /** ADMIN | DEKAN | PIMPINAN | BIASA */
+  peran?: string;
+  /** aktif | nonaktif */
+  status?: string;
+}
+
+export async function listUsersPage({
+  cari,
+  saring = {},
+  lewati,
+  ambil,
+}: {
+  cari: string;
+  saring?: SaringPengguna;
+  lewati: number;
+  ambil: number;
+}) {
+  const kunci = cari.trim();
+  const mode = "insensitive" as const;
+  const syarat: Prisma.UserWhereInput[] = [];
+  if (kunci) {
+    syarat.push({
+      OR: [
+        { name: { contains: kunci, mode } },
+        { loginIdentifier: { contains: kunci, mode } },
+        { email: { contains: kunci, mode } },
+        { primaryUnit: { name: { contains: kunci, mode } } },
+        { userType: { name: { contains: kunci, mode } } },
+      ],
+    });
+  }
+  if (saring.jenis) syarat.push({ userTypeId: saring.jenis });
+  if (saring.unit) syarat.push({ primaryUnitId: saring.unit === "tanpa" ? null : saring.unit });
+  if (saring.status === "aktif") syarat.push({ active: true });
+  if (saring.status === "nonaktif") syarat.push({ active: false });
+  if (saring.peran === "ADMIN" || saring.peran === "DEKAN") {
+    syarat.push({ roleGrants: { some: { active: true, role: saring.peran } } });
+  } else if (saring.peran === "PIMPINAN") {
+    syarat.push({ leaderships: { some: { active: true } } });
+  } else if (saring.peran === "BIASA") {
+    syarat.push({ roleGrants: { none: { active: true } }, leaderships: { none: { active: true } } });
+  }
+  const where: Prisma.UserWhereInput = syarat.length ? { AND: syarat } : {};
+  const [total, users] = await Promise.all([
+    prisma.user.count({ where }),
+    prisma.user.findMany({
+      where,
+      orderBy: [{ active: "desc" }, { name: "asc" }, { id: "asc" }],
+      skip: lewati,
+      take: ambil,
+      include: {
+        userType: true,
+        primaryUnit: true,
+        roleGrants: { where: { active: true } },
+        leaderships: { where: { active: true }, include: { unit: true } },
+      },
+    }),
+  ]);
+  // Hanya "ada atau tidak" yang dikirim ke halaman — hash-nya sendiri tidak pernah ikut.
+  const berkataSandi = await prisma.user.findMany({
+    where: { id: { in: users.map((u) => u.id) }, passwordHash: { not: null } },
+    select: { id: true },
+  });
+  const punya = new Set(berkataSandi.map((u) => u.id));
+  return { total, users: users.map((u) => ({ ...u, adaKataSandi: punya.has(u.id) })) };
 }
 
 async function createUserImpl(input: UserInput, actor: AuthContext) {
