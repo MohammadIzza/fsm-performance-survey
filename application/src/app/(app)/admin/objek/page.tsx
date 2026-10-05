@@ -5,8 +5,12 @@ import { listObjectTypes } from "@/lib/services/objectTypes";
 import { ObjectManager } from "./object-manager";
 import { listObjectGroups } from "@/lib/services/objectGroups";
 import { PageIntro, SummaryCard } from "@/components/theme/summary";
+import { Paginasi } from "@/components/theme/paginasi";
+import { bacaHalaman, cocokCari, potongHalaman } from "@/lib/paginasi";
 
-async function ObjekPage() {
+async function ObjekPage({ searchParams }: { searchParams: Promise<{ cari?: string; halaman?: string; jenis?: string; unit?: string; status?: string }> }) {
+  const sp = await searchParams;
+  const cari = (sp.cari ?? "").trim();
   const [objects, objectTypes, units, users, pemakaianJenis, objectGroups] = await Promise.all([
     listObjects(),
     listObjectTypes(),
@@ -29,6 +33,18 @@ async function ObjekPage() {
       bawaan: ["ORANG", "UNIT", "KARYA", "LAINNYA"].includes(t.code),
     };
   });
+
+  // Daftar lengkap tetap dipakai kelompok objek dan kartu ringkasan; yang dirender sebagai baris
+  // (masing-masing dengan panel sunting) hanya satu halaman hasil pencarian.
+  const saring = { jenis: sp.jenis, unit: sp.unit, status: sp.status };
+  const cocok = objects.filter(
+    (o) =>
+      cocokCari(cari, o.name, o.type.name, o.ownerUnit?.name, o.responsibleUser?.name) &&
+      (!saring.jenis || o.typeId === saring.jenis) &&
+      (!saring.unit || o.ownerUnitId === saring.unit) &&
+      (!saring.status || o.active === (saring.status === "aktif"))
+  );
+  const hal = potongHalaman(cocok, bacaHalaman(sp.halaman));
 
   return (
     <div className="space-y-8">
@@ -53,6 +69,10 @@ async function ObjekPage() {
 
       <ObjectManager
         objects={objects}
+        objekHalaman={hal.isi}
+        cari={cari}
+        saring={saring}
+        paginasi={<Paginasi path="/admin/objek" params={{ cari, ...saring }} satuan="objek" {...hal} />}
         objectTypes={objectTypes}
         units={units}
         users={users}

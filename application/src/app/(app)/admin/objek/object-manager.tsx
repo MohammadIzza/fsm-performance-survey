@@ -4,7 +4,8 @@ import { Info } from "@/components/theme/info";
 import { KET } from "@/lib/keterangan";
 
 import { useAksi, useAksiLangsung } from "@/components/theme/notifikasi";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
+import { withBase } from "@/lib/base-path";
 import {
   DataList,
   DataRow,
@@ -30,6 +31,7 @@ import {
 import type { listObjects } from "@/lib/services/objects";
 import { PilihanCari, PilihanCariBanyak } from "@/components/theme/pilihan-cari";
 import { ObjectGroupManager, type KelompokObjek } from "./object-group-manager";
+import { FilterKepala } from "@/components/theme/filter-kepala";
 
 type ObjectWithMeta = Awaited<ReturnType<typeof listObjects>>[number];
 type ObjectType = { id: string; code: string; name: string };
@@ -41,13 +43,24 @@ const fieldClass =
 
 export function ObjectManager({
   objects,
+  objekHalaman,
+  cari,
+  saring,
+  paginasi,
   objectTypes,
   units,
   users,
   daftarJenis,
   objectGroups,
 }: {
+  /** Seluruh objek — dipakai kelompok objek. */
   objects: ObjectWithMeta[];
+  /** Satu halaman hasil pencarian yang dirender sebagai baris; dipotong di server. */
+  objekHalaman: ObjectWithMeta[];
+  cari: string;
+  /** Penyaring kolom yang sedang berlaku (dari alamat), ikut dibawa formulir pencarian. */
+  saring: Record<string, string | undefined>;
+  paginasi: ReactNode;
   objectTypes: ObjectType[];
   units: Unit[];
   users: UserOption[];
@@ -55,20 +68,9 @@ export function ObjectManager({
   objectGroups: KelompokObjek[];
 }) {
   const [typeState, typeFormAction, typePending] = useAksi(createObjectTypeAction, {}, "Jenis objek ditambahkan.");
-  // Bab 16.2: "Tabel panjang memiliki pencarian, filter, pagination, dan state kosong" — master
-  // objek mencakup seluruh orang/unit/karya lintas kategori, jadi bisa cepat panjang.
-  const [search, setSearch] = useState("");
-  const visibleObjects = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    if (!term) return objects;
-    return objects.filter(
-      (o) =>
-        o.name.toLowerCase().includes(term) ||
-        o.type.name.toLowerCase().includes(term) ||
-        o.ownerUnit?.name.toLowerCase().includes(term) ||
-        o.responsibleUser?.name.toLowerCase().includes(term)
-    );
-  }, [objects, search]);
+  // Bab 16.2: "Tabel panjang memiliki pencarian, filter, pagination, dan state kosong". Pencarian
+  // dan pemotongan halaman dikerjakan di server; di sini tinggal merender satu halaman.
+  const visibleObjects = objekHalaman;
 
   return (
     <div className="space-y-6">
@@ -121,13 +123,14 @@ export function ObjectManager({
         />
       </AdminActionList>
 
-      <FilterBar>
+      <FilterBar action={withBase("/admin/objek")} method="GET" submitLabel="Cari">
+        {Object.entries(saring).map(([k, v]) => v && <input key={k} type="hidden" name={k} value={v} />)}
         <FilterField label="Cari objek" htmlFor="cari-objek" wide>
           <TextInput
             id="cari-objek"
+            name="cari"
             type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            defaultValue={cari}
             placeholder="Nama objek, jenis, unit, atau penanggung jawab…"
           />
         </FilterField>
@@ -136,16 +139,19 @@ export function ObjectManager({
       {visibleObjects.length === 0 ? (
         <div className="app-empty-box">
           <p className="text-[var(--muted)]">
-            Tidak ada objek yang cocok dengan &ldquo;{search}&rdquo;.
+            {cari || Object.values(saring).some(Boolean)
+              ? "Tidak ada objek yang cocok dengan pencarian atau penyaring ini."
+              : "Belum ada objek."}
           </p>
         </div>
       ) : (
+      <div className="daftar-berfilter">
       <DataList
         columns={[
           ["title", "Objek"],
-          ["duration", "Jenis"],
-          ["location", "Unit pemilik"],
-          ["dates", "Status"],
+          ["duration", <FilterKepala key="jenis" nama="jenis" label="Jenis" semua="Semua jenis" pilihan={objectTypes.map((t) => ({ value: t.id, label: t.name }))} />],
+          ["location", <FilterKepala key="unit" nama="unit" label="Unit pemilik" semua="Semua unit" pilihan={units.map((u) => ({ value: u.id, label: u.name }))} />],
+          ["dates", <FilterKepala key="status" nama="status" label="Status" semua="Semua status" pilihan={[{ value: "aktif", label: "Aktif" }, { value: "nonaktif", label: "Nonaktif" }]} />],
           ["price", "Aksi"],
         ]}
       >
@@ -159,7 +165,9 @@ export function ObjectManager({
               />
             ))}
       </DataList>
+      </div>
       )}
+      {paginasi}
     </div>
   );
 }
