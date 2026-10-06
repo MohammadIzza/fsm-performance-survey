@@ -21,6 +21,11 @@ import { createUnitAction, updateUnitAction, setUnitActiveAction } from "@/lib/a
 import { assignLeadershipAction, endLeadershipAction } from "@/lib/actions/admin-leadership";
 import type { listUnitsWithMeta } from "@/lib/services/units";
 import { PilihanCari } from "@/components/theme/pilihan-cari";
+import { FilterBar, FilterField } from "@/components/theme/filter-bar";
+import { TextInput } from "@/components/theme/form-field";
+import { withBase } from "@/lib/base-path";
+import { FilterKepala } from "@/components/theme/filter-kepala";
+import type { ReactNode } from "react";
 
 type UnitWithMeta = Awaited<ReturnType<typeof listUnitsWithMeta>>[number];
 type ActiveUser = { id: string; name: string; loginIdentifier: string };
@@ -33,9 +38,20 @@ function unitLabel(u: { name: string }) {
 
 export function UnitManager({
   units,
+  unitHalaman,
+  cari,
+  saring,
+  paginasi,
   activeUsers,
 }: {
+  /** Seluruh unit — dipakai pilihan induk. */
   units: UnitWithMeta[];
+  /** Satu halaman unit yang dirender sebagai baris; dipotong di server. */
+  unitHalaman: UnitWithMeta[];
+  cari: string;
+  /** Penyaring kolom yang sedang berlaku (dari alamat), ikut dibawa formulir pencarian. */
+  saring: Record<string, string | undefined>;
+  paginasi: ReactNode;
   activeUsers: ActiveUser[];
 }) {
   const [createState, createFormAction, createPending] = useAksi(createUnitAction, {}, "Unit ditambahkan.");
@@ -80,19 +96,39 @@ export function UnitManager({
         </AdminAction>
       </AdminActionList>
 
-      <DataList
-        columns={[
-          ["title", "Unit"],
-          ["duration", "Induk"],
-          ["location", "Pimpinan aktif"],
-          ["dates", "Status"],
-          ["price", "Aksi"],
-        ]}
-      >
-        {units.map((unit) => (
-          <UnitRow key={unit.id} unit={unit} allUnits={units} activeUsers={activeUsers} />
-        ))}
-      </DataList>
+      <FilterBar action={withBase("/admin/organisasi")} method="GET" submitLabel="Cari">
+        {Object.entries(saring).map(([k, v]) => v && <input key={k} type="hidden" name={k} value={v} />)}
+        <FilterField label="Cari unit" htmlFor="cari-unit" wide>
+          <TextInput id="cari-unit" name="cari" type="search" defaultValue={cari} placeholder="Nama unit, kode, atau induk…" />
+        </FilterField>
+      </FilterBar>
+
+      {unitHalaman.length === 0 ? (
+        <div className="app-empty-box">
+          <p className="text-[var(--muted)]">
+            {cari || Object.values(saring).some(Boolean)
+              ? "Tidak ada unit yang cocok dengan pencarian atau penyaring ini."
+              : "Belum ada unit."}
+          </p>
+        </div>
+      ) : (
+        <div className="daftar-berfilter">
+        <DataList
+          columns={[
+            ["title", "Unit"],
+            ["duration", <FilterKepala key="induk" nama="induk" label="Induk" semua="Semua induk" pilihan={[{ value: "akar", label: "— Tanpa induk (akar) —" }, ...units.filter((u) => units.some((c) => c.parentId === u.id)).map((u) => ({ value: u.id, label: u.name }))]} />],
+            ["location", "Pimpinan aktif"],
+            ["dates", <FilterKepala key="status" nama="status" label="Status" semua="Semua status" pilihan={[{ value: "aktif", label: "Aktif" }, { value: "nonaktif", label: "Nonaktif" }]} />],
+            ["price", "Aksi"],
+          ]}
+        >
+          {unitHalaman.map((unit) => (
+            <UnitRow key={unit.id} unit={unit} allUnits={units} activeUsers={activeUsers} />
+          ))}
+        </DataList>
+        </div>
+      )}
+      {paginasi}
     </div>
   );
 }
