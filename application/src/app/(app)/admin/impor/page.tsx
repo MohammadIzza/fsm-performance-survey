@@ -1,4 +1,6 @@
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
+import { Paginasi } from "@/components/theme/paginasi";
+import { bacaHalaman, potongHalaman } from "@/lib/paginasi";
 import { listImportBatches } from "@/lib/services/imports";
 import { ImportForm } from "./import-form";
 import { PageIntro, SummaryCard } from "@/components/theme/summary";
@@ -15,8 +17,10 @@ const statusTone = {
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
-async function ImporPage() {
+async function ImporPage({ searchParams }: { searchParams: Promise<{ halaman?: string }> }) {
+  const sp = await searchParams;
   const batches = await listImportBatches();
+  const hal = potongHalaman(batches, bacaHalaman(sp.halaman));
 
   return (
     <div className="space-y-8">
@@ -55,7 +59,7 @@ async function ImporPage() {
             ["price", "Status"],
           ]}
         >
-          {batches.map((b) => {
+          {hal.isi.map((b) => {
             const summary = b.summary as { totalRows: number; toCreate: number; toUpdate: number } | null;
             const rowErrors = b.rowErrors as { row: number; message: string }[] | null;
             return (
@@ -90,6 +94,7 @@ async function ImporPage() {
           })}
         </DataList>
       )}
+      <Paginasi path="/admin/impor" satuan="riwayat impor" {...hal} />
     </div>
   );
 }

@@ -1,4 +1,6 @@
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
+import { Paginasi } from "@/components/theme/paginasi";
+import { bacaHalaman, potongHalaman } from "@/lib/paginasi";
 import { listPeriods } from "@/lib/services/periods";
 import { PeriodCreateForm } from "./period-create-form";
 import { AdminActionList, AdminAction } from "@/components/theme/admin-actions";
@@ -27,8 +29,10 @@ const statusTone = {
 } as const;
 
 
-async function PeriodePage() {
+async function PeriodePage({ searchParams }: { searchParams: Promise<{ halaman?: string }> }) {
+  const sp = await searchParams;
   const periods = await listPeriods();
+  const hal = potongHalaman(periods, bacaHalaman(sp.halaman));
 
   return (
     <div className="space-y-8">
@@ -70,7 +74,7 @@ async function PeriodePage() {
             ["price", "Status"],
           ]}
         >
-          {periods.map((p) => (
+          {hal.isi.map((p) => (
             <DataRow
               key={p.id}
               href={`/admin/periode/${p.id}`}
@@ -93,6 +97,7 @@ async function PeriodePage() {
           ))}
         </DataList>
       )}
+      <Paginasi path="/admin/periode" satuan="periode" {...hal} />
     </div>
   );
 }

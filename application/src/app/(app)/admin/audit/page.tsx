@@ -1,5 +1,4 @@
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
-import Link from "next/link";
 import { listAuditEvents, listDistinctAuditEntities } from "@/lib/services/audit";
 import { prisma } from "@/lib/prisma";
 import { PageIntro, SummaryCard } from "@/components/theme/summary";
@@ -8,6 +7,10 @@ import { FilterBar, FilterField } from "@/components/theme/filter-bar";
 import { TextInput } from "@/components/theme/form-field";
 import { withBase } from "@/lib/base-path";
 import { PilihanCari } from "@/components/theme/pilihan-cari";
+import { Paginasi } from "@/components/theme/paginasi";
+import { bacaHalaman } from "@/lib/paginasi";
+
+const PER_HALAMAN_AUDIT = 50;
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", {
   day: "2-digit",
@@ -20,10 +23,11 @@ const dateFmt = new Intl.DateTimeFormat("id-ID", {
 async function AuditPage({
   searchParams,
 }: {
-  searchParams: Promise<{ entity?: string; actorId?: string; from?: string; to?: string; page?: string }>;
+  searchParams: Promise<{ entity?: string; actorId?: string; from?: string; to?: string; halaman?: string; page?: string }>;
 }) {
   const sp = await searchParams;
-  const page = Number(sp.page ?? "1") || 1;
+  // `page` masih diterima supaya tautan lama tetap jalan; parameter barunya `halaman`.
+  const page = bacaHalaman(sp.halaman ?? sp.page);
 
   const [result, entities, actors] = await Promise.all([
     listAuditEvents({
@@ -32,19 +36,11 @@ async function AuditPage({
       from: sp.from ? new Date(sp.from) : undefined,
       to: sp.to ? new Date(sp.to) : undefined,
       page,
+      pageSize: PER_HALAMAN_AUDIT,
     }),
     listDistinctAuditEntities(),
     prisma.user.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
   ]);
-
-  function buildHref(newParams: Record<string, string | undefined>) {
-    const merged = { ...sp, ...newParams };
-    const qs = new URLSearchParams();
-    for (const [k, v] of Object.entries(merged)) {
-      if (v) qs.set(k, v);
-    }
-    return `/admin/audit${qs.toString() ? `?${qs.toString()}` : ""}`;
-  }
 
   return (
     <div className="space-y-8">
@@ -117,23 +113,15 @@ async function AuditPage({
         </DataList>
       )}
 
-      {result.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 app-text-sm">
-          {page > 1 && (
-            <Link href={buildHref({ page: String(page - 1) })} className="text-[var(--accent)] hover:underline">
-              ← Sebelumnya
-            </Link>
-          )}
-          <span className="text-[var(--muted)]">
-            Halaman {page} dari {result.totalPages}
-          </span>
-          {page < result.totalPages && (
-            <Link href={buildHref({ page: String(page + 1) })} className="text-[var(--accent)] hover:underline">
-              Berikutnya →
-            </Link>
-          )}
-        </div>
-      )}
+      <Paginasi
+        path="/admin/audit"
+        params={{ entity: sp.entity, actorId: sp.actorId, from: sp.from, to: sp.to }}
+        satuan="peristiwa"
+        halaman={Math.min(page, Math.max(1, result.totalPages))}
+        totalHalaman={Math.max(1, result.totalPages)}
+        total={result.total}
+        perHalaman={PER_HALAMAN_AUDIT}
+      />
     </div>
   );
 }
