@@ -56,7 +56,7 @@ export function FinalizationPanel({
         )}
 
         {preview.ready && (
-          <form action={finalizeAction} className="space-y-3">
+          <form action={finalizeAction} className="finalisasi-form">
             <input type="hidden" name="periodId" value={periodId} />
             {/* Server mewajibkan catatan ini (finalizePeriod: "Pernyataan finalisasi wajib diisi"); dulu
                 tertulis "opsional", sehingga finalisasi lewat UI selalu ditolak. */}
@@ -113,7 +113,7 @@ export function FinalizationPanel({
             {status === "FINAL" ? "Buka revisi" : "Buka jendela koreksi"}
           </button>
         ) : (
-          <form action={revisionAction} className="space-y-3">
+          <form action={revisionAction} className="finalisasi-form">
             <input type="hidden" name="periodId" value={periodId} />
             <textarea
               name="reason"
@@ -122,7 +122,7 @@ export function FinalizationPanel({
               rows={2}
               className="form__control"
             />
-            <div className="flex items-center gap-2">
+            <div className="finalisasi-form__aksi">
               <button
                 type="submit"
                 disabled={revisionPending}
@@ -146,7 +146,7 @@ export function FinalizationPanel({
           </form>
         )}
         {status === "FINAL" && (
-          <p className="mt-3 app-text-xs text-[var(--muted)]">
+          <p className="finalisasi-catatan app-text-xs text-[var(--muted)]">
             Hasil final tetap dapat ditelusuri sebagai versi terdahulu setelah revisi baru dibuat
            .
           </p>
