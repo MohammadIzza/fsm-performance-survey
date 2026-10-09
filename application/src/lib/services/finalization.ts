@@ -184,3 +184,86 @@ export async function finalizePeriod(...args: Parameters<typeof finalizePeriodIm
 export async function openRevision(...args: Parameters<typeof openRevisionImpl>): Promise<Awaited<ReturnType<typeof openRevisionImpl>>> {
   return atomic(() => openRevisionImpl(...args));
 }
+
+export type JenisRiwayat = "dibuat" | "siap" | "dibuka" | "ditutup" | "draf" | "final" | "revisi" | "koreksi-selesai" | "gagal-buka";
+
+/**
+ * Linimasa lengkap satu periode untuk halaman admin: dibuat, dinyatakan siap, pengisian dibuka dan
+ * ditutup, difinalkan (beserta versi hasilnya), revisi dibuka (beserta alasannya), dan koreksi
+ * diselesaikan. Diambil dari Audit — sumber yang memang mencatat semua peralihan itu — jadi tidak
+ * perlu tabel baru. Terbaru di atas.
+ */
+export async function listRiwayatPeriode(periodId: string) {
+  const finalisasi = await prisma.finalization.findMany({
+    where: { periodId },
+    include: { calculationRuns: { select: { id: true } } },
+  });
+  const petaFinal = new Map(finalisasi.map((f) => [f.id, f]));
+  const versiTerbaru = Math.max(0, ...finalisasi.map((f) => f.revision));
+
+  const kejadian = await prisma.auditEvent.findMany({
+    where: {
+      OR: [
+        {
+          entity: "Period",
+          entityId: periodId,
+          action: {
+            in: [
+              "PERIOD_CREATE",
+              "PERIOD_STATUS_SIAP",
+              "PERIOD_STATUS_AKTIF",
+              "PERIOD_STATUS_DITUTUP",
+              "PERIOD_STATUS_DRAF",
+              "PERIOD_OPEN_REVISION",
+              "PERIOD_SCHEDULED_OPEN_FAILED",
+            ],
+          },
+        },
+        { action: "PERIOD_FINALIZE", entityId: { in: finalisasi.map((f) => f.id) } },
+      ],
+    },
+    orderBy: { createdAt: "desc" },
+    select: { id: true, action: true, actorId: true, before: true, reason: true, createdAt: true, entityId: true },
+  });
+  const pelakuIds = [...new Set(kejadian.map((k) => k.actorId).filter((x): x is string => !!x))];
+  const pelaku = new Map(
+    (await prisma.user.findMany({ where: { id: { in: pelakuIds } }, select: { id: true, name: true } })).map((u) => [u.id, u.name])
+  );
+  const statusSebelum = (k: { before: unknown }) =>
+    k.before && typeof k.before === "object" ? (k.before as { status?: string }).status : undefined;
+
+  return kejadian.map((k) => {
+    const oleh = k.actorId ? (pelaku.get(k.actorId) ?? "Pengguna terhapus") : "Sistem (otomatis)";
+    const dasar = { id: k.id, waktu: k.createdAt, oleh, alasan: k.reason };
+    switch (k.action) {
+      case "PERIOD_CREATE":
+        return { ...dasar, jenis: "dibuat" as JenisRiwayat, judul: "Periode dibuat" };
+      case "PERIOD_STATUS_SIAP":
+        return { ...dasar, jenis: "siap" as JenisRiwayat, judul: "Dinyatakan siap dibuka" };
+      case "PERIOD_STATUS_AKTIF":
+        return { ...dasar, jenis: "dibuka" as JenisRiwayat, judul: "Pengisian dibuka" };
+      case "PERIOD_STATUS_DRAF":
+        return { ...dasar, jenis: "draf" as JenisRiwayat, judul: "Dikembalikan ke Draf" };
+      case "PERIOD_STATUS_DITUTUP":
+        return statusSebelum(k) === "REVISI"
+          ? { ...dasar, jenis: "koreksi-selesai" as JenisRiwayat, judul: "Koreksi diselesaikan" }
+          : { ...dasar, jenis: "ditutup" as JenisRiwayat, judul: "Pengisian ditutup" };
+      case "PERIOD_OPEN_REVISION":
+        return { ...dasar, jenis: "revisi" as JenisRiwayat, judul: "Revisi dibuka" };
+      case "PERIOD_SCHEDULED_OPEN_FAILED":
+        return { ...dasar, jenis: "gagal-buka" as JenisRiwayat, judul: "Pembukaan terjadwal gagal" };
+      default: {
+        const f = k.entityId ? petaFinal.get(k.entityId) : undefined;
+        return {
+          ...dasar,
+          jenis: "final" as JenisRiwayat,
+          judul: f ? `Difinalkan — versi ${f.revision}` : "Difinalkan",
+          alasan: f?.note ?? k.reason,
+          finalisasi: f
+            ? { id: f.id, versi: f.revision, kategori: f.calculationRuns.length, terkini: f.revision === versiTerbaru }
+            : undefined,
+        };
+      }
+    }
+  });
+}
