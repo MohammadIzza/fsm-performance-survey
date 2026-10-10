@@ -1,7 +1,8 @@
-import type { listFinalizationHistory } from "@/lib/services/finalization";
+import type { listRiwayatPeriode, JenisRiwayat } from "@/lib/services/finalization";
 import { withBase } from "@/lib/base-path";
+import { StatusPill } from "@/components/theme/status-pill";
 
-type History = Awaited<ReturnType<typeof listFinalizationHistory>>;
+type Riwayat = Awaited<ReturnType<typeof listRiwayatPeriode>>;
 
 const dateFmt = new Intl.DateTimeFormat("id-ID", {
   day: "2-digit",
@@ -9,33 +10,52 @@ const dateFmt = new Intl.DateTimeFormat("id-ID", {
   year: "numeric",
   hour: "2-digit",
   minute: "2-digit",
+  timeZone: "Asia/Jakarta",
 });
 
-// Bab 14.3: "Hasil final lama tetap dapat dilihat sebagai versi terdahulu." Daftar ini
-// menampilkan seluruh revisi finalisasi periode, terbaru di atas.
-export function FinalizationHistory({ history }: { history: History }) {
+/** Sebutan alasan per jenis kejadian; jenis lain tidak membawa alasan. */
+const labelAlasan: Partial<Record<JenisRiwayat, string>> = {
+  final: "Catatan",
+  revisi: "Alasan",
+  draf: "Alasan",
+  "koreksi-selesai": "Catatan",
+};
+
+// Bab 14.3: "Hasil final lama tetap dapat dilihat sebagai versi terdahulu." Dulu bagian ini hanya
+// berisi daftar finalisasi; pembukaan revisi beserta alasannya hanya bisa dilacak di Audit. Sekarang
+// satu linimasa: setiap peralihan periode, terbaru di atas, dengan versi hasil yang bisa dibuka.
+export function RiwayatPeriode({ riwayat }: { riwayat: Riwayat }) {
+  if (riwayat.length === 0) return null;
   return (
     <div className="app-panel app-panel--ruled">
-      <h2 className="app-panel__label">
-        Riwayat finalisasi
-      </h2>
-      <ul className="space-y-3">
-        {history.map((f, i) => (
-          <li key={f.id} className="app-note">
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-[var(--foreground)]">
-                Revisi {f.revision} {i === 0 && <span className="text-[var(--success)]">(terkini)</span>}
-              </span>
-              <span className="app-text-xs text-[var(--muted)]">{dateFmt.format(f.finalizedAt)}</span>
+      <h2 className="app-panel__label">Riwayat periode</h2>
+      <ol className="riwayat-periode">
+        {riwayat.map((r) => (
+          <li key={r.id} className="riwayat-periode__item" data-jenis={r.jenis}>
+            <span className="riwayat-periode__titik" aria-hidden="true" />
+            <div className="riwayat-periode__isi">
+              <p className="riwayat-periode__judul">
+                {r.judul}
+                {"finalisasi" in r && r.finalisasi?.terkini && <StatusPill tone="selesai">Berlaku</StatusPill>}
+              </p>
+              <p className="riwayat-periode__meta">
+                {dateFmt.format(r.waktu)} · oleh {r.oleh}
+                {"finalisasi" in r && r.finalisasi && ` · ${r.finalisasi.kategori} kategori dihitung`}
+              </p>
+              {r.alasan && labelAlasan[r.jenis] && (
+                <p className="riwayat-periode__alasan">
+                  <span>{labelAlasan[r.jenis]}:</span> {r.alasan}
+                </p>
+              )}
             </div>
-            <p className="mt-1 text-[var(--muted)]">
-              Oleh {f.finalizedBy.name} · {f.calculationRuns.length} kategori dihitung
-            </p>
-            <a href={withBase(`/arsip/${f.id}`)} className="mt-2 inline-block text-[var(--accent)] underline">Buka hasil versi ini ↗</a>
-            {f.note && <p className="mt-1 text-[var(--muted)]">Catatan: {f.note}</p>}
+            {"finalisasi" in r && r.finalisasi && (
+              <a href={withBase(`/arsip/${r.finalisasi.id}`)} className="app-btn riwayat-periode__buka">
+                Buka hasil versi {r.finalisasi.versi} →
+              </a>
+            )}
           </li>
         ))}
-      </ul>
+      </ol>
     </div>
   );
 }

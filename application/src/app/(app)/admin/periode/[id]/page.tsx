@@ -6,13 +6,13 @@ import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getPeriodDetail, checkReadiness } from "@/lib/services/periods";
-import { getFinalizationPreview, listFinalizationHistory } from "@/lib/services/finalization";
+import { getFinalizationPreview, listRiwayatPeriode } from "@/lib/services/finalization";
 import { getCurrentAuthContext } from "@/lib/authz";
 import { PeriodSettingsForm } from "./period-settings-form";
 import { AccessPolicyForm } from "./access-policy-form";
 import { StatusActions } from "./status-actions";
 import { FinalizationPanel } from "./finalization-panel";
-import { FinalizationHistory } from "./finalization-history";
+import { RiwayatPeriode } from "./finalization-history";
 import { CategoryCreateForm } from "./category-create-form";
 import { CopyPeriodForm } from "./copy-period-form";
 import { PageIntro, SummaryCard } from "@/components/theme/summary";
@@ -75,10 +75,7 @@ async function PeriodDetailPage({
   const canManageAccess = !!ctx && (ctx.isAdmin || ctx.isDekan);
   const finalizationPreview =
     period.status === "DITUTUP" ? await getFinalizationPreview(id) : null;
-  const finalizationHistory =
-    period.status === "FINAL" || period.status === "REVISI"
-      ? await listFinalizationHistory(id)
-      : [];
+  const riwayatPeriode = await listRiwayatPeriode(id);
 
   const activeCategories = period.categories.filter((category) => category.active);
   const categoryCount = activeCategories.length;
@@ -490,7 +487,7 @@ async function PeriodDetailPage({
             status={period.status}
             preview={finalizationPreview}
           />
-          {finalizationHistory.length > 0 && <FinalizationHistory history={finalizationHistory} />}
+          <RiwayatPeriode riwayat={riwayatPeriode} />
         </div>
       ),
     },
