@@ -224,8 +224,11 @@ export async function listRunsForCategory(categoryId: string) {
 // Bab 13.4/13.5: rincian seluruh objek untuk satu kategori+kelompok sekaligus (bukan per-objek,
 // untuk menghindari N+1 query) — agregasi per parameter dan "identitas serta jawaban setiap
 // penilai yang berkontribusi." Otorisasi lingkup diperiksa pemanggil berdasarkan unit objek.
-export async function getGroupDetailBulk(categoryId: string, group: AssessmentGroup) {
-  const run = await getLatestRun(categoryId);
+export async function getGroupDetailBulk(categoryId: string, group: AssessmentGroup, runId?: string) {
+  // runId: hitungan arsip satu versi final; kosong = hitungan terbaru.
+  const run = runId
+    ? await prisma.calculationRun.findFirst({ where: { id: runId, categoryId } })
+    : await getLatestRun(categoryId);
   if (!run) return null;
 
   const results = await prisma.objectGroupResult.findMany({

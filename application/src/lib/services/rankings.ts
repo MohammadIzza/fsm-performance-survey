@@ -83,12 +83,20 @@ export interface RankingOptions {
   group: AssessmentGroup;
   /** Batasi ke unit-unit ini (mis. lingkup pimpinan); null/undefined = tanpa filter unit. */
   unitIds?: string[] | null;
+  /** Hitungan tertentu (mis. arsip satu versi final); kosong = hitungan terbaru kategori. */
+  runId?: string;
+}
+
+/** Hitungan yang dipakai: yang diminta (arsip) atau yang terbaru. */
+async function ambilRun(categoryId: string, runId?: string) {
+  if (!runId) return getLatestRun(categoryId);
+  return prisma.calculationRun.findFirst({ where: { id: runId, categoryId } });
 }
 
 // Bab 13.2/13.3: ranking dalam satu kategori+kelompok, dibatasi lingkup unit opsional.
 // Objek tidak layak (belum memenuhi minimum) tetap muncul di rekap (rank=null), sesuai Bab 13.1.
 export async function getRanking(options: RankingOptions): Promise<RankedEntry[]> {
-  const run = await getLatestRun(options.categoryId);
+  const run = await ambilRun(options.categoryId, options.runId);
   if (!run) return [];
   const rules = run.groupRuleSnapshot as Record<string,{tieBreakParameterIds?:string[]|null}>;
   const tieBreakParameterIds = rules[options.group]?.tieBreakParameterIds ?? [];
@@ -174,8 +182,9 @@ export interface CombinedRanking {
 export async function getCombinedRanking(options: {
   categoryId: string;
   unitIds?: string[] | null;
+  runId?: string;
 }): Promise<CombinedRanking | null> {
-  const run = await getLatestRun(options.categoryId);
+  const run = await ambilRun(options.categoryId, options.runId);
   if (!run) return null;
   const snapshot = run.groupRuleSnapshot as Record<
     string,
