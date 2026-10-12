@@ -4388,3 +4388,5 @@ input[type="range"]:disabled::-moz-range-thumb {
   .survey-shell main .riwayat-periode__item {grid-template-columns:1.1rem minmax(0,1fr)}
   .survey-shell main .riwayat-periode__buka {grid-column:2;justify-self:start;align-self:start;margin-top:.55rem}
 }
+/* Tombol bawaan app-btn memakai align-self:center; di formulir ini diratakan kiri dengan isiannya. */
+.survey-shell main .finalisasi-form > .app-btn {align-self:flex-start}
