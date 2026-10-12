@@ -122,7 +122,7 @@ export function PredikatFields({
         </>
       )}
 
-      {!editable && <p className="aturan-terkunci">Terkunci — periode sudah difinalkan.</p>}
+      {!editable && <p className="aturan-terkunci">Terkunci karena periode sudah difinalkan.</p>}
     </div>
   );
 }

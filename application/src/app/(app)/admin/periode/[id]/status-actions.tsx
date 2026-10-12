@@ -111,7 +111,7 @@ export function StatusActions({
               pending={pending}
             />
             <span className="app-text-sm text-[var(--muted)]">
-              Jendela koreksi terbuka — tugas yang dibuka kembali dapat diperbaiki penilainya.
+              Jendela koreksi terbuka. Tugas yang dibuka kembali dapat diperbaiki penilainya.
             </span>
           </>
         )}

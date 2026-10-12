@@ -257,7 +257,7 @@ export async function listRiwayatPeriode(periodId: string) {
         return {
           ...dasar,
           jenis: "final" as JenisRiwayat,
-          judul: f ? `Difinalkan — versi ${f.revision}` : "Difinalkan",
+          judul: f ? `Difinalkan versi ${f.revision}` : "Difinalkan",
           alasan: f?.note ?? k.reason,
           finalisasi: f
             ? { id: f.id, versi: f.revision, kategori: f.calculationRuns.length, terkini: f.revision === versiTerbaru }

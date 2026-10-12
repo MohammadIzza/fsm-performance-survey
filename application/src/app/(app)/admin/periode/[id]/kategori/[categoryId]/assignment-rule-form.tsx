@@ -65,7 +65,7 @@ export function AssignmentRuleFields({
       </div>
 
       {!editable && (
-        <p className="aturan-terkunci">Terkunci — hanya bisa diubah saat periode berstatus Draf.</p>
+        <p className="aturan-terkunci">Terkunci. Hanya bisa diubah saat periode berstatus Draf.</p>
       )}
     </div>
   );

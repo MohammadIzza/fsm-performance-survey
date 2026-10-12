@@ -66,7 +66,7 @@ export function CombinedWeightFields({
         </div>
       )}
 
-      {!editable && <p className="aturan-terkunci">Terkunci — periode sudah ditutup.</p>}
+      {!editable && <p className="aturan-terkunci">Terkunci. Bobot gabungan hanya bisa diubah sebelum periode ditutup.</p>}
     </div>
   );
 }
