@@ -25,6 +25,7 @@ import { AturanPenilaiForm } from "./kategori/[categoryId]/aturan-penilai-form";
 import { AssignmentPlanner } from "./kategori/[categoryId]/assignment-planner";
 import { listObjectTypes } from "@/lib/services/objectTypes";
 import { listCategorySources } from "@/lib/services/categories";
+import { instrumenTerpakai } from "@/lib/services/instruments";
 
 // Nada lencana status mengikuti daftar periode, supaya satu status berwarna sama di mana pun.
 const statusTone = {
@@ -101,6 +102,22 @@ async function PeriodDetailPage({
         })
       : [];
   const editable = period.status === "DRAF" || period.status === "REVISI";
+  // Instrumen yang sudah dijawab penilai tidak dapat diubah langsung (server menolaknya).
+  const instrumenDijawab = await instrumenTerpakai(
+    activeCategories.map((c) => c.instrumentVersions[0]?.id).filter((x): x is string => !!x)
+  );
+  // Saat Revisi: tugas yang dibuka kembali beserta tenggat koreksinya, untuk panel tindakan revisi.
+  const bukaKembali =
+    period.status === "REVISI"
+      ? await prisma.assignment.findMany({
+          where: { status: "DIBUKA_KEMBALI", categoryObject: { category: { periodId: id } } },
+          select: { correctionEndsAt: true },
+        })
+      : [];
+  const tenggatKoreksi = bukaKembali
+    .map((a) => a.correctionEndsAt)
+    .filter((d): d is Date => !!d)
+    .sort((a, b) => b.getTime() - a.getTime())[0];
   const berjalan = period.status === "AKTIF" && new Date() < period.endsAt;
   const bisaTambah = period.status === "DRAF" || berjalan;
   const units =
@@ -332,12 +349,21 @@ async function PeriodDetailPage({
           return (
             <div className="space-y-3">
               <p className="period-stepper__form-status">Total bobot: {totalWeight}%</p>
+              {editable && instrumenDijawab.has(instrument.id) && (
+                <p className="aturan-terkunci">
+                  Versi instrumen ini sudah dijawab penilai, jadi tidak dapat diubah langsung. Gunakan{" "}
+                  <Link href={`/admin/periode/${period.id}/kategori/${category.id}?bagian=instrumen#revisi-instrumen`}>
+                    Revisi instrumen
+                  </Link>{" "}
+                  untuk membuat versi baru.
+                </p>
+              )}
               <ParameterManager
                 instrumentVersionId={instrument.id}
                 parameters={instrument.parameters}
                 periodId={period.id}
                 categoryId={category.id}
-                editable={editable}
+                editable={editable && !instrumenDijawab.has(instrument.id)}
               />
             </div>
           );
@@ -407,7 +433,7 @@ async function PeriodDetailPage({
               pimpinanWeight={category.pimpinanWeight}
               bands={null}
               skorMaksimum={null}
-              editableAturan={editable}
+              editableAturan={period.status === "DRAF"}
               editableGabungan={["DRAF", "SIAP", "AKTIF"].includes(period.status)}
               editablePredikat={false}
               // Langkah ini soal siapa yang menilai dan bagaimana nilai kedua kelompok dihitung:
@@ -476,11 +502,22 @@ async function PeriodDetailPage({
       state: stepState(7),
       content: (
         <div className="space-y-4">
-          <Link href="/admin/pemantauan" className="app-btn app-btn--primary">
-            Lihat pemantauan
-          </Link>
+          {/* Saat Revisi, pemantauan sudah ada di daftar tindakan revisi di bawah. */}
+          {period.status !== "REVISI" && (
+            <Link href="/admin/pemantauan" className="app-btn app-btn--primary">
+              Lihat pemantauan
+            </Link>
+          )}
           {(period.status === "AKTIF" || period.status === "REVISI") && (
             <StatusActions periodId={period.id} status={period.status} problems={problems} />
+          )}
+          {period.status === "REVISI" && (
+            <TindakanRevisi
+              periodId={period.id}
+              kategori={activeCategories.map((c) => ({ id: c.id, name: c.name }))}
+              jumlahDibukaKembali={bukaKembali.length}
+              tenggatKoreksi={tenggatKoreksi ?? null}
+            />
           )}
           <FinalizationPanel
             periodId={period.id}
@@ -527,6 +564,119 @@ async function PeriodDetailPage({
           <CopyPeriodForm sourcePeriodId={period.id} />
         </AdminAction>
       </AdminActionList>
+    </div>
+  );
+}
+
+/**
+ * Selama Revisi, tindakan koreksi tersebar di halaman kategori (tab berbeda) dan di Pemantauan.
+ * Daftar ini menyebut tiap tindakan beserta tautan langsung ke tempat mengerjakannya; bila periode
+ * punya lebih dari satu kategori, tiap kategori mendapat tautannya sendiri.
+ */
+const tenggatPanjang = new Intl.DateTimeFormat("id-ID", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Asia/Jakarta",
+});
+
+/** "1 hari 3 jam", "5 jam 20 menit", "12 menit". */
+function sisaWaktu(ms: number) {
+  const menit = Math.floor(ms / 60000);
+  const hari = Math.floor(menit / 1440);
+  const jam = Math.floor((menit % 1440) / 60);
+  const mnt = menit % 60;
+  if (hari > 0) return `${hari} hari${jam ? ` ${jam} jam` : ""}`;
+  if (jam > 0) return `${jam} jam${mnt ? ` ${mnt} menit` : ""}`;
+  return `${Math.max(1, mnt)} menit`;
+}
+
+function TindakanRevisi({
+  periodId,
+  kategori,
+  jumlahDibukaKembali,
+  tenggatKoreksi,
+}: {
+  periodId: string;
+  kategori: { id: string; name: string }[];
+  /** Tugas yang masih berstatus Dibuka kembali (belum dikirim ulang). */
+  jumlahDibukaKembali: number;
+  /** Tenggat koreksi terakhir di antara tugas yang dibuka kembali. */
+  tenggatKoreksi: Date | null;
+}) {
+  // eslint-disable-next-line react-hooks/purity -- dirender di server per permintaan
+  const sisa = tenggatKoreksi ? tenggatKoreksi.getTime() - Date.now() : null;
+  const keKategori = (id: string, akhiran: string) => `/admin/periode/${periodId}/kategori/${id}${akhiran}`;
+  const tindakan = [
+    {
+      judul: "Buka pengisian terlambat atau buka kembali jawaban",
+      ket: "Beri tenggat baru untuk tugas yang belum diisi, atau izinkan penilai memperbaiki jawaban yang sudah terkirim.",
+      akhiran: "?bagian=penugasan",
+      tombol: "Daftar tugas",
+    },
+    {
+      judul: "Revisi instrumen",
+      ket: "Buat versi aspek dan bobot yang baru; semua tugas dibuka kembali agar diisi ulang.",
+      akhiran: "?bagian=instrumen#revisi-instrumen",
+      tombol: "Revisi instrumen",
+    },
+    {
+      judul: "Ubah predikat nilai",
+      ket: "Ambang predikat masih bisa disesuaikan sebelum difinalkan ulang.",
+      akhiran: "?bagian=kelompok",
+      tombol: "Aturan penilai",
+    },
+  ];
+  return (
+    <div className="app-panel app-panel--ruled">
+      <h2 className="app-panel__label">Yang bisa dilakukan selama revisi</h2>
+      {jumlahDibukaKembali > 0 && tenggatKoreksi && sisa !== null ? (
+        <p className="tindakan-revisi__tenggat" data-lewat={sisa <= 0 ? "true" : undefined}>
+          <strong>{jumlahDibukaKembali} tugas</strong> masih menunggu dikirim ulang. Tenggat koreksi{" "}
+          <strong>{tenggatPanjang.format(tenggatKoreksi)} WIB</strong>
+          {sisa > 0
+            ? ` (sisa ${sisaWaktu(sisa)}).`
+            : ". Tenggat sudah lewat, Anda bisa menyelesaikan koreksi lalu memfinalkan ulang."}
+        </p>
+      ) : (
+        <p className="tindakan-revisi__tenggat">
+          Tidak ada tugas yang sedang dibuka kembali. Bila koreksi sudah cukup, klik <strong>Selesaikan koreksi</strong>.
+        </p>
+      )}
+      <ul className="tindakan-revisi">
+        {tindakan.map((t) => (
+          <li key={t.judul} className="tindakan-revisi__baris">
+            <div className="tindakan-revisi__isi">
+              <p className="tindakan-revisi__judul">{t.judul}</p>
+              <p className="tindakan-revisi__ket">{t.ket}</p>
+            </div>
+            <div className="tindakan-revisi__aksi">
+              {kategori.map((k) => (
+                <Link key={k.id} href={keKategori(k.id, t.akhiran)} className="app-btn app-btn--polos">
+                  {kategori.length > 1 ? k.name : t.tombol} →
+                </Link>
+              ))}
+            </div>
+          </li>
+        ))}
+        <li className="tindakan-revisi__baris">
+          <div className="tindakan-revisi__isi">
+            <p className="tindakan-revisi__judul">Pantau perbaikan</p>
+            <p className="tindakan-revisi__ket">Lihat penilai yang sudah atau belum memperbaiki jawabannya.</p>
+          </div>
+          <div className="tindakan-revisi__aksi">
+            <Link href={`/admin/pemantauan?periode=${periodId}`} className="app-btn app-btn--polos">
+              Pemantauan →
+            </Link>
+          </div>
+        </li>
+      </ul>
+      <p className="tindakan-revisi__catatan">
+        Aturan penilai, bobot gabungan, dan daftar yang dinilai terkunci selama revisi.
+      </p>
     </div>
   );
 }

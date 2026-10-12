@@ -20,6 +20,21 @@ async function assertDraftInstrument(instrumentVersionId: string) {
   return instrument;
 }
 
+/**
+ * Versi instrumen yang sudah dipakai jawaban terkirim. Versi seperti ini tidak boleh diubah
+ * langsung (lihat assertDraftInstrument); halaman admin memakainya untuk mengunci tabel parameter
+ * dan mengarahkan ke Revisi instrumen, alih-alih menampilkan tombol yang pasti ditolak.
+ */
+export async function instrumenTerpakai(instrumentVersionIds: string[]): Promise<Set<string>> {
+  if (instrumentVersionIds.length === 0) return new Set();
+  const skor = await prisma.responseScore.findMany({
+    where: { responseRevision: { state: "SUBMITTED" }, parameter: { instrumentVersionId: { in: instrumentVersionIds } } },
+    select: { parameter: { select: { instrumentVersionId: true } } },
+    distinct: ["parameterId"],
+  });
+  return new Set(skor.map((x) => x.parameter.instrumentVersionId));
+}
+
 export interface ParameterInput {
   name: string;
   indicator: string | null;

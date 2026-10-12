@@ -3,6 +3,7 @@ import { KET } from "@/lib/keterangan";
 import { TombolHapus } from "@/components/theme/tombol-hapus";
 import { deleteCategoryAction } from "@/lib/actions/admin-hapus";
 import { InstrumentRevisionForm } from "./instrument-revision-form";
+import { instrumenTerpakai } from "@/lib/services/instruments";
 import { requireAdminActor as requirePageAdmin } from "@/lib/authz";
 import Link from "next/link";
 import { PageIntro, SummaryCard } from "@/components/theme/summary";
@@ -40,6 +41,10 @@ async function CategoryDetailPage({
   const berjalan = category.period.status === "AKTIF" && new Date() < category.period.endsAt;
   const bisaTambah = category.period.status === "DRAF" || berjalan;
   const instrument = category.instrumentVersions[0];
+  // Versi yang sudah dijawab penilai tidak bisa diubah langsung (server menolaknya); saat Revisi,
+  // perubahan aspek dan bobot dilakukan lewat versi baru (Revisi instrumen).
+  const instrumenDijawab = instrument ? (await instrumenTerpakai([instrument.id])).has(instrument.id) : false;
+  const instrumenBisaDiedit = editable && !instrumenDijawab;
   const totalWeight = instrument
     ? instrument.parameters.reduce((s, p) => s + p.weight, 0)
     : 0;
@@ -103,7 +108,6 @@ async function CategoryDetailPage({
 
   return (
     <div className="space-y-6">
-      {category.period.status === "REVISI" && <InstrumentRevisionForm categoryId={categoryId} periodId={periodId}/>}
       <Link href={`/admin/periode/${periodId}`} className="app-back">
         ← {category.period.name}
       </Link>
@@ -142,7 +146,7 @@ async function CategoryDetailPage({
                     <h2 className="app-panel__label">
                       Pengaturan kategori
                     </h2>
-                    <CategoryEditForm category={category} periodId={periodId} editable={editable} />
+                    <CategoryEditForm category={category} periodId={periodId} editable={category.period.status === "DRAF"} />
                     {category.period.status === "DRAF" && (
                       <div className="hapus-zona">
                         <TombolHapus
@@ -171,7 +175,7 @@ async function CategoryDetailPage({
                         instrument={instrument}
                         periodId={periodId}
                         categoryId={categoryId}
-                        editable={editable}
+                        editable={instrumenBisaDiedit}
                       />
                     </div>
                   )}
@@ -193,7 +197,7 @@ async function CategoryDetailPage({
                         Total bobot: {totalWeight}%
                       </span>
                     </div>
-                    {editable && (
+                    {instrumenBisaDiedit && (
                       <DuplicateInstrumentForm
                         instrumentVersionId={instrument.id}
                         periodId={periodId}
@@ -201,13 +205,27 @@ async function CategoryDetailPage({
                         sources={duplicateSources}
                       />
                     )}
+                    {editable && instrumenDijawab && (
+                      <p className="aturan-terkunci">
+                        Versi instrumen ini sudah dijawab penilai, jadi tidak dapat diubah langsung. Gunakan{" "}
+                        <a href="#revisi-instrumen">Revisi instrumen</a> di bawah untuk membuat versi baru.
+                      </p>
+                    )}
                     <ParameterManager
                       instrumentVersionId={instrument.id}
                       parameters={instrument.parameters}
                       periodId={periodId}
                       categoryId={categoryId}
-                      editable={editable}
+                      editable={instrumenBisaDiedit}
                     />
+                  </div>
+                )}
+
+                {/* Saat Revisi: membuat versi aspek & bobot baru, diletakkan di bawah tabel yang
+                    akan direvisinya. Jangkar #revisi-instrumen dipakai tautan dari langkah 8. */}
+                {category.period.status === "REVISI" && (
+                  <div id="revisi-instrumen" className="revisi-instrumen-jangkar">
+                    <InstrumentRevisionForm categoryId={categoryId} periodId={periodId} />
                   </div>
                 )}
               </>
@@ -230,7 +248,7 @@ async function CategoryDetailPage({
                 pimpinanWeight={category.pimpinanWeight}
                 bands={bacaAmbang(category.gradeBands)}
                 skorMaksimum={skorTertinggi}
-                editableAturan={editable}
+                editableAturan={category.period.status === "DRAF"}
                 editableGabungan={["DRAF", "SIAP", "AKTIF"].includes(category.period.status)}
                 editablePredikat={category.period.status !== "FINAL"}
               />

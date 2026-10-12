@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useAksi } from "@/components/theme/notifikasi";
 import { beginInstrumentRevisionAction } from "@/lib/actions/admin-instruments";
 import { ThemeButton } from "@/components/theme-button";
@@ -16,6 +17,14 @@ export function InstrumentRevisionForm({
   periodId: string;
 }) {
   const [state, action, pending] = useAksi(beginInstrumentRevisionAction, {}, "Revisi instrumen dibuka.");
+
+  // Dibuka dari tautan "Revisi instrumen" di langkah 8 (#revisi-instrumen): isi tab baru siap
+  // setelah hidrasi, sesudah peramban mencoba melompat ke jangkar — jadi digulir ulang di sini.
+  useEffect(() => {
+    if (window.location.hash !== "#revisi-instrumen") return;
+    const t = setTimeout(() => document.getElementById("revisi-instrumen")?.scrollIntoView({ block: "start" }), 150);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <form action={action} className="app-panel app-panel--ruled space-y-4">
