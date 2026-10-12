@@ -27,14 +27,16 @@ export interface CategoryRow {
   total: number;
   terkirim: number;
   draf: number;
+  dibukaKembali: number;
   belum: number;
   lewat: number;
 }
 
-type Keadaan = "SELESAI" | "SEDANG_DIISI" | "BELUM_MULAI" | "LEWAT_TENGGAT";
+type Keadaan = "SELESAI" | "DIBUKA_KEMBALI" | "SEDANG_DIISI" | "BELUM_MULAI" | "LEWAT_TENGGAT";
 
 const statusLabel: Record<Keadaan, string> = {
   SELESAI: "Selesai",
+  DIBUKA_KEMBALI: "Dibuka kembali",
   SEDANG_DIISI: "Sedang diisi",
   BELUM_MULAI: "Belum mulai",
   LEWAT_TENGGAT: "Lewat tenggat",
@@ -42,6 +44,7 @@ const statusLabel: Record<Keadaan, string> = {
 
 const statusTone = {
   SELESAI: "selesai",
+  DIBUKA_KEMBALI: "perhatian",
   SEDANG_DIISI: "proses",
   BELUM_MULAI: "netral",
   LEWAT_TENGGAT: "gagal",
@@ -50,6 +53,7 @@ const statusTone = {
 /** Keadaan satu kategori diringkas dari tugas-tugas di dalamnya. */
 function keadaan(k: CategoryRow): Keadaan {
   if (k.terkirim === k.total) return "SELESAI";
+  if (k.dibukaKembali > 0) return "DIBUKA_KEMBALI";
   if (k.draf > 0) return "SEDANG_DIISI";
   if (k.lewat > 0 && k.belum === 0) return "LEWAT_TENGGAT";
   return "BELUM_MULAI";
@@ -132,6 +136,7 @@ export function AssignmentsList({ categories }: { categories: CategoryRow[] }) {
             <RowField kind="topic" icon={false}>
               {k.terkirim} dari {k.total} terkirim
               {k.draf > 0 && ` · ${k.draf} draf`}
+              {k.dibukaKembali > 0 && ` · ${k.dibukaKembali} dibuka kembali`}
             </RowField>
             <RowField kind="dates"><DateValue value={k.deadline} /></RowField>
             <RowField kind="location" icon={false}>{k.periodName}</RowField>

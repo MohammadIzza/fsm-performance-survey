@@ -24,7 +24,17 @@ const dateFmt = new Intl.DateTimeFormat("id-ID", {
   year: "numeric",
   hour: "2-digit",
   minute: "2-digit",
+  timeZone: "Asia/Jakarta",
 });
+/** Untuk pemberitahuan tenggat: hari dan tanggal lengkap, lalu jam WIB. */
+const tanggalPanjang = new Intl.DateTimeFormat("id-ID", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  timeZone: "Asia/Jakarta",
+});
+const jamWib = new Intl.DateTimeFormat("id-ID", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jakarta" });
 
 export default async function LembarKategoriPage({
   params,
@@ -59,6 +69,12 @@ export default async function LembarKategoriPage({
   const terkirim = baris.filter((b) => b.displayStatus === "TERKIRIM").length;
   const belum = jumlahObjek - terkirim;
   const terbuka = baris.filter((b) => b.bolehDiisi).length;
+  // Tenggat koreksi yang paling awal di antara tugas yang dibuka kembali (bila ada).
+  const tenggatKoreksi = baris
+    .filter((b) => b.bolehDiisi && b.correctionEndsAt)
+    .map((b) => b.correctionEndsAt!)
+    .sort((a, b) => a.getTime() - b.getTime())[0];
+  const tenggatBerlaku = tenggatKoreksi ?? period.endsAt;
 
   return (
     <div className="assignment-detail space-y-8">
@@ -69,7 +85,7 @@ export default async function LembarKategoriPage({
           tone={belum > 0 ? "biru" : "tosca"}
           label="Belum selesai"
           value={belum}
-          note={`Tenggat ${dateFmt.format(period.endsAt)}`}
+          note={`Tenggat ${dateFmt.format(tenggatBerlaku)} WIB`}
         />
       </PageIntro>
 
@@ -95,7 +111,12 @@ export default async function LembarKategoriPage({
       )}
       {period.status === "REVISI" && terbuka > 0 && (
         <div className="assignment-detail__notice app-note app-note--perhatian">
-          Pengisian dibuka kembali untuk {terbuka} tugas yang dipilih admin. Kirim jawaban sebelum tenggat pengisian.
+          <strong>Pengisian dibuka kembali.</strong> Admin membuka kembali penilaian untuk {terbuka} objek pada
+          kategori ini. Mohon lengkapi dan kirim penilaian Anda paling lambat{" "}
+          <strong>
+            {tanggalPanjang.format(tenggatBerlaku)} pukul {jamWib.format(tenggatBerlaku)} WIB
+          </strong>
+          . Setelah tenggat tersebut, penilaian tidak dapat diubah.
         </div>
       )}
 

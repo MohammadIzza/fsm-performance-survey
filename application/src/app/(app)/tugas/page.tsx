@@ -23,6 +23,7 @@ export default async function TugasSayaPage() {
     total: k.total,
     terkirim: k.terkirim,
     draf: k.draf,
+    dibukaKembali: k.dibukaKembali,
     belum: k.belum,
     lewat: k.lewat,
   }));

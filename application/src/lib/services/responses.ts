@@ -681,6 +681,8 @@ export async function getCategorySheetData(
         version: draf?.version ?? null,
         submittedAt: berlaku?.submittedAt ?? null,
         revision: berlaku?.revision ?? null,
+        /** Tenggat khusus bila tugas ini dibuka kembali oleh admin (koreksi/pengisian terlambat). */
+        correctionEndsAt: a.status === "DIBUKA_KEMBALI" ? a.correctionEndsAt : null,
       };
     })
     .sort((a, b) => a.objectName.localeCompare(b.objectName, "id"));
@@ -713,6 +715,8 @@ export async function listMyCategories(userId: string) {
       total: number;
       terkirim: number;
       draf: number;
+      /** Tugas yang dibuka kembali admin dan menunggu diisi ulang; bukan draf penilai. */
+      dibukaKembali: number;
       belum: number;
       lewat: number;
     }
@@ -735,12 +739,21 @@ export async function listMyCategories(userId: string) {
         total: 0,
         terkirim: 0,
         draf: 0,
+        dibukaKembali: 0,
         belum: 0,
         lewat: 0,
       };
     baris.total += 1;
     if (status === "TERKIRIM") baris.terkirim += 1;
-    else if (status === "DRAF" || status === "DIBUKA_KEMBALI") baris.draf += 1;
+    else if (status === "DIBUKA_KEMBALI") {
+      baris.dibukaKembali += 1;
+      // Tenggat yang berlaku bagi tugas yang dibuka kembali adalah tenggat koreksinya, bukan tenggat
+      // periode; yang paling awal ditampilkan supaya penilai tidak terlambat.
+      if (a.correctionEndsAt && (baris.deadline === kategori.period.endsAt || a.correctionEndsAt < baris.deadline)) {
+        baris.deadline = a.correctionEndsAt;
+      }
+    }
+    else if (status === "DRAF") baris.draf += 1;
     else if (status === "LEWAT_TENGGAT") baris.lewat += 1;
     else baris.belum += 1;
     peta.set(kunci, baris);
